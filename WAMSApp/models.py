@@ -454,6 +454,7 @@ class Organization(models.Model):
 class SuperCategory(models.Model):
 
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
@@ -466,6 +467,11 @@ class SuperCategory(models.Model):
     long_description = models.TextField(default="")
 
     def __str__(self):
+        return self.name
+
+    def get_name(self,language="en"):
+        if language == "ar":
+            return self.name_ar
         return self.name
 
     class Meta:
@@ -484,6 +490,7 @@ class Category(models.Model):
 
     super_category = models.ForeignKey(SuperCategory, blank=True, default=None, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     property_data = models.TextField(default="[]", blank=True)
@@ -498,6 +505,11 @@ class Category(models.Model):
     long_description = models.TextField(default="")
 
     def __str__(self):
+        return self.name
+
+    def get_name(self,language = "en"):
+        if language == "ar":
+            return self.name_ar
         return self.name
 
     def get_image(self):
@@ -521,6 +533,7 @@ class SubCategory(models.Model):
 
     category = models.ForeignKey(Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, default=None, on_delete=models.SET_NULL)
@@ -533,6 +546,11 @@ class SubCategory(models.Model):
     long_description = models.TextField(default="")
 
     def __str__(self):
+        return self.name
+
+    def get_name(self,language="en"):
+        if language == "ar":
+            return self.name_ar
         return self.name
 
     class Meta:
@@ -649,6 +667,7 @@ class Channel(models.Model):
 class Brand(models.Model):
 
     name = models.CharField(max_length=100)
+    name_ar = models.CharField(max_length=100,default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     organization = models.ForeignKey(Organization, null=True, blank=True)
 
@@ -846,6 +865,7 @@ class Product(models.Model):
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
     pfl_product_features = models.TextField(default="[]")
+    pfl_product_features_ar = models.TextField(default="[]")
 
     product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")

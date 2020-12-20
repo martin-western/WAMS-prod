@@ -119,6 +119,7 @@ class FetchWishListAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
+            language_code = data.get("language","en")
             logger.info("FetchWishListAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -136,11 +137,11 @@ class FetchWishListAPI(APIView):
                 temp_dict["price"] = unit_wish_list_obj.product.get_actual_price_for_customer(dealshub_user_obj)
                 temp_dict["currency"] = unit_wish_list_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_wish_list_obj.get_date_created()
-                temp_dict["productName"] = unit_wish_list_obj.product.get_name()
+                temp_dict["productName"] = unit_wish_list_obj.product.get_name(language_code)
                 temp_dict["productImageUrl"] = unit_wish_list_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_wish_list_obj.product.uuid
                 temp_dict["link"] = unit_wish_list_obj.product.url
-                temp_dict["brand"] = unit_wish_list_obj.product.get_brand()
+                temp_dict["brand"] = unit_wish_list_obj.product.get_brand(language_code)
                 temp_dict["isStockAvailable"] = unit_wish_list_obj.product.stock > 0
                 unit_wish_list.append(temp_dict)
 
@@ -660,6 +661,7 @@ class FetchCartDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchCartDetailsAPI: %s", str(data))
+            language_code = data.get("language","en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -680,11 +682,11 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
-                temp_dict["productName"] = unit_cart_obj.product.get_name()
+                temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
                 temp_dict["link"] = unit_cart_obj.product.url
-                temp_dict["brand"] = unit_cart_obj.product.get_brand()
+                temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
@@ -749,6 +751,7 @@ class FetchOfflineCartDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchOfflineCartDetailsAPI: %s", str(data))
+            language_code = data.get("language","en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -768,11 +771,11 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
-                temp_dict["productName"] = unit_cart_obj.product.get_name()
+                temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
                 temp_dict["link"] = unit_cart_obj.product.url
-                temp_dict["brand"] = unit_cart_obj.product.get_brand()
+                temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
@@ -1219,6 +1222,7 @@ class FetchActiveOrderDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchActiveOrderDetailsAPI: %s", str(data))
+            language_code = data.get("language","en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -1274,7 +1278,7 @@ class FetchActiveOrderDetailsAPI(APIView):
                 temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
-                temp_dict["productName"] = unit_cart_obj.product.get_name()
+                temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
                 temp_dict["link"] = unit_cart_obj.product.url
@@ -1578,6 +1582,7 @@ class FetchOrderListAPI(APIView):
         try:
             data = request.data
             logger.info("FetchOrderListAPI: %s", str(data))
+            language_code = data.get("language","en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -1611,7 +1616,7 @@ class FetchOrderListAPI(APIView):
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
-                        temp_dict2["productName"] = unit_order_obj.product.get_name()
+                        temp_dict2["productName"] = unit_order_obj.product.get_name(language_code)
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                         unit_order_list.append(temp_dict2)
                     temp_dict["unitOrderList"] = unit_order_list
@@ -1719,6 +1724,7 @@ class FetchOrderDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchOrderDetailsAPI: %s", str(data))
+            language_code = data.get("language","en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -1774,7 +1780,7 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["quantity"] = unit_order_obj.quantity
                 temp_dict["price"] = unit_order_obj.price
                 temp_dict["currency"] = unit_order_obj.product.get_currency()
-                temp_dict["productName"] = unit_order_obj.product.get_name()
+                temp_dict["productName"] = unit_order_obj.product.get_name(language_code)
                 temp_dict["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                 temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
                 temp_dict["productId"] = unit_order_obj.product.get_product_id()
@@ -5527,6 +5533,7 @@ class FetchFastCartDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchFastCartDetailsAPI: %s", str(data))
+            language_code = data.get("language","en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -5544,11 +5551,11 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details["stock"] = fast_cart_obj.product.stock
             cart_details["allowedQty"] = fast_cart_obj.product.get_allowed_qty()
             cart_details["currency"] = fast_cart_obj.product.get_currency()
-            cart_details["productName"] = fast_cart_obj.product.get_name()
+            cart_details["productName"] = fast_cart_obj.product.get_name(language_code)
             cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url()
             cart_details["productUuid"] = fast_cart_obj.product.uuid
             cart_details["link"] = fast_cart_obj.product.url
-            cart_details["brand"] = fast_cart_obj.product.get_brand()
+            cart_details["brand"] = fast_cart_obj.product.get_brand(language_code)
             cart_details["isStockAvailable"] = fast_cart_obj.product.stock > 0
 
             update_fast_cart_bill(fast_cart_obj)
