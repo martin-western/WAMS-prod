@@ -1217,6 +1217,8 @@ class SearchWIG2API(APIView):
                 response["short_description"] = short_description
                 response["long_description"] = long_description
             except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchWIG2API: %s at %s", e, str(exc_tb.tb_lineno))
                 response["page_description"] = ""
                 response["seo_title"] = ""
                 response["seo_keywords"] = ""
