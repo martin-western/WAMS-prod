@@ -1347,8 +1347,8 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
                 order_total_weight = 0
                 for unit_order_obj in unit_order_objs.filter(order=order_obj):
                     dealshub_product_obj = unit_order_obj.product
-
-                    description_product_list.append(dealshub_product_obj.get_seller_sku())
+                    dealshub_product_qty = "(" + str(dealshub_product_obj.quantity) + ")" if dealshub_product_obj.quantity>1 else ""
+                    description_product_list.append(dealshub_product_obj.get_seller_sku() + dealshub_product_qty)
                     order_total_items += unit_order_obj.quantity
                     order_total_weight += unit_order_obj.quantity * dealshub_product_obj.get_weight()
                 
@@ -1456,7 +1456,8 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
                 for unit_order_obj in unit_order_objs.filter(order=order_obj):
                     dealshub_product_obj = unit_order_obj.product
                     product_quantity = unit_order_obj.quantity
-                    dealshub_product_seller_sku = dealshub_product_obj.get_seller_sku() + "(" + str(product_quantity) + ")" if product_quantity>1 else dealshub_product_obj.get_seller_sku()
+                    dealshub_product_qty = "(" + product_quantity + ")" if product_quantity>1 else ""
+                    dealshub_product_seller_sku = dealshub_product_obj.get_seller_sku() + dealshub_product_qty
                     description_product_list.append(dealshub_product_seller_sku)
                     order_total_items += product_quantity
                     order_total_weight += product_quantity * dealshub_product_obj.get_weight()
@@ -1646,3 +1647,81 @@ def create_postaplus_courier_report(filename, uuid, from_date, to_date, custom_p
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_postaplus_courier_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def create_sales_executive_value_report(filename, uuid, from_date, to_date, custom_permission_obj):
+    
+    try:
+        logger.info('Sales Executive Value report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               "sales person",
+               "location group",
+               "currency",
+               "No of orders",
+               "Total value of orders"]
+
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+
+        cnt = 0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        location_group_objs = custom_permission_obj.location_groups.all()
+
+        for location_group_obj in location_group_objs:
+            custom_permission_objs = location_group_obj.custompermission_set.all()
+            for custom_permission_obj in custom_permission_objs:
+                try:
+                    oc_user_obj = custom_permission_obj.user
+                    order_objs = Order.objects.filter(location_group=location_group_obj, offline_sales_person=oc_user_obj, is_order_offline=True)
+                    if from_date!="":
+                        from_date = from_date[:10]+"T00:00:00+04:00"
+                        order_objs = order_objs.filter(order_placed_date__gte=from_date)
+                    if to_date!="":
+                        to_date = to_date[:10]+"T23:59:59+04:00"
+                        order_objs = order_objs.filter(order_placed_date__lte=to_date)
+                    
+                    orders_count = order_objs.count()
+                    orders_total_value = order_objs.aggregate(Sum('to_pay')).to_pay_sum
+
+                    cnt += 1
+
+                    common_row = ["" for i in range(len(row))]
+                    common_row[0] = str(cnt)
+                    common_row[1] = oc_user_obj.username
+                    common_row[2] = location_group_obj.name
+                    common_row[3] = str(location_group_obj.loaction.currency)
+                    common_row[4] = str(orders_count)
+                    common_row[5] = str(orders_total_value)
+                    
+                    colnum = 0
+                    for k in common_row:
+                        worksheet.write(cnt, colnum, k)
+                        colnum += 1
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("Error create_sales_executive_value_report %s %s", e, str(exc_tb.tb_lineno))
+
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_sales_executive_value_report %s %s", e, str(exc_tb.tb_lineno))
