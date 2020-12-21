@@ -752,6 +752,7 @@ class SearchAPI(APIView):
                     temp_dict = {}
                     temp_dict["name"] = dealshub_product_obj.get_name(language_code)
                     temp_dict["brand"] = dealshub_product_obj.get_brand(language_code)
+                    temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict["now_price"] = dealshub_product_obj.now_price
                     temp_dict["was_price"] = dealshub_product_obj.was_price
                     temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
@@ -1077,6 +1078,7 @@ class SearchWIGAPI(APIView):
                     temp_dict = {}
                     temp_dict["name"] = dealshub_product_obj.get_name(language_code)
                     temp_dict["brand"] = dealshub_product_obj.get_brand(language_code)
+                    temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict["now_price"] = dealshub_product_obj.now_price
                     temp_dict["was_price"] = dealshub_product_obj.was_price
                     temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
@@ -1312,6 +1314,7 @@ class SearchWIG2API(APIView):
                     temp_dict = {}
                     temp_dict["name"] = dealshub_product_obj.get_name()
                     temp_dict["brand"] = dealshub_product_obj.get_brand()
+                    temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict["now_price"] = dealshub_product_obj.now_price
                     temp_dict["was_price"] = dealshub_product_obj.was_price
                     temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
@@ -3417,6 +3420,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 temp_dict = {}
                 temp_dict["name"] = dealshub_product_obj.get_name(language_code)
                 temp_dict["brand"] = dealshub_product_obj.get_brand(language_code)
+                temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
                 temp_dict["now_price"] = dealshub_product_obj.now_price
                 temp_dict["was_price"] = dealshub_product_obj.was_price
                 temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
