@@ -4131,7 +4131,8 @@ class FetchSEODetailsAPI(APIView):
                 seo_description = brand_category_obj.seo_description
             elif page_type=="brand_sub_category":
                 brand_obj = Brand.objects.get(name=name, organization__name="WIG")
-                sub_category_obj = SubCategory.objects.get(name=subcategory_name)
+                sub_category_name = data["sub_category_name"]
+                sub_category_obj = SubCategory.objects.get(name=sub_category_name)
                 brand_sub_category_obj = BrandSubCategory.objects.get(brand=brand_obj, sub_category=sub_category_obj)
                 page_description = brand_sub_category_obj.page_description
                 seo_title = brand_sub_category_obj.seo_title
