@@ -2147,6 +2147,8 @@ class DeleteBannerImageAPI(APIView):
             uuid = data["uuid"]
             image_type = data["imageType"]
 
+            language_code = data.get("language", "en")
+
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
 
             if image_type=="mobile":
