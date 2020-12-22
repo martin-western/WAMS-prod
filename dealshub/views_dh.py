@@ -4166,7 +4166,6 @@ class SetShippingMethodAPI(APIView):
                         if manual_intervention_required==True:
                             order_obj.sap_status = "Manual"
                             order_obj.save()
-                            break
 
                         for item in order_information["items"]:
                             
