@@ -823,7 +823,7 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, 
                     holding_qty = item["holding_qty"]
                     batch = item["batch"]
                     uom = item["uom"]
-                    if atp_qty>0:
+                    if holding_qty>0:
                         temp_dict = {
                             "atp_qty": holding_qty,
                             "batch": batch,
@@ -866,6 +866,7 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, 
                 remaining_qty -= stock_info["atp_qty"]
             order_information_list.append(temp_dict)
 
+        logger.info("fetch_order_information_for_sap_punching: %s", str(order_information_list))
         return order_information_list
     
     except Exception as e:
