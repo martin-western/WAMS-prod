@@ -847,6 +847,8 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, 
         order_information_list = []
         remaining_qty = order_qty
         for stock_info in total_stock_info:
+            if remaining_qty==0:
+                break
             if stock_info["atp_qty"]>=remaining_qty:
                 temp_dict = {
                     "qty": format(remaining_qty,'.2f'),
@@ -855,6 +857,7 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, 
                     "from_holding": from_holding,
                     "seller_sku": seller_sku
                 }
+                remaining_qty = 0
             else:
                 temp_dict = {
                     "qty": format(stock_info["atp_qty"],'.2f'),
