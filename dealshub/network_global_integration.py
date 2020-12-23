@@ -56,14 +56,23 @@ class MakePaymentNetworkGlobalAPI(APIView):
 
             amount = 0
             shipping_address = None
+
+            order_prefix = json.loads(location_group_obj.website_group.conf)["order_prefix"]
+            order_cnt = Order.objects.filter(location_group=location_group_obj).count()+1
+            merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = cart_obj.to_pay
                 shipping_address = cart_obj.shipping_address
+                cart_obj.merchant_reference = merchant_reference
+                cart_obj.save()
             else:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = fast_cart_obj.to_pay
                 shipping_address = fast_cart_obj.shipping_address
+                fast_cart_obj.merchant_reference = merchant_reference
+                fast_cart_obj.save()
 
             first_name = shipping_address.first_name
             last_name = shipping_address.last_name
@@ -105,6 +114,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
                     "currencyCode": currency, 
                     "value": amount
                 },
+                "merchantOrderReference": merchant_reference,
                 "emailAddress": dealshub_user_obj.email,
                 "billingAddress": {
                     "firstName": first_name,
