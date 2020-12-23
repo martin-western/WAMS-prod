@@ -4158,6 +4158,7 @@ class SetShippingMethodAPI(APIView):
                                 price = format(unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]),'.2f')
                                 item.update({"price": price})
                             order_information["items"] += item_list
+                        logger.info("FINAL ORDER INFO: %s", str(order_information))
 
                         orig_result_pre = create_intercompany_sales_order(company_code, order_information)
 
