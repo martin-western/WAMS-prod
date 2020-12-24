@@ -1178,6 +1178,18 @@ class ReviewContent(models.Model):
         super(ReviewContent, self).save(*args, **kwargs)
 
 
+class ReviewManager(models.Manager):
+    
+    def get_queryset(self):
+        return super(ReviewManager, self).get_queryset().exclude(is_deleted=True)
+
+
+class ReviewRecoveryManager(models.Manager):
+
+    def get_queryset(self):
+        return super(ReviewRecoveryManager, self).get_queryset()
+
+
 class Review(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
@@ -1187,6 +1199,14 @@ class Review(models.Model):
     content = models.ForeignKey(ReviewContent, default=None, null=True, blank=True,on_delete=models.SET_DEFAULT)
     created_date = models.DateTimeField(blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
+
+    is_deleted = models.BooleanField(default=False)
+    is_fake = models.BooleanField(default=False)
+    fake_oc_user = models.ForeignKey(OmnyCommUser, default=None, null=True, on_delete=models.SET_NULL)
+    fake_customer_name = models.CharField(max_length=200, default="")
+
+    objects = ReviewManager()
+    recovery = ReviewRecoveryManager()
 
     def __str__(self):
         return str(self.uuid)

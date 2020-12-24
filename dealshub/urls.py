@@ -173,6 +173,8 @@ urlpatterns = [
     url(r'^fetch-product-reviews/$', views.FetchProductReviews),
     url(r'^delete-user-review-image/$', views.DeleteUserReviewImage),
     url(r'^delete-user-review/$', views.DeleteUserReview),
+    url(r'^add-fake-review-admin/$', views.AddFakeReviewAdmin),
+    url(r'^hide-review-admin/$', views.HideReviewAdmin),
 
     url(r'^create-voucher/$', views.CreateVoucher),
     url(r'^update-voucher/$', views.UpdateVoucher),    
