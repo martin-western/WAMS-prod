@@ -378,14 +378,14 @@ def create_intercompany_sales_order(company_code,order_information):
                         indicator = item["INDICATOR1"]
                         if indicator == "X":
                             temp_dict = {}
-                            temp_dict["message"] = "PRICES NOT MAINTAINED FOR" + seller_sku
+                            temp_dict["message"] = "PRICES NOT MAINTAINED FOR " + seller_sku
                             msg_list.append(temp_dict)
             else:
                 seller_sku = items["MATNR"]
                 indicator = items["INDICATOR1"]
                 if indicator == "X":
                     temp_dict = {}
-                    temp_dict["message"] = "PRICES NOT MAINTAINED FOR" + seller_sku
+                    temp_dict["message"] = "PRICES NOT MAINTAINED FOR " + seller_sku
                     msg_list.append(temp_dict)
 
         except Exception as e:
