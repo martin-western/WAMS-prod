@@ -1543,7 +1543,7 @@ class SaveProductAPI(APIView):
             
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
             pfl_product_features = data["pfl_product_features"]
-            pfl_product_features_ar = data["pfl_product_features_ar"]
+            pfl_product_features_ar = data.get("pfl_product_features_ar",[])
 
             factory_notes = convert_to_ascii(data["factory_notes"])
 
