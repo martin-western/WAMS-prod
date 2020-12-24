@@ -757,14 +757,22 @@ class FetchProductDetailsAPI(APIView):
                 response["pfl_product_features"] = []
 
             try:
+                response["pfl_product_features_ar"] = json.loads(
+                    product_obj.pfl_product_features_ar)
+            except Exception as e:
+                response["pfl_product_features_ar"] = []
+
+            try:
                 response["brand_logo"] = brand_obj.logo.image.url
             except Exception as e:
                 response["brand_logo"] = ''
             
             if brand_obj == None:
                 response["brand_name"] = ""
+                response["brand_name_ar"] = ""
             else:
                 response["brand_name"] = brand_obj.name
+                response["brand_name_ar"] = brand_obj.name_ar
             
             response["base_product_name"] = base_product_obj.base_product_name
             response["super_category"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category)
@@ -1062,6 +1070,7 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["product_uuid"] = dealshub_product_obj.uuid
                     temp_dict["product_id"] = product_obj.product_id
                     temp_dict["product_name"] = dealshub_product_obj.product_name
+                    temp_dict["product_name_ar"] = dealshub_product_obj.product_name_ar
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
                     temp_dict["channel_status"] = dealshub_product_obj.is_published
                     temp_dict["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
@@ -1534,6 +1543,7 @@ class SaveProductAPI(APIView):
             
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
             pfl_product_features = data["pfl_product_features"]
+            pfl_product_features_ar = data.get("pfl_product_features_ar",[])
 
             factory_notes = convert_to_ascii(data["factory_notes"])
 
@@ -1578,6 +1588,7 @@ class SaveProductAPI(APIView):
             
             product_obj.pfl_product_name = pfl_product_name
             product_obj.pfl_product_features = json.dumps(pfl_product_features)
+            product_obj.pfl_product_features_ar = json.dumps(pfl_product_features_ar)
 
             product_obj.factory_notes = factory_notes
 
@@ -3905,6 +3916,7 @@ class FetchBrandsAPI(APIView):
             for brand_obj in brand_objs:
                 temp_dict = {}
                 temp_dict["name"] = brand_obj.name
+                temp_dict["name_ar"] = brand_obj.name_ar
                 temp_dict["pk"] = brand_obj.pk
                 brand_list.append(temp_dict)
 
@@ -5838,18 +5850,21 @@ class FetchAllCategoriesAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["name"] = super_category_obj.name
+                    temp_dict["name_ar"] = super_category_obj.name_ar
                     temp_dict["super_category_uuid"] = super_category_obj.uuid
                     category_objs = Category.objects.filter(super_category=super_category_obj)
                     category_list = []
                     for category_obj in category_objs:
                         temp_dict2 = {}
                         temp_dict2["name"] = category_obj.name
+                        temp_dict2["name_ar"] = category_obj.name_ar
                         temp_dict2["category_uuid"] = category_obj.uuid
                         sub_category_objs = SubCategory.objects.filter(category=category_obj)
                         sub_category_list = []
                         for sub_category_obj in sub_category_objs:
                             temp_dict3 = {}
                             temp_dict3["name"] = sub_category_obj.name
+                            temp_dict3["name_ar"] = sub_category_obj.name_ar
                             temp_dict3["sub_category_uuid"] = sub_category_obj.uuid
                             sub_category_list.append(temp_dict3)
                         temp_dict2["sub_category_list"] = sub_category_list
@@ -6379,7 +6394,9 @@ class FetchDealshubProductDetailsAPI(APIView):
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
 
             response["product_name"] = dealshub_product_obj.get_name()
+            response["product_name_ar"] = dealshub_product_obj.get_name("ar")
             response["product_description"] = dealshub_product_obj.get_description()
+            response["product_description_ar"] = dealshub_product_obj.get_description("ar")
             response["seller_sku"] = dealshub_product_obj.get_seller_sku()
             response["product_id"] = dealshub_product_obj.get_product_id()
             response["was_price"] = dealshub_product_obj.was_price
@@ -6448,7 +6465,9 @@ class SaveDealshubProductDetailsAPI(APIView):
             sub_category_uuid = data["sub_category_uuid"]
 
             product_name = data.get("product_name", "")
+            product_name_ar = data.get("product_name_ar","")
             product_description = data.get("product_description", "")
+            product_description_ar = data.get("product_description_ar","")
 
             is_promo_restricted = data.get("is_promo_restricted", False)
 
@@ -6467,7 +6486,9 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.is_promo_restricted = is_promo_restricted
 
             dealshub_product_obj.product_name = product_name
+            dealshub_product_obj.product_name_ar = product_name_ar
             dealshub_product_obj.product_description = product_description
+            dealshub_product_obj.product_description_ar = product_description_ar
             dealshub_product_obj.url = url
 
             dealshub_product_obj.set_search_keywords(search_keywords)

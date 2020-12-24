@@ -110,7 +110,7 @@ class HoldingTransferAPI(APIView):
 
             website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
             location_group_obj = LocationGroup.objects.first()
-            dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all())
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0)
             
             p1 = threading.Thread(target=create_holding_transfer_report, args=(dealshub_product_objs,))
             p1.start()
