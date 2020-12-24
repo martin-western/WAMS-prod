@@ -2663,7 +2663,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             if unit_banner_image_obj.image_ar!=None:
                                 temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
                             else:
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image.mid_image.url
+                                temp_dict2["url-ar"] = ""
                         else:
                             temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
                             temp_dict2["url"] = unit_banner_image_obj.image.image.url
@@ -2686,7 +2686,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             if unit_banner_image_obj.mobile_image_ar!=None:
                                 temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.mid_image.url
                             else:
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.mid_image.url
+                                temp_dict2["mobileUrl-ar"] = ""
                         else:
                             temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
                             temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
