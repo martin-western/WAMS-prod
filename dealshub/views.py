@@ -525,6 +525,7 @@ class FetchSuperCategoriesAPI(APIView):
             for super_category_obj in super_category_objs:
                 temp_dict = {}
                 temp_dict["name"] = super_category_obj.get_name(language_code)
+                temp_dict["name_en"] = super_category_obj.get_name("en")
                 temp_dict["uuid"] = super_category_obj.uuid
                 temp_dict["imageUrl"] = ""
                 if super_category_obj.image!=None:
@@ -534,6 +535,7 @@ class FetchSuperCategoriesAPI(APIView):
                 for category_obj in category_objs:
                     temp_dict2 = {}
                     temp_dict2["category_name"] = category_obj.get_name(language_code)
+                    temp_dict2["category_name_en"] = category_obj.get_name("en")
                     category_list.append(temp_dict2)
                 temp_dict["category_list"] = category_list
                 super_category_list.append(temp_dict)
@@ -835,6 +837,7 @@ class SearchAPI(APIView):
                         continue
                     temp_dict = {}
                     temp_dict["name"] = category_obj.get_name(language_code)
+                    temp_dict["name_en"] = category_obj.get_name("en")
                     temp_dict["uuid"] = category_obj.uuid
                     temp_dict["productCount"] = DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
@@ -844,6 +847,7 @@ class SearchAPI(APIView):
                             continue
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.get_name(language_code)
+                        temp_dict2["name_en"] = sub_category_obj.get_name("en")
                         temp_dict2["uuid"] = sub_category_obj.uuid
                         temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
                         sub_category_list.append(temp_dict2)
@@ -2960,17 +2964,23 @@ class SearchProductsAutocompleteAPI(APIView):
             category_key_list = available_dealshub_products.values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
 
             category_list = []
+            category_list_en = []
             for category_key in category_key_list:
                 try:
-                    category_name = Category.objects.get(pk=category_key["category"]).get_name(language_code)
+                    category_obj = Category.objects.get(pk=category_key["category"])
+                    category_name = category_obj.get_name(language_code)
                     category_list.append(category_name)
+                    category_name_en = category_obj.get_name("en")
+                    category_list_en.append(category_name_en)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("SearchProductsAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             category_list = list(set(category_list))
+            category_list_en = list(set(category_list_en))
 
             response["categoryList"] = category_list
+            response["categoryListEn"] = category_list_en
             response['status'] = 200
 
         except Exception as e:
