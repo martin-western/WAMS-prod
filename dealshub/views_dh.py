@@ -4499,7 +4499,7 @@ class UpdateOrderStatusAPI(APIView):
             for unit_order_obj in unit_order_objs:
                 if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":               
                     set_order_status(unit_order_obj, "dispatched")
-                elif incoming_order_status == "delivered" and current_status_admin == "dispatched":
+                elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
                     set_order_status(unit_order_obj, "delivered")
                 else:
                     logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
