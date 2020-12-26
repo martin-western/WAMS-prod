@@ -4498,19 +4498,12 @@ class UpdateOrderStatusAPI(APIView):
 
             for unit_order_obj in unit_order_objs:
                 if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":               
-                    unit_order_obj.current_status_admin = incoming_order_status
-                    unit_order_obj.current_status = "intransit"
+                    set_order_status(unit_order_obj, "dispatched")
                 elif incoming_order_status == "delivered" and current_status_admin == "dispatched":
-                    unit_order_obj.current_status_admin = incoming_order_status
-                    unit_order_obj.current_status = "delivered"
+                    set_order_status(unit_order_obj, "delivered")
                 else:
                     logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
                     break
-                unit_order_obj.save()
-                UnitOrderStatus.objects.create(unit_order = unit_order_obj,
-                                               status = unit_order_obj.current_status,
-                                               status_admin = incoming_order_status)
-            
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
