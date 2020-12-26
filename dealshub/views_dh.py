@@ -1847,7 +1847,7 @@ class CreateOfflineCustomerAPI(APIView):
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
-                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, website_group=website_group_obj)
+                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
                 dealshub_user_obj.set_password(OTP)
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
