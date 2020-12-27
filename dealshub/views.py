@@ -3228,6 +3228,10 @@ class FetchCompanyProfileDealshubAPI(APIView):
             if website_group_obj.footer_logo != None:
                 company_data["footer_logo_url"] = website_group_obj.footer_logo.image.url
 
+            company_data["logo_ar_url"] = ""
+            if website_group_obj.logo_ar != None:
+                company_data["logo_ar_url"] = website_group_obj.logo_ar.image.url
+
             response["company_data"] = company_data
             response["location_info"] = location_info
             response['status'] = 200

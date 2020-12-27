@@ -705,6 +705,7 @@ class WebsiteGroup(models.Model):
     email_info = models.CharField(max_length=100,blank=True, default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     footer_logo = models.ForeignKey(Image, related_name="footer_logo", null=True, blank=True, on_delete=models.SET_NULL)
+    logo_ar = models.ForeignKey(Image, related_name="logo_ar", null=True, blank=True, on_delete=models.SET_NULL)
     primary_color = models.CharField(max_length=100,default = "#000000")
     secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
     navbar_text_color = models.CharField(max_length=100,default = "#FFFFFF")
