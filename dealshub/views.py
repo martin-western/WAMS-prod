@@ -4470,6 +4470,8 @@ class FetchLocationGroupSettingsAPI(APIView):
             response["free_delivery_threshold"] = location_group_obj.free_delivery_threshold
             response["vat"] = location_group_obj.vat
             
+            response["region_list"] = json.loads(location_group_obj.region_list)
+            
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
