@@ -1847,7 +1847,7 @@ class CreateOfflineCustomerAPI(APIView):
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
-                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, website_group=website_group_obj)
+                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
                 dealshub_user_obj.set_password(OTP)
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
@@ -4498,19 +4498,12 @@ class UpdateOrderStatusAPI(APIView):
 
             for unit_order_obj in unit_order_objs:
                 if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":               
-                    unit_order_obj.current_status_admin = incoming_order_status
-                    unit_order_obj.current_status = "intransit"
-                elif incoming_order_status == "delivered" and current_status_admin == "dispatched":
-                    unit_order_obj.current_status_admin = incoming_order_status
-                    unit_order_obj.current_status = "delivered"
+                    set_order_status(unit_order_obj, "dispatched")
+                elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
+                    set_order_status(unit_order_obj, "delivered")
                 else:
                     logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
                     break
-                unit_order_obj.save()
-                UnitOrderStatus.objects.create(unit_order = unit_order_obj,
-                                               status = unit_order_obj.current_status,
-                                               status_admin = incoming_order_status)
-            
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
