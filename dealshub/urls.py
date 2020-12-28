@@ -163,6 +163,8 @@ urlpatterns = [
     url(r'^update-user-email/$', views.UpdateUserEmail),
 
     url(r'^add-review/$', views.AddReview),
+    url(r'^add-fake-review-admin/$', views.AddFakeReviewAdmin),
+    url(r'^update-review-admin/$', views.UpdateReviewAdmin),
     url(r'^add-rating/$', views.AddRating),
     url(r'^update-rating/$', views.UpdateRating),
     url(r'^add-admin-comment/$', views.AddAdminComment),
@@ -170,10 +172,10 @@ urlpatterns = [
     url(r'^add-upvote/$', views.AddUpvote),
     url(r'^delete-upvote/$', views.DeleteUpvote),
     url(r'^fetch-review/$', views.FetchReview),
+    url(r'^fetch-reviews-admin/$', views.FetchReviewsAdmin),
     url(r'^fetch-product-reviews/$', views.FetchProductReviews),
     url(r'^delete-user-review-image/$', views.DeleteUserReviewImage),
     url(r'^delete-user-review/$', views.DeleteUserReview),
-    url(r'^add-fake-review-admin/$', views.AddFakeReviewAdmin),
     url(r'^hide-review-admin/$', views.HideReviewAdmin),
 
     url(r'^create-voucher/$', views.CreateVoucher),

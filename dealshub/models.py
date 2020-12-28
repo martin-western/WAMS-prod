@@ -1193,7 +1193,7 @@ class ReviewRecoveryManager(models.Manager):
 class Review(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    dealshub_user = models.ForeignKey(DealsHubUser, on_delete=models.CASCADE)
+    dealshub_user = models.ForeignKey(DealsHubUser, null=True, default=None, on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
     content = models.ForeignKey(ReviewContent, default=None, null=True, blank=True,on_delete=models.SET_DEFAULT)
