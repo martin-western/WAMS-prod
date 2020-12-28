@@ -517,6 +517,12 @@ class FetchSuperCategoriesAPI(APIView):
             logger.info("FetchSuperCategoriesAPI: %s", str(data))
             website_group_name = data["websiteGroupName"]
 
+            cached_value = cache.get("sc-list-"+website_group_name, "has_expired")
+            if cached_value!="has_expired":
+                response["superCategoryList"] = json.loads(cached_value)
+                response['status'] = 200
+                return Response(data=response)
+
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
 
             super_category_objs = website_group_obj.super_categories.all()
@@ -539,6 +545,8 @@ class FetchSuperCategoriesAPI(APIView):
                     category_list.append(temp_dict2)
                 temp_dict["category_list"] = category_list
                 super_category_list.append(temp_dict)
+
+            cache.set("sc-list-"+website_group_name, json.dumps(super_category_list))
 
             response['superCategoryList'] = super_category_list
             response['status'] = 200
