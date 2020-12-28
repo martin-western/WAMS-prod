@@ -3688,7 +3688,7 @@ class FetchReviewsAdminAPI(APIView):
             from_date = data.get("from_date","")
             to_date = data.get("to_date","")
             super_category = data.get("category","")
-            is_fake = data.get("is_fake",False)
+            is_fake = data.get("is_fake", None)
 
             page = int(data.get("page",1))
 
@@ -3708,8 +3708,8 @@ class FetchReviewsAdminAPI(APIView):
             if super_category!="":
                 review_objs = review_objs.filter(product__category__super_category__name=super_category)
 
-            if is_fake:
-                review_objs = review_objs.filter(is_fake=True)
+            if is_fake!=None:
+                review_objs = review_objs.filter(is_fake=is_fake)
 
             paginator  = Paginator(review_objs,20)
             total_pages = int(paginator.num_pages)
