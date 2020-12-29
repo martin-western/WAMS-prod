@@ -226,6 +226,36 @@ def send_wigme_order_status_sms(unit_order_obj,message):
         logger.error("send_wigme_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
 
 
+def send_daycart_order_status_sms(unit_order_obj,message):
+    try:
+        dealshub_user_obj = unit_order_obj.order.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        
+        logger.info("send_daycart_order_status_sms:", message)
+        location_group_obj = unit_order_obj.order.location_group
+        sms_country_info = json.loads(location_group_obj.sms_country_info)
+        prefix_code = sms_country_info["prefix_code"]
+        user = sms_country_info["user"]
+        pwd = sms_country_info["pwd"]
+        contact_number = prefix_code+dealshub_user_obj.contact_number
+
+        url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+        req_data = {
+            "user" : user,
+            "passwd": pwd,
+            "message": message,
+            "mobilenumber": contact_number,
+            "mtype":"N",
+            "DR":"Y"
+        }
+        r = requests.post(url=url, data=req_data)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_daycart_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+
 def send_parajohn_order_status_sms(unit_order_obj,message):
     try:
         dealshub_user_obj = unit_order_obj.order.owner
