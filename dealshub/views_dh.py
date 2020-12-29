@@ -6171,8 +6171,6 @@ DeleteUserReviewImage = DeleteUserReviewImageAPI.as_view()
 
 DeleteUserReview = DeleteUserReviewAPI.as_view()
 
-AddFakeReviewAdmin = AddFakeReviewAdminAPI.as_view()
-
 HideReviewAdmin = HideReviewAdminAPI.as_view()
 
 FetchOrdersForWarehouseManager = FetchOrdersForWarehouseManagerAPI.as_view()
