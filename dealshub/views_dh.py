@@ -1453,6 +1453,10 @@ class PlaceOrderAPI(APIView):
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
+                elif website_group=="daycart":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
