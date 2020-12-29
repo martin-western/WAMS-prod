@@ -3637,7 +3637,7 @@ class FetchReviewAPI(APIView):
 
             review_obj = Review.objects.get(uuid=uuid)
             response["username"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.username)
-            response["product_code"] = str(review_obj.product.product.uuid)
+            response["product_code"] = str(review_obj.product.uuid)
             response["rating"] = str(review_obj.rating)
 
             review_content_obj = review_obj.content
@@ -3687,15 +3687,18 @@ class FetchReviewsAdminAPI(APIView):
             product_code = data.get("product_code","")
             from_date = data.get("from_date","")
             to_date = data.get("to_date","")
-            super_category = data.get("category","")
+            category_uuid = data.get("category_uuid","")
             is_fake = data.get("is_fake", None)
 
+            location_group_uuid = data["locationGroupUuid"]
             page = int(data.get("page",1))
 
-            review_objs = Review.objects.all().order_by('-modified_date')
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            review_objs = Review.objects.filter(product__location_group=location_group_obj).order_by('-modified_date')
 
             if product_code!="":
-                review_objs = review_objs.filter(product__uuid=product_code)
+                dh_product_obj = DealsHubProduct.objects.get(uuid=product_code)
+                review_objs = review_objs.filter(product=dh_product_obj)
 
             if from_date!="":
                 from_date = from_date[:10]+"T00:00:00+04:00"
@@ -3705,8 +3708,9 @@ class FetchReviewsAdminAPI(APIView):
                 to_date = to_date[:10]+"T23:59:59+04:00"
                 review_objs = review_objs.filter(modified_date__lte=to_date)
             
-            if super_category!="":
-                review_objs = review_objs.filter(product__category__super_category__name=super_category)
+            if category_uuid!="":
+                category_obj = Category.objects.get(uuid=category_uuid)
+                review_objs = review_objs.filter(product__category=category_obj)
 
             if is_fake!=None:
                 review_objs = review_objs.filter(is_fake=is_fake)
