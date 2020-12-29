@@ -274,6 +274,19 @@ class DealsHubProduct(models.Model):
             pass
         return dimensions_string
 
+    def get_target_age_range(self):
+        return str(self.product.target_age_range)
+    
+    def get_capacity(self):
+        if float(self.product.capacity)==0.0:
+            return "NA"
+        return str(self.product.capacity)+self.product.capacity_unit
+    
+    def get_size(self):
+        if float(self.product.size)==0.0:
+            return "NA"
+        return str(self.product.size)+self.product.size_unit
+
     def get_faqs(self):
         return json.loads(self.product.faqs)
 
