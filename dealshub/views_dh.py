@@ -2185,6 +2185,7 @@ class FetchCustomerDetailsAPI(APIView):
             for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj):
                 temp_dict2 = {}
                 temp_dict2["uuid"] = unit_cart_obj.uuid
+                temp_dict2["sellerSku"] = unit_cart_obj.product.get_seller_sku()
                 temp_dict2["quantity"] = unit_cart_obj.quantity
                 temp_dict2["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
                 temp_dict2["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
@@ -2196,6 +2197,7 @@ class FetchCustomerDetailsAPI(APIView):
             for unit_cart_obj in FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None):
                 temp_dict2 = {}
                 temp_dict2["uuid"] = unit_cart_obj.uuid
+                temp_dict2["sellerSku"] = unit_cart_obj.product.get_seller_sku()
                 temp_dict2["quantity"] = unit_cart_obj.quantity
                 temp_dict2["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
                 temp_dict2["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
