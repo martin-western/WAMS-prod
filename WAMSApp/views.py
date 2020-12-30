@@ -806,6 +806,9 @@ class FetchProductDetailsAPI(APIView):
             response["color"] = product_obj.color
             response["weight"] = product_obj.weight
             response["dimensions"] = product_obj.get_dimensions()
+            response["size"] = "NA" if float(product_obj.size)==0.0 else str(product_obj.size + product_obj.size_unit)
+            response["capacity"] = "NA" if float(product_obj.capacity)==0.0 else str(product_obj.capacity + product_obj.capacity_unit)
+            response["target_age_range"] = str(product_obj.target_age_range)
 
             response["min_price"] = product_obj.min_price
             response["max_price"] = product_obj.max_price
