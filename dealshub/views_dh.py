@@ -3350,6 +3350,9 @@ class AddFakeReviewAdminAPI(APIView):
             data = request.data
             logger.info("AddFakeReviewAdminAPI: %s", str(data))
             
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
             product_code = str(data["product_code"])
             fake_customer_name = data["customerName"]
             rating = int(data["rating"])
@@ -3394,6 +3397,9 @@ class UpdateReviewAdminAPI(APIView):
         try:
             data = request.data
             logger.info("UpdateReviewAdminAPI: %s",str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             review_uuid = str(data["review_uuid"])
             product_code = str(data["product_code"])
@@ -3981,6 +3987,9 @@ class HideReviewAdminAPI(APIView):
         try:
             data = request.data
             logger.info("HideReviewAdminAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             review_uuid = data["review_uuid"]
 
