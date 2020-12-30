@@ -4062,6 +4062,7 @@ class UpdateOrderShippingAdminAPI(APIView):
             postcode = ""
             contact_number = data["contact_number"]
             tag = "Home"
+            neighbourhood = data.get("neighbourhood","")
             emirates = data.get("emirates", "")
 
             address_obj = Address.objects.create(first_name=first_name, 
@@ -4073,6 +4074,7 @@ class UpdateOrderShippingAdminAPI(APIView):
                                                  user=dealshub_user_obj, 
                                                  tag=tag, 
                                                  location_group=location_group_obj,
+                                                 neighbourhood=neighbourhood,
                                                  emirates=emirates)
             order_obj.shipping_address = address_obj
             order_obj.save()
