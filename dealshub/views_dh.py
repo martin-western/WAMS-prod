@@ -5288,7 +5288,7 @@ class AddOnlineAdditionalNoteAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("AddOfflineAdditionalNoteAPI: %s", str(data))
+            logger.info("AddOnlineAdditionalNoteAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -5312,7 +5312,7 @@ class AddOnlineAdditionalNoteAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddOfflineAdditionalNoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddOnlineAdditionalNoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
