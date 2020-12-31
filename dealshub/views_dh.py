@@ -2930,7 +2930,7 @@ class SendOTPSMSLoginAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["888888888", "940804016", "888888881", "702290032"]:
+            if contact_number in ["88888888", "888888888", "940804016", "888888881", "702290032"]:
                 OTP = "777777"
 
             is_new_user = False
@@ -2956,7 +2956,7 @@ class SendOTPSMSLoginAPI(APIView):
 
             # Trigger SMS
             try:
-                if location_group_obj.website_group.name.lower() in ["shopnesto", "daycart"]:
+                if location_group_obj.website_group.name.lower() in ["shopnesto", "daycart", "shopnestokuwait"]:
                     prefix_code = sms_country_info["prefix_code"]
                     user = sms_country_info["user"]
                     pwd = sms_country_info["pwd"]
@@ -3190,7 +3190,7 @@ class ForgotLoginPinAPI(APIView):
             dealshub_user_obj.save()
 
             # Trigger SMS
-            if location_group_obj.website_group.name.lower() in ["shopnesto", "daycart"]:
+            if location_group_obj.website_group.name.lower() in ["shopnesto", "daycart", "shopnestokuwait"]:
                 mshastra_info = json.loads(location_group_obj.mshastra_info)
                 prefix_code = mshastra_info["prefix_code"]
                 sender_id = mshastra_info["sender_id"]
