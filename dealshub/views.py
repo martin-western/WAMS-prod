@@ -4632,7 +4632,7 @@ class NotifyOrderStatusAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order__logix_tracking_reference=tracking_reference)
             for unit_order_obj in unit_order_objs:
                 if shipping_status in ["dispatched", "delivered"]:
-                    set_order_status(unit_banner_obj, shipping_status)
+                    set_order_status(unit_order_obj, shipping_status)
 
             response['status'] = 200
 
