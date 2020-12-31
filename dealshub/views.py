@@ -4606,6 +4606,41 @@ class AddProductToOrderAPI(APIView):
         return Response(data=response)
 
 
+class FetchShippingStatusAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchShippingStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_uuid  = data["orderUuid"]
+
+            order_obj = Order.objects.get(uuid=order_uuid)
+            tracking_reference = str(order_obj.logix_tracking_reference.strip())
+
+            if tracking_reference=="":
+                logger.warning("FetchShippingStatusAPI: tracking_reference is empty!")
+                return Response(data=response)
+            
+            resp = requests.post(url="url",data={"tracking-reference":tracking_reference})
+            status_data = resp.json()
+
+            response["shipping_status"] = status_data.shipping-status
+            response['status'] = 200
+            
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchShippingStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+      
+
 class NotifyOrderStatusAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,) 
@@ -4632,7 +4667,7 @@ class NotifyOrderStatusAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order__logix_tracking_reference=tracking_reference)
             for unit_order_obj in unit_order_objs:
                 if shipping_status in ["dispatched", "delivered"]:
-                    set_order_status(unit_banner_obj, shipping_status)
+                    set_order_status(unit_order_obj, shipping_status)
 
             response['status'] = 200
 
@@ -4792,3 +4827,5 @@ UpdateLocationGroupSettings = UpdateLocationGroupSettingsAPI.as_view()
 AddProductToOrder = AddProductToOrderAPI.as_view()
 
 NotifyOrderStatus = NotifyOrderStatusAPI.as_view()
+
+FetchShippingStatus = FetchShippingStatusAPI.as_view()

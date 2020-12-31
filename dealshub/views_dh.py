@@ -4064,8 +4064,41 @@ class SetShippingMethodAPI(APIView):
 
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
 
-            brand_company_dict = {
+            daycart_website_group_obj = WebsiteGroup.objects.get(name="daycart")
+            if order_obj.location_group.website_group==daycart_website_group_obj and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+                order_info = {}
                 
+                order_info["order-id"] = order_obj.uuid
+                order_info["customer-name"] = order_obj.get_customer_full_name()
+                order_info["customer-address"] = order_obj.shipping_address.get_shipping_address()
+                order_info["customer-contact"] = str(order_obj.owner.contact_number)
+                order_info["payment-mode"] = order_obj.payment_mode
+                order_info["order-value"] = order_obj.to_pay
+                order_info["currency"] = order_obj.get_currency()
+                order_info["item-list"] = []
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    temp_dict = {}
+                    temp_dict["product-name"] = unit_order_obj.product.get_name()
+                    temp_dict["seller-sku"] = unit_order_obj.product.get_seller_sku()
+                    temp_dict["qty"] = unit_order_obj.quantity
+                    order_info["item-list"].append(temp_dict)
+
+                resp = requests.post(url="url",data=order_info) # link not there yet.
+                tracking_info_data = resp.json()
+
+                tracking_status = tracking_info_data.status.strip()
+                tracking_reference = tracking_info_data.tracking-reference.strip()
+
+                if tracking_status=="fail":
+                    logger.warning("SetShippingMethodAPI: failed status from logix api")
+                    reponse["message"] = "Logix set shipping api failed"
+                    return Response(data=response)
+                else:
+                    order_obj.logix_tracking_reference = tracking_reference
+                    order_obj.save()
+                
+
+            brand_company_dict = {
                 "geepas": "1000",
                 "baby plus": "5550",
                 "royalford": "3000",

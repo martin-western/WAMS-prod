@@ -208,6 +208,7 @@ urlpatterns = [
     url(r'^add-product-to-order/$',views.AddProductToOrder),
 
     url(r'^notify-order-status/$',views.NotifyOrderStatus),
+    url(r'^fetch-shipping-status/$', views.FetchShippingStatus),
 
     url(r'^update-user-name-and-email/$',views.UpdateUserNameAndEmail),
 ]
