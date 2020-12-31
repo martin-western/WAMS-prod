@@ -2960,6 +2960,7 @@ class SendOTPSMSLoginAPI(APIView):
                     prefix_code = sms_country_info["prefix_code"]
                     user = sms_country_info["user"]
                     pwd = sms_country_info["pwd"]
+                    sender_id = sms_country_info["sender_id"]
 
                     contact_number = prefix_code+contact_number
 
@@ -2970,7 +2971,8 @@ class SendOTPSMSLoginAPI(APIView):
                         "message": message,
                         "mobilenumber": contact_number,
                         "mtype":"N",
-                        "DR":"Y"
+                        "DR":"Y",
+                        "sid": sender_id
                     }
                     r = requests.post(url=url, data=req_data)
                 elif location_group_obj.website_group.name.lower()=="kryptonworld":
