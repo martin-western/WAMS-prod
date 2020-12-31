@@ -4606,6 +4606,43 @@ class AddProductToOrderAPI(APIView):
         return Response(data=response)
 
 
+class NotifyOrderStatusAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("NotifyOrderStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            tracking_reference = data["tracking-reference"].strip()
+            shipping_status = data["shipping-status"].strip().lower()
+
+            if tracking_reference=="":
+                logger.warning("NotifyOrderStatusAPI: tracking_reference is empty!")
+                return Response(data=response)
+
+            unit_order_objs = UnitOrder.objects.filter(order__logix_tracking_reference=tracking_reference)
+            for unit_order_obj in unit_order_objs:
+                if shipping_status in ["dispatched", "delivered"]:
+                    set_order_status(unit_banner_obj, shipping_status)
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("NotifyOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
@@ -4753,3 +4790,5 @@ FetchLocationGroupSettings = FetchLocationGroupSettingsAPI.as_view()
 UpdateLocationGroupSettings = UpdateLocationGroupSettingsAPI.as_view()
 
 AddProductToOrder = AddProductToOrderAPI.as_view()
+
+NotifyOrderStatus = NotifyOrderStatusAPI.as_view()
