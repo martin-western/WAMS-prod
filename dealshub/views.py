@@ -1188,7 +1188,7 @@ class SearchWIG2API(APIView):
                     short_description = seo_sub_category_obj.short_description
                     long_description = seo_sub_category_obj.long_description
                 elif page_type=="brand":
-                    seo_brand_obj = SEOBrand.objects.get(brand__name=brand_name, location_group=location_group_obj, organization__name="WIG")
+                    seo_brand_obj = SEOBrand.objects.get(brand__name=brand_name, location_group=location_group_obj, brand__organization__name="WIG")
                     page_description = seo_brand_obj.page_description
                     seo_title = seo_brand_obj.seo_title
                     seo_keywords = seo_brand_obj.seo_keywords
@@ -4129,7 +4129,7 @@ class FetchSEODetailsAPI(APIView):
                 seo_keywords = seo_sub_category_obj.seo_keywords
                 seo_description = seo_sub_category_obj.seo_description
             elif page_type=="brand":
-                seo_brand_obj = SEOBrand.objects.get(brand__name=name, location_group=location_group_obj, organization__name="WIG")
+                seo_brand_obj = SEOBrand.objects.get(brand__name=name, location_group=location_group_obj, brand__organization__name="WIG")
                 page_description = seo_brand_obj.page_description
                 seo_title = seo_brand_obj.seo_title
                 seo_keywords = seo_brand_obj.seo_keywords
@@ -4221,7 +4221,7 @@ class FetchSEOAdminAutocompleteAPI(APIView):
                     temp_dict["uuid"] = seo_sub_category_obj.uuid
                     autocomplete_list.append(temp_dict)
             elif page_type=="brand":
-                seo_brand_objs = SEOBrand.objects.filter(brand__name__icontains=search_string, location_group=location_group_obj, organization__name="WIG")
+                seo_brand_objs = SEOBrand.objects.filter(brand__name__icontains=search_string, location_group=location_group_obj, brand__organization__name="WIG")
                 for seo_brand_obj in seo_brand_objs:
                     temp_dict = {}
                     temp_dict["name"] = seo_brand_obj.brand.name
@@ -4313,7 +4313,7 @@ class FetchSEOAdminDetailsAPI(APIView):
                 short_description = seo_sub_category_obj.short_description
                 long_description = seo_sub_category_obj.long_description
             elif page_type=="brand":
-                seo_brand_obj = SEOBrand.objects.get(brand__name=uuid, organization__name="WIG")
+                seo_brand_obj = SEOBrand.objects.get(brand__name=uuid, brand__organization__name="WIG")
                 page_description = seo_brand_obj.page_description
                 seo_title = seo_brand_obj.seo_title
                 seo_keywords = seo_brand_obj.seo_keywords
@@ -4414,7 +4414,7 @@ class SaveSEOAdminDetailsAPI(APIView):
                 seo_sub_category_obj.long_description = long_description
                 seo_sub_category_obj.save()
             elif page_type=="brand":
-                seo_brand_obj = SEOBrand.objects.get(brand__name=uuid, organization__name="WIG")
+                seo_brand_obj = SEOBrand.objects.get(brand__name=uuid, brand__organization__name="WIG")
                 seo_brand_obj.page_description = page_description
                 seo_brand_obj.seo_title = seo_title
                 seo_brand_obj.seo_keywords = seo_keywords
