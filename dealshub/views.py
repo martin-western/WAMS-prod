@@ -3666,7 +3666,7 @@ class FetchSEODetailsAPI(APIView):
             page_type = data["page_type"]
             name = data["name"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group__uuid)
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             page_description = ""
             seo_title = ""
@@ -3680,19 +3680,19 @@ class FetchSEODetailsAPI(APIView):
                 seo_keywords = seo_super_category_obj.seo_keywords
                 seo_description = seo_super_category_obj.seo_description
             elif page_type=="category":
-                seo_category_obj = Category.objects.filter(category__name=name, location_group=location_group_obj)[0]
+                seo_category_obj = SEOCategory.objects.filter(category__name=name, location_group=location_group_obj)[0]
                 page_description = seo_category_obj.page_description
                 seo_title = seo_category_obj.seo_title
                 seo_keywords = seo_category_obj.seo_keywords
                 seo_description = seo_category_obj.seo_description
             elif page_type=="sub_category":
-                seo_sub_category_obj = SubCategory.objects.filter(sub_category__name=name, location_group=location_group_obj)[0]
+                seo_sub_category_obj = SEOSubCategory.objects.filter(sub_category__name=name, location_group=location_group_obj)[0]
                 page_description = seo_sub_category_obj.page_description
                 seo_title = seo_sub_category_obj.seo_title
                 seo_keywords = seo_sub_category_obj.seo_keywords
                 seo_description = seo_sub_category_obj.seo_description
             elif page_type=="brand":
-                seo_brand_obj = Brand.objects.get(brand__name=name, location_group=location_group_obj, organization__name="WIG")
+                seo_brand_obj = SEOBrand.objects.get(brand__name=name, location_group=location_group_obj, organization__name="WIG")
                 page_description = seo_brand_obj.page_description
                 seo_title = seo_brand_obj.seo_title
                 seo_keywords = seo_brand_obj.seo_keywords
@@ -3852,37 +3852,37 @@ class FetchSEOAdminDetailsAPI(APIView):
             long_description = ""
 
             if page_type=="super_category":
-                super_category_obj = SuperCategory.objects.get(uuid=uuid)
-                page_description = super_category_obj.page_description
-                seo_title = super_category_obj.seo_title
-                seo_keywords = super_category_obj.seo_keywords
-                seo_description = super_category_obj.seo_description
-                short_description = super_category_obj.short_description
-                long_description = super_category_obj.long_description
+                seo_super_category_obj = SEOSuperCategory.objects.get(uuid=uuid)
+                page_description = seo_super_category_obj.page_description
+                seo_title = seo_super_category_obj.seo_title
+                seo_keywords = seo_super_category_obj.seo_keywords
+                seo_description = seo_super_category_obj.seo_description
+                short_description = seo_super_category_obj.short_description
+                long_description = seo_super_category_obj.long_description
             elif page_type=="category":
-                category_obj = Category.objects.get(uuid=uuid)
-                page_description = category_obj.page_description
-                seo_title = category_obj.seo_title
-                seo_keywords = category_obj.seo_keywords
-                seo_description = category_obj.seo_description
-                short_description = category_obj.short_description
-                long_description = category_obj.long_description
+                seo_category_obj = SEOCategory.objects.get(uuid=uuid)
+                page_description = seo_category_obj.page_description
+                seo_title = seo_category_obj.seo_title
+                seo_keywords = seo_category_obj.seo_keywords
+                seo_description = seo_category_obj.seo_description
+                short_description = seo_category_obj.short_description
+                long_description = seo_category_obj.long_description
             elif page_type=="sub_category":
-                sub_category_obj = SubCategory.objects.get(uuid=uuid)
-                page_description = sub_category_obj.page_description
-                seo_title = sub_category_obj.seo_title
-                seo_keywords = sub_category_obj.seo_keywords
-                seo_description = sub_category_obj.seo_description
-                short_description = sub_category_obj.short_description
-                long_description = sub_category_obj.long_description
+                seo_sub_category_obj = SEOSubCategory.objects.get(uuid=uuid)
+                page_description = seo_sub_category_obj.page_description
+                seo_title = seo_sub_category_obj.seo_title
+                seo_keywords = seo_sub_category_obj.seo_keywords
+                seo_description = seo_sub_category_obj.seo_description
+                short_description = seo_sub_category_obj.short_description
+                long_description = seo_sub_category_obj.long_description
             elif page_type=="brand":
-                brand_obj = Brand.objects.get(name=uuid, organization__name="WIG")
-                page_description = brand_obj.page_description
-                seo_title = brand_obj.seo_title
-                seo_keywords = brand_obj.seo_keywords
-                seo_description = brand_obj.seo_description
-                short_description = brand_obj.short_description
-                long_description = brand_obj.long_description
+                seo_brand_obj = SEOBrand.objects.get(brand__name=uuid, organization__name="WIG")
+                page_description = seo_brand_obj.page_description
+                seo_title = seo_brand_obj.seo_title
+                seo_keywords = seo_brand_obj.seo_keywords
+                seo_description = seo_brand_obj.seo_description
+                short_description = seo_brand_obj.short_description
+                long_description = seo_brand_obj.long_description
             elif page_type=="product":
                 product_obj = DealsHubProduct.objects.get(uuid=uuid)
                 page_description = product_obj.page_description
@@ -3950,41 +3950,41 @@ class SaveSEOAdminDetailsAPI(APIView):
             long_description = data.get("long_description")
 
             if page_type=="super_category":
-                super_category_obj = SuperCategory.objects.get(uuid=uuid)
-                super_category_obj.page_description = page_description
-                super_category_obj.seo_title = seo_title
-                super_category_obj.seo_keywords = seo_keywords
-                super_category_obj.seo_description = seo_description
-                super_category_obj.short_description = short_description
-                super_category_obj.long_description = long_description
-                super_category_obj.save()
+                seo_super_category_obj = SEOSuperCategory.objects.get(uuid=uuid)
+                seo_super_category_obj.page_description = page_description
+                seo_super_category_obj.seo_title = seo_title
+                seo_super_category_obj.seo_keywords = seo_keywords
+                seo_super_category_obj.seo_description = seo_description
+                seo_super_category_obj.short_description = short_description
+                seo_super_category_obj.long_description = long_description
+                seo_super_category_obj.save()
             elif page_type=="category":
-                category_obj = Category.objects.get(uuid=uuid)
-                category_obj.page_description = page_description
-                category_obj.seo_title = seo_title
-                category_obj.seo_keywords = seo_keywords
-                category_obj.seo_description = seo_description
-                category_obj.short_description = short_description
-                category_obj.long_description = long_description
-                category_obj.save()
+                seo_category_obj = SEOCategory.objects.get(uuid=uuid)
+                seo_category_obj.page_description = page_description
+                seo_category_obj.seo_title = seo_title
+                seo_category_obj.seo_keywords = seo_keywords
+                seo_category_obj.seo_description = seo_description
+                seo_category_obj.short_description = short_description
+                seo_category_obj.long_description = long_description
+                seo_category_obj.save()
             elif page_type=="sub_category":
-                sub_category_obj = SubCategory.objects.get(uuid=uuid)
-                sub_category_obj.page_description = page_description
-                sub_category_obj.seo_title = seo_title
-                sub_category_obj.seo_keywords = seo_keywords
-                sub_category_obj.seo_description = seo_description
-                sub_category_obj.short_description = short_description
-                sub_category_obj.long_description = long_description
-                sub_category_obj.save()
+                seo_sub_category_obj = SEOSubCategory.objects.get(uuid=uuid)
+                seo_sub_category_obj.page_description = page_description
+                seo_sub_category_obj.seo_title = seo_title
+                seo_sub_category_obj.seo_keywords = seo_keywords
+                seo_sub_category_obj.seo_description = seo_description
+                seo_sub_category_obj.short_description = short_description
+                seo_sub_category_obj.long_description = long_description
+                seo_sub_category_obj.save()
             elif page_type=="brand":
-                brand_obj = Brand.objects.get(name=uuid, organization__name="WIG")
-                brand_obj.page_description = page_description
-                brand_obj.seo_title = seo_title
-                brand_obj.seo_keywords = seo_keywords
-                brand_obj.seo_description = seo_description
-                brand_obj.short_description = short_description
-                brand_obj.long_description = long_description
-                brand_obj.save()
+                seo_brand_obj = SEOBrand.objects.get(brand__name=uuid, organization__name="WIG")
+                seo_brand_obj.page_description = page_description
+                seo_brand_obj.seo_title = seo_title
+                seo_brand_obj.seo_keywords = seo_keywords
+                seo_brand_obj.seo_description = seo_description
+                seo_brand_obj.short_description = short_description
+                seo_brand_obj.long_description = long_description
+                seo_brand_obj.save()
             elif page_type=="product":
                 product_obj = DealsHubProduct.objects.get(uuid=uuid)
                 product_obj.page_description = page_description
