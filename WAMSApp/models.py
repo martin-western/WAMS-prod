@@ -224,6 +224,7 @@ class LocationGroup(models.Model):
     is_voucher_allowed_on_cod = models.BooleanField(default=False)
     uuid = models.CharField(max_length=200, default="")
     circular_category_index = models.IntegerField(default=0)
+    region_list = models.TextField(default="[]")
 
     def __str__(self):
         return str(self.name)
@@ -454,6 +455,7 @@ class Organization(models.Model):
 class SuperCategory(models.Model):
 
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
@@ -466,6 +468,11 @@ class SuperCategory(models.Model):
     long_description = models.TextField(default="")
 
     def __str__(self):
+        return self.name
+
+    def get_name(self,language="en"):
+        if language == "ar":
+            return self.name_ar
         return self.name
 
     class Meta:
@@ -484,6 +491,7 @@ class Category(models.Model):
 
     super_category = models.ForeignKey(SuperCategory, blank=True, default=None, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     property_data = models.TextField(default="[]", blank=True)
@@ -499,6 +507,16 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_name(self,language = "en"):
+        if language == "ar":
+            return self.name_ar
+        return self.name
+
+    def get_image(self):
+        if self.image!=None:
+            return self.image.mid_image.url
+        return ""
 
     class Meta:
         verbose_name = "Category"
@@ -516,6 +534,7 @@ class SubCategory(models.Model):
 
     category = models.ForeignKey(Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, default=None, on_delete=models.SET_NULL)
@@ -528,6 +547,11 @@ class SubCategory(models.Model):
     long_description = models.TextField(default="")
 
     def __str__(self):
+        return self.name
+
+    def get_name(self,language="en"):
+        if language == "ar":
+            return self.name_ar
         return self.name
 
     class Meta:
@@ -728,6 +752,7 @@ class Channel(models.Model):
 class Brand(models.Model):
 
     name = models.CharField(max_length=100)
+    name_ar = models.CharField(max_length=100,default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     organization = models.ForeignKey(Organization, null=True, blank=True)
 
@@ -741,6 +766,11 @@ class Brand(models.Model):
     class Meta:
         verbose_name = "Brand"
         verbose_name_plural = "Brands"
+
+    def get_name(self, language="en"):
+        if language=="ar":
+            return self.name_ar
+        return self.name
 
     def __str__(self):
         return str(self.name)
@@ -787,6 +817,7 @@ class WebsiteGroup(models.Model):
     email_info = models.CharField(max_length=100,blank=True, default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     footer_logo = models.ForeignKey(Image, related_name="footer_logo", null=True, blank=True, on_delete=models.SET_NULL)
+    logo_ar = models.ForeignKey(Image, related_name="logo_ar", null=True, blank=True, on_delete=models.SET_NULL)
     primary_color = models.CharField(max_length=100,default = "#000000")
     secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
     navbar_text_color = models.CharField(max_length=100,default = "#FFFFFF")
@@ -952,6 +983,7 @@ class Product(models.Model):
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
     pfl_product_features = models.TextField(default="[]")
+    pfl_product_features_ar = models.TextField(default="[]")
 
     product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")

@@ -1,5 +1,6 @@
 from WAMSApp.models import *
 from WAMSApp.utils import *
+from dealshub.constants import *
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -55,14 +56,23 @@ class MakePaymentNetworkGlobalAPI(APIView):
 
             amount = 0
             shipping_address = None
+
+            # order_prefix = json.loads(location_group_obj.website_group.conf)["order_prefix"]
+            # order_cnt = Order.objects.filter(location_group=location_group_obj).count()+1
+            # merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = cart_obj.to_pay
                 shipping_address = cart_obj.shipping_address
+                #cart_obj.merchant_reference = merchant_reference
+                #cart_obj.save()
             else:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = fast_cart_obj.to_pay
                 shipping_address = fast_cart_obj.shipping_address
+                #fast_cart_obj.merchant_reference = merchant_reference
+                #fast_cart_obj.save()
 
             first_name = shipping_address.first_name
             last_name = shipping_address.last_name
@@ -87,7 +97,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 "Authorization": "Basic "+API_KEY
             }
             
-            network_global_response = requests.post("https://api-gateway.sandbox.ngenius-payments.com/identity/auth/access-token", headers=headers)
+            network_global_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
 
             network_global_response_dict = json.loads(network_global_response.content)
             access_token = network_global_response_dict["access_token"]
@@ -120,7 +130,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
             city = ""
             country_code = ""
 
-            API_URL = "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
+            API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
             
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
             
@@ -145,7 +155,7 @@ def check_order_status_from_network_global(merchant_reference, location_group_ob
             "Content-Type": "application/vnd.ni-identity.v1+json", 
             "Authorization": "Basic "+API_KEY
         }
-        response = requests.post("https://api-gateway.sandbox.ngenius-payments.com/identity/auth/access-token", headers=headers)
+        response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
 
         response_dict = json.loads(response.content)
         access_token = response_dict["access_token"]
@@ -156,7 +166,7 @@ def check_order_status_from_network_global(merchant_reference, location_group_ob
             "Accept": "application/vnd.ni-payment.v2+json" 
         }
 
-        url = "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
+        url = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
         r = requests.get(url=url, headers=headers)
 
         content = json.loads(r.content)

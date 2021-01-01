@@ -52,6 +52,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
            "Product ID*",
            "Product Name*",
            "Brand*",
+           "Super Category",
            "Category*",
            "Sub Category*",
            "Seller SKU*",
@@ -269,57 +270,58 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
 
     for product in product_objs:
         try:
-            common_row = ["" for i in range(210)]
+            common_row = ["" for i in range(211)]
             cnt += 1
             common_row[0] = str(cnt)
             common_row[1] = product.product_id
             common_row[2] = product.product_name
             common_row[3] = str(product.base_product.brand)
-            common_row[4] = str(product.base_product.category)
-            common_row[5] = str(product.base_product.sub_category)
-            common_row[6] = str(product.base_product.seller_sku)
-            common_row[7] = str(product.base_product.manufacturer)
-            common_row[8] = str(product.base_product.manufacturer_part_number)
-            common_row[9] = str(product.product_id_type)
-            common_row[10] = str(product.get_non_html_description())
+            common_row[4] = str(product.base_product.category.super_category)
+            common_row[5] = str(product.base_product.category)
+            common_row[6] = str(product.base_product.sub_category)
+            common_row[7] = str(product.base_product.seller_sku)
+            common_row[8] = str(product.base_product.manufacturer)
+            common_row[9] = str(product.base_product.manufacturer_part_number)
+            common_row[10] = str(product.product_id_type)
+            common_row[11] = str(product.get_non_html_description())
             product_features = json.loads(product.pfl_product_features)[:5]
             for i in range(len(product_features)):
-                common_row[11+i] = product_features[i]
-            common_row[16] = str(product.color)
-            common_row[17] = str(product.color_map)
-            common_row[18] = str(product.material_type)
-            common_row[19] = "" if product.standard_price==None else str(product.standard_price)
-            common_row[20] = "" if product.quantity==None else str(product.quantity)
-            common_row[21] = str(product.barcode_string)
+                common_row[12+i] = product_features[i]
+            common_row[17] = str(product.color)
+            common_row[18] = str(product.color_map)
+            common_row[19] = str(product.material_type)
+            common_row[20] = "" if product.standard_price==None else str(product.standard_price)
+            common_row[21] = "" if product.quantity==None else str(product.quantity)
+            common_row[22] = str(product.barcode_string)
             dimensions = json.loads(product.base_product.dimensions)
-            common_row[22] = str(dimensions.get("export_carton_quantity_l", ""))
-            common_row[23] = str(dimensions.get("export_carton_quantity_l_metric", ""))
-            common_row[24] = str(dimensions.get("export_carton_quantity_b"))
-            common_row[25] = str(dimensions.get("export_carton_quantity_b_metric", ""))
-            common_row[26] = str(dimensions.get("export_carton_quantity_h", ""))
-            common_row[27] = str(dimensions.get("export_carton_quantity_h_metric", ""))
-            common_row[28] = str(dimensions.get("export_carton_crm_l", ""))
-            common_row[29] = str(dimensions.get("export_carton_crm_l_metric", ""))
-            common_row[30] = str(dimensions.get("export_carton_crm_b", ""))
-            common_row[31] = str(dimensions.get("export_carton_crm_b_metric", ""))
-            common_row[32] = str(dimensions.get("export_carton_crm_h", ""))
-            common_row[33] = str(dimensions.get("export_carton_crm_h_metric", ""))
-            common_row[34] = str(dimensions.get("product_dimension_l", ""))
-            common_row[35] = str(dimensions.get("product_dimension_l_metric", ""))
-            common_row[36] = str(dimensions.get("product_dimension_b", ""))
-            common_row[37] = str(dimensions.get("product_dimension_b_metric", ""))
-            common_row[38] = str(dimensions.get("product_dimension_h", ""))
-            common_row[39] = str(dimensions.get("product_dimension_h_metric", ""))
-            common_row[40] = str(dimensions.get("giftbox_l", ""))
-            common_row[41] = str(dimensions.get("giftbox_l_metric", ""))
-            common_row[42] = str(dimensions.get("giftbox_b", ""))
-            common_row[43] = str(dimensions.get("giftbox_b_metric", ""))
-            common_row[44] = str(dimensions.get("giftbox_h", ""))
-            common_row[45] = str(dimensions.get("giftbox_h_metric", ""))
+            common_row[23] = str(dimensions.get("export_carton_quantity_l", ""))
+            common_row[24] = str(dimensions.get("export_carton_quantity_l_metric", ""))
+            common_row[25] = str(dimensions.get("export_carton_quantity_b"))
+            common_row[26] = str(dimensions.get("export_carton_quantity_b_metric", ""))
+            common_row[27] = str(dimensions.get("export_carton_quantity_h", ""))
+            common_row[28] = str(dimensions.get("export_carton_quantity_h_metric", ""))
+            common_row[29] = str(dimensions.get("export_carton_crm_l", ""))
+            common_row[30] = str(dimensions.get("export_carton_crm_l_metric", ""))
+            common_row[31] = str(dimensions.get("export_carton_crm_b", ""))
+            common_row[32] = str(dimensions.get("export_carton_crm_b_metric", ""))
+            common_row[33] = str(dimensions.get("export_carton_crm_h", ""))
+            common_row[34] = str(dimensions.get("export_carton_crm_h_metric", ""))
+            common_row[35] = str(dimensions.get("product_dimension_l", ""))
+            common_row[36] = str(dimensions.get("product_dimension_l_metric", ""))
+            common_row[37] = str(dimensions.get("product_dimension_b", ""))
+            common_row[38] = str(dimensions.get("product_dimension_b_metric", ""))
+            common_row[39] = str(dimensions.get("product_dimension_h", ""))
+            common_row[40] = str(dimensions.get("product_dimension_h_metric", ""))
+            common_row[41] = str(dimensions.get("giftbox_l", ""))
+            common_row[42] = str(dimensions.get("giftbox_l_metric", ""))
+            common_row[43] = str(dimensions.get("giftbox_b", ""))
+            common_row[44] = str(dimensions.get("giftbox_b_metric", ""))
+            common_row[45] = str(dimensions.get("giftbox_h", ""))
+            common_row[46] = str(dimensions.get("giftbox_h_metric", ""))
             try:
                 main_images = MainImages.objects.get(product=product, is_sourced=True)
                 main_image = main_images.main_images.all()[0]
-                common_row[46] = main_image.image.image.url
+                common_row[47] = main_image.image.image.url
             except Exception as e:
                 pass
             try:
@@ -327,184 +329,184 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
                 sub_images = sub_images.sub_images.all()[:5]
                 iterr = 0
                 for sub_image in sub_images:
-                    common_row[47+iterr] = sub_image.image.image.url
+                    common_row[48+iterr] = sub_image.image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.white_background_images.all()[:5]:
-                    common_row[52+iterr] = image.image.url
+                    common_row[53+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:            
                 iterr = 0
                 for image in product.pfl_images.all()[:5]:
-                    common_row[57+iterr] = image.image.url
+                    common_row[58+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.lifestyle_images.all()[:5]:
-                    common_row[62+iterr] = image.image.url
+                    common_row[63+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.certificate_images.all()[:5]:
-                    common_row[67+iterr] = image.image.url
+                    common_row[68+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.giftbox_images.all()[:5]:
-                    common_row[72+iterr] = image.image.url
+                    common_row[73+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.diecut_images.all()[:5]:
-                    common_row[77+iterr] = image.image.url
+                    common_row[78+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.aplus_content_images.all()[:5]:
-                    common_row[82+iterr] = image.image.url
+                    common_row[83+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.ads_images.all()[:5]:
-                    common_row[87+iterr] = image.image.url
+                    common_row[88+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.base_product.unedited_images.all()[:5]:
-                    common_row[92+iterr] = image.image.url
+                    common_row[93+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.transparent_images.all()[:5]:
-                    common_row[97+iterr] = image.image.url
+                    common_row[98+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             ############################################ Amazon UK
             amazon_uk_product_json = json.loads(product.channel_product.amazon_uk_product_json)
-            common_row[102] = str(product.channel_product.is_amazon_uk_product_created)
-            common_row[103] = str(amazon_uk_product_json.get("product_name", ""))
-            common_row[104] = str(amazon_uk_product_json.get("product_description", ""))
+            common_row[103] = str(product.channel_product.is_amazon_uk_product_created)
+            common_row[104] = str(amazon_uk_product_json.get("product_name", ""))
+            common_row[105] = str(amazon_uk_product_json.get("product_description", ""))
             attributes = amazon_uk_product_json.get("product_attribute_list", [])[:5]
             for i in range(len(attributes)):
-                common_row[105+i] = str(attributes[i])
-            common_row[110] = str(amazon_uk_product_json.get("category", ""))
-            common_row[111] = str(amazon_uk_product_json.get("sub_category", ""))
-            common_row[112] = str(amazon_uk_product_json.get("parentage", ""))
-            common_row[113] = str(amazon_uk_product_json.get("parent_sku", ""))
-            common_row[114] = str(amazon_uk_product_json.get("relationship_type", ""))
-            common_row[115] = str(amazon_uk_product_json.get("variation_theme", ""))
-            common_row[116] = str(amazon_uk_product_json.get("feed_product_type", ""))
-            common_row[117] = str(amazon_uk_product_json.get("update_delete", ""))
-            common_row[118] = str(amazon_uk_product_json.get("recommended_browse_nodes", ""))
-            common_row[119] = str(amazon_uk_product_json.get("search_terms", ""))
-            common_row[120] = str(amazon_uk_product_json.get("enclosure_material", ""))
-            common_row[121] = str(amazon_uk_product_json.get("cover_material_type", ""))
+                common_row[106+i] = str(attributes[i])
+            common_row[111] = str(amazon_uk_product_json.get("category", ""))
+            common_row[112] = str(amazon_uk_product_json.get("sub_category", ""))
+            common_row[113] = str(amazon_uk_product_json.get("parentage", ""))
+            common_row[114] = str(amazon_uk_product_json.get("parent_sku", ""))
+            common_row[115] = str(amazon_uk_product_json.get("relationship_type", ""))
+            common_row[116] = str(amazon_uk_product_json.get("variation_theme", ""))
+            common_row[117] = str(amazon_uk_product_json.get("feed_product_type", ""))
+            common_row[118] = str(amazon_uk_product_json.get("update_delete", ""))
+            common_row[119] = str(amazon_uk_product_json.get("recommended_browse_nodes", ""))
+            common_row[120] = str(amazon_uk_product_json.get("search_terms", ""))
+            common_row[121] = str(amazon_uk_product_json.get("enclosure_material", ""))
+            common_row[122] = str(amazon_uk_product_json.get("cover_material_type", ""))
             special_features = amazon_uk_product_json.get("special_features", [])[:5]
             for i in range(len(special_features)):
-                common_row[122+i] = str(special_features[i])        
-            common_row[127] = str(amazon_uk_product_json.get("sale_price", ""))
-            common_row[128] = str(amazon_uk_product_json.get("sale_from", ""))
-            common_row[129] = str(amazon_uk_product_json.get("sale_end", ""))
-            common_row[130] = str(amazon_uk_product_json.get("wattage", ""))
-            common_row[131] = str(amazon_uk_product_json.get("wattage_metric", ""))
-            common_row[132] = str(amazon_uk_product_json.get("item_count", ""))
-            common_row[133] = str(amazon_uk_product_json.get("item_count_metric", ""))
-            common_row[134] = str(amazon_uk_product_json.get("item_condition_note", ""))
-            common_row[135] = str(amazon_uk_product_json.get("max_order_quantity", ""))
-            common_row[136] = str(amazon_uk_product_json.get("number_of_items", ""))
-            common_row[137] = str(amazon_uk_product_json.get("condition_type", ""))
+                common_row[123+i] = str(special_features[i])        
+            common_row[128] = str(amazon_uk_product_json.get("sale_price", ""))
+            common_row[129] = str(amazon_uk_product_json.get("sale_from", ""))
+            common_row[130] = str(amazon_uk_product_json.get("sale_end", ""))
+            common_row[131] = str(amazon_uk_product_json.get("wattage", ""))
+            common_row[132] = str(amazon_uk_product_json.get("wattage_metric", ""))
+            common_row[133] = str(amazon_uk_product_json.get("item_count", ""))
+            common_row[134] = str(amazon_uk_product_json.get("item_count_metric", ""))
+            common_row[135] = str(amazon_uk_product_json.get("item_condition_note", ""))
+            common_row[136] = str(amazon_uk_product_json.get("max_order_quantity", ""))
+            common_row[137] = str(amazon_uk_product_json.get("number_of_items", ""))
+            common_row[138] = str(amazon_uk_product_json.get("condition_type", ""))
             dimensions = amazon_uk_product_json.get("dimensions", {})
-            common_row[138] = dimensions.get("package_length", "")
-            common_row[139] = dimensions.get("package_length_metric", "")
-            common_row[140] = dimensions.get("package_width", "")
-            common_row[141] = dimensions.get("package_width_metric", "")
-            common_row[142] = dimensions.get("package_height", "")
-            common_row[143] = dimensions.get("package_height_metric", "")
-            common_row[144] = dimensions.get("package_weight", "")
-            common_row[145] = dimensions.get("package_weight_metric", "")
+            common_row[139] = dimensions.get("package_length", "")
+            common_row[140] = dimensions.get("package_length_metric", "")
+            common_row[141] = dimensions.get("package_width", "")
+            common_row[142] = dimensions.get("package_width_metric", "")
+            common_row[143] = dimensions.get("package_height", "")
+            common_row[144] = dimensions.get("package_height_metric", "")
+            common_row[145] = dimensions.get("package_weight", "")
+            common_row[146] = dimensions.get("package_weight_metric", "")
             #common_row[146] = dimensions["package_quantity"]
-            common_row[147] = dimensions.get("shipping_weight", "")
-            common_row[148] = dimensions.get("shipping_weight_metric", "")
-            common_row[149] = dimensions.get("item_display_weight", "")
-            common_row[150] = dimensions.get("item_display_weight_metric", "")
-            common_row[151] = dimensions.get("item_display_volume", "")
-            common_row[152] = dimensions.get("item_display_volume_metric", "")
-            common_row[153] = dimensions.get("item_display_length", "")
-            common_row[154] = dimensions.get("item_display_length_metric", "")
-            common_row[155] = dimensions.get("item_display_width", "")
-            common_row[156] = dimensions.get("item_display_width_metric", "")
-            common_row[157] = dimensions.get("item_display_height", "")
-            common_row[158] = dimensions.get("item_display_height_metric", "")
-            common_row[159] = dimensions.get("item_weight", "")
-            common_row[160] = dimensions.get("item_weight_metric", "")
-            common_row[161] = dimensions.get("item_length", "")
-            common_row[162] = dimensions.get("item_length_metric", "")
-            common_row[163] = dimensions.get("item_width", "")
-            common_row[164] = dimensions.get("item_width_metric", "")
-            common_row[165] = dimensions.get("item_height", "")
-            common_row[166] = dimensions.get("item_height_metric", "")
+            common_row[148] = dimensions.get("shipping_weight", "")
+            common_row[149] = dimensions.get("shipping_weight_metric", "")
+            common_row[150] = dimensions.get("item_display_weight", "")
+            common_row[151] = dimensions.get("item_display_weight_metric", "")
+            common_row[152] = dimensions.get("item_display_volume", "")
+            common_row[153] = dimensions.get("item_display_volume_metric", "")
+            common_row[154] = dimensions.get("item_display_length", "")
+            common_row[155] = dimensions.get("item_display_length_metric", "")
+            common_row[156] = dimensions.get("item_display_width", "")
+            common_row[157] = dimensions.get("item_display_width_metric", "")
+            common_row[158] = dimensions.get("item_display_height", "")
+            common_row[159] = dimensions.get("item_display_height_metric", "")
+            common_row[160] = dimensions.get("item_weight", "")
+            common_row[161] = dimensions.get("item_weight_metric", "")
+            common_row[162] = dimensions.get("item_length", "")
+            common_row[163] = dimensions.get("item_length_metric", "")
+            common_row[164] = dimensions.get("item_width", "")
+            common_row[165] = dimensions.get("item_width_metric", "")
+            common_row[166] = dimensions.get("item_height", "")
+            common_row[167] = dimensions.get("item_height_metric", "")
             #common_row[167] = amazon_verified
             amazon_uae_product_json = json.loads(product.channel_product.amazon_uae_product_json)
-            common_row[168] = str(product.channel_product.is_amazon_uae_product_created)
-            common_row[169] = amazon_uae_product_json.get("product_name", "")
-            common_row[170] = amazon_uae_product_json.get("product_description", "")
+            common_row[169] = str(product.channel_product.is_amazon_uae_product_created)
+            common_row[170] = amazon_uae_product_json.get("product_name", "")
+            common_row[171] = amazon_uae_product_json.get("product_description", "")
             attributes = amazon_uae_product_json.get("product_attribute_list", [])[:5]
             for i in range(len(attributes)):
-                common_row[171+i] = attributes[i]
-            common_row[176] = amazon_uae_product_json.get("category", "")
-            common_row[177] = amazon_uae_product_json.get("sub_category", "")
-            common_row[178] = amazon_uae_product_json.get("feed_product_type", "")
-            common_row[179] = amazon_uae_product_json.get("recommended_browse_nodes", "")
-            common_row[180] = amazon_uae_product_json.get("update_delete", "")
+                common_row[172+i] = attributes[i]
+            common_row[177] = amazon_uae_product_json.get("category", "")
+            common_row[178] = amazon_uae_product_json.get("sub_category", "")
+            common_row[179] = amazon_uae_product_json.get("feed_product_type", "")
+            common_row[180] = amazon_uae_product_json.get("recommended_browse_nodes", "")
+            common_row[181] = amazon_uae_product_json.get("update_delete", "")
             #common_row[181] = amazon_verified
             ebay_product_json = json.loads(product.channel_product.ebay_product_json)
-            common_row[182] = str(product.channel_product.is_ebay_product_created)
-            common_row[183] = ebay_product_json.get("product_name", "")
-            common_row[184] = ebay_product_json.get("product_description", "")
+            common_row[183] = str(product.channel_product.is_ebay_product_created)
+            common_row[184] = ebay_product_json.get("product_name", "")
+            common_row[185] = ebay_product_json.get("product_description", "")
             attributes = ebay_product_json.get("product_attribute_list", [])[:5]
             for i in range(len(attributes)):
-                common_row[185+i] = attributes[i]
-            common_row[190] = ebay_product_json.get("category", "")
-            common_row[191] = ebay_product_json.get("sub_category", "")
+                common_row[186+i] = attributes[i]
+            common_row[191] = ebay_product_json.get("category", "")
+            common_row[192] = ebay_product_json.get("sub_category", "")
             #common_row[192] = ebay_verified
             noon_product_json = json.loads(product.channel_product.noon_product_json)
-            common_row[193] = str(product.channel_product.is_noon_product_created)
-            common_row[194] = noon_product_json.get("product_name", "")
-            common_row[195] = noon_product_json.get("product_description", "")
+            common_row[194] = str(product.channel_product.is_noon_product_created)
+            common_row[195] = noon_product_json.get("product_name", "")
+            common_row[196] = noon_product_json.get("product_description", "")
             #common_row[196] = noon_product_json["product_type"]
             #common_row[197] = noon_product_json["product_subtype"]
-            common_row[198] = noon_product_json.get("partner_sku", "")
-            common_row[199] = noon_product_json.get("category", "")
+            common_row[199] = noon_product_json.get("partner_sku", "")
+            common_row[200] = noon_product_json.get("category", "")
             #common_row[200] = noon_product_json["subtitle"]
-            common_row[201] = noon_product_json.get("model_number", "")
-            common_row[202] = noon_product_json.get("model_name", "")
+            common_row[202] = noon_product_json.get("model_number", "")
+            common_row[203] = noon_product_json.get("model_name", "")
             attributes = noon_product_json.get("product_attribute_list", [])[:5]
             for i in range(len(attributes)):
-                common_row[203+i] = attributes[i]
-            common_row[208] = noon_product_json.get("msrp_ae", "")
-            common_row[209] = noon_product_json.get("msrp_ae_unit", "")
+                common_row[204+i] = attributes[i]
+            common_row[209] = noon_product_json.get("msrp_ae", "")
+            common_row[210] = noon_product_json.get("msrp_ae_unit", "")
             #common_row[210] = noon_verified
             colnum = 0
             for k in common_row:
@@ -672,6 +674,9 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
            "Product ID",
            "Seller SKU",
            "Product Name",
+           "Super Category",
+           "Category",
+           "Sub Category",
            "Active",
            "Was Price",
            "Now Price",
@@ -692,15 +697,18 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
         try:
             product_obj = dh_product_obj.product
             cnt += 1
-            common_row = ["" for i in range(8)]
+            common_row = ["" for i in range(11)]
             common_row[0] = str(cnt)
             common_row[1] = str(product_obj.product_id)
             common_row[2] = str(product_obj.base_product.seller_sku)
             common_row[3] = str(product_obj.product_name)
-            common_row[4] = str(dh_product_obj.is_published)
-            common_row[5] = str(dh_product_obj.was_price)
-            common_row[6] = str(dh_product_obj.now_price)
-            common_row[7] = str(dh_product_obj.stock)
+            common_row[4] = dh_product_obj.get_super_category()
+            common_row[5] = dh_product_obj.get_category()
+            common_row[6] = dh_product_obj.get_sub_category()
+            common_row[7] = str(dh_product_obj.is_published)
+            common_row[8] = str(dh_product_obj.was_price)
+            common_row[9] = str(dh_product_obj.now_price)
+            common_row[10] = str(dh_product_obj.stock)
             
             colnum = 0
             for k in common_row:
@@ -1321,7 +1329,7 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
             colomn += 1
         
         location_group_objs = custom_permission_obj.location_groups.all()
-        unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
+        unit_order_objs = UnitOrder.objects.filter(shipping_method="sendex", order__location_group__in=location_group_objs).order_by('-pk')
         if from_date!="":
             from_date = from_date[:10]+"T00:00:00+04:00"
             unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
@@ -1429,7 +1437,7 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
             colomn += 1
         
         location_group_objs = custom_permission_obj.location_groups.all()
-        unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
+        unit_order_objs = UnitOrder.objects.filter(shipping_method="standard", order__location_group__in=location_group_objs).order_by('-pk')
         if from_date!="":
             from_date = from_date[:10]+"T00:00:00+04:00"
             unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
