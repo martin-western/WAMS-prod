@@ -224,9 +224,15 @@ class EditShippingAddressAPI(APIView):
             last_name = data.get("lastName", "")
             line1 = data["line1"]
             line2 = data["line2"]
-                
+            line3 = data.get("line3", "")
+            line4 = data.get("line4", "")
+            
+            state = data.get("state", "")
+
             address_lines[0] = line1
             address_lines[1] = line2
+            address_lines[2] = line3
+            address_lines[3] = line4
 
             tag = data.get("tag", "Home")
 
@@ -238,6 +244,7 @@ class EditShippingAddressAPI(APIView):
             address_obj.address_lines = json.dumps(address_lines)
             address_obj.tag = tag
             address_obj.emirates = emirates
+            address_obj.state = state
             address_obj.save()
 
             response['status'] = 200
