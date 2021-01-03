@@ -595,6 +595,75 @@ class FetchHeadingCategoriesAPI(APIView):
         return Response(data=response)
 
 
+class FetchCategoriesForNewUserAPI(APIView):
+
+    def post(self,request,*args,**kwargs):
+
+        response = {}
+        response['status']=500
+        try:
+            data = request.data
+            logger.info("FetchCategoriesForNewUserAPI: %s",str(data))
+
+            website_group_name = data["websiteGroupName"]
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            category_objs = website_group_obj.categories.all()
+
+            category_list = []
+            for category_obj in category_objs:
+                temp_dict = {}
+                temp_dict["name"] = category_obj.get_name()
+                temp_dict["uuid"] = category_obj.uuid
+                category_list.append(temp_dict)
+
+            response['categoryList'] = category_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoriesForNewUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SetInterestedCategoriesForNewUserAPI(APIView):
+
+    def post(self,request,*args,**kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("SetInterestedCategoriesForNewUserAPI: %s",str(data))
+
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+            interested_categories = data["interestedCategories"]
+
+            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+
+            confs = json.loads(b2b_user_obj.confs)
+            if confs.get("isInterestedCategoriesSet",False) == False:
+                for interested_category in interested_categories:
+                    interested_category_obj = Category.objects.get(uuid = interested_category['uuid'])
+                    b2b_user_obj.interested_categories.add(interested_category_obj)
+
+            confs["isInterestedCategories"] = True
+            b2b_user_obj.confs = json.dumps(confs)
+            b2b_user_obj.save()
+
+            response['status'] = 200
+        except exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCategoriesForNewUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class SearchAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -4595,6 +4664,10 @@ FetchSectionProducts = FetchSectionProductsAPI.as_view()
 FetchSuperCategories = FetchSuperCategoriesAPI.as_view()
 
 FetchHeadingCategories = FetchHeadingCategoriesAPI.as_view()
+
+FetchCategoriesForNewUser = FetchCategoriesForNewUserAPI.as_view()
+
+SetInterestedCategoriesForNewUser = SetInterestedCategoriesForNewUserAPI.as_view()
 
 Search = SearchAPI.as_view()
 

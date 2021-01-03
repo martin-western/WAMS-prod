@@ -11,6 +11,8 @@ urlpatterns = [
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-super-categories/$', views.FetchSuperCategories),
     url(r'^fetch-heading-categories/$', views.FetchHeadingCategories),
+    url(r'^fetch-categories-for-new-user/$', views.FetchCategoriesForNewUser),
+    url(r'^set-interested-categories-for-new-user', views.SetInterestedCategoriesForNewUser),
     url(r'^fetch-on-sale-products/$', views.FetchOnSaleProducts),
     url(r'^fetch-new-arrival-products/$', views.FetchNewArrivalProducts),
 
@@ -152,7 +154,10 @@ urlpatterns = [
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 
+    url(r'^send-b2b-otp-sms-signup/$', views.SendB2BOTPSMSSignUp),
+    url(r'^signup-completion-api/$',views.SignUpCompletion),
     url(r'^send-otp-sms-login/$', views.SendOTPSMSLogin),
+    url(r'^verify-b2b-otp-sms/$', views.VerifyB2BOTPSMS),
     url(r'^verify-otp-sms-login/$', views.VerifyOTPSMSLogin),
 
     url(r'^check-user-pin-set/$', views.CheckUserPinSet),
