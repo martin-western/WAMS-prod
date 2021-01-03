@@ -154,6 +154,7 @@ urlpatterns = [
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 
+    url(r'^send-b2b-otp-sms-login/&', views.SendB2BOTPSMSLogin),
     url(r'^send-b2b-otp-sms-signup/$', views.SendB2BOTPSMSSignUp),
     url(r'^signup-completion-api/$',views.SignUpCompletion),
     url(r'^send-otp-sms-login/$', views.SendOTPSMSLogin),

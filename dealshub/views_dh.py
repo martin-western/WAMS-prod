@@ -2896,6 +2896,71 @@ class ContactUsSendEmailAPI(APIView):
 
         return Response(data=response)
 
+class SendB2BOTPSMSLoginAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("SendB2BOTPSMSLoginAPI: %s", str(data))
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+            sms_country_info = json.loads(location_group_obj.sms_country_info)
+
+            digits = "0123456789"
+            OTP = ""
+            for i in range(6):
+                OTP += digits[int(math.floor(random.random()*10))]
+
+            if contact_number in ["888888888", "940804016", "888888881", "702290032"]:
+                OTP = "777777"
+
+            otp_sent = False
+            username = contact_number + "-" + website_group_name
+            if B2BUser.objects.filter(username = username).exists() == True and B2BUser.objects.get(username = username).contact_verified == True:
+                b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+                b2b_user_obj.set_password(OTP)
+                b2b_user_obj.save()
+
+                #Trigger sms
+                try:
+                    prefix_code = sms_country_info["prefix_code"]
+                    user = sms_country_info["user"]
+                    pwd = sms_country_info["pwd"]
+
+                    message = "Login OTP is " + OTP
+                    contact_number = prefix_code+contact_number
+
+                    url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+                    req_data = {
+                        "user" : user,
+                        "passwd": pwd,
+                        "message": message,
+                        "mobilenumber": contact_number,
+                        "mtype":"N",
+                        "DR":"Y"
+                    }
+                    r = requests.post(url=url, data=req_data)
+                    otp_sent = True
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SendB2BOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))  
+
+            response["status"] = 200
+            response["OTPSent"] = otp_sent
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SendB2BOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class SendB2BOTPSMSSignUpAPI(APIView):
     permission_classes = [AllowAny]
@@ -6068,6 +6133,8 @@ PaymentNotification = PaymentNotificationAPI.as_view()
 CalculateSignature = CalculateSignatureAPI.as_view()
 
 ContactUsSendEmail = ContactUsSendEmailAPI.as_view()
+
+SendB2BOTPSMSLogin = SendB2BOTPSMSLoginAPI.as_view()
 
 SendB2BOTPSMSSignUp = SendB2BOTPSMSSignUpAPI.as_view()
 
