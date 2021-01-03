@@ -1134,10 +1134,8 @@ class DealsHubUser(User):
         super(DealsHubUser, self).save(*args, **kwargs)
 
 
-class B2BUser(User):
-    contact_number = models.CharField(default="",max_length=50)
-    date_created = models.DateTimeField(auto_now_add=True,default = timezone.now())
-    is_verified = models.BooleanField(default=False)
+class B2BUser(DealsHubUser):
+    company_name = models.CharField(default="",max_length=50)
     interested_categories = models.ManyToManyField(Category,blank = True)
     vat_certificate = models.FileField(upload_to = 'vat_certificate',null=True, blank=True)
     trade_license = model.FileField(upload_to = 'trade_license',null=True,blank=True)
