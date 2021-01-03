@@ -2897,6 +2897,153 @@ class ContactUsSendEmailAPI(APIView):
         return Response(data=response)
 
 
+class SendB2BOTPSMSSignUpAPI(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self,request,*args,**kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SendB2BOTPSMSSignUpAPI: %s",str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+            sms_country_info = json.loads(location_group_obj.sms_country_info)
+
+            digits = "0123456789"
+            OTP = ""
+            for i in range(6):
+                OTP += digits[int(math.floor(random.random()*10))]
+
+            if contact_number in ["888888888", "940804016", "888888881", "702290032"]:
+                OTP = "777777"
+
+            is_new_user = False
+            if B2BUser.objects.filter(username = contact_number).exists() == False:
+                b2b_user_obj = B2BUser.objects.create(
+                    username = contact_number+"-"+website_group_name,
+                    contact_number = contact_number,
+                    website_group = website_group_obj,
+                )
+                b2b_user_obj.set_password(OTP)
+                b2b_user_obj.save()
+                is_new_user =True
+            elif B2BUser.objects.get(username=contact_number).contact_verified == False:
+                b2b_user_obj = B2BUser.objects.get(username = contact_number+ "-"+ website_group_name)
+                b2b_user_obj.set_password(OTP)
+                b2b_user_obj.save()
+                is_new_user = True
+            else:
+                response['isNewUser'] = is_new_user
+                response['status'] = 403
+                return Response(data=response)
+
+            #Trigger sms
+            try:
+                prefix_code = sms_country_info["prefix_code"]
+                user = sms_country_info["user"]
+                pwd = sms_country_info["pwd"]
+
+                message = "Login OTP is " + OTP
+                contact_number = prefix_code+contact_number
+
+                url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+                req_data = {
+                    "user" : user,
+                    "passwd": pwd,
+                    "message": message,
+                    "mobilenumber": contact_number,
+                    "mtype":"N",
+                    "DR":"Y"
+                }
+                r = requests.post(url=url, data=req_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SendB2BOTPSMSSignUpAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["isNewUser"] = is_new_user
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SendB2BOTPSMSSignUpAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SignUpCompletionAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("SignUpCompletionAPI: %s", str(data))
+
+            contact_number = data["contactNumber"]
+            name = data["fullName"]
+            company_name = data["companyName"]
+            email = data["email"]
+            otp = data["otp"]
+            vat_certificate = request.FILES['vat-certificate']
+            trade_license = request.FILES['trade-license']
+            passport_copy = request.FILES['passport-copy']
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+
+            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+
+            is_new_user_created =False
+            if b2b_user_obj.check_password(otp) == True:  
+                b2b_user_obj.contact_number = contact_number
+                b2b_user_obj.name = name
+                b2b_user_obj.email = email
+                b2b_user_obj.date_created = timezone.now()
+                b2b_user_obj.company_name = company_name
+                b2b_user_obj.vat_certificate = vat_certificate
+                b2b_user_obj.trade_license = trade_license   
+                b2b_user_obj.passport_copy = passport_copy
+                is_new_user_created = True
+
+                dealshub_user_obj = DealsHubUser.objects.get(username = b2b_user_obj.username)
+                for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                b2b_user_obj.save()
+
+            credentials = {
+                "username": contact_number+"-"+website_group_name,
+                "password": otp
+            }
+
+            if is_new_user_created == True:            
+                r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+                token = json.loads(r.content)["token"]
+                response["token"] = token
+
+            response["IsNewUserCreated"] = is_new_user_created
+            request["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response) 
+
+
 class SendOTPSMSLoginAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -3207,6 +3354,53 @@ class ForgotLoginPinAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("ForgotLoginPinAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class VerifyB2BOTPSMSAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self,request,*args,**kwargs):
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("VerifyB2BOTPSMSAPI: %s",str(data))
+            if not isinstance(data,dict):
+                data = json.loads(data)
+
+            contact_number = data['contactNumber']
+            otp = data["otp"]
+            location_group_uuid = data["locationGroupUuid"].lower()
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+
+            b2b_user_obj = B2BUser.objects.get(username = contact_number+"-"+website_group_name)
+
+            credentials = {
+            "username":contact_number+"-"+website_group_name,
+            "password":otp,
+            }
+
+            is_verified = False
+            if b2b_user_obj.check_password(otp)==True:
+                r = request.POST(url = SERVER_IP+"/token-auth",data=credentials,verify=False)
+                token = json.loads(r.content)["token"]
+                response["token"] = token
+                b2b_user_obj.contact_verified = True
+                is_verified = True
+                b2b_user_obj.save()
+
+            response["verified"]=is_verified
+            response["status"]=200
+
+        except exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("VerifyB2BOTPSMSAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -5875,7 +6069,13 @@ CalculateSignature = CalculateSignatureAPI.as_view()
 
 ContactUsSendEmail = ContactUsSendEmailAPI.as_view()
 
+SendB2BOTPSMSSignUp = SendB2BOTPSMSSignUpAPI.as_view()
+
+SignUpCompletion = SignUpCompletionAPI.as_view()
+
 SendOTPSMSLogin = SendOTPSMSLoginAPI.as_view()
+
+VerifyB2BOTPSMS = VerifyB2BOTPSMSAPI.as_view()
 
 VerifyOTPSMSLogin = VerifyOTPSMSLoginAPI.as_view()
 
