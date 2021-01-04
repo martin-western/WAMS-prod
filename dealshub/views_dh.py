@@ -2155,12 +2155,26 @@ class FetchCustomerDetailsAPI(APIView):
 
             username = data["username"]
 
+            is_b2b = False
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_obj != "":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                is_b2b = location_group_obj.is_b2b
 
             temp_dict = {}
             temp_dict["customerName"] = dealshub_user_obj.first_name
             temp_dict["emailId"] = dealshub_user_obj.email
             temp_dict["contactNumber"] = dealshub_user_obj.contact_number
+            if is_b2b == True:
+                b2b_user_obj = B2BUser.objects.get(username = dealshub_user_obj.username)
+                temp_dict["companyName"] = b2b_user_obj.company_name
+                temp_dict["vatCertification"] = b2b_user_obj.vat_certificate.url
+                temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
+                temp_dict["passportCopy"] = b2b_user_obj.passport_copy.url
+                temp_dict["vatCertificationStatus"] = b2b_user_obj.vat_certificate_status
+                temp_dict["tradeLicenseStatus"] = b2b_user_obj.trade_license_status
+                temp_dict["passportCopyStatus"] = b2b_user_obj.passport_copy_status
             temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
             try:
                 if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date!=None:
@@ -2232,6 +2246,37 @@ class FetchCustomerDetailsAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchCustomerDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UpdateB2BCustomerStatusAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        request = {}
+        request["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("UpdateB2BCustomerStatusAPI: %s", str(data))
+            company_name = data["companyName"]
+            vat_certificate_status = data["vatCertificationStatus"]
+            trade_license_status = data["tradeLicenseStatus"]
+            passport_copy_status = data["passportCopyStatus"]
+            username = data["username"]
+
+            b2b_user_obj = B2BUser.objects.get(username = username)
+            b2b_user_obj.company_name = company_name
+            b2b_user_obj.vat_certificate_status = vat_certificate_status
+            b2b_user_obj.trade_license_status = trade_license_status
+            b2b_user_obj.passport_copy_status = passport_copy_status
+            b2b_user_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_info = sys.exc_info()
+            logger.error("UpdateB2BCustomerStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6144,6 +6189,8 @@ UpdateUserProfile = UpdateUserProfileAPI.as_view()
 FetchCustomerList = FetchCustomerListAPI.as_view()
 
 FetchCustomerDetails = FetchCustomerDetailsAPI.as_view()
+
+UpdateB2BCustomerStatus = UpdateB2BCustomerStatusAPI.as_view()
 
 FetchCustomerOrders = FetchCustomerOrdersAPI.as_view()
 
