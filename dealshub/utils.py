@@ -965,6 +965,8 @@ def remove_stopwords(string):
 
 def check_account_status(user_obj):
 
-    if user_obj.vat_certificate_status == "Approved" and user_obj.trade_license_status == "Approved" and user_obj.passport_copy_status == "Approved":
+    if b2b_user_obj == None:
+        return False
+    elif user_obj.vat_certificate_status == "Approved" and user_obj.trade_license_status == "Approved" and user_obj.passport_copy_status == "Approved":
         return True
     return False
