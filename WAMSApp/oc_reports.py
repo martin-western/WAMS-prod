@@ -1480,7 +1480,7 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
                 common_row[4] = "DXB"
                 common_row[5] = customer_name
                 common_row[6] = address_lines_combined
-                common_row[7] = "Alain" if check_alain_location else "Abu Dhabi"
+                common_row[7] = "ALN" if check_alain_location else "AUH"
                 common_row[8] = "Home"
                 common_row[9] = str(address_obj.contact_number)
                 common_row[10] = "PPD"
