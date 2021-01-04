@@ -159,6 +159,7 @@ class FetchProductDetailsAPI(APIView):
                 for lifestyle_image_obj in lifestyle_image_objs:
                     try:
                         temp_image = {}
+                        temp_image["high-res"] = lifestyle_image_obj.image.url
                         temp_image["original"] = lifestyle_image_obj.mid_image.url
                         temp_image["thumbnail"] = lifestyle_image_obj.thumbnail.url
                         image_list.append(temp_image)
@@ -174,6 +175,7 @@ class FetchProductDetailsAPI(APIView):
                 for main_image in main_images:
                     try:
                         temp_image = {}
+                        temp_image["high-res"] = main_image["main_url"]
                         temp_image["original"] = main_image["midimage_url"]
                         temp_image["thumbnail"] = main_image["thumbnail_url"]
                         image_list.append(temp_image)
@@ -189,6 +191,7 @@ class FetchProductDetailsAPI(APIView):
                 for sub_image in sub_images:
                     try:
                         temp_image = {}
+                        temp_image["high-res"] = sub_image["main_url"]
                         temp_image["original"] = sub_image["midimage_url"]
                         temp_image["thumbnail"] = sub_image["thumbnail_url"]
                         image_list.append(temp_image)
@@ -200,6 +203,7 @@ class FetchProductDetailsAPI(APIView):
                 response["heroImageUrl"] = image_list[0]["original"]
             except Exception as e:
                 temp_image = {}
+                temp_image["high-res"] = Config.objects.all()[0].product_404_image.image.url
                 temp_image["original"] = Config.objects.all()[0].product_404_image.image.url
                 temp_image["thumbnail"] = Config.objects.all()[0].product_404_image.image.url
                 image_list.append(temp_image)
