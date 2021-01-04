@@ -6021,6 +6021,73 @@ class CreateOCReportAPI(APIView):
 
         return Response(data=response)
 
+class CreateSEOReportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("CreateSEOReportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if OCReport.objects.filter(is_processed=False).count()>4:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+            
+            report_type = "SEO"
+            seo_type = data["seo_type"] 
+            note = data["note"]
+            location_group_uuid = data["locationGroupUuid"]
+
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+
+            oc_report_obj = OCReport.objects.create(name=report_type+seo_type, created_by=oc_user_obj, note=note, filename=filename, organization=organization_obj)
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            if seo_type=="product":
+                p1 = threading.Thread(target=bulk_download_product_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
+                p1.start()
+            elif seo_type=="subcategory":
+                p1 = threading.Thread(target=bulk_download_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"sub",))
+                p1.start()
+            elif seo_type=="category":
+                p1 = threading.Thread(target=bulk_download_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"",))
+                p1.start()
+            elif seo_type=="supercategory":
+                p1 = threading.Thread(target=bulk_download_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"super",))
+                p1.start()
+            elif seo_type=="brand":
+                p1 = threading.Thread(target=bulk_download_brand_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
+                p1.start()
+            elif seo_type=="brandsubcategory":
+                p1 = threading.Thread(target=bulk_download_brand_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"sub",))
+                p1.start()
+            elif seo_type=="brandcategory":
+                p1 = threading.Thread(target=bulk_download_brand_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"",))
+                p1.start()
+            elif seo_type=="brandsupercategory":
+                p1 = threading.Thread(target=bulk_download_brand_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"super",))
+                p1.start()
+
+            response["approved"] = True
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateSEOReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 class CreateContentReportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6843,6 +6910,8 @@ CreateOCReport = CreateOCReportAPI.as_view()
 FetchOCReportPermissions = FetchOCReportPermissionsAPI.as_view()
 
 FetchOCReportList = FetchOCReportListAPI.as_view()
+
+CreateSEOReport = CreateSEOReportAPI.as_view()
 
 CreateContentReport = CreateContentReportAPI.as_view()
 
