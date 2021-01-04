@@ -1347,7 +1347,7 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
                 order_total_weight = 0
                 for unit_order_obj in unit_order_objs.filter(order=order_obj):
                     dealshub_product_obj = unit_order_obj.product
-                    dealshub_product_qty = "(" + str(dealshub_product_obj.quantity) + ")" if dealshub_product_obj.quantity>1 else ""
+                    dealshub_product_qty = "(" + unit_order_obj.quantity + ")"
                     description_product_list.append(dealshub_product_obj.get_seller_sku() + dealshub_product_qty)
                     order_total_items += unit_order_obj.quantity
                     order_total_weight += unit_order_obj.quantity * dealshub_product_obj.get_weight()
@@ -1455,8 +1455,7 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
                 order_total_weight = 0
                 for unit_order_obj in unit_order_objs.filter(order=order_obj):
                     dealshub_product_obj = unit_order_obj.product
-                    product_quantity = unit_order_obj.quantity
-                    dealshub_product_qty = "(" + product_quantity + ")" if product_quantity>1 else ""
+                    dealshub_product_qty = "(" + unit_order_obj.quantity + ")"
                     dealshub_product_seller_sku = dealshub_product_obj.get_seller_sku() + dealshub_product_qty
                     description_product_list.append(dealshub_product_seller_sku)
                     order_total_items += product_quantity
