@@ -2896,7 +2896,9 @@ class ContactUsSendEmailAPI(APIView):
 
         return Response(data=response)
 
+
 class SendB2BOTPSMSLoginAPI(APIView):
+    permission_classes = [AllowAny,]
 
     def post(self, request, *args, **kwargs):
         response = {}
