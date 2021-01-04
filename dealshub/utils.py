@@ -962,3 +962,9 @@ def remove_stopwords(string):
             cleaned_words.append(word)
     cleaned_string = " ".join(cleaned_words)
     return cleaned_string
+
+def check_account_status(user_obj):
+
+    if user_obj.vat_certificate_status == "Approved" and user_obj.trade_license_status == "Approved" and user_obj.passport_copy_status == "Approved":
+        return True
+    return False

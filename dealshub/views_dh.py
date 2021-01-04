@@ -2897,6 +2897,33 @@ class ContactUsSendEmailAPI(APIView):
         return Response(data=response)
 
 
+class FetchAccountStatusB2BUserAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] =500
+
+        try:
+            data = request.data
+            logger.info("FetchAccountStatusB2BUserAPI: %s", str(data))
+
+            b2b_user_obj = None
+            is_verified = False
+            if request.user.is_authenticated == True:
+                b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                if check_account_status(b2b_user_obj) == True:
+                    is_verified = True
+            
+            response["IsVerified"] = is_verified
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchAccountStatusB2BUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class SendB2BOTPSMSLoginAPI(APIView):
     permission_classes = [AllowAny,]
 
