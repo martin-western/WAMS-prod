@@ -29,7 +29,13 @@ class WebsiteGroupAdmin(admin.ModelAdmin):
         self.exclude = ('logo', 'logo_ar', 'footer_logo')
         return super(WebsiteGroupAdmin, self).change_view(request, object_id, extra_context)
 
-admin.site.register(OmnyCommUser)
+class OmnyCommUserAdmin(admin.ModelAdmin):
+    
+    def change_view(self, request, object_id, extra_context=None):       
+        self.exclude = ('image',)
+        return super(OmnyCommUserAdmin, self).change_view(request, object_id, extra_context)
+
+admin.site.register(OmnyCommUser, OmnyCommUserAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ExportList)
 admin.site.register(Report)
