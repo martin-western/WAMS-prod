@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^activate-cod-dealshub-product/$', views.ActivateCODDealsHubProduct),
     url(r'^deactivate-cod-dealshub-product/$', views.DeactivateCODDealsHubProduct),
 
+    url(r'^fetch-b2b-dealshub-admin-sections/$', views.FetchB2BDealshubAdminSections),
     url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
     url(r'^save-dealshub-admin-sections-order/$', views.SaveDealshubAdminSectionsOrder),
 
