@@ -187,6 +187,7 @@ class FetchShippingAddressListAPI(APIView):
                 temp_dict['postcode'] = address_obj.postcode
                 temp_dict['contactNumber'] = str(address_obj.contact_number)
                 temp_dict['tag'] = str(address_obj.tag)
+                temp_dict['neighbourhood'] = str(address_obj.neighbourhood)
                 temp_dict['emirates'] = str(address_obj.emirates)
                 temp_dict['uuid'] = str(address_obj.uuid)
 
@@ -228,6 +229,7 @@ class EditShippingAddressAPI(APIView):
             line4 = data.get("line4", "")
             
             state = data.get("state", "")
+            neighbourhood = data.get("neighbourhood", "")
 
             address_lines[0] = line1
             address_lines[1] = line2
@@ -245,6 +247,7 @@ class EditShippingAddressAPI(APIView):
             address_obj.tag = tag
             address_obj.emirates = emirates
             address_obj.state = state
+            address_obj.neighbourhood = neighbourhood
             address_obj.save()
 
             response['status'] = 200
@@ -282,6 +285,7 @@ class CreateShippingAddressAPI(APIView):
             address_lines = json.dumps([line1, line2, line3, line4])
             state = ""
             postcode = ""
+            neighbourhood = data.get("neighbourhood", "")
             emirates = data.get("emirates", "")
             if postcode==None:
                 postcode = ""
@@ -295,7 +299,7 @@ class CreateShippingAddressAPI(APIView):
                 dealshub_user_obj.last_name = last_name
                 dealshub_user_obj.save()
 
-            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj, emirates=emirates)
+            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj, neighbourhood=neighbourhood, emirates=emirates)
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200

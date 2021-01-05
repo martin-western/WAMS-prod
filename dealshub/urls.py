@@ -18,6 +18,7 @@ urlpatterns = [
 
     url(r'^search-wig/$', views.SearchWIG),
     url(r'^search-wig2/$', views.SearchWIG2),
+    url(r'^search-daycart/$', views.SearchDaycart),
     url(r'^fetch-wig-categories/$', views.FetchWIGCategories),
     url(r'^fetch-parajohn-categories/$', views.FetchParajohnCategories),
 
