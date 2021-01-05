@@ -6010,7 +6010,9 @@ class CreateOCReportAPI(APIView):
                 elif shipping_method.lower()=="postaplus":
                     p1 =  threading.Thread(target=create_postaplus_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
                     p1.start()
-
+            elif report_type.lower()=="sales executive":
+                p1 = threading.Thread(target=create_sales_executive_value_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                p1.start()
                     
             response["approved"] = True
             response['status'] = 200

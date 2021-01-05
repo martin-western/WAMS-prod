@@ -1845,7 +1845,7 @@ class CreateOfflineCustomerAPI(APIView):
                 data = json.loads(data)
 
             contact_number = data["contact_number"]
-            website_group_name = data["website_group_name"]
+            location_group_uuid = data["locationGroupUuid"]
             first_name = data["first_name"]
             last_name = data.get("last_name", "")
             email = data["email"]
@@ -1855,7 +1855,10 @@ class CreateOfflineCustomerAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name
 
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
                 dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)

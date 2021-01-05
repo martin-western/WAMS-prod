@@ -23,7 +23,19 @@ class SubImagesAdmin(admin.ModelAdmin):
 class BrandAdmin(admin.ModelAdmin):
     list_display = ('name', 'organization')
 
-admin.site.register(OmnyCommUser)
+class WebsiteGroupAdmin(admin.ModelAdmin):
+    
+    def change_view(self, request, object_id, extra_context=None):       
+        self.exclude = ('logo', 'logo_ar', 'footer_logo')
+        return super(WebsiteGroupAdmin, self).change_view(request, object_id, extra_context)
+
+class OmnyCommUserAdmin(admin.ModelAdmin):
+    
+    def change_view(self, request, object_id, extra_context=None):       
+        self.exclude = ('image',)
+        return super(OmnyCommUserAdmin, self).change_view(request, object_id, extra_context)
+
+admin.site.register(OmnyCommUser, OmnyCommUserAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ExportList)
 admin.site.register(Report)
@@ -40,7 +52,7 @@ admin.site.register(Flyer, FlyerAdmin)
 admin.site.register(Config)
 admin.site.register(CustomPermission)
 admin.site.register(Organization)
-admin.site.register(WebsiteGroup)
+admin.site.register(WebsiteGroup, WebsiteGroupAdmin)
 admin.site.register(EbayCategory)
 admin.site.register(BaseProduct, BaseProductAdmin)
 admin.site.register(Channel)
