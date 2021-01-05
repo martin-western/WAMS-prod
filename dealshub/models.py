@@ -175,6 +175,8 @@ class DealsHubProduct(models.Model):
     seo_description = models.TextField(default="")
     search_keywords = models.TextField(default="")
 
+    warranty = models.CharField(max_length=100, default="")
+
     is_promo_restricted = models.BooleanField(default=False)
     is_new_arrival = models.BooleanField(default=False)
     is_on_sale = models.BooleanField(default=False)
@@ -246,7 +248,7 @@ class DealsHubProduct(models.Model):
         return str(self.product.base_product.seller_sku)
 
     def get_warranty(self):
-        return str(self.product.warranty)
+        return str(self.warranty)
 
     def get_weight(self):
         return float(self.product.weight)
