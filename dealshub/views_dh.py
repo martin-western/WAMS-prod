@@ -3857,6 +3857,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             total_orders = order_objs.count()
             order_objs = paginator.page(page)
 
+            shipping_charge = location_group_obj.delivery_fee
+            free_delivery_threshold = location_group_obj.free_delivery_threshold
             invoice_logo = location_group_obj.get_email_website_logo()
             website_group_name = location_group_obj.website_group.name.lower()
             trn_number = json.loads(location_group_obj.website_group.conf).get("trn_number", "NA")
@@ -4004,6 +4006,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     temp_dict["unitOrderList"] = unit_order_list
 
+                    temp_dict["shipping_charge"] = shipping_charge
+                    temp_dict["free_delivery_threshold"] = free_delivery_threshold
                     temp_dict["invoice_logo"] = invoice_logo
                     temp_dict["website_group_name"] = website_group_name
                     temp_dict["trn_number"] = trn_number
