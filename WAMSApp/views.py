@@ -5959,7 +5959,7 @@ class CreateOCReportAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
 
-            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
 
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
@@ -6001,6 +6001,8 @@ class CreateOCReportAPI(APIView):
                 p1.start()
             elif report_type.lower()=="delivery":
                 shipping_method = data["shipping_method"]
+                oc_report_obj.report_title = oc_report_obj.report_title + " " + shipping_method
+                oc_report_obj.save()
                 if shipping_method.lower()=="sendex":
                     p1 = threading.Thread(target=create_sendex_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
                     p1.start()
@@ -6050,8 +6052,8 @@ class CreateSEOReportAPI(APIView):
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
-
-            oc_report_obj = OCReport.objects.create(name=report_type+seo_type, created_by=oc_user_obj, note=note, filename=filename, organization=organization_obj)
+            report_name = report_type+" "+seo_type
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_name, created_by=oc_user_obj, note=note, filename=filename, organization=organization_obj)
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             if seo_type=="product":
@@ -6120,7 +6122,7 @@ class CreateContentReportAPI(APIView):
 
             organization_obj = custom_permission_obj.organization
 
-            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
 
             filter_parameters = data["filter_parameters"]
 
@@ -6205,7 +6207,7 @@ class FetchOCReportListAPI(APIView):
                     if oc_report_obj.completion_date!=None:
                         completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
                     temp_dict = {
-                        "name": oc_report_obj.name,
+                        "name": oc_report_obj.report_title,
                         "created_date": str(timezone.localtime(oc_report_obj.created_date).strftime("%d %m, %Y %H:%M")),
                         "created_by": str(oc_report_obj.created_by),
                         "is_processed": oc_report_obj.is_processed,
