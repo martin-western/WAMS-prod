@@ -1455,6 +1455,7 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
                 order_total_weight = 0
                 for unit_order_obj in unit_order_objs.filter(order=order_obj):
                     dealshub_product_obj = unit_order_obj.product
+                    product_quantity = unit_order_obj.quantity
                     dealshub_product_qty = "(" + str(unit_order_obj.quantity) + ")"
                     dealshub_product_seller_sku = dealshub_product_obj.get_seller_sku() + dealshub_product_qty
                     description_product_list.append(dealshub_product_seller_sku)
