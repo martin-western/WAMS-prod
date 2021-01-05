@@ -1858,6 +1858,7 @@ class CreateOfflineCustomerAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name
 
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
                 dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
