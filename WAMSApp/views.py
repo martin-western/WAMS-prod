@@ -6090,6 +6090,67 @@ class CreateSEOReportAPI(APIView):
 
         return Response(data=response)
 
+
+class BulkUploadSEODetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("BulkUploadSEODetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            path = default_storage.save('tmp/bulk-upload-seo-details.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            dfs = pd.read_excel(path, sheet_name=None, header=None)["Sheet1"]
+            dfs = dfs.fillna("")
+
+            seo_type = dfs.iloc[0][1] # identifier
+
+            if seo_type=="product":
+                p1 = threading.Thread(target=bulk_upload_product_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="subcategory":
+                p1 = threading.Thread(target=bulk_upload_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="category":
+                p1 = threading.Thread(target=bulk_upload_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="supercategory":
+                p1 = threading.Thread(target=bulk_upload_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brandsubcategory":
+                p1 = threading.Thread(target=bulk_upload_brand_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brandcategory":
+                p1 = threading.Thread(target=bulk_upload_brand_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brandsupercategory":
+                p1 = threading.Thread(target=bulk_upload_brand_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brand":
+                p1 = threading.Thread(target=bulk_upload_brand_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUploadSEODetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+        
+
+
 class CreateContentReportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6914,6 +6975,8 @@ FetchOCReportPermissions = FetchOCReportPermissionsAPI.as_view()
 FetchOCReportList = FetchOCReportListAPI.as_view()
 
 CreateSEOReport = CreateSEOReportAPI.as_view()
+
+BulkUploadSEODetails = BulkUploadSEODetailsAPI.as_view()
 
 CreateContentReport = CreateContentReportAPI.as_view()
 
