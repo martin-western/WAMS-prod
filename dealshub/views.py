@@ -1385,6 +1385,7 @@ class SearchDaycartAPI(APIView):
         try:
             data = request.data
             logger.info("SearchDaycartAPI: %s", str(data))
+            t1 = datetime.datetime.now()
             language_code = data.get("language","en")
             
             product_name = data.get("name", "").strip()
@@ -1406,6 +1407,8 @@ class SearchDaycartAPI(APIView):
             if brand_filter==[] and sort_filter=={} and product_name=="":
                 cached_value = cache.get(key_hash, "has_expired")
                 if cached_value!="has_expired":
+                    t2 = datetime.datetime.now()
+                    logger.info("SearchDaycartAPI: HIT! time: %s", str((t2-t1).total_seconds()))
                     response = json.loads(cached_value)
                     return Response(data=response)
 
@@ -1574,6 +1577,9 @@ class SearchDaycartAPI(APIView):
 
             if brand_filter==[] and sort_filter=={} and product_name=="":
                 cache.set(key_hash, json.dumps(response))
+
+            t2 = datetime.datetime.now()
+            logger.info("SearchDaycartAPI: MISS! time: %s", str((t2-t1).total_seconds()))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SearchDaycartAPI: %s at %s", e, str(exc_tb.tb_lineno))
