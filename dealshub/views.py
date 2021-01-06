@@ -1404,7 +1404,7 @@ class SearchDaycartAPI(APIView):
             page = data.get("page", 1)
 
             key_hash = "search-daycart-"+language_code+"-"+super_category_name+"-"+category_name+"-"+subcategory_name+"-"+brand_name+"-"+str(page)
-            if brand_filter==[] and sort_filter=={} and product_name=="":
+            if brand_filter==[] and sort_filter=={"price":""} and product_name=="":
                 cached_value = cache.get(key_hash, "has_expired")
                 if cached_value!="has_expired":
                     t2 = datetime.datetime.now()
@@ -1575,7 +1575,7 @@ class SearchDaycartAPI(APIView):
             response['search'] = search
             response['status'] = 200
 
-            if brand_filter==[] and sort_filter=={} and product_name=="":
+            if brand_filter==[] and sort_filter=={"price":""} and product_name=="":
                 cache.set(key_hash, json.dumps(response))
 
             t2 = datetime.datetime.now()
