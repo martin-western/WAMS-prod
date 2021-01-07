@@ -4606,7 +4606,7 @@ class AddProductToOrderAPI(APIView):
         return Response(data=response)
 
 
-class FetchShippingStatusAPI(APIView):
+class FetchLogixShippingStatusAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -4614,7 +4614,7 @@ class FetchShippingStatusAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchShippingStatusAPI: %s", str(data))
+            logger.info("FetchLogixShippingStatusAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -4622,13 +4622,20 @@ class FetchShippingStatusAPI(APIView):
             order_uuid  = data["orderUuid"]
 
             order_obj = Order.objects.get(uuid=order_uuid)
-            tracking_reference = str(order_obj.logix_tracking_reference.strip())
+            tracking_reference = str(order_obj.logix_tracking_reference).strip()
 
             if tracking_reference=="":
-                logger.warning("FetchShippingStatusAPI: tracking_reference is empty!")
+                logger.warning("FetchLogixShippingStatusAPI: tracking_reference is empty!")
                 return Response(data=response)
             
-            resp = requests.post(url="url",data={"tracking-reference":tracking_reference})
+            headers = {
+                    'content-type': 'application/json',
+                    'Client-Service': 'logix',
+                    'Auth-Key': 'trackapi',
+                    'token': '',
+                    'User-ID': ''
+            }
+            resp = requests.get(url="https://qzolve-erp.com/logix2020/track/order/status/"+tracking_reference, headers=headers)
             status_data = resp.json()
 
             response["shipping_status"] = status_data.shipping-status
@@ -4636,7 +4643,7 @@ class FetchShippingStatusAPI(APIView):
             
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchShippingStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+            logger.error("FetchLogixShippingStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
 
         return Response(data=response)
       
@@ -4828,4 +4835,4 @@ AddProductToOrder = AddProductToOrderAPI.as_view()
 
 NotifyOrderStatus = NotifyOrderStatusAPI.as_view()
 
-FetchShippingStatus = FetchShippingStatusAPI.as_view()
+FetchLogixShippingStatus = FetchLogixShippingStatusAPI.as_view()
