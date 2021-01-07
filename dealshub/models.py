@@ -389,6 +389,46 @@ class DealsHubProduct(models.Model):
         
         if self.uuid == None or self.uuid == "":
             self.uuid = str(uuid.uuid4())[:8]
+
+        if self.search_keywords=="":
+            try:
+                search_keywords = []
+                if self.category!=None:
+                    search_keywords.append(self.category.name)
+                if self.sub_category!=None:
+                    search_keywords.append(self.sub_category.name)
+                search_keywords.append(self.get_seller_sku())
+                name = self.get_name()
+                name = remove_stopwords_core(name)
+                name = name.replace(",", "").strip()
+                if name!="":
+                    search_keywords.append(name)
+                    # 2 words
+                    words = name.split(" ")
+                    if len(words)>=2:
+                        for i in range(len(words)-1):
+                            string = " ".join(words[i:i+2])
+                            search_keywords.append(string.strip())
+                    # 1 word
+                    words = name.split(" ")
+                    for word in words:
+                        if is_number(word.strip())==False:
+                            search_keywords.append(word.strip())
+                search_keywords = ","+",".join(search_keywords)+","
+                self.search_keywords = search_keywords
+            except Exception as e:
+                pass
+
+        if self.url=="":
+            try:
+                url = self.product_name.strip()[:50].replace(" ", "-").lower()
+                seller_sku = self.get_seller_sku().lower()
+                if seller_sku not in url:
+                    url += "-"+seller_sku
+                url = url.replace("/", "-")
+                self.url = url
+            except Exception as e:
+                pass
         
         super(DealsHubProduct, self).save(*args, **kwargs)
 
