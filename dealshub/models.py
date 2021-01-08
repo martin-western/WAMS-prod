@@ -469,6 +469,11 @@ class Section(models.Model):
         
         super(Section, self).save(*args, **kwargs)
 
+    def get_name(self, language="en"):
+        if language=="ar" and self.name_ar!="":
+            return self.name_ar
+        return self.name
+
 
 class CustomProductSection(models.Model):
 

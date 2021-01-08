@@ -2728,8 +2728,9 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
             resolution = data.get("resolution", "low")
 
+            cache_key = location_group_uuid + "-" + language_code
             if is_dealshub==True and is_bot==False:
-                cached_value = cache.get(location_group_uuid, "has_expired")
+                cached_value = cache.get(cache_key, "has_expired")
                 if cached_value!="has_expired":
                     response["sections_list"] = json.loads(cached_value)
                     response["circular_category_index"] = location_group_obj.circular_category_index
@@ -2760,7 +2761,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_dict["orderIndex"] = section_obj.order_index
                 temp_dict["type"] = "ProductListing"
                 temp_dict["uuid"] = str(section_obj.uuid)
-                temp_dict["name"] = str(section_obj.name)
+                temp_dict["name"] = str(section_obj.get_name(language_code))
                 temp_dict["listingType"] = str(section_obj.listing_type)
                 temp_dict["createdOn"] = str(datetime.datetime.strftime(section_obj.created_date, "%d %b, %Y"))
                 temp_dict["modifiedOn"] = str(datetime.datetime.strftime(section_obj.modified_date, "%d %b, %Y"))
@@ -3009,7 +3010,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
             dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
 
             if is_dealshub==True:
-                cache.set(location_group_uuid, json.dumps(dealshub_admin_sections))
+                cache.set(cache_key, json.dumps(dealshub_admin_sections))
 
             response["sections_list"] = dealshub_admin_sections
             response["circular_category_index"] = location_group_obj.circular_category_index
