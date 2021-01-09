@@ -178,6 +178,14 @@ def update_cart_bill(cart_obj):
             cart_obj.voucher = None
     cart_obj.save()
 
+    unitcart_objs = UnitCart.objects.filter(cart = cart_obj)
+    for unitcart_obj in unitcart_objs:
+        voucher_obj = unitcart_obj.voucher
+        if voucher_obj != None:
+            if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj):
+                unitcart_obj.voucher = None
+        unitcart_obj.save()
+
 
 def update_fast_cart_bill(fast_cart_obj):
     

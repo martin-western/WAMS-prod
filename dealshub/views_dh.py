@@ -779,6 +779,8 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
                 temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict["discount"] = unit_cart_obj.get_voucher_discount()
+                temp_dict["discountPrice"] = unit_cart_obj.get_discounted_price()
                 temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
@@ -5128,20 +5130,28 @@ class ApplyOfflineVoucherCodeAPI(APIView):
 
             cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
 
-            if voucher_obj.is_eligible(cart_obj.get_subtotal())==False:
-                response["error_message"] = "NOT APPLICABLE"
-                response["voucher_success"] = False
-                response["status"] = 200
-                return Response(data=response)
-
             if is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==True:
                 response["error_message"] = "LIMIT EXCEEDED"
                 response["voucher_success"] = False
                 response["status"] = 200
                 return Response(data=response)
             
-            cart_obj.voucher = voucher_obj
-            cart_obj.save()
+            if voucher_obj.is_product_specific == True:
+                unitcart_objs = UnitCart.objects.filter(cart = cart_obj)
+                applicable_cart_products = UnitCart.objects.none()
+                for unitcart_obj in unitcart_objs:
+                    if unitcart_obj.product.voucher == voucher_obj:
+                        applicable_cart_products = applicable_cart_products | unitcart_obj
+                        unitcart_obj.voucher = voucher_obj
+                        unitcart_obj.save()
+                if applicable_cart_products.exists() == False:
+                    response["error_message"] = "NOT APPLICABLE"
+                    response["voucher_success"] = False
+                    response["status"] = 200
+                    return Response(data=response)
+            else:
+                cart_obj.voucher = voucher_obj
+                cart_obj.save()
 
             update_cart_bill(cart_obj)
 
@@ -5164,6 +5174,13 @@ class ApplyOfflineVoucherCodeAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
+            
+            product_specific_discount = 0.0
+            for unitcart_obj in applicable_cart_products:
+                product_specific_discount += unitcart_obj.get_product_price() - unitcart_obj.get_discounted_price()
+            if product_specific_discount != 0.0:
+                is_voucher_applied = True
+            voucher_discount = voucher_discount + product_specific_discount
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
