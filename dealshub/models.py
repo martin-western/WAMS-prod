@@ -77,6 +77,7 @@ class Voucher(models.Model):
     total_usage = models.IntegerField(default=0)
     is_deleted = models.BooleanField(default=False)
     is_published = models.BooleanField(default=False)
+    is_product_specific = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
@@ -158,6 +159,7 @@ class DealsHubProduct(models.Model):
     was_price = models.FloatField(default=0)
     now_price = models.FloatField(default=0)
     promotional_price = models.FloatField(default=0)
+    voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL, default = None)
     stock = models.IntegerField(default=0)
     allowed_qty = models.IntegerField(default=1000)
     is_cod_allowed = models.BooleanField(default=True)
@@ -691,8 +693,8 @@ class Cart(models.Model):
     def get_subtotal(self):
         unit_cart_objs = UnitCart.objects.filter(cart=self)
         subtotal = 0
-        for unit_cart_obj in unit_cart_objs:
-            subtotal += float(unit_cart_obj.product.get_actual_price_for_customer(self.owner))*float(unit_cart_obj.quantity)
+        for unitcart_obj in unitcart_objs:
+            subtotal += float(unitcart_obj.get_discounted_price())*float(unitcart_obj.quantity)
         return subtotal
 
     def get_delivery_fee(self, cod=False, offline=False):
@@ -745,6 +747,7 @@ class UnitCart(models.Model):
 
     cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL,default=None)
     quantity = models.IntegerField(default=1)
     
     date_created = models.DateTimeField(auto_now_add=True)
@@ -758,6 +761,20 @@ class UnitCart(models.Model):
 
     def get_date_created(self):
         return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
+
+    def get_product_price(self):
+        return self.product.get_actual_price_for_customer(self.cart.owner)
+
+    def get_voucher_discount(self):
+        if self.voucher != None:
+            return self.voucher.percent_discount
+        return 0
+
+    def get_discounted_price(self):
+        unitcart_product_price = self.get_product_price()
+        if self.voucher == None:
+            return unitcart_product_price
+        return self.voucher.get_discounted_price(unitcart_product_price)         
 
     class Meta:
         verbose_name = "Unit Cart"
