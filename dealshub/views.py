@@ -4001,6 +4001,7 @@ class UpdateVoucherAPI(APIView):
             voucher_obj.end_time = data["end_time"]
             voucher_obj.voucher_type = data["voucher_type"]
             voucher_obj.description = data["description"]
+            voucher_obj.is_product_specific = data["is_product_specific"]
 
             if voucher_obj.voucher_type == "PD":
                 voucher_obj.percent_discount = float(data["percent_discount"])
