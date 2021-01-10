@@ -691,7 +691,7 @@ class Cart(models.Model):
         super(Cart, self).save(*args, **kwargs)
 
     def get_subtotal(self):
-        unit_cart_objs = UnitCart.objects.filter(cart=self)
+        unitcart_objs = UnitCart.objects.filter(cart=self)
         subtotal = 0
         for unitcart_obj in unitcart_objs:
             subtotal += float(unitcart_obj.get_discounted_price())*float(unitcart_obj.quantity)
