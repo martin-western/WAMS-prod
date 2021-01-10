@@ -4857,12 +4857,6 @@ class ApplyVoucherCodeAPI(APIView):
                 subtotal = fast_cart_obj.get_subtotal()
                 owner = fast_cart_obj.owner
 
-            if voucher_obj.is_eligible(subtotal)==False:
-                response["error_message"] = "NOT APPLICABLE"
-                response["voucher_success"] = False
-                response["status"] = 200
-                return Response(data=response)
-
             if is_voucher_limt_exceeded_for_customer(owner, voucher_obj)==True:
                 response["error_message"] = "LIMIT EXCEEDED"
                 response["voucher_success"] = False
@@ -4885,6 +4879,11 @@ class ApplyVoucherCodeAPI(APIView):
                         response["status"] = 200
                         return Response(data=response)
                 else:
+                    if voucher_obj.is_eligible(subtotal)==False:
+                        response["error_message"] = "NOT APPLICABLE"
+                        response["voucher_success"] = False
+                        response["status"] = 200
+                        return Response(data=response)
                     cart_obj.voucher = voucher_obj
                     cart_obj.save()
 
@@ -5188,6 +5187,11 @@ class ApplyOfflineVoucherCodeAPI(APIView):
                     response["status"] = 200
                     return Response(data=response)
             else:
+                if voucher_obj.is_eligible(cart_obj.get_subtotal())==False:
+                    response["error_message"] = "NOT APPLICABLE"
+                    response["voucher_success"] = False
+                    response["status"] = 200
+                    return Response(data=response)
                 cart_obj.voucher = voucher_obj
                 cart_obj.save()
 
