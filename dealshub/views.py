@@ -76,6 +76,7 @@ class FetchProductDetailsAPI(APIView):
             response["uuid"] = data["uuid"]
             response["name"] = dealshub_product_obj.get_name(language_code)
             response["stock"] = dealshub_product_obj.stock
+            response["moq"] = dealshub_product_obj.moq
             response["allowedQty"] = dealshub_product_obj.get_allowed_qty()
             response["price"] = dealshub_product_obj.get_actual_price()
             response["wasPrice"] = dealshub_product_obj.was_price
