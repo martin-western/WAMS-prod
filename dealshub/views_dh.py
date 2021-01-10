@@ -4870,8 +4870,23 @@ class ApplyVoucherCodeAPI(APIView):
                 return Response(data=response)
             
             if is_fast_cart==False:
-                cart_obj.voucher = voucher_obj
-                cart_obj.save()
+
+                if voucher_obj.is_product_specific == True:
+                    unitcart_objs = UnitCart.objects.filter(cart = cart_obj)
+                    applicable_cart_products = UnitCart.objects.none()
+                    for unitcart_obj in unitcart_objs:
+                        if unitcart_obj.product.voucher == voucher_obj:
+                            applicable_cart_products = applicable_cart_products | unitcart_obj
+                            unitcart_obj.voucher = voucher_obj
+                            unitcart_obj.save()
+                    if applicable_cart_products.exists() == False:
+                        response["error_message"] = "NOT APPLICABLE"
+                        response["voucher_success"] = False
+                        response["status"] = 200
+                        return Response(data=response)
+                else:
+                    cart_obj.voucher = voucher_obj
+                    cart_obj.save()
 
                 update_cart_bill(cart_obj)
 
@@ -4895,6 +4910,13 @@ class ApplyVoucherCodeAPI(APIView):
                         delivery_fee = delivery_fee_with_cod
                         voucher_discount = delivery_fee
 
+                product_specific_discount = 0.0
+                for unitcart_obj in applicable_cart_products:
+                    product_specific_discount += unitcart_obj.get_product_price() - unitcart_obj.get_discounted_price()
+                if product_specific_discount != 0.0:
+                    is_voucher_applied = True
+                voucher_discount = voucher_discount + product_specific_discount
+
                 response["currency"] = cart_obj.get_currency()
                 response["subtotal"] = subtotal
 
@@ -4916,8 +4938,18 @@ class ApplyVoucherCodeAPI(APIView):
                     "voucher_code": voucher_code
                 }
             else:
-                fast_cart_obj.voucher = voucher_obj
-                fast_cart_obj.save()
+                if voucher_obj.is_product_specific == True:
+                    if fast_cart_obj.product.voucher == voucher_obj:          
+                        fast_cart_obj.voucher = voucher_obj
+                        fast_cart_obj.save()
+                    else:
+                        response["error_message"] = "NOT APPLICABLE"
+                        response["voucher_success"] = False
+                        response["status"] = 200
+                        return Response(data=response)
+                else:
+                    fast_cart_obj.voucher = voucher_obj
+                    fast_cart_obj.save()
 
                 update_fast_cart_bill(fast_cart_obj)
 
@@ -4941,6 +4973,12 @@ class ApplyVoucherCodeAPI(APIView):
                         delivery_fee = delivery_fee_with_cod
                         voucher_discount = delivery_fee
 
+                product_specific_discount = 0.0
+                for unitcart_obj in applicable_cart_products:
+                    product_specific_discount += unitcart_obj.get_product_price() - unitcart_obj.get_discounted_price()
+                if product_specific_discount != 0.0:
+                    is_voucher_applied = True
+                voucher_discount = voucher_discount + product_specific_discount
 
                 response["currency"] = fast_cart_obj.get_currency()
                 response["subtotal"] = subtotal
@@ -5135,7 +5173,7 @@ class ApplyOfflineVoucherCodeAPI(APIView):
                 response["voucher_success"] = False
                 response["status"] = 200
                 return Response(data=response)
-            
+
             if voucher_obj.is_product_specific == True:
                 unitcart_objs = UnitCart.objects.filter(cart = cart_obj)
                 applicable_cart_products = UnitCart.objects.none()
@@ -5174,7 +5212,7 @@ class ApplyOfflineVoucherCodeAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-            
+
             product_specific_discount = 0.0
             for unitcart_obj in applicable_cart_products:
                 product_specific_discount += unitcart_obj.get_product_price() - unitcart_obj.get_discounted_price()
