@@ -65,14 +65,14 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = cart_obj.to_pay
                 shipping_address = cart_obj.shipping_address
-                #cart_obj.merchant_reference = merchant_reference
-                #cart_obj.save()
+                cart_obj.merchant_reference = merchant_reference
+                cart_obj.save()
             else:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = fast_cart_obj.to_pay
                 shipping_address = fast_cart_obj.shipping_address
-                #fast_cart_obj.merchant_reference = merchant_reference
-                #fast_cart_obj.save()
+                fast_cart_obj.merchant_reference = merchant_reference
+                fast_cart_obj.save()
 
             first_name = shipping_address.first_name
             last_name = shipping_address.last_name
