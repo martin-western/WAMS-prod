@@ -114,7 +114,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
                     "currencyCode": currency, 
                     "value": amount
                 },
-                "merchantOrderReference": "1050",
+                "merchantOrderReference": merchant_reference,
                 "emailAddress": dealshub_user_obj.email,
                 "billingAddress": {
                     "firstName": first_name,
