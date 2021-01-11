@@ -175,6 +175,8 @@ class DealsHubProduct(models.Model):
     seo_description = models.TextField(default="")
     search_keywords = models.TextField(default="")
 
+    warranty = models.CharField(max_length=100, default="")
+
     is_promo_restricted = models.BooleanField(default=False)
     is_new_arrival = models.BooleanField(default=False)
     is_on_sale = models.BooleanField(default=False)
@@ -246,7 +248,7 @@ class DealsHubProduct(models.Model):
         return str(self.product.base_product.seller_sku)
 
     def get_warranty(self):
-        return str(self.product.warranty)
+        return str(self.warranty)
 
     def get_weight(self):
         return float(self.product.weight)
@@ -273,6 +275,19 @@ class DealsHubProduct(models.Model):
         except Exception as e:
             pass
         return dimensions_string
+
+    def get_target_age_range(self):
+        return str(self.product.target_age_range)
+    
+    def get_capacity(self):
+        if str(self.product.capacity)=="":
+            return "NA"
+        return self.product.capacity + self.product.capacity_unit
+    
+    def get_size(self):
+        if str(self.product.size)=="":
+            return "NA"
+        return self.product.size + self.product.size_unit
 
     def get_faqs(self):
         return json.loads(self.product.faqs)
@@ -387,6 +402,46 @@ class DealsHubProduct(models.Model):
         
         if self.uuid == None or self.uuid == "":
             self.uuid = str(uuid.uuid4())[:8]
+
+        if self.search_keywords=="":
+            try:
+                search_keywords = []
+                if self.category!=None:
+                    search_keywords.append(self.category.name)
+                if self.sub_category!=None:
+                    search_keywords.append(self.sub_category.name)
+                search_keywords.append(self.get_seller_sku())
+                name = self.get_name()
+                name = remove_stopwords_core(name)
+                name = name.replace(",", "").strip()
+                if name!="":
+                    search_keywords.append(name)
+                    # 2 words
+                    words = name.split(" ")
+                    if len(words)>=2:
+                        for i in range(len(words)-1):
+                            string = " ".join(words[i:i+2])
+                            search_keywords.append(string.strip())
+                    # 1 word
+                    words = name.split(" ")
+                    for word in words:
+                        if is_number(word.strip())==False:
+                            search_keywords.append(word.strip())
+                search_keywords = ","+",".join(search_keywords)+","
+                self.search_keywords = search_keywords
+            except Exception as e:
+                pass
+
+        if self.url=="":
+            try:
+                url = self.product_name.strip()[:50].replace(" ", "-").lower()
+                seller_sku = self.get_seller_sku().lower()
+                if seller_sku not in url:
+                    url += "-"+seller_sku
+                url = url.replace("/", "-")
+                self.url = url
+            except Exception as e:
+                pass
         
         super(DealsHubProduct, self).save(*args, **kwargs)
 
@@ -426,6 +481,11 @@ class Section(models.Model):
             self.uuid = str(uuid.uuid4())
         
         super(Section, self).save(*args, **kwargs)
+
+    def get_name(self, language="en"):
+        if language=="ar" and self.name_ar!="":
+            return self.name_ar
+        return self.name
 
 
 class CustomProductSection(models.Model):
@@ -542,6 +602,7 @@ class Address(models.Model):
     contact_number = models.CharField(max_length=100, default="", blank=True)
 
     emirates = models.CharField(max_length=100, default="", blank=True)
+    neighbourhood = models.CharField(max_length=100, default="", blank=True)
 
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -571,7 +632,7 @@ class Address(models.Model):
         return str(self.location_group.location.country)
 
     def get_shipping_address(self):
-        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.emirates
+        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.neighbourhood+"\n"+self.emirates
 
     class Meta:
         verbose_name = "Address"

@@ -187,6 +187,7 @@ class FetchShippingAddressListAPI(APIView):
                 temp_dict['postcode'] = address_obj.postcode
                 temp_dict['contactNumber'] = str(address_obj.contact_number)
                 temp_dict['tag'] = str(address_obj.tag)
+                temp_dict['neighbourhood'] = str(address_obj.neighbourhood)
                 temp_dict['emirates'] = str(address_obj.emirates)
                 temp_dict['uuid'] = str(address_obj.uuid)
 
@@ -228,6 +229,7 @@ class EditShippingAddressAPI(APIView):
             line4 = data.get("line4", "")
             
             state = data.get("state", "")
+            neighbourhood = data.get("neighbourhood", "")
 
             address_lines[0] = line1
             address_lines[1] = line2
@@ -245,6 +247,7 @@ class EditShippingAddressAPI(APIView):
             address_obj.tag = tag
             address_obj.emirates = emirates
             address_obj.state = state
+            address_obj.neighbourhood = neighbourhood
             address_obj.save()
 
             response['status'] = 200
@@ -282,6 +285,7 @@ class CreateShippingAddressAPI(APIView):
             address_lines = json.dumps([line1, line2, line3, line4])
             state = ""
             postcode = ""
+            neighbourhood = data.get("neighbourhood", "")
             emirates = data.get("emirates", "")
             if postcode==None:
                 postcode = ""
@@ -295,7 +299,7 @@ class CreateShippingAddressAPI(APIView):
                 dealshub_user_obj.last_name = last_name
                 dealshub_user_obj.save()
 
-            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj, emirates=emirates)
+            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj, neighbourhood=neighbourhood, emirates=emirates)
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
@@ -1845,7 +1849,7 @@ class CreateOfflineCustomerAPI(APIView):
                 data = json.loads(data)
 
             contact_number = data["contact_number"]
-            website_group_name = data["website_group_name"]
+            location_group_uuid = data["locationGroupUuid"]
             first_name = data["first_name"]
             last_name = data.get("last_name", "")
             email = data["email"]
@@ -1855,7 +1859,10 @@ class CreateOfflineCustomerAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name
 
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
                 dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
@@ -2085,9 +2092,11 @@ class FetchCustomerListAPI(APIView):
 
             search_list = data.get("search_list", [])
 
-            website_group_name = data["websiteGroupName"]
+            location_group_uuid = data["locationGroupUuid"]
 
-            website_dealshub_user_objs = DealsHubUser.objects.filter(website_group__name=website_group_name)
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_dealshub_user_objs = DealsHubUser.objects.filter(website_group=website_group_obj)
 
             dealshub_user_objs = DealsHubUser.objects.none()
             if len(search_list)>0:
@@ -3854,6 +3863,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             total_orders = order_objs.count()
             order_objs = paginator.page(page)
 
+            shipping_charge = location_group_obj.delivery_fee
+            free_delivery_threshold = location_group_obj.free_delivery_threshold
             invoice_logo = location_group_obj.get_email_website_logo()
             website_group_name = location_group_obj.website_group.name.lower()
             trn_number = json.loads(location_group_obj.website_group.conf).get("trn_number", "NA")
@@ -4001,6 +4012,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     temp_dict["unitOrderList"] = unit_order_list
 
+                    temp_dict["shipping_charge"] = shipping_charge
+                    temp_dict["free_delivery_threshold"] = free_delivery_threshold
                     temp_dict["invoice_logo"] = invoice_logo
                     temp_dict["website_group_name"] = website_group_name
                     temp_dict["trn_number"] = trn_number
