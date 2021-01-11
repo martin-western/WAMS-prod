@@ -806,6 +806,9 @@ class FetchProductDetailsAPI(APIView):
             response["color"] = product_obj.color
             response["weight"] = product_obj.weight
             response["dimensions"] = product_obj.get_dimensions()
+            response["size"] = "NA" if str(product_obj.size)=="" else str(product_obj.size + product_obj.size_unit)
+            response["capacity"] = "NA" if str(product_obj.capacity)=="" else str(product_obj.capacity + product_obj.capacity_unit)
+            response["target_age_range"] = str(product_obj.target_age_range)
 
             response["min_price"] = product_obj.min_price
             response["max_price"] = product_obj.max_price
@@ -1526,6 +1529,12 @@ class SaveProductAPI(APIView):
             barcode_string = data["barcode_string"]
             color = convert_to_ascii(data["color"])
             color_map = convert_to_ascii(data["color_map"])
+            size = data.get("size","")
+            size_unit = data.get("size_unit","")
+            capacity = data.get("capacity","")
+            capacity_unit = data.get("capacity_unit","")
+            target_age_range = data.get("target_age_range","")
+
             weight = 0
             try:
                 weight = float(data.get("weight", 0))
@@ -1580,6 +1589,11 @@ class SaveProductAPI(APIView):
             product_obj.product_id_type = product_id_type_obj
             product_obj.color_map = color_map
             product_obj.color = color
+            product_obj.size = size
+            product_obj.size_unit = size_unit
+            product_obj.capacity = capacity
+            product_obj.capacity_unit = capacity_unit
+            product_obj.target_age_range = target_age_range
             product_obj.weight = weight
             
             product_obj.material_type = material_type_obj

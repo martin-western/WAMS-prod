@@ -91,6 +91,9 @@ class FetchProductDetailsAPI(APIView):
                 response["weight"] = "NA"
             else:
                 response["weight"] = str(dealshub_product_obj.get_weight())+" kg"
+            response["size"] = dealshub_product_obj.get_size()
+            response["capacity"] = dealshub_product_obj.get_capacity()
+            response["target_age_range"] = dealshub_product_obj.get_target_age_range()
             response["material"] = dealshub_product_obj.get_material()
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
             response["faqs"] = dealshub_product_obj.get_faqs()
