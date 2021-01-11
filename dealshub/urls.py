@@ -17,6 +17,8 @@ urlpatterns = [
     url(r'^search/$', views.Search),
 
     url(r'^search-wig/$', views.SearchWIG),
+    url(r'^search-wig2/$', views.SearchWIG2),
+    url(r'^search-daycart/$', views.SearchDaycart),
     url(r'^fetch-wig-categories/$', views.FetchWIGCategories),
     url(r'^fetch-parajohn-categories/$', views.FetchParajohnCategories),
 
@@ -57,6 +59,7 @@ urlpatterns = [
 
     url(r'^search-section-products-autocomplete/$', views.SearchSectionProductsAutocomplete),
     url(r'^search-products-autocomplete/$', views.SearchProductsAutocomplete),
+    url(r'^search-products-autocomplete2/$', views.SearchProductsAutocomplete2),
     url(r'^search-products/$', views.SearchProducts),
 
     url(r'^fetch-dealshub-price/$', views.FetchDealshubPrice),
@@ -133,12 +136,16 @@ urlpatterns = [
 
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
+    url(r'^resend-sap-order/$', views.ResendSAPOrder),
+    url(r'^update-manual-order/$', views.UpdateManualOrder),
     url(r'^set-orders-status/$', views.SetOrdersStatus),
+    url(r'^update-order-status/$', views.UpdateOrderStatus),
     url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
     url(r'^approve-cancellation-request/$', views.ApproveCancellationRequest),
     url(r'^reject-cancellation-request/$', views.RejectCancellationRequest),
     url(r'^update-cancellation-request-refund-status/$', views.UpdateCancellationRequestRefundStatus),
+    url(r'^fetch-oc-sales-persons/$', views.FetchOCSalesPersons),
 
     url(r'^download-orders/$', views.DownloadOrders),
     url(r'^upload-orders/$', views.UploadOrders),
@@ -205,6 +212,9 @@ urlpatterns = [
     url(r'^update-location-group-settings/$',views.UpdateLocationGroupSettings),
 
     url(r'^add-product-to-order/$',views.AddProductToOrder),
+
+    url(r'^notify-order-status/$',views.NotifyOrderStatus),
+    url(r'^fetch-logix-shipping-status/$', views.FetchLogixShippingStatus),
 
     url(r'^update-user-name-and-email/$',views.UpdateUserNameAndEmail),
 ]

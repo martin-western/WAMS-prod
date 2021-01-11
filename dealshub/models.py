@@ -152,7 +152,9 @@ class DealsHubProduct(models.Model):
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
     product_name = models.CharField(max_length=200, default="")
+    product_name_ar = models.CharField(max_length=200,default="")
     product_description = models.TextField(default="", blank=True)
+    product_description_ar = models.TextField(default="", blank=True)
     was_price = models.FloatField(default=0)
     now_price = models.FloatField(default=0)
     promotional_price = models.FloatField(default=0)
@@ -173,6 +175,8 @@ class DealsHubProduct(models.Model):
     seo_description = models.TextField(default="")
     search_keywords = models.TextField(default="")
 
+    warranty = models.CharField(max_length=100, default="")
+
     is_promo_restricted = models.BooleanField(default=False)
     is_new_arrival = models.BooleanField(default=False)
     is_on_sale = models.BooleanField(default=False)
@@ -191,41 +195,60 @@ class DealsHubProduct(models.Model):
     def get_currency(self):
         return str(self.location_group.location.currency)
 
-    def get_super_category(self):
+    def get_super_category(self,language = "en"):
         if self.category!=None:
             if self.category.super_category!=None:
-                return str(self.category.super_category)
+                if language == "en":
+                    return str(self.category.super_category)
+                else:
+                    return str(self.category.super_category.name_ar)
         return ""
 
-    def get_category(self):
+    def get_category(self,language = "en"):
         if self.category!=None:
-            return str(self.category)
+            if language == "en":
+                return str(self.category)
+            else:
+                return str(self.category.name_ar)
         return ""
 
-    def get_sub_category(self):
+    def get_sub_category(self,language = "en"):
         if self.sub_category!=None:
-            return str(self.sub_category)
+            if language == "en":
+                return str(self.sub_category)
+            else:
+                return str(self.sub_category.name_ar)
         return ""
 
-    def get_name(self):
+    def get_name(self,language = "en"):
+        if language == "ar":
+            return str(self.product_name_ar)
         return str(self.product_name)
 
-    def get_description(self):
+    def get_description(self,language = "en"):
         if self.product_description!="":
-            return str(self.product_description)
+            if language == "en":
+                return str(self.product_description)
+            else:
+                return str(self.product_description_ar)
         return str(self.product.product_description)
 
     def get_product_id(self):
         return str(self.product.product_id)
 
-    def get_brand(self):
-        return str(self.product.base_product.brand)
+    def get_brand(self,language = "en"):
+        try:
+            if language == "ar":
+                return str(self.product.base_product.brand.name_ar)
+            return str(self.product.base_product.brand.name)
+        except Exception as e:
+            return ""
 
     def get_seller_sku(self):
         return str(self.product.base_product.seller_sku)
 
     def get_warranty(self):
-        return str(self.product.warranty)
+        return str(self.warranty)
 
     def get_weight(self):
         return float(self.product.weight)
@@ -252,6 +275,19 @@ class DealsHubProduct(models.Model):
         except Exception as e:
             pass
         return dimensions_string
+
+    def get_target_age_range(self):
+        return str(self.product.target_age_range)
+    
+    def get_capacity(self):
+        if str(self.product.capacity)=="":
+            return "NA"
+        return self.product.capacity + self.product.capacity_unit
+    
+    def get_size(self):
+        if str(self.product.size)=="":
+            return "NA"
+        return self.product.size + self.product.size_unit
 
     def get_faqs(self):
         return json.loads(self.product.faqs)
@@ -345,10 +381,67 @@ class DealsHubProduct(models.Model):
             pass
         return self.get_main_image_url()
 
+    def get_search_keywords(self):
+        try:
+            search_keywords = self.search_keywords.split(",")
+            return filter(None, search_keywords)
+        except Exception as e:
+            return []
+
+    def set_search_keywords(self, search_tags):
+        try:
+            if len(search_tags)>0:
+                search_keywords = ","+",".join(search_tags)+","
+                self.search_keywords = search_keywords
+                super(DealsHubProduct, self).save()
+        except Exception as e:
+            pass
+
+
     def save(self, *args, **kwargs):
         
         if self.uuid == None or self.uuid == "":
             self.uuid = str(uuid.uuid4())[:8]
+
+        if self.search_keywords=="":
+            try:
+                search_keywords = []
+                if self.category!=None:
+                    search_keywords.append(self.category.name)
+                if self.sub_category!=None:
+                    search_keywords.append(self.sub_category.name)
+                search_keywords.append(self.get_seller_sku())
+                name = self.get_name()
+                name = remove_stopwords_core(name)
+                name = name.replace(",", "").strip()
+                if name!="":
+                    search_keywords.append(name)
+                    # 2 words
+                    words = name.split(" ")
+                    if len(words)>=2:
+                        for i in range(len(words)-1):
+                            string = " ".join(words[i:i+2])
+                            search_keywords.append(string.strip())
+                    # 1 word
+                    words = name.split(" ")
+                    for word in words:
+                        if is_number(word.strip())==False:
+                            search_keywords.append(word.strip())
+                search_keywords = ","+",".join(search_keywords)+","
+                self.search_keywords = search_keywords
+            except Exception as e:
+                pass
+
+        if self.url=="":
+            try:
+                url = self.product_name.strip()[:50].replace(" ", "-").lower()
+                seller_sku = self.get_seller_sku().lower()
+                if seller_sku not in url:
+                    url += "-"+seller_sku
+                url = url.replace("/", "-")
+                self.url = url
+            except Exception as e:
+                pass
         
         super(DealsHubProduct, self).save(*args, **kwargs)
 
@@ -358,6 +451,7 @@ class Section(models.Model):
     uuid = models.CharField(max_length=200, unique=True)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=300, default="")
+    name_ar = models.CharField(max_length=300, default="")
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
 
@@ -387,6 +481,11 @@ class Section(models.Model):
             self.uuid = str(uuid.uuid4())
         
         super(Section, self).save(*args, **kwargs)
+
+    def get_name(self, language="en"):
+        if language=="ar" and self.name_ar!="":
+            return self.name_ar
+        return self.name
 
 
 class CustomProductSection(models.Model):
@@ -448,6 +547,8 @@ class UnitBannerImage(models.Model):
     mobile_image = models.ForeignKey(Image, related_name="mobile_image", on_delete=models.SET_NULL, null=True)
     http_link = models.TextField(default="")
     banner = models.ForeignKey(Banner, on_delete=models.CASCADE)
+    image_ar = models.ForeignKey(Image, on_delete=models.SET_NULL,related_name="image_ar", null=True)
+    mobile_image_ar = models.ForeignKey(Image, related_name="mobile_image_ar", on_delete=models.SET_NULL, null=True)
 
     products = models.ManyToManyField(DealsHubProduct, blank=True)
     hovering_banner_image = models.ForeignKey(Image, related_name="unit_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
@@ -501,6 +602,7 @@ class Address(models.Model):
     contact_number = models.CharField(max_length=100, default="", blank=True)
 
     emirates = models.CharField(max_length=100, default="", blank=True)
+    neighbourhood = models.CharField(max_length=100, default="", blank=True)
 
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -530,7 +632,7 @@ class Address(models.Model):
         return str(self.location_group.location.country)
 
     def get_shipping_address(self):
-        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.emirates
+        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.neighbourhood+"\n"+self.emirates
 
     class Meta:
         verbose_name = "Address"
@@ -695,6 +797,8 @@ class Order(models.Model):
     )
     call_status = models.CharField(max_length=100, choices=CALL_STATUS, default="Unconfirmed")
 
+    logix_tracking_reference = models.CharField(default="", max_length=100)
+
     PENDING, PAID = ('cod', 'paid')
     PAYMENT_STATUS = (
         (PENDING, "cod"),
@@ -703,6 +807,7 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=100, choices=PAYMENT_STATUS, default="cod")
     payment_info = models.TextField(default="{}")
     merchant_reference = models.CharField(max_length=200, default="")
+    offline_sales_person = models.ForeignKey(OmnyCommUser, on_delete=models.SET_NULL, null=True, default=None)
 
     postaplus_info = models.TextField(default="{}")
     is_postaplus = models.BooleanField(default=False)
@@ -717,21 +822,23 @@ class Order(models.Model):
         ("In GRN", "In GRN"),
         ("GRN Conflict","GRN Conflict"),
         ("Success", "Success"),
-        ("Failed", "Failed")
+        ("Failed", "Failed"),
+        ("Manual", "Manual")
     )
     sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
 
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
-            order_prefix = ""
-            order_cnt = 1
-            try:
-                order_prefix = json.loads(self.location_group.website_group.conf)["order_prefix"]
-                order_cnt = Order.objects.filter(location_group=self.location_group).count()+1
-            except Exception as e:
-                pass
-            self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+            if self.bundleid=="":
+                order_prefix = ""
+                order_cnt = 1
+                try:
+                    order_prefix = json.loads(self.location_group.website_group.conf)["order_prefix"]
+                    order_cnt = Order.objects.filter(location_group=self.location_group).count()+1
+                except Exception as e:
+                    pass
+                self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
 
         super(Order, self).save(*args, **kwargs)
 
@@ -919,6 +1026,11 @@ class UnitOrder(models.Model):
         temp_total = self.get_subtotal()
         vat_divider = 1 + (self.order.location_group.vat/100)
         return  round(temp_total/vat_divider, 2)
+
+    def get_subtotal_without_vat_custom_qty(self, qty):
+        temp_total = float(self.price)*float(qty)
+        vat_divider = 1 + (self.order.location_group.vat/100)
+        return round(temp_total/vat_divider, 2)
 
     def get_sap_intercompany_order_qty(self):
         try:

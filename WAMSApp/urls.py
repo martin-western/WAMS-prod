@@ -126,6 +126,8 @@ urlpatterns = [
     url(r'^check-section-permissions/$',views.CheckSectionPermissions),
 
     url(r'^create-oc-report/$',views.CreateOCReport),
+    url(r'^create-seo-report/$',views.CreateSEOReport),
+    url(r'^bulk-upload-seo-details/$',views.BulkUploadSEODetails),
     url(r'^create-content-report/$',views.CreateContentReport),
     url(r'^fetch-oc-report-permissions/$',views.FetchOCReportPermissions),
     url(r'^fetch-oc-report-list/$',views.FetchOCReportList),
@@ -150,6 +152,16 @@ urlpatterns = [
 
     url(r'^fetch-category-list/$',views.FetchCategoryList),
     url(r'^update-category-mapping/$',views.UpdateCategoryMapping),
+
+    url(r'^admin/fetch-admin-super-categories/$', views.FetchAdminSuperCategories),
+    url(r'^admin/fetch-admin-categories/$', views.FetchAdminCategories),
+    url(r'^admin/fetch-admin-sub-categories/$', views.FetchAdminSubCategories),
+    url(r'^admin/update-admin-super-category-details/$', views.UpdateAdminSuperCategoryDetails),
+    url(r'^admin/update-admin-category-details/$', views.UpdateAdminCategoryDetails),
+    url(r'^admin/update-admin-sub-category-details/$', views.UpdateAdminSubCategoryDetails),
+    url(r'^admin/add-new-admin-super-category/$', views.AddNewAdminSuperCategory),
+    url(r'^admin/add-new-admin-category/$', views.AddNewAdminCategory),
+    url(r'^admin/add-new-admin-sub-category/$', views.AddNewAdminSubCategory),
 
     url(r'^secure-delete-product/$',views.SecureDeleteProduct),
 
