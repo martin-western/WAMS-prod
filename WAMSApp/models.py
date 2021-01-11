@@ -880,9 +880,9 @@ class Product(models.Model):
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
     weight = models.FloatField(default=0.0)
-    size = models.FloatField(default=0)
+    size = models.CharField(max_length=100, default="")
     size_unit = models.CharField(max_length=100, default="")
-    capacity = models.FloatField(default=0)
+    capacity = models.CharField(max_length=100, default="")
     capacity_unit = models.CharField(max_length=100, default="")
     target_age_range = models.CharField(max_length=200, default="")
 

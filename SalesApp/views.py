@@ -1031,9 +1031,6 @@ class FetchProductDetailsAPI(APIView):
                 temp_dict["factory_notes"] = str(product_obj.factory_notes)
                 temp_dict["product_description"] = str(product_obj.product_description)
                 temp_dict["product_features"] = json.loads(product_obj.pfl_product_features)
-                temp_dict["size"] = "NA" if float(product_obj.size)==0.0 else str(product_obj.size + product_obj.size_unit)
-                temp_dict["capacity"] = "NA" if float(product_obj.capacity)==0.0 else str(product_obj.capacity + product_obj.capacity_unit)
-                temp_dict["target_age_range"] = str(product_obj.target_age_range)
 
                 images = {}
 
