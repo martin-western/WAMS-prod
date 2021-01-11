@@ -1031,7 +1031,7 @@ class FetchProductDetailsAPI(APIView):
                 temp_dict["factory_notes"] = str(product_obj.factory_notes)
                 temp_dict["product_description"] = str(product_obj.product_description)
                 temp_dict["product_features"] = json.loads(product_obj.pfl_product_features)
-
+                
                 images = {}
 
                 try:
