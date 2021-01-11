@@ -4862,6 +4862,48 @@ class AddProductToOrderAPI(APIView):
         return Response(data=response)
 
 
+class FetchLogixShippingStatusAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchLogixShippingStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_uuid  = data["orderUuid"]
+
+            order_obj = Order.objects.get(uuid=order_uuid)
+            tracking_reference = str(order_obj.logix_tracking_reference).strip()
+
+            if tracking_reference=="":
+                logger.warning("FetchLogixShippingStatusAPI: tracking_reference is empty!")
+                return Response(data=response)
+            
+            headers = {
+                    'content-type': 'application/json',
+                    'Client-Service': 'logix',
+                    'Auth-Key': 'trackapi',
+                    'token': 'bf6c7d89b71732b9362aa0e7b51b4d92',
+                    'User-ID': '1'
+            }
+            resp = requests.get(url="https://qzolve-erp.com/logix2020/track/order/status/"+tracking_reference, headers=headers)
+            status_data = resp.json()
+
+            response["shipping_status"] = status_data['shipping_status']
+            response['status'] = 200
+            
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchLogixShippingStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+      
+
 class NotifyOrderStatusAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,) 
@@ -5050,3 +5092,5 @@ UpdateLocationGroupSettings = UpdateLocationGroupSettingsAPI.as_view()
 AddProductToOrder = AddProductToOrderAPI.as_view()
 
 NotifyOrderStatus = NotifyOrderStatusAPI.as_view()
+
+FetchLogixShippingStatus = FetchLogixShippingStatusAPI.as_view()
