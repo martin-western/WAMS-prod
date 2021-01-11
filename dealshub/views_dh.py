@@ -1631,6 +1631,10 @@ class FetchOrderListAPI(APIView):
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
+                        unit_order_status = unit_order_obj.current_status_admin
+                        temp_dict2["can_user_cancel_unitorder"] = False
+                        if unit_order_status=="pending" or unit_order_status=="approved" or unit_order_status=="picked":
+                            temp_dict2["can_user_cancel_unitorder"] = True
                         temp_dict2["productName"] = unit_order_obj.product.get_name(language_code)
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                         unit_order_list.append(temp_dict2)
@@ -1803,11 +1807,6 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["productUuid"] = unit_order_obj.product.uuid
                 temp_dict["link"] = unit_order_obj.product.url
                 temp_dict["user_cancellation_status"] = unit_order_obj.user_cancellation_status
-
-                unit_order_status = unit_order_obj.current_status_admin
-                temp_dict["can_user_cancel_unitorder"] = False
-                if unit_order_status=="pending" or unit_order_status=="approved" or unit_order_status=="picked":
-                    temp_dict["can_user_cancel_unitorder"] = True
 
                 unit_order_status_list = []
                 unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
