@@ -1627,6 +1627,7 @@ class PriceTagBucket(models.Model):
 class OCReport(models.Model):
 
     name = models.CharField(max_length=200, default="")
+    report_title = models.CharField(max_length=200, default="")
     created_date = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(OmnyCommUser, blank=True)
     is_processed = models.BooleanField(default=False)
