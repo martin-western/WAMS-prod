@@ -276,6 +276,19 @@ class DealsHubProduct(models.Model):
             pass
         return dimensions_string
 
+    def get_target_age_range(self):
+        return str(self.product.target_age_range)
+    
+    def get_capacity(self):
+        if str(self.product.capacity)=="":
+            return "NA"
+        return self.product.capacity + self.product.capacity_unit
+    
+    def get_size(self):
+        if str(self.product.size)=="":
+            return "NA"
+        return self.product.size + self.product.size_unit
+
     def get_faqs(self):
         return json.loads(self.product.faqs)
 
@@ -970,6 +983,10 @@ class UnitOrder(models.Model):
         ("TFM", "TFM")
     )
     shipping_method = models.CharField(max_length=100, choices=SHIPPING_METHOD, default="pending")
+
+    cancelled_by_user = models.BooleanField(default=False)
+    user_cancellation_note = models.CharField(max_length=255,default="")
+    user_cancellation_status = models.CharField(max_length=100,default="")
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
