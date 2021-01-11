@@ -1733,7 +1733,7 @@ def bulk_download_product_seo_details_report(filename, uuid, location_group_obj)
         workbook = xlsxwriter.Workbook('./'+filename)
         worksheet = workbook.add_worksheet()
 
-        rows = ["No.",
+        row = ["No.",
                "Product uuid",
                "Product Name",
                "seller sku",
@@ -1806,7 +1806,7 @@ def bulk_download_categories_seo_details_report(filename, uuid, location_group_o
         workbook = xlsxwriter.Workbook('./'+filename)
         worksheet = workbook.add_worksheet()
 
-        rows = ["No.",
+        row = ["No.",
                str(category_type + "Category uuid"),
                str(category_type + "Category Name"),
                "page description",
@@ -1894,7 +1894,7 @@ def bulk_download_brand_categories_seo_details_report(filename, uuid, location_g
         workbook = xlsxwriter.Workbook('./'+filename)
         worksheet = workbook.add_worksheet()
 
-        rows = ["No.",
+        row = ["No.",
                "Brand "+category_type+"Category uuid",
                "Brand Name",
                category_type+"Category Name"
@@ -1982,7 +1982,7 @@ def bulk_download_brand_seo_details_report(filename, uuid, location_group_obj):
         workbook = xlsxwriter.Workbook('./'+filename)
         worksheet = workbook.add_worksheet()
 
-        rows = ["No.",
+        row = ["No.",
                "SEO Brand uuid",
                "Brand Name",
                "page description",
