@@ -4087,14 +4087,14 @@ class SetShippingMethodAPI(APIView):
                     'content-type': 'application/json',
                     'Client-Service': 'logix',
                     'Auth-Key': 'trackapi',
-                    'token': '',
-                    'User-ID': ''
+                    'token': 'bf6c7d89b71732b9362aa0e7b51b4d92',
+                    'User-ID': '1'
                 }
                 resp = requests.post(url="https://qzolve-erp.com/logix2020/track/order/create", data=order_info, headers=headers)
                 tracking_info_data = resp.json()
 
-                tracking_status = str(tracking_info_data.status).strip()
-                tracking_reference = str(tracking_info_data.tracking-reference).strip()
+                tracking_status = str(tracking_info_data['status']).strip()
+                tracking_reference = str(tracking_info_data['tracking_reference']).strip()
 
                 if tracking_status!="Success":
                     logger.warning("SetShippingMethodAPI: failed status from logix api")
