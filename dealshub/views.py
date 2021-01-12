@@ -1876,7 +1876,7 @@ class UpdateAdminCategoryAPI(APIView):
             listing_type = data["listingType"]
             is_published = data["isPublished"]
             is_promotional = data["is_promotional"]
-
+            
             section_obj = Section.objects.get(uuid=uuid)
 
             promotion_obj = section_obj.promotion
