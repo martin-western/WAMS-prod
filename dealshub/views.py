@@ -3325,7 +3325,7 @@ class SearchProductsAutocomplete2API(APIView):
                     category_obj = Category.objects.get(pk=category_key["category"])
                     category_name = Category.objects.get(pk=category_key["category"]).name
                     category_list.append(category_name)
-                    product_name = available_dealshub_products.objects.filter(category=category_obj)[0].product_name 
+                    product_name = available_dealshub_products.filter(category=category_obj)[0].product_name 
                     product_list.append(product_name)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
