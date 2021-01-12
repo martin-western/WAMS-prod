@@ -33,6 +33,8 @@ import hashlib
 import threading
 import math
 import random
+import os
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -5819,6 +5821,74 @@ class UpdateUserNameAndEmailAPI(APIView):
         return Response(data=response)
 
 
+class SendNewProductEmailNotificationAPI(APIView):
+
+    permission_classes = (AllowAny)
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            new_dealshub_product_objs = DealshubProduct.objects.filter(is_notified = False)
+
+            website_group_objs = WebsiteGroup.objects.none()
+            for new_dealshub_product_obj in new_dealshub_product_objs:
+                website_group_objs = website_group_objs | new_dealshub_product_obj.location_group.website_group
+
+            omnycomm_users = OmnyCommUser.objects.filter(website_group = website_group_objs)
+
+            for website_group_obj in website_group_objs:
+                omnycomm_users = OmnyCommUser.objects.filter(website_group=website_group_obj)
+                temp_dealshub_product_objs = new_dealshub_product_objs.objects.filter(location_group__website_group = website_group_obj)
+
+                #generate excel sheet
+                product_list = []
+                for temp_dealshub_product_obj in temp_dealshub_product_objs:
+                    temp_dict = {
+                        "product_name": temp_dealshub_product_obj.product_name,
+                        "product_name_ar": temp_dealshub_product_obj.product_name_ar,
+                        "product_description": temp_dealshub_product_obj.product_description,
+                        "product_description_ar": temp_dealshub_product_obj.product_description_ar,
+                        "was_price": temp_dealshub_product_obj.was_price,
+                        "now_price": temp_dealshub_product_obj.now_price,
+                        "promotional_price": temp_dealshub_product_obj.promotional_price,
+                        "stock": temp_dealshub_product_obj.stock,
+                        "is_cod_allowed": temp_dealshub_product_obj.is_cod_allowed,
+                        "location_group": temp_dealshub_product_obj.location_group.name,
+                        "is_published": temp_dealshub_product_obj.is_published,
+                        "url": temp_dealshub_product_obj.url,
+                        "is_promo_restricted": temp_dealshub_product_obj.is_promo_restricted,
+                        "is_new_arrival": temp_dealshub_product_obj.is_new_arrival,
+                        "is_on_sale": temp_dealshub_product_obj.is_on_sale,
+                    }
+                    product_list.append(temp_dealshub_product_obj)
+                    temp_dealshub_product_obj.is_notified = True
+                    temp_dealshub_product_obj.save()
+
+                filename = website_group_name + "-new-product.xlsx"
+                filepath = SERVER_IP + os.path.join("/files/csv" + filename)
+                sheet_name = "new-products-" + website_group_name
+                df = pd.DataFrame(product_list)
+                with pd.ExcelWriter(filepath) as workbook:
+                    df.to_excel(workbook, sheet_name=sheet_name,index=False)
+
+                #trigger email
+                try:
+                    p1 = threading.Thread(target=notify_new_products_email, args =(filepath,website_group_obj))
+                    p1.start()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SendNewProductEmailNotificationAPI: %s at %s", str(exc_tb.tb_lineno))
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SendNewProductEmailNotificationAPI: %s at %s", str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
@@ -5988,3 +6058,5 @@ UpdateFastCartDetails = UpdateFastCartDetailsAPI.as_view()
 GRNProcessingCron = GRNProcessingCronAPI.as_view()
 
 UpdateUserNameAndEmail = UpdateUserNameAndEmailAPI.as_view()
+
+SendNewProductEmailNotification = SendNewProductEmailNotificationAPI.as_view()
