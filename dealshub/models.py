@@ -454,6 +454,8 @@ class Section(models.Model):
     name_ar = models.CharField(max_length=300, default="")
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
+    promo_slider_image = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name="section_promo_slider_image", null=True)
+    promo_slider_image_ar = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name="section_promo_slider_image_ar", null=True)
 
     products = models.ManyToManyField(DealsHubProduct, blank=True)
     hovering_banner_image = models.ForeignKey(Image, related_name="section_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
@@ -486,6 +488,11 @@ class Section(models.Model):
         if language=="ar" and self.name_ar!="":
             return self.name_ar
         return self.name
+
+    def get_promo_slider_image(self, language="en"):
+        if language=="ar" and self.promo_slider_image_ar!=None:
+            return self.promo_slider_image_ar
+        return self.promo_slider_image
 
 
 class CustomProductSection(models.Model):

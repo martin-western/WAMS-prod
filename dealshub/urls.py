@@ -74,6 +74,8 @@ urlpatterns = [
     url(r'^add-unit-banner-hovering-image/$', views.AddUnitBannerHoveringImage),
     url(r'^fetch-unit-banner-hovering-image/$', views.FetchUnitBannerHoveringImage),
 
+    url(r'^add-section-promo-slider-image/$', views.AddSectionPromoSliderImage),
+    url(r'^fetch-section-promo-slider-image/$', views.FetchSectionPromoSliderImage),
     url(r'^add-section-hovering-image/$', views.AddSectionHoveringImage),
     url(r'^fetch-section-hovering-image/$', views.FetchSectionHoveringImage),
 

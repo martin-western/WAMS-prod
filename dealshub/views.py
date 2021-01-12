@@ -459,6 +459,8 @@ class FetchSectionProductsAPI(APIView):
 
             temp_dict = {}
             temp_dict["sectionName"] = section_obj.name
+            if section_obj.get_promo_slider_image(language_code)!=None:
+                temp_dict["promoSliderImage"] = section_obj.get_promo_slider_image(language_code).image.url
             temp_dict["productsArray"] = []
 
             page = int(data.get("page",1))
@@ -1835,7 +1837,7 @@ class CreateAdminCategoryAPI(APIView):
             name = data["name"]
             listing_type = data["listingType"]
             products = data["products"]
-            
+
             order_index = Banner.objects.filter(location_group=location_group_obj).count()+Section.objects.filter(location_group=location_group_obj).count()+1
 
             section_obj = Section.objects.create(location_group=location_group_obj, name=name, listing_type=listing_type, order_index=order_index)
@@ -1874,7 +1876,7 @@ class UpdateAdminCategoryAPI(APIView):
             listing_type = data["listingType"]
             is_published = data["isPublished"]
             is_promotional = data["is_promotional"]
-            
+
             section_obj = Section.objects.get(uuid=uuid)
 
             promotion_obj = section_obj.promotion
@@ -2829,6 +2831,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 else:
                     temp_dict["hoveringBannerUrl"] = ""
                     temp_dict["hoveringBannerUuid"] = ""
+
+                promo_slider_img = section_obj.get_promo_slider_image(language_code)
+                if promo_slider_img is not None:
+                    temp_dict["promoSliderUuid"] = promo_slider_img.pk
+                    temp_dict["promoSliderUrl"] = promo_slider_img.image.url
 
                 temp_products = []
 
@@ -3791,6 +3798,72 @@ class FetchUnitBannerHoveringImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class AddSectionPromoSliderImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddSectionPromoSliderImageAPI: %s", str(data))
+
+            uuid = data["uuid"]
+            promo_slider_image = data["image"]
+            language_code = data.get("language","en")
+
+            section_obj = Section.objects.get(uuid=uuid)
+            image_obj = Image.objects.create(image=promo_slider_image)
+            if language_code == "ar":
+                section_obj.promo_slider_image_ar = image_obj
+            else:
+                section_obj.promo_slider_image = image_obj
+            section_obj.save()
+
+            response['uuid'] = image_obj.pk
+            response['url'] = image_obj.image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddSectionPromoSliderImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class FetchSectionPromoSliderImageAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchSectionPromoSliderImageAPI: %s", str(data))
+            uuid = data["uuid"]
+            language_code = data.get("language","en")
+
+            section_obj = Section.objects.get(uuid=uuid)
+
+            if section_obj.get_promo_slider_image(language_code) is not None:
+                response["url"] = section_obj.get_promo_slider_image(language_code).image.url
+            else:
+                response["url"] = ""
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSectionPromoSliderImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -5048,6 +5121,10 @@ FetchUnitBannerProducts = FetchUnitBannerProductsAPI.as_view()
 AddUnitBannerHoveringImage = AddUnitBannerHoveringImageAPI.as_view()
 
 FetchUnitBannerHoveringImage = FetchUnitBannerHoveringImageAPI.as_view()
+
+AddSectionPromoSliderImage = AddSectionPromoSliderImageAPI.as_view()
+
+FetchSectionPromoSliderImage = FetchSectionPromoSliderImageAPI.as_view()
 
 AddSectionHoveringImage = AddSectionHoveringImageAPI.as_view()
 
