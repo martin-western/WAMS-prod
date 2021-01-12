@@ -724,6 +724,7 @@ class FetchCartDetailsAPI(APIView):
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
+            response["additional_note"] = cart_obj.additional_note
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
@@ -813,6 +814,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
                     
+            response["additional_note"] = cart_obj.additional_note
             response["referenceMedium"] = cart_obj.reference_medium
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -1526,6 +1528,7 @@ class PlaceOfflineOrderAPI(APIView):
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
                                              reference_medium= cart_obj.reference_medium,
+                                             additional_note=cart_obj.additional_note,
                                              is_order_offline = True,
                                              location_group=cart_obj.location_group,
                                              delivery_fee=cart_obj.get_delivery_fee(),
@@ -1766,6 +1769,7 @@ class FetchOrderDetailsAPI(APIView):
             response["paymentMode"] = order_obj.payment_mode
             response["paymentStatus"] = order_obj.payment_status
             response["customerName"] = order_obj.owner.first_name
+            response["additional_note"] = order_obj.additional_note
             response["isVoucherApplied"] = is_voucher_applied
             if is_voucher_applied:
                 response["voucherCode"] = voucher_obj.voucher_code
@@ -5526,6 +5530,73 @@ class AddOfflineReferenceMediumAPI(APIView):
 
         return Response(data=response)
 
+class AddOnlineAdditionalNoteAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddOnlineAdditionalNoteAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            additional_note = data["additional_note"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            is_fast_cart = data.get("is_fast_cart", False)
+
+            if is_fast_cart==False:
+                cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+                cart_obj.additional_note = additional_note
+                cart_obj.save()
+            else:
+                fast_cart_obj = FastCart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+                fast_cart_obj.additional_note = additional_note
+                fast_cart_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddOnlineAdditionalNoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class AddOfflineAdditionalNoteAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddOfflineAdditionalNoteAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            username = data["username"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            additional_note = data["additional_note"]
+            
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+            cart_obj.additional_note = additional_note
+            cart_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddOfflineAdditionalNoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class FetchOrderAnalyticsParamsAPI(APIView):
 
@@ -5625,6 +5696,7 @@ class PlaceOnlineOrderAPI(APIView):
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
                                                  location_group=cart_obj.location_group,
+                                                 additional_note=cart_obj.additional_note,
                                                  payment_status="paid",
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
@@ -5647,6 +5719,7 @@ class PlaceOnlineOrderAPI(APIView):
                 # cart_obj points to None
                 cart_obj.shipping_address = None
                 cart_obj.voucher = None
+                cart_obj.additional_note = ""
                 cart_obj.to_pay = 0
                 cart_obj.merchant_reference = ""
                 cart_obj.payment_info = "{}"
@@ -5691,6 +5764,7 @@ class PlaceOnlineOrderAPI(APIView):
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
                                                  location_group=fast_cart_obj.location_group,
+                                                 additional_note=fast_cart_obj.additional_note,
                                                  payment_status="paid",
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
@@ -5708,6 +5782,7 @@ class PlaceOnlineOrderAPI(APIView):
                 # cart_obj points to None
                 fast_cart_obj.shipping_address = None
                 fast_cart_obj.voucher = None
+                fast_cart_obj.additional_note = ""
                 fast_cart_obj.to_pay = 0
                 fast_cart_obj.merchant_reference = ""
                 fast_cart_obj.payment_info = "{}"
@@ -6206,6 +6281,10 @@ ApplyOfflineVoucherCode = ApplyOfflineVoucherCodeAPI.as_view()
 RemoveOfflineVoucherCode = RemoveOfflineVoucherCodeAPI.as_view()
 
 AddOfflineReferenceMedium = AddOfflineReferenceMediumAPI.as_view()
+
+AddOnlineAdditionalNote = AddOnlineAdditionalNoteAPI.as_view()
+
+AddOfflineAdditionalNote = AddOfflineAdditionalNoteAPI.as_view()
 
 FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
 
