@@ -3319,10 +3319,14 @@ class SearchProductsAutocomplete2API(APIView):
             category_key_list = available_dealshub_products.values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
 
             category_list = []
+            product_list = []
             for category_key in category_key_list:
                 try:
+                    category_obj = Category.objects.get(pk=category_key["category"])
                     category_name = Category.objects.get(pk=category_key["category"]).name
                     category_list.append(category_name)
+                    product_name = available_dealshub_products.objects.filter(category=category_obj)[0].product_name 
+                    product_list.append(product_name)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("SearchProductsAutocomplete2API: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3330,6 +3334,7 @@ class SearchProductsAutocomplete2API(APIView):
             category_list = list(set(category_list))
 
             response["categoryList"] = category_list
+            response["productList"] = product_list
             response['status'] = 200
 
         except Exception as e:
