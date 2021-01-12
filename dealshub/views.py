@@ -1837,7 +1837,7 @@ class CreateAdminCategoryAPI(APIView):
             name = data["name"]
             listing_type = data["listingType"]
             products = data["products"]
-
+            
             order_index = Banner.objects.filter(location_group=location_group_obj).count()+Section.objects.filter(location_group=location_group_obj).count()+1
 
             section_obj = Section.objects.create(location_group=location_group_obj, name=name, listing_type=listing_type, order_index=order_index)
@@ -1876,7 +1876,7 @@ class UpdateAdminCategoryAPI(APIView):
             listing_type = data["listingType"]
             is_published = data["isPublished"]
             is_promotional = data["is_promotional"]
-            
+
             section_obj = Section.objects.get(uuid=uuid)
 
             promotion_obj = section_obj.promotion
