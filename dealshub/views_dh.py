@@ -3933,7 +3933,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
-            total_revenue = order_objs.aggregate(Sum('to_pay'))
+            total_revenue = round(order_objs.aggregate(Sum('to_pay'))["to_pay__sum"], 2)
             currency = location_group_obj.location.currency
 
             paginator = Paginator(order_objs, 20)
