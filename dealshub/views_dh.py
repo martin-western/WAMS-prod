@@ -1857,15 +1857,15 @@ class CreateUnitOrderCancellationRequestAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            unit_order_uuid = data["unit_order_uuid"]
-            cancellation_note = data.get("note","")
+            unit_order_cancellation_list = data["unit_order_cancellation_list"]
 
-            unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
-            unit_order_obj.cancelled_by_user = True
-            unit_order_obj.user_cancellation_note = cancellation_note
-            unit_order_obj.user_cancellation_status = "pending"
-
-            unit_order_obj.save()
+            for unit_order_cancellation_item in unit_order_cancellation_list:
+                unit_order_obj = UnitOrder.objects.get(uuid=unit_order_cancellation_item["unit_order_uuid"])
+                unit_order_obj.cancelled_by_user = True
+                unit_order_obj.user_cancellation_note = unit_order_cancellation_item["note"]
+                unit_order_obj.user_cancellation_status = "pending"
+                unit_order_obj.save()
+            
             response['status'] = 200
 
         except Exception as e:
