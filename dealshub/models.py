@@ -798,6 +798,7 @@ class Order(models.Model):
     call_status = models.CharField(max_length=100, choices=CALL_STATUS, default="Unconfirmed")
 
     logix_tracking_reference = models.CharField(default="", max_length=100)
+    couriex_tracking_reference = models.CharField(default="", max_length=100)
 
     PENDING, PAID = ('cod', 'paid')
     PAYMENT_STATUS = (

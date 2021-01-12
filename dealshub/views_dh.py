@@ -4214,7 +4214,67 @@ class SetShippingMethodAPI(APIView):
                 response["sap_info_render"] = []
                 response["status"] = 200
                 return Response(data=response)
+
+            if shipping_method.lower()=="couriex" and order_obj.location_group.website_group.name.lower() in ["parajohn","shopnesto"]  and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+                order_info = {}
+                temp_dict = {}
+                temp_dict["AirWayBillCreatedBy"] = # is this request.user.username ?
+                temp_dict["CODAmount"] = order_obj.get_cod_charge()
+                temp_dict["CODCurrency"] = order_obj.get_currency()
+                temp_dict["Destination"] = #
+                temp_dict["DutyConsigneePay"] = #
+                temp_dict["GoodsDescription"] = #
+                temp_dict["NumberofPeices"] = UnitOrder.objects.filter(order=order_obj).aggregate(Sum('quantity'))["quantity__sum"]
+                temp_dict["Origin"] = #
+                temp_dict["ProductType"] = #
+                temp_dict["ReceiversAddress1"] = order_obj.shipping_address.address_lines[0]
+                temp_dict["ReceiversAddress2"] = order_obj.shipping_address.address_lines[1]
+                temp_dict["ReceiversCity"] = #
+                temp_dict["ReceiversSubCity"] = # 
+                temp_dict["ReceiversCountry"] = #
+                temp_dict["ReceiversCompany"] = #
+                temp_dict["ReceiversContactPerson"] = order_obj.get_customer_full_name()
+                temp_dict["ReceiversEmail"] = order_obj.owner.email
+                temp_dict["ReceiversGeoLocation"] = #
+                temp_dict["ReceiversMobile"] = order_obj.owner.contact_number
+                temp_dict["ReceiversPhone"] = order_obj.owner.contact_number
+                temp_dict["ReceiversPinCode"] = #
+                temp_dict["ReceiversProvince"] = #
+                temp_dict["SendersAddress1"] = #
+                temp_dict["SendersAddress2"] = #
+                temp_dict["SendersCity"] = #
+                temp_dict["SendersSubCity"] = #
+                temp_dict["SendersCountry"] = #
+                temp_dict["SendersCompany"] = #
+                temp_dict["SendersContactPerson"] = #
+                temp_dict["SendersEmail"] = #
+                temp_dict["SendersGeoLocation"] = #
+                temp_dict["SendersMobile"] = #
+                temp_dict["SendersPhone"] = #
+                temp_dict["SendersPinCode"] = #
+                temp_dict["ServiceType"] = #
+                temp_dict["ShipmentDimension"] = # not single product
+                temp_dict["ShipmentInvoiceCurrency"] = order_obj.get_currency()
+                temp_dict["ShipmentInvoiceValue"] = order_obj.to_pay
+                temp_dict["ShipperReference"] = #
+                temp_dict["ShipperVatAccount"] = #
+                temp_dict["SpecialInstruction"] = #
+                temp_dict["Weight"] = # todo  UnitOrder.objects.filter(order=order_obj).aggregate(Sum('product__product__weight * qty'))
+
+
                 
+                order_info["AirwayBillData"] = temp_dict
+                order_info["UserName"] = "3000"
+                order_info["Password"] = "fftes"
+                order_info["AccountNo"] = "3000"
+                order_info["Country"] = "AE"
+                
+
+                headers = {
+                    'Content-Type':'application/json'
+                }
+                resp = requests.post(url="https://ontrack.firstflightme.com/FFCService.svc/CreateAirwayBill", data=json.dumps(order_info), headers=headers)
+                output = resp.json()
 
             brand_company_dict = {
                 "geepas": "1000",
