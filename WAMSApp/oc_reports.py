@@ -1760,7 +1760,7 @@ def bulk_download_product_seo_details_report(filename, uuid, location_group_obj)
             worksheet.write(cnt,colomn,k,header_format)
             colomn += 1
         
-        dh_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj)
+        dh_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, is_published=True, product__base_product__brand__in=location_group_obj.website_group.brands.all())
 
         for dh_product_obj in dh_product_objs:
             try:
@@ -1897,7 +1897,7 @@ def bulk_download_brand_categories_seo_details_report(filename, uuid, location_g
         row = ["No.",
                "Brand "+category_type+"Category uuid",
                "Brand Name",
-               category_type+"Category Name"
+               category_type+"Category Name",
                "page description",
                "seo title",
                "seo keywords",
@@ -1933,7 +1933,7 @@ def bulk_download_brand_categories_seo_details_report(filename, uuid, location_g
         if generic_category_brand_objs is not None:
             for generic_category_brand_obj in generic_category_brand_objs:
                 try:
-                    
+                    cnt += 1
                     generic_category_name =""
                     if category_type=="sub":
                         generic_category_name = generic_category_brand_obj.sub_category.get_name()
