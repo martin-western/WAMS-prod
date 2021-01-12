@@ -1074,6 +1074,7 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["product_id"] = product_obj.product_id
                     temp_dict["product_name"] = dealshub_product_obj.product_name
                     temp_dict["product_name_ar"] = dealshub_product_obj.product_name_ar
+                    temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
                     temp_dict["channel_status"] = dealshub_product_obj.is_published
                     temp_dict["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
