@@ -693,6 +693,7 @@ class Cart(models.Model):
     payment_info = models.TextField(default="{}")
     modified_date = models.DateTimeField(null=True, blank=True)
     reference_medium = models.CharField(max_length=200,default="")
+    additional_note = models.TextField(default="", blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -812,6 +813,7 @@ class Order(models.Model):
     postaplus_info = models.TextField(default="{}")
     is_postaplus = models.BooleanField(default=False)
 
+    additional_note = models.TextField(default="", blank=True)
     reference_medium = models.CharField(max_length=200, default="")
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
@@ -1135,6 +1137,7 @@ class FastCart(models.Model):
     modified_date = models.DateTimeField(null=True, blank=True)
     product = models.ForeignKey(DealsHubProduct, null=True, blank=True, on_delete=models.SET_NULL)
     quantity = models.IntegerField(default=1)
+    additional_note = models.TextField(default="", blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
