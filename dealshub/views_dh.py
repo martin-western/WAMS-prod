@@ -4162,7 +4162,7 @@ class SetShippingMethodAPI(APIView):
 
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
 
-            if order_obj.location_group.website_group.name in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+            if shipping_method.lower()=="logix" and order_obj.location_group.website_group.name in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
                 order_info = {}
                 
                 order_info["order-id"] = order_obj.uuid
@@ -4200,6 +4200,13 @@ class SetShippingMethodAPI(APIView):
                 else:
                     order_obj.logix_tracking_reference = tracking_reference
                     order_obj.save()
+
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    set_shipping_method(unit_order_obj, shipping_method)
+
+                response["sap_info_render"] = []
+                response["status"] = 200
+                return Response(data=response)
                 
 
             brand_company_dict = {
