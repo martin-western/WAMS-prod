@@ -19,6 +19,7 @@ from dealshub.postaplus import *
 
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.db.models import Sum
 from django.utils import timezone
 
 from datetime import datetime
@@ -3932,6 +3933,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
+            total_revenue = order_objs.aggregate(Sum('to_pay'))
+            currency = location_group_obj.location.currency
+
             paginator = Paginator(order_objs, 20)
             total_orders = order_objs.count()
             order_objs = paginator.page(page)
@@ -4109,6 +4113,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             response["isAvailable"] = is_available
             response["totalOrders"] = total_orders
             response["orderList"] = order_list
+            response["totalRevenue"] = total_revenue
+            response["currency"] = currency
             response["status"] = 200
 
         except Exception as e:
