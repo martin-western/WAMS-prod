@@ -17,10 +17,16 @@ address_lines = ["", "", "", ""]
 
 
 def is_voucher_limt_exceeded_for_customer(dealshub_user_obj, voucher_obj):
-    if voucher_obj.customer_usage_limit==0:
-        return False
-    if Order.objects.filter(owner=dealshub_user_obj, voucher=voucher_obj).count()<voucher_obj.customer_usage_limit:
-        return False
+    if voucher_obj.is_product_specific == False:    
+        if voucher_obj.customer_usage_limit==0:
+            return False
+        if Order.objects.filter(owner=dealshub_user_obj, voucher=voucher_obj).count()<voucher_obj.customer_usage_limit:
+            return False
+    else:
+        if voucher_obj.customer_usage_limit==0:
+            return False
+        if UnitOrder.objects.filter(owner=dealshub_user_obj, voucher=voucher_obj).count()<voucher_obj.customer_usage_limit:
+            return False
     return True
 
 class SearchKeyword(models.Model):
@@ -991,7 +997,7 @@ class UnitOrder(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
-
+    voucher = models.ForeignKey(Voucher, on_delete=models.CASCADE, default = None)
     price = models.FloatField(default=None, null=True, blank=True)
     uuid = models.CharField(max_length=200, default="")
 

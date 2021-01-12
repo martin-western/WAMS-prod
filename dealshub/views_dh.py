@@ -1386,7 +1386,8 @@ class PlaceOrderAPI(APIView):
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                               product=unit_cart_obj.product,
                                                               quantity=unit_cart_obj.quantity,
-                                                              price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+                                                              price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj),
+                                                              voucher=unit_cart_obj.voucher)
                     UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
                 # Cart gets empty
@@ -1537,7 +1538,8 @@ class PlaceOfflineOrderAPI(APIView):
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=unit_cart_obj.product,
                                                           quantity=unit_cart_obj.quantity,
-                                                          price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+                                                          price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj),
+                                                          voucher=unit_cart_obj.voucher)
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
             # Cart gets empty
