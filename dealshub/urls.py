@@ -211,4 +211,6 @@ urlpatterns = [
     url(r'^notify-order-status/$',views.NotifyOrderStatus),
 
     url(r'^update-user-name-and-email/$',views.UpdateUserNameAndEmail),
+
+    url(r'^send-new-product-email-notification',views.SendNewProductEmailNotification),
 ]
