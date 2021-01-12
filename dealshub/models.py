@@ -870,6 +870,19 @@ class Order(models.Model):
         vat_divider = 1+(self.location_group.vat/100)
         return str(round(subtotal/vat_divider, 2))
 
+    def get_delivery_fee_update(self, cod=False, offline=False):
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if self.voucher!=None:
+            if self.voucher.voucher_type=="SD":
+                return 0
+            subtotal = self.voucher.get_discounted_price(subtotal)
+
+        if subtotal < self.location_group.free_delivery_threshold:
+            return self.location_group.delivery_fee
+        return 0
+
     def get_delivery_fee(self):
         return self.delivery_fee
 
