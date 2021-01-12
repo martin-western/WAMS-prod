@@ -4187,6 +4187,7 @@ class SetShippingMethodAPI(APIView):
                     'token': 'bf6c7d89b71732b9362aa0e7b51b4d92',
                     'User-ID': '1'
                 }
+                logger.info("Tracking Info Req: %s", str(order_info))
                 resp = requests.post(url="https://qzolve-erp.com/logix2020/track/order/create", data=json.dumps(order_info), headers=headers)
                 tracking_info_data = resp.json()
                 logger.info("Tracking Info Data: %s", str(tracking_info_data))
