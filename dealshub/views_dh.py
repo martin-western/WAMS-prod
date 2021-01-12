@@ -1396,6 +1396,7 @@ class PlaceOrderAPI(APIView):
                 cart_obj.shipping_address = None
                 cart_obj.voucher = None
                 cart_obj.to_pay = 0
+                cart_obj.additional_info = ""
                 cart_obj.merchant_reference = ""
                 cart_obj.payment_info = "{}"
                 cart_obj.save()
@@ -1445,6 +1446,7 @@ class PlaceOrderAPI(APIView):
                 fast_cart_obj.shipping_address = None
                 fast_cart_obj.voucher = None
                 fast_cart_obj.to_pay = 0
+                fast_cart_obj.additional_info = ""
                 fast_cart_obj.merchant_reference = ""
                 fast_cart_obj.payment_info = "{}"
                 fast_cart_obj.product = None
