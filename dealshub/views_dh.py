@@ -19,6 +19,7 @@ from dealshub.postaplus import *
 
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.db.models import Sum
 from django.utils import timezone
 
 from datetime import datetime
@@ -723,6 +724,7 @@ class FetchCartDetailsAPI(APIView):
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
+            response["additional_note"] = cart_obj.additional_note
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
 
@@ -812,6 +814,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
                     
+            response["additional_note"] = cart_obj.additional_note
             response["referenceMedium"] = cart_obj.reference_medium
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -1395,6 +1398,7 @@ class PlaceOrderAPI(APIView):
                 cart_obj.shipping_address = None
                 cart_obj.voucher = None
                 cart_obj.to_pay = 0
+                cart_obj.additional_note = ""
                 cart_obj.merchant_reference = ""
                 cart_obj.payment_info = "{}"
                 cart_obj.save()
@@ -1444,6 +1448,7 @@ class PlaceOrderAPI(APIView):
                 fast_cart_obj.shipping_address = None
                 fast_cart_obj.voucher = None
                 fast_cart_obj.to_pay = 0
+                fast_cart_obj.additional_note = ""
                 fast_cart_obj.merchant_reference = ""
                 fast_cart_obj.payment_info = "{}"
                 fast_cart_obj.product = None
@@ -1525,6 +1530,7 @@ class PlaceOfflineOrderAPI(APIView):
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
                                              reference_medium= cart_obj.reference_medium,
+                                             additional_note=cart_obj.additional_note,
                                              is_order_offline = True,
                                              location_group=cart_obj.location_group,
                                              delivery_fee=cart_obj.get_delivery_fee(),
@@ -1631,6 +1637,10 @@ class FetchOrderListAPI(APIView):
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
+                        unit_order_status = unit_order_obj.current_status_admin
+                        temp_dict2["can_user_cancel_unitorder"] = False
+                        if unit_order_status=="pending" or unit_order_status=="approved" or unit_order_status=="picked":
+                            temp_dict2["can_user_cancel_unitorder"] = True
                         temp_dict2["productName"] = unit_order_obj.product.get_name(language_code)
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                         unit_order_list.append(temp_dict2)
@@ -1761,10 +1771,12 @@ class FetchOrderDetailsAPI(APIView):
             response["paymentMode"] = order_obj.payment_mode
             response["paymentStatus"] = order_obj.payment_status
             response["customerName"] = order_obj.owner.first_name
+            response["additional_note"] = order_obj.additional_note
             response["isVoucherApplied"] = is_voucher_applied
             if is_voucher_applied:
                 response["voucherCode"] = voucher_obj.voucher_code
                 response["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+            response["shippingMethod"] = unit_order_objs[0].shipping_method
 
             address_obj = order_obj.shipping_address
             if address_obj==None:
@@ -1801,6 +1813,7 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["productId"] = unit_order_obj.product.get_product_id()
                 temp_dict["productUuid"] = unit_order_obj.product.uuid
                 temp_dict["link"] = unit_order_obj.product.url
+                temp_dict["user_cancellation_status"] = unit_order_obj.user_cancellation_status
 
                 unit_order_status_list = []
                 unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
@@ -1836,6 +1849,69 @@ class FetchOrderDetailsAPI(APIView):
             logger.error("FetchOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
+
+
+class CreateUnitOrderCancellationRequestAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data 
+            logger.info("CreateUnitOrderCancellationRequestAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_order_cancellation_list = data["unit_order_cancellation_list"]
+
+            for unit_order_cancellation_item in unit_order_cancellation_list:
+                unit_order_obj = UnitOrder.objects.get(uuid=unit_order_cancellation_item["unit_order_uuid"])
+                unit_order_obj.cancelled_by_user = True
+                unit_order_obj.user_cancellation_note = unit_order_cancellation_item["note"]
+                unit_order_obj.user_cancellation_status = "pending"
+                unit_order_obj.save()
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateUnitOrderCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateOrderCancellationRequestAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data 
+            logger.info("CreateOrderCancellationRequestAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_uuid = data["order_uuid"]
+            cancellation_note = data.get("note","")
+            
+            unit_order_objs = UnitOrder.objects.filter(order__uuid=order_uuid)
+
+            for unit_order_obj in unit_order_objs:
+                unit_order_obj.cancelled_by_user = True
+                unit_order_obj.user_cancellation_note = cancellation_note
+                unit_order_obj.user_cancellation_status = "pending"
+                unit_order_obj.save()
+                
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOrderCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class CreateOfflineCustomerAPI(APIView):
 
@@ -3788,6 +3864,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             max_qty = data.get("maxQty", "")
             min_price = data.get("minPrice", "")
             max_price = data.get("maxPrice", "")
+            cancellation_requested = data.get("cancellation_requested",False)
             sales_person = data.get("salesPerson","")
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
@@ -3845,6 +3922,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             if min_price!="":
                 unit_order_objs = unit_order_objs.filter(price__gte=int(min_price))
+            
+            if cancellation_requested:
+                unit_order_objs = unit_order_objs.filter(cancelled_by_user=True)
 
             if sales_person!="":
                 unit_order_objs = unit_order_objs.filter(order__offline_sales_person__username=sales_person)
@@ -3858,6 +3938,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
 
             order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
+
+            total_revenue = round(order_objs.aggregate(Sum('to_pay'))["to_pay__sum"], 2)
+            currency = location_group_obj.location.currency
 
             paginator = Paginator(order_objs, 20)
             total_orders = order_objs.count()
@@ -3948,6 +4031,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["productName"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
                         temp_dict2["intercompany_order_id"] = unit_order_obj.get_sap_intercompany_order_id()
+                        temp_dict2["cancelled_by_user"] = unit_order_obj.cancelled_by_user
+                        temp_dict2["user_cancellation_note"] = unit_order_obj.user_cancellation_note
+                        temp_dict2["user_cancellation_status"] = unit_order_obj.user_cancellation_status
                         intercompany_qty = unit_order_obj.get_sap_intercompany_order_qty()
                         final_qty = unit_order_obj.get_sap_final_order_qty()
 
@@ -4033,6 +4119,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             response["isAvailable"] = is_available
             response["totalOrders"] = total_orders
             response["orderList"] = order_list
+            response["totalRevenue"] = total_revenue
+            response["currency"] = currency
             response["status"] = 200
 
         except Exception as e:
@@ -4086,8 +4174,55 @@ class SetShippingMethodAPI(APIView):
 
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
 
-            brand_company_dict = {
+            if shipping_method.lower()=="logix" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+                order_info = {}
                 
+                order_info["order-id"] = order_obj.uuid
+                order_info["customer-name"] = order_obj.get_customer_full_name()
+                order_info["customer-address"] = order_obj.shipping_address.get_shipping_address()
+                order_info["customer-contact"] = str(order_obj.owner.contact_number)
+                order_info["payment-mode"] = order_obj.payment_mode
+                order_info["order-value"] = order_obj.to_pay
+                order_info["currency"] = order_obj.get_currency()
+                order_info["item-list"] = []
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    temp_dict = {}
+                    temp_dict["product-name"] = unit_order_obj.product.get_name()
+                    temp_dict["seller-sku"] = unit_order_obj.product.get_seller_sku()
+                    temp_dict["qty"] = unit_order_obj.quantity
+                    order_info["item-list"].append(temp_dict)
+
+                headers = {
+                    'content-type': 'application/json',
+                    'Client-Service': 'logix',
+                    'Auth-Key': 'trackapi',
+                    'token': 'bf6c7d89b71732b9362aa0e7b51b4d92',
+                    'User-ID': '1'
+                }
+                logger.info("Tracking Info Req: %s", str(order_info))
+                resp = requests.post(url="https://qzolve-erp.com/logix2020/track/order/create", data=json.dumps(order_info), headers=headers)
+                tracking_info_data = resp.json()
+                logger.info("Tracking Info Data: %s", str(tracking_info_data))
+                tracking_status = str(tracking_info_data['status']).strip()
+                tracking_reference = str(tracking_info_data['tracking_reference']).strip()
+
+                if tracking_status!="Success":
+                    logger.warning("SetShippingMethodAPI: failed status from logix api")
+                    reponse["message"] = "Logix set shipping api failed"
+                    return Response(data=response)
+                else:
+                    order_obj.logix_tracking_reference = tracking_reference
+                    order_obj.save()
+
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    set_shipping_method(unit_order_obj, shipping_method)
+
+                response["sap_info_render"] = []
+                response["status"] = 200
+                return Response(data=response)
+                
+
+            brand_company_dict = {
                 "geepas": "1000",
                 "baby plus": "5550",
                 "royalford": "3000",
@@ -4630,6 +4765,105 @@ class CancelOrdersAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CancelOrdersAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
+        return Response(data=response)
+
+
+class ApproveCancellationRequestAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            data = request.data
+            logger.info("ApproveCancellationRequestAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_order_uuid = data["unit_order_uuid"]
+
+            unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
+
+            if unit_order_obj.order.payment_mode=="COD":
+                unit_order_obj.user_cancellation_status="approved"
+                unit_order_obj.save()
+
+                notify_order_cancel_status_to_user(unit_order_obj,"approved")
+            else:
+                unit_order_obj.user_cancellation_status="refund processed"
+                unit_order_obj.save()
+
+                notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
+
+            cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ApproveCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class RejectCancellationRequestAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            data = request.data
+            logger.info("RejectCancellationRequestAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_order_uuid = data["unit_order_uuid"]
+
+            unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)       
+            unit_order_obj.user_cancellation_status = "rejected"
+            unit_order_obj.save()
+
+            notify_order_cancel_status_to_user(unit_order_obj,"rejected")
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RejectCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class UpdateCancellationRequestRefundStatusAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            
+            data = request.data
+            logger.info("UpdateCancellationRequestRefundStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            unit_order_uuid = data["unit_order_uuid"]
+
+            unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
+            unit_order_obj.user_cancellation_status = "refunded"
+            unit_order_obj.save()
+            
+            notify_order_cancel_status_to_user(unit_order_obj,"refunded")
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateCancellationRequestRefundStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         return Response(data=response)
 
 
@@ -5298,6 +5532,73 @@ class AddOfflineReferenceMediumAPI(APIView):
 
         return Response(data=response)
 
+class AddOnlineAdditionalNoteAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddOnlineAdditionalNoteAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            additional_note = data["additional_note"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            is_fast_cart = data.get("is_fast_cart", False)
+
+            if is_fast_cart==False:
+                cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+                cart_obj.additional_note = additional_note
+                cart_obj.save()
+            else:
+                fast_cart_obj = FastCart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+                fast_cart_obj.additional_note = additional_note
+                fast_cart_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddOnlineAdditionalNoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class AddOfflineAdditionalNoteAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddOfflineAdditionalNoteAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            username = data["username"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            additional_note = data["additional_note"]
+            
+            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+            cart_obj.additional_note = additional_note
+            cart_obj.save()
+
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddOfflineAdditionalNoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class FetchOrderAnalyticsParamsAPI(APIView):
 
@@ -5397,10 +5698,12 @@ class PlaceOnlineOrderAPI(APIView):
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
                                                  location_group=cart_obj.location_group,
+                                                 additional_note=cart_obj.additional_note,
                                                  payment_status="paid",
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
                                                  merchant_reference=merchant_reference,
+                                                 bundleid=cart_obj.merchant_reference,
                                                  delivery_fee=cart_obj.get_delivery_fee(),
                                                  cod_charge=0)
 
@@ -5418,6 +5721,7 @@ class PlaceOnlineOrderAPI(APIView):
                 # cart_obj points to None
                 cart_obj.shipping_address = None
                 cart_obj.voucher = None
+                cart_obj.additional_note = ""
                 cart_obj.to_pay = 0
                 cart_obj.merchant_reference = ""
                 cart_obj.payment_info = "{}"
@@ -5462,10 +5766,12 @@ class PlaceOnlineOrderAPI(APIView):
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
                                                  location_group=fast_cart_obj.location_group,
+                                                 additional_note=fast_cart_obj.additional_note,
                                                  payment_status="paid",
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
                                                  merchant_reference=merchant_reference,
+                                                 bundleid=fast_cart_obj.merchant_reference,
                                                  delivery_fee=fast_cart_obj.get_delivery_fee(),
                                                  cod_charge=0)
 
@@ -5478,6 +5784,7 @@ class PlaceOnlineOrderAPI(APIView):
                 # cart_obj points to None
                 fast_cart_obj.shipping_address = None
                 fast_cart_obj.voucher = None
+                fast_cart_obj.additional_note = ""
                 fast_cart_obj.to_pay = 0
                 fast_cart_obj.merchant_reference = ""
                 fast_cart_obj.payment_info = "{}"
@@ -5837,6 +6144,10 @@ AddToOfflineCart = AddToOfflineCartAPI.as_view()
 
 FetchCartDetails = FetchCartDetailsAPI.as_view()
 
+CreateUnitOrderCancellationRequest = CreateUnitOrderCancellationRequestAPI.as_view()
+
+CreateOrderCancellationRequest = CreateOrderCancellationRequestAPI.as_view()
+
 FetchOfflineCartDetails = FetchOfflineCartDetailsAPI.as_view()
 
 UpdateCartDetails = UpdateCartDetailsAPI.as_view()
@@ -5951,6 +6262,12 @@ SetCallStatus = SetCallStatusAPI.as_view()
 
 CancelOrders = CancelOrdersAPI.as_view()
 
+ApproveCancellationRequest = ApproveCancellationRequestAPI.as_view()
+
+RejectCancellationRequest = RejectCancellationRequestAPI.as_view()
+
+UpdateCancellationRequestRefundStatus = UpdateCancellationRequestRefundStatusAPI.as_view()
+
 FetchOCSalesPersons = FetchOCSalesPersonsAPI.as_view()
 
 DownloadOrders = DownloadOrdersAPI.as_view()
@@ -5966,6 +6283,10 @@ ApplyOfflineVoucherCode = ApplyOfflineVoucherCodeAPI.as_view()
 RemoveOfflineVoucherCode = RemoveOfflineVoucherCodeAPI.as_view()
 
 AddOfflineReferenceMedium = AddOfflineReferenceMediumAPI.as_view()
+
+AddOnlineAdditionalNote = AddOnlineAdditionalNoteAPI.as_view()
+
+AddOfflineAdditionalNote = AddOfflineAdditionalNoteAPI.as_view()
 
 FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
 

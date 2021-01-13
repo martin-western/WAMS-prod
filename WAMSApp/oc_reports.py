@@ -1725,3 +1725,462 @@ def create_sales_executive_value_report(filename, uuid, from_date, to_date, cust
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_sales_executive_value_report %s %s", e, str(exc_tb.tb_lineno))
+        
+
+def bulk_download_product_seo_details_report(filename, uuid, location_group_obj):
+    try:
+        logger.info('Product seo details download report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               "Product uuid",
+               "Product Name",
+               "seller sku",
+               "page description",
+               "seo title",
+               "seo keywords",
+               "seo description",
+               "search keywords"]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        worksheet.write(0,0,"Type",header_format)
+        worksheet.write(0,1,"product")
+
+        cnt=1
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        dh_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, is_published=True, product__base_product__brand__in=location_group_obj.website_group.brands.all())
+
+        for dh_product_obj in dh_product_objs:
+            try:
+                cnt += 1
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt-1)
+                common_row[1] = str(dh_product_obj.uuid)
+                common_row[2] = dh_product_obj.get_name()
+                common_row[3] = dh_product_obj.get_seller_sku()
+                common_row[4] = dh_product_obj.page_description
+                common_row[5] = dh_product_obj.seo_title
+                common_row[6] = dh_product_obj.seo_keywords
+                common_row[7] = dh_product_obj.seo_description
+                common_row[8] = dh_product_obj.search_keywords
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1    
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error bulk_download_product_seo_details_report %s %s", e, str(exc_tb.tb_lineno))        
+
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_download_product_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_download_categories_seo_details_report(filename, uuid, location_group_obj, category_type):
+    try:
+        logger.info('seo categories download report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               str(category_type + "Category uuid"),
+               str(category_type + "Category Name"),
+               "page description",
+               "seo title",
+               "seo keywords",
+               "seo description",
+               "short description",
+               "long description"]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        worksheet.write(0,0,"Type",header_format)
+        worksheet.write(0,1,category_type+"category")
+
+        cnt=1
+        
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        generic_category_objs = None
+        if category_type=="sub":
+            generic_category_objs = SEOSubCategory.objects.filter(location_group=location_group_obj)
+        elif category_type=="":
+            generic_category_objs = SEOCategory.objects.filter(location_group=location_group_obj)
+        elif category_type=="super":
+            generic_category_objs = SEOSuperCategory.objects.filter(location_group=location_group_obj)
+        
+        if generic_category_objs is not None:
+            for generic_category_obj in generic_category_objs:
+                try:
+                    cnt += 1
+
+                    generic_category_name = ""
+                    if category_type=="sub":
+                        generic_category_name = generic_category_obj.sub_category.get_name()
+                    elif category_type=="":
+                        generic_category_name = generic_category_obj.category.get_name()
+                    elif category_type=="super":
+                        generic_category_name = generic_category_obj.super_category.get_name()
+
+                    common_row = ["" for i in range(len(row))]
+                    common_row[0] = str(cnt-1)
+                    common_row[1] = str(generic_category_obj.uuid)
+                    common_row[2] = generic_category_name
+                    common_row[3] = generic_category_obj.page_description
+                    common_row[4] = generic_category_obj.seo_title
+                    common_row[5] = generic_category_obj.seo_keywords
+                    common_row[6] = generic_category_obj.seo_description
+                    common_row[7] = generic_category_obj.short_description
+                    common_row[8] = generic_category_obj.long_description
+
+                    colnum = 0
+                    for k in common_row:
+                        worksheet.write(cnt, colnum, k)
+                        colnum += 1
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("Error bulk_download_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+        
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_download_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_download_brand_categories_seo_details_report(filename, uuid, location_group_obj, category_type):
+    try:
+        logger.info('Categories+brand seo details download report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               "Brand "+category_type+"Category uuid",
+               "Brand Name",
+               category_type+"Category Name",
+               "page description",
+               "seo title",
+               "seo keywords",
+               "seo description",
+               "short description",
+               "long description"]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        worksheet.write(0,0,"Type",header_format)
+        worksheet.write(0,1,"brand"+category_type+"category")
+  
+        cnt=1
+        
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        generic_category_brand_objs = None
+        if category_type=="sub":
+            generic_category_brand_objs = BrandSubCategory.objects.filter(location_group=location_group_obj, brand__organization__name="WIG")
+        elif category_type=="":
+            generic_category_brand_objs = BrandCategory.objects.filter(location_group=location_group_obj, brand__organization__name="WIG")
+        elif category_type=="super":
+            generic_category_brand_objs = BrandSuperCategory.objects.filter(location_group=location_group_obj, brand__organization__name="WIG")
+        
+        if generic_category_brand_objs is not None:
+            for generic_category_brand_obj in generic_category_brand_objs:
+                try:
+                    cnt += 1
+                    generic_category_name =""
+                    if category_type=="sub":
+                        generic_category_name = generic_category_brand_obj.sub_category.get_name()
+                    elif category_type=="":
+                        generic_category_name = generic_category_brand_obj.category.get_name()
+                    elif category_type=="super":
+                        generic_category_name = generic_category_brand_obj.super_category.get_name()
+
+                    common_row = ["" for i in range(len(row))]
+                    common_row[0] = str(cnt-1)
+                    common_row[1] = str(generic_category_brand_obj.uuid)
+                    common_row[2] = generic_category_brand_obj.brand.get_name()
+                    common_row[3] = generic_category_name
+                    common_row[4] = generic_category_brand_obj.page_description
+                    common_row[5] = generic_category_brand_obj.seo_title
+                    common_row[6] = generic_category_brand_obj.seo_keywords
+                    common_row[7] = generic_category_brand_obj.seo_description
+                    common_row[8] = generic_category_brand_obj.short_description
+                    common_row[9] = generic_category_brand_obj.long_description
+                    
+                    colnum = 0
+                    for k in common_row:
+                        worksheet.write(cnt, colnum, k)
+                        colnum += 1
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("Error bulk_download_brand_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_download_brand_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_download_brand_seo_details_report(filename, uuid, location_group_obj):
+    try:
+        logger.info('Brand seo details download report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               "SEO Brand uuid",
+               "Brand Name",
+               "page description",
+               "seo title",
+               "seo keywords",
+               "seo description",
+               "short description",
+               "long description"]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        worksheet.write(0,0,"Type",header_format)
+        worksheet.write(0,1,"brand")
+
+        cnt=1
+        
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        seo_brand_objs = SEOBrand.objects.filter(location_group=location_group_obj, brand__organization__name="WIG")
+
+        for seo_brand_obj in seo_brand_objs:
+            try:
+                
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt-1)
+                common_row[1] = str(seo_brand_obj.uuid)
+                common_row[2] = seo_brand_obj.brand.get_name()
+                common_row[3] = seo_brand_obj.page_description
+                common_row[4] = seo_brand_obj.seo_title
+                common_row[5] = seo_brand_obj.seo_keywords
+                common_row[6] = seo_brand_obj.seo_description
+                common_row[7] = seo_brand_obj.short_description
+                common_row[8] = seo_brand_obj.long_description
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error bulk_download_brand_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+        
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_download_brand_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_upload_product_seo_details_report(dfs, seo_type, location_group_obj):
+
+    try:
+        logger.info('Product seo details upload report start...')
+        rows = len(dfs.iloc[:])
+
+        for i in range(2,rows):
+            product_uuid = str(dfs.iloc[i][1]).strip()
+            product_name = str(dfs.iloc[i][2]).strip()
+            product_seller_sku = str(dfs.iloc[i][3]).strip()
+            page_description = str(dfs.iloc[i][4]).strip()
+            seo_title = str(dfs.iloc[i][5]).strip()
+            seo_keywords = str(dfs.iloc[i][6]).strip()
+            seo_description = str(dfs.iloc[i][7]).strip()
+            search_keywords = str(dfs.iloc[i][8]).strip()
+
+            dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, uuid=product_uuid)
+
+            dh_product_obj.page_description = page_description
+            dh_product_obj.seo_title = seo_title
+            dh_product_obj.seo_keywords = seo_keywords
+            dh_product_obj.seo_description = seo_description
+            dh_product_obj.search_keywords = search_keywords
+            dh_product_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_upload_product_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+        
+def bulk_upload_categories_seo_details_report(dfs, seo_type, location_group_obj):
+    
+    try:
+        logger.info('Categories seo details upload report start...')
+        rows = len(dfs.iloc[:])
+
+        for i in range(2,rows):
+            generic_category_uuid = str(dfs.iloc[i][1]).strip()
+            generic_category_name = str(dfs.iloc[i][2]).strip()
+            page_description = str(dfs.iloc[i][3]).strip()
+            seo_title = str(dfs.iloc[i][4]).strip()
+            seo_keywords = str(dfs.iloc[i][5]).strip()
+            seo_description = str(dfs.iloc[i][6]).strip()
+            short_description = str(dfs.iloc[i][7]).strip()
+            long_description = str(dfs.iloc[i][8]).strip()
+            
+            generic_category_obj = None
+            if seo_type=="subcategory":
+                generic_category_obj = SEOSubCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
+            elif seo_type=="category":
+                generic_category_obj = SEOCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
+            elif seo_type=="supercategory":
+                generic_category_obj = SEOSuperCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
+
+            if generic_category_obj!=None:
+                generic_category_obj.page_description = page_description
+                generic_category_obj.seo_title = seo_title
+                generic_category_obj.seo_keywords = seo_keywords
+                generic_category_obj.seo_description = seo_description
+                generic_category_obj.short_description = short_description
+                generic_category_obj.long_description = long_description
+                generic_category_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_upload_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+        
+def bulk_upload_brand_categories_seo_details_report(dfs, seo_type, location_group_obj):
+
+    try:
+        logger.info('Brand + Categories seo details upload report start...')
+        rows = len(dfs.iloc[:])
+
+        for i in range(2,rows):
+            generic_brand_category_uuid = str(dfs.iloc[i][1]).strip()
+            generic_category_name = str(dfs.iloc[i][2]).strip()
+            brand_name = str(dfs.iloc[i][3]).strip()
+            page_description = str(dfs.iloc[i][4]).strip()
+            seo_title = str(dfs.iloc[i][5]).strip()
+            seo_keywords = str(dfs.iloc[i][6]).strip()
+            seo_description = str(dfs.iloc[i][7]).strip()
+            short_description = str(dfs.iloc[i][8]).strip()
+            long_description = str(dfs.iloc[i][9]).strip()
+            
+            generic_brand_category_obj = None
+            if seo_type=="subcategory":
+                generic_brand_category_obj = BrandSubCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+            elif seo_type=="category":
+                generic_brand_category_obj = BrandCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+            elif seo_type=="supercategory":
+                generic_brand_category_obj = BrandSuperCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+
+            if generic_brand_category_obj!=None:
+                generic_brand_category_obj.page_description = page_description
+                generic_brand_category_obj.seo_title = seo_title
+                generic_brand_category_obj.seo_keywords = seo_keywords
+                generic_brand_category_obj.seo_description = seo_description
+                generic_brand_category_obj.short_description = short_description
+                generic_brand_category_obj.long_description = long_description
+                generic_brand_category_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_upload_brand_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_upload_brand_seo_details_report(dfs, seo_type, location_group_obj):
+
+    try:
+        logger.info('Brand seo details upload report start...')
+        rows = len(dfs.iloc[:])
+
+        for i in range(2,rows):
+            brand_uuid = str(dfs.iloc[i][1]).strip()
+            brand_name = str(dfs.iloc[i][2]).strip()
+            page_description = str(dfs.iloc[i][3]).strip()
+            seo_title = str(dfs.iloc[i][4]).strip()
+            seo_keywords = str(dfs.iloc[i][5]).strip()
+            seo_description = str(dfs.iloc[i][6]).strip()
+            short_description = str(dfs.iloc[i][7]).strip()
+            long_description = str(dfs.iloc[i][8]).strip()
+
+            brand_obj = SEOBrand.objects.get(uuid=brand_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+
+            brand_obj.page_description = page_description
+            brand_obj.seo_title = seo_title
+            brand_obj.seo_keywords = seo_keywords
+            brand_obj.seo_description = seo_description
+            brand_obj.short_description = short_description
+            brand_obj.long_description = long_description
+            brand_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_upload_brand_seo_details_report %s %s", e, str(exc_tb.tb_lineno))

@@ -806,6 +806,9 @@ class FetchProductDetailsAPI(APIView):
             response["color"] = product_obj.color
             response["weight"] = product_obj.weight
             response["dimensions"] = product_obj.get_dimensions()
+            response["size"] = "NA" if str(product_obj.size)=="" else str(product_obj.size + product_obj.size_unit)
+            response["capacity"] = "NA" if str(product_obj.capacity)=="" else str(product_obj.capacity + product_obj.capacity_unit)
+            response["target_age_range"] = str(product_obj.target_age_range)
 
             response["min_price"] = product_obj.min_price
             response["max_price"] = product_obj.max_price
@@ -1071,6 +1074,7 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["product_id"] = product_obj.product_id
                     temp_dict["product_name"] = dealshub_product_obj.product_name
                     temp_dict["product_name_ar"] = dealshub_product_obj.product_name_ar
+                    temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
                     temp_dict["channel_status"] = dealshub_product_obj.is_published
                     temp_dict["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
@@ -1526,6 +1530,12 @@ class SaveProductAPI(APIView):
             barcode_string = data["barcode_string"]
             color = convert_to_ascii(data["color"])
             color_map = convert_to_ascii(data["color_map"])
+            size = data.get("size","")
+            size_unit = data.get("size_unit","")
+            capacity = data.get("capacity","")
+            capacity_unit = data.get("capacity_unit","")
+            target_age_range = data.get("target_age_range","")
+
             weight = 0
             try:
                 weight = float(data.get("weight", 0))
@@ -1580,6 +1590,11 @@ class SaveProductAPI(APIView):
             product_obj.product_id_type = product_id_type_obj
             product_obj.color_map = color_map
             product_obj.color = color
+            product_obj.size = size
+            product_obj.size_unit = size_unit
+            product_obj.capacity = capacity
+            product_obj.capacity_unit = capacity_unit
+            product_obj.target_age_range = target_age_range
             product_obj.weight = weight
             
             product_obj.material_type = material_type_obj
@@ -5959,7 +5974,7 @@ class CreateOCReportAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
 
-            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
 
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
@@ -6001,6 +6016,8 @@ class CreateOCReportAPI(APIView):
                 p1.start()
             elif report_type.lower()=="delivery":
                 shipping_method = data["shipping_method"]
+                oc_report_obj.report_title = oc_report_obj.report_title + " " + shipping_method
+                oc_report_obj.save()
                 if shipping_method.lower()=="sendex":
                     p1 = threading.Thread(target=create_sendex_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
                     p1.start()
@@ -6022,6 +6039,134 @@ class CreateOCReportAPI(APIView):
             logger.error("CreateOCReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+class CreateSEOReportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("CreateSEOReportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if OCReport.objects.filter(is_processed=False).count()>4:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+            
+            report_type = "SEO"
+            seo_type = data["seo_type"] 
+            note = data["note"]
+            location_group_uuid = data["locationGroupUuid"]
+
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            report_name = report_type+" "+seo_type
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_name, created_by=oc_user_obj, note=note, filename=filename, organization=organization_obj)
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            if seo_type=="product":
+                p1 = threading.Thread(target=bulk_download_product_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
+                p1.start()
+            elif seo_type=="subcategory":
+                p1 = threading.Thread(target=bulk_download_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"sub",))
+                p1.start()
+            elif seo_type=="category":
+                p1 = threading.Thread(target=bulk_download_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"",))
+                p1.start()
+            elif seo_type=="supercategory":
+                p1 = threading.Thread(target=bulk_download_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"super",))
+                p1.start()
+            elif seo_type=="brand":
+                p1 = threading.Thread(target=bulk_download_brand_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
+                p1.start()
+            elif seo_type=="brandsubcategory":
+                p1 = threading.Thread(target=bulk_download_brand_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"sub",))
+                p1.start()
+            elif seo_type=="brandcategory":
+                p1 = threading.Thread(target=bulk_download_brand_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"",))
+                p1.start()
+            elif seo_type=="brandsupercategory":
+                p1 = threading.Thread(target=bulk_download_brand_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"super",))
+                p1.start()
+
+            response["approved"] = True
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateSEOReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class BulkUploadSEODetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("BulkUploadSEODetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            path = default_storage.save('tmp/bulk-upload-seo-details.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            dfs = pd.read_excel(path, sheet_name=None, header=None)["Sheet1"]
+            dfs = dfs.fillna("")
+
+            seo_type = dfs.iloc[0][1] # identifier
+
+            if seo_type=="product":
+                p1 = threading.Thread(target=bulk_upload_product_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="subcategory":
+                p1 = threading.Thread(target=bulk_upload_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="category":
+                p1 = threading.Thread(target=bulk_upload_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="supercategory":
+                p1 = threading.Thread(target=bulk_upload_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brandsubcategory":
+                p1 = threading.Thread(target=bulk_upload_brand_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brandcategory":
+                p1 = threading.Thread(target=bulk_upload_brand_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brandsupercategory":
+                p1 = threading.Thread(target=bulk_upload_brand_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brand":
+                p1 = threading.Thread(target=bulk_upload_brand_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUploadSEODetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+        
+
 
 class CreateContentReportAPI(APIView):
 
@@ -6055,7 +6200,7 @@ class CreateContentReportAPI(APIView):
 
             organization_obj = custom_permission_obj.organization
 
-            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
 
             filter_parameters = data["filter_parameters"]
 
@@ -6140,7 +6285,7 @@ class FetchOCReportListAPI(APIView):
                     if oc_report_obj.completion_date!=None:
                         completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
                     temp_dict = {
-                        "name": oc_report_obj.name,
+                        "name": oc_report_obj.report_title,
                         "created_date": str(timezone.localtime(oc_report_obj.created_date).strftime("%d %m, %Y %H:%M")),
                         "created_by": str(oc_report_obj.created_by),
                         "is_processed": oc_report_obj.is_processed,
@@ -6845,6 +6990,10 @@ CreateOCReport = CreateOCReportAPI.as_view()
 FetchOCReportPermissions = FetchOCReportPermissionsAPI.as_view()
 
 FetchOCReportList = FetchOCReportListAPI.as_view()
+
+CreateSEOReport = CreateSEOReportAPI.as_view()
+
+BulkUploadSEODetails = BulkUploadSEODetailsAPI.as_view()
 
 CreateContentReport = CreateContentReportAPI.as_view()
 

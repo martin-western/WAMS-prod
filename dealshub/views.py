@@ -91,6 +91,9 @@ class FetchProductDetailsAPI(APIView):
                 response["weight"] = "NA"
             else:
                 response["weight"] = str(dealshub_product_obj.get_weight())+" kg"
+            response["size"] = dealshub_product_obj.get_size()
+            response["capacity"] = dealshub_product_obj.get_capacity()
+            response["target_age_range"] = dealshub_product_obj.get_target_age_range()
             response["material"] = dealshub_product_obj.get_material()
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
             response["faqs"] = dealshub_product_obj.get_faqs()
@@ -1388,7 +1391,7 @@ class SearchDaycartAPI(APIView):
             t1 = datetime.datetime.now()
             language_code = data.get("language","en")
             
-            product_name = data.get("name", "").strip()
+            search_string = data.get("name", "").strip()
             super_category_name = data.get("superCategory", "").strip()
             category_name = data.get("category", "").strip()
             subcategory_name = data.get("subcategory", "").strip()
@@ -1404,7 +1407,7 @@ class SearchDaycartAPI(APIView):
             page = data.get("page", 1)
 
             key_hash = "search-daycart-"+language_code+"-"+super_category_name+"-"+category_name+"-"+subcategory_name+"-"+brand_name+"-"+str(page)
-            if brand_filter==[] and sort_filter=={"price":""} and product_name=="":
+            if brand_filter==[] and sort_filter=={"price":""} and search_string=="":
                 cached_value = cache.get(key_hash, "has_expired")
                 if cached_value!="has_expired":
                     t2 = datetime.datetime.now()
@@ -1434,25 +1437,51 @@ class SearchDaycartAPI(APIView):
             if subcategory_name!="":
                 available_dealshub_products = available_dealshub_products.filter(Q(sub_category__name=subcategory_name) | Q(sub_category__name_ar=subcategory_name))
             
-            if product_name!="":
-                if available_dealshub_products.filter(Q(product__product_name__icontains=product_name) | Q(product_name_ar__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name) | Q(product__base_product__brand__name_ar__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name)).exists():
-                    available_dealshub_products = available_dealshub_products = available_dealshub_products.filter(Q(product_name_ar__icontains=product_name) | Q(product__product_name__icontains=product_name) | Q(product__base_product__brand__name__icontains=product_name)  | Q(product__base_product__brand__name_ar__icontains=product_name) | Q(product__base_product__seller_sku__icontains=product_name))
+            if search_string!="":
+                search_string = remove_stopwords(search_string)
+                words = search_string.split(" ")
+                target_brand = None
+                for word in words:
+                    if website_group_obj.brands.filter(name=word).exists():
+                        target_brand = website_group_obj.brands.filter(name=word)[0]
+                        words.remove(word)
+                        break
+                if target_brand!=None:
+                    available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
+                if len(words)==1:
+                    available_dealshub_products = available_dealshub_products.filter(Q(search_keywords__icontains=","+words[0]+","))
+                elif len(words)==2:
+                    if available_dealshub_products.filter(search_keywords__icontains=","+search_string+",").exists():
+                        available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+search_string+",")
+                    else:
+                        if available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",").exists():
+                            available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",")
+                        else:
+                            available_dealshub_products = available_dealshub_products.filter(Q(search_keywords__icontains=","+words[0]+",") | Q(search_keywords__icontains=","+words[1]+","))
+                elif len(words)==3:
+                    if available_dealshub_products.filter(search_keywords__icontains=","+search_string+",").exists():
+                        available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+search_string+",")
+                    else:
+                        if available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",").filter(search_keywords__icontains=","+words[2]+",").exists():
+                            available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",").filter(search_keywords__icontains=","+words[2]+",")
+                        else:
+                            temp_available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=words[0]).filter(search_keywords__icontains=words[1])
+                            temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[1]).filter(search_keywords__icontains=words[2])
+                            temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[0]).filter(search_keywords__icontains=words[2])
+                            if temp_available_dealshub_products.exists()==False:
+                                temp_available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=words[0])
+                                temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[1])
+                                temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[2])
+                            available_dealshub_products = temp_available_dealshub_products.distinct()
                 else:
-                    search_tags = product_name.split(" ")
-                    target_brand = None
-                    for search_tag in search_tags:
-                        if website_group_obj.brands.filter(Q(name=search_tag) | Q(name_ar=search_tag)).exists():
-                            target_brand = website_group_obj.brands.filter(Q(name=search_tag) | Q(name_ar=search_tag))[0]
-                            search_tags.remove(search_tag)
-                            break
-                    if target_brand!=None:
-                        available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
-
-                    if len(search_tags)>0:
-                        search_results = DealsHubProduct.objects.none()
-                        for search_tag in search_tags:
-                            search_results |= available_dealshub_products.filter(Q(product_name_ar__icontains=search_tag) | Q(product__product_name__icontains=search_tag) | Q(product__base_product__seller_sku__icontains=search_tag))
-                        available_dealshub_products = search_results.distinct()
+                    if available_dealshub_products.filter(search_keywords__icontains=","+search_string+",").exists():
+                        available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+search_string+",")
+                    else:
+                        if len(words)>0:
+                            search_results = DealsHubProduct.objects.none()
+                            for word in words:
+                                search_results |= available_dealshub_products.filter(search_keywords__icontains=","+word+",")
+                            available_dealshub_products = search_results.distinct()
 
             brand_list = []
             try:
@@ -1577,7 +1606,7 @@ class SearchDaycartAPI(APIView):
             response['search'] = search
             response['status'] = 200
 
-            if brand_filter==[] and sort_filter=={"price":""} and product_name=="":
+            if brand_filter==[] and sort_filter=={"price":""} and search_string=="":
                 cache.set(key_hash, json.dumps(response))
 
             t2 = datetime.datetime.now()
@@ -2005,7 +2034,7 @@ class SectionBulkUploadAPI(APIView):
                 try:
                     product_id = str(dfs.iloc[i][0]).strip()
                     product_id = product_id.split(".")[0]
-                    dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id, is_published=True)
                     dealshub_product_obj.promotion = section_obj.promotion
 
                     promotional_price = dealshub_product_obj.now_price
@@ -2087,7 +2116,7 @@ class BannerBulkUploadAPI(APIView):
                 try:
                     product_id = str(dfs.iloc[i][0]).strip()
                     product_id = product_id.split(".")[0]
-                    dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id, is_published=True)
                     CustomProductUnitBanner.objects.create(unit_banner=unit_banner_obj, product=dealshub_product_obj, order_index=i)
                     dealshub_product_obj.promotion = unit_banner_obj.promotion
 
@@ -3290,10 +3319,14 @@ class SearchProductsAutocomplete2API(APIView):
             category_key_list = available_dealshub_products.values('category').annotate(dcount=Count('category')).order_by('-dcount')[:5]
 
             category_list = []
+            product_list = []
             for category_key in category_key_list:
                 try:
+                    category_obj = Category.objects.get(pk=category_key["category"])
                     category_name = Category.objects.get(pk=category_key["category"]).name
                     category_list.append(category_name)
+                    product_name = available_dealshub_products.filter(category=category_obj)[0].product_name 
+                    product_list.append(product_name)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("SearchProductsAutocomplete2API: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3301,6 +3334,7 @@ class SearchProductsAutocomplete2API(APIView):
             category_list = list(set(category_list))
 
             response["categoryList"] = category_list
+            response["productList"] = product_list
             response['status'] = 200
 
         except Exception as e:
@@ -4833,6 +4867,48 @@ class AddProductToOrderAPI(APIView):
         return Response(data=response)
 
 
+class FetchLogixShippingStatusAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchLogixShippingStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_uuid  = data["orderUuid"]
+
+            order_obj = Order.objects.get(uuid=order_uuid)
+            tracking_reference = str(order_obj.logix_tracking_reference).strip()
+
+            if tracking_reference=="":
+                logger.warning("FetchLogixShippingStatusAPI: tracking_reference is empty!")
+                return Response(data=response)
+            
+            headers = {
+                    'content-type': 'application/json',
+                    'Client-Service': 'logix',
+                    'Auth-Key': 'trackapi',
+                    'token': 'bf6c7d89b71732b9362aa0e7b51b4d92',
+                    'User-ID': '1'
+            }
+            resp = requests.get(url="https://qzolve-erp.com/logix2020/track/order/status/"+tracking_reference, headers=headers)
+            status_data = resp.json()
+
+            response["shipping_status"] = status_data['shipping_status']
+            response['status'] = 200
+            
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchLogixShippingStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+      
+
 class NotifyOrderStatusAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,) 
@@ -5021,3 +5097,5 @@ UpdateLocationGroupSettings = UpdateLocationGroupSettingsAPI.as_view()
 AddProductToOrder = AddProductToOrderAPI.as_view()
 
 NotifyOrderStatus = NotifyOrderStatusAPI.as_view()
+
+FetchLogixShippingStatus = FetchLogixShippingStatusAPI.as_view()

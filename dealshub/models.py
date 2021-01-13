@@ -276,6 +276,19 @@ class DealsHubProduct(models.Model):
             pass
         return dimensions_string
 
+    def get_target_age_range(self):
+        return str(self.product.target_age_range)
+    
+    def get_capacity(self):
+        if str(self.product.capacity)=="":
+            return "NA"
+        return self.product.capacity + self.product.capacity_unit
+    
+    def get_size(self):
+        if str(self.product.size)=="":
+            return "NA"
+        return self.product.size + self.product.size_unit
+
     def get_faqs(self):
         return json.loads(self.product.faqs)
 
@@ -680,6 +693,7 @@ class Cart(models.Model):
     payment_info = models.TextField(default="{}")
     modified_date = models.DateTimeField(null=True, blank=True)
     reference_medium = models.CharField(max_length=200,default="")
+    additional_note = models.TextField(default="", blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -799,6 +813,7 @@ class Order(models.Model):
     postaplus_info = models.TextField(default="{}")
     is_postaplus = models.BooleanField(default=False)
 
+    additional_note = models.TextField(default="", blank=True)
     reference_medium = models.CharField(max_length=200, default="")
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
@@ -856,6 +871,19 @@ class Order(models.Model):
         subtotal = self.get_subtotal()
         vat_divider = 1+(self.location_group.vat/100)
         return str(round(subtotal/vat_divider, 2))
+
+    def get_delivery_fee_update(self, cod=False, offline=False):
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if self.voucher!=None:
+            if self.voucher.voucher_type=="SD":
+                return 0
+            subtotal = self.voucher.get_discounted_price(subtotal)
+
+        if subtotal < self.location_group.free_delivery_threshold:
+            return self.location_group.delivery_fee
+        return 0
 
     def get_delivery_fee(self):
         return self.delivery_fee
@@ -970,6 +998,10 @@ class UnitOrder(models.Model):
         ("TFM", "TFM")
     )
     shipping_method = models.CharField(max_length=100, choices=SHIPPING_METHOD, default="pending")
+
+    cancelled_by_user = models.BooleanField(default=False)
+    user_cancellation_note = models.CharField(max_length=255,default="")
+    user_cancellation_status = models.CharField(max_length=100,default="")
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
@@ -1105,6 +1137,7 @@ class FastCart(models.Model):
     modified_date = models.DateTimeField(null=True, blank=True)
     product = models.ForeignKey(DealsHubProduct, null=True, blank=True, on_delete=models.SET_NULL)
     quantity = models.IntegerField(default=1)
+    additional_note = models.TextField(default="", blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
