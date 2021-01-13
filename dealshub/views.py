@@ -636,20 +636,18 @@ class SetInterestedCategoriesForNewUserAPI(APIView):
 
         try:
             data = request.data
-            user_obj = request.user
             logger.info("SetInterestedCategoriesForNewUserAPI: %s",str(data))
 
-            contact_number = user_obj.contact_number
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
             interested_categories = data["interestedCategories"]
 
-            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
 
-            confs = json.loads(b2b_user_obj.confs)
-            if confs.get("isInterestedCategoriesSet",False) == False:
+            conf= json.loads(b2b_user_obj.conf)
+            if conf.get("isInterestedCategoriesSet",False) == False:
                 for interested_category in interested_categories:
                     interested_category_obj = Category.objects.get(uuid = interested_category['uuid'])
                     b2b_user_obj.interested_categories.add(interested_category_obj)
@@ -2679,11 +2677,12 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
                     promotion_obj = dealshub_product_obj.promotion
                     
-                    temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
-                    temp_dict2["now_price"] = dealshub_product_obj.now_price
-                    temp_dict2["was_price"] = dealshub_product_obj.was_price
-                    temp_dict2["moq"] = dealshub_user_obj.moq
-                    if is_user_authenticated == False:
+                    if is_user_authenticated == True:
+                        temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
+                        temp_dict2["now_price"] = dealshub_product_obj.now_price
+                        temp_dict2["was_price"] = dealshub_product_obj.was_price
+                        temp_dict2["moq"] = dealshub_user_obj.moq
+                    else:
                         temp_dict2["promotional_price"] = 0 
                         temp_dict2["now_price"] = 0
                         temp_dict2["was_price"] = 0
@@ -2810,37 +2809,6 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
                     unit_banner_products = list(unit_banner_products)
                     unit_banner_products.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
-
-                    if is_dealshub==False :
-                        temp_products = []
-                        for dealshub_product_obj in unit_banner_products[:40]:
-                            if dealshub_product_obj.now_price==0:
-                                continue
-                            temp_dict3 = {}
-
-                            temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
-                            temp_dict3["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
-                            temp_dict3["name"] = dealshub_product_obj.get_name(language_code)
-                            temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
-                            temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
-                            temp_dict3["brand"] = dealshub_product_obj.get_brand(language_code)
-                            temp_dict3["uuid"] = dealshub_product_obj.uuid
-                            temp_dict3["link"] = dealshub_product_obj.url
-
-                            promotion_obj = dealshub_product_obj.promotion
-                            
-                            temp_dict3["promotional_price"] = dealshub_product_obj.promotional_price
-                            temp_dict3["now_price"] = dealshub_product_obj.now_price
-                            temp_dict3["was_price"] = dealshub_product_obj.was_price
-                            temp_dict3["stock"] = dealshub_product_obj.stock
-                            temp_dict3["allowedQty"] = dealshub_product_obj.get_allowed_qty()
-                            if dealshub_product_obj.stock>0:
-                                temp_dict3["isStockAvailable"] = True
-                            else:
-                                temp_dict3["isStockAvailable"] = False
-
-                            temp_products.append(temp_dict3)    # No need to Send all
-                        temp_dict2["products"] = temp_products
                     
                     temp_dict2["has_products"] = len(unit_banner_products)>0
                     banner_images.append(temp_dict2)
@@ -2855,6 +2823,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
             if is_dealshub==True:
                 cache.set(location_group_uuid, json.dumps(dealshub_admin_sections))
 
+            response["is_user_authenticated"] = is_user_authenticated
             response["sections_list"] = dealshub_admin_sections
             response["circular_category_index"] = location_group_obj.circular_category_index
             response['status'] = 200
@@ -2878,7 +2847,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
         try:
 
             data = request.data
-            user_obj = request.user
             language_code = data.get("language","en")
             logger.info("FetchDealshubAdminSectionsAPI: %s", str(data))
 
@@ -2891,13 +2859,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             resolution = data.get("resolution", "low")
-
-            is_price_allowed = False
-            if location_group_obj.is_b2b == True:
-                if user_obj != None and check_account_status(user_obj)==True:
-                    is_price_allowed = True
-            else:
-                is_price_allowed = True
 
             if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(location_group_uuid, "has_expired")
@@ -3155,11 +3116,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict3["link"] = dealshub_product_obj.url
 
                             promotion_obj = dealshub_product_obj.promotion
-                            
-                            if is_price_allowed == True:
-                                temp_dict3["promotional_price"] = dealshub_product_obj.promotional_price
-                                temp_dict3["now_price"] = dealshub_product_obj.now_price
-                                temp_dict3["was_price"] = dealshub_product_obj.was_price
+
+                            temp_dict3["promotional_price"] = dealshub_product_obj.promotional_price
+                            temp_dict3["now_price"] = dealshub_product_obj.now_price
+                            temp_dict3["was_price"] = dealshub_product_obj.was_price
                             temp_dict3["stock"] = dealshub_product_obj.stock
                             temp_dict3["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                             if dealshub_product_obj.stock>0:

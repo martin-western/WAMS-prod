@@ -2172,7 +2172,7 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict["vatCertification"] = b2b_user_obj.vat_certificate.url
                 temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
                 temp_dict["passportCopy"] = b2b_user_obj.passport_copy.url
-                temp_dict["vatCertificationStatus"] = b2b_user_obj.vat_certificate_status
+                temp_dict["vatCertificateStatus"] = b2b_user_obj.vat_certificate_status
                 temp_dict["tradeLicenseStatus"] = b2b_user_obj.trade_license_status
                 temp_dict["passportCopyStatus"] = b2b_user_obj.passport_copy_status
             temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
@@ -2258,14 +2258,16 @@ class UpdateB2BCustomerStatusAPI(APIView):
 
         try:
             data = request.data
-            logger.info("UpdateB2BCustomerStatusAPI: %s", str(data))
-            company_name = data["companyName"]
-            vat_certificate_status = data["vatCertificationStatus"]
-            trade_license_status = data["tradeLicenseStatus"]
-            passport_copy_status = data["passportCopyStatus"]
             username = data["username"]
 
             b2b_user_obj = B2BUser.objects.get(username = username)
+
+            logger.info("UpdateB2BCustomerStatusAPI: %s", str(data))
+            company_name = data.get("companyName",b2b_user_obj.company_name)
+            vat_certificate_status = data["vatCertificateStatus"]
+            trade_license_status = data["tradeLicenseStatus"]
+            passport_copy_status = data["passportCopyStatus"]
+
             b2b_user_obj.company_name = company_name
             b2b_user_obj.vat_certificate_status = vat_certificate_status
             b2b_user_obj.trade_license_status = trade_license_status
@@ -2954,10 +2956,9 @@ class FetchAccountStatusB2BUserAPI(APIView):
 
             b2b_user_obj = None
             is_verified = False
-            if request.user.is_authenticated == True:
-                b2b_user_obj = B2BUser.objects.get(username = request.user.username)
-                if check_account_status(b2b_user_obj) == True:
-                    is_verified = True
+            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+            if check_account_status(b2b_user_obj) == True:
+                is_verified = True
             
             response["IsVerified"] = is_verified
             response["status"] = 200
@@ -3065,7 +3066,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                 OTP = "777777"
 
             is_new_user = False
-            if B2BUser.objects.filter(username = contact_number).exists() == False:
+            if B2BUser.objects.filter(username = contact_number + "-" + website_group_name).exists() == False:
                 b2b_user_obj = B2BUser.objects.create(
                     username = contact_number+"-"+website_group_name,
                     contact_number = contact_number,
@@ -3074,7 +3075,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.save()
                 is_new_user =True
-            elif B2BUser.objects.get(username=contact_number).contact_verified == False:
+            elif B2BUser.objects.get(username=contact_number + "-" + website_group_name).contact_verified == False:
                 b2b_user_obj = B2BUser.objects.get(username = contact_number+ "-"+ website_group_name)
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.save()
@@ -3529,8 +3530,10 @@ class VerifyB2BOTPSMSAPI(APIView):
             if b2b_user_obj.check_password(otp)==True:
                 r = request.POST(url = SERVER_IP+"/token-auth",data=credentials,verify=False)
                 token = json.loads(r.content)["token"]
-                response["token"] = token
-                b2b_user_obj.contact_verified = True
+                if b2b_user_obj.contact_verified == True:
+                    response["token"] = token
+                else:
+                    b2b_user_obj.contact_verified = True
                 is_verified = True
                 b2b_user_obj.save()
 
