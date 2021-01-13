@@ -215,6 +215,7 @@ urlpatterns = [
 
     url(r'^notify-order-status/$',views.NotifyOrderStatus),
     url(r'^fetch-logix-shipping-status/$', views.FetchLogixShippingStatus),
+    url(r'^fetch-couriex-shipping-status/$', views.FetchCouriexShippingStatus),
 
     url(r'^update-user-name-and-email/$',views.UpdateUserNameAndEmail),
 ]

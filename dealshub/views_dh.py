@@ -4274,7 +4274,25 @@ class SetShippingMethodAPI(APIView):
                     'Content-Type':'application/json'
                 }
                 resp = requests.post(url="https://ontrack.firstflightme.com/FFCService.svc/CreateAirwayBill", data=json.dumps(order_info), headers=headers)
-                output = resp.json()
+                tracking_info_data = resp.json()
+                code = str(tracking_info_data['Code']).strip()
+                description = str(tracking_info_data['Description'])
+                airway_bill_no = str(tracking_info_data['AirwatBillNumber']).strip()
+
+                if description!="Success":
+                    logger.warning("SetShippingMethodAPI: failed status from couriex api")
+                    reponse["message"] = "Couriex set shipping api failed"
+                    return Response(data=response)
+                else:
+                    order_obj.couriex_tracking_reference = airway_bill_no
+                    order_obj.save()
+
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    set_shipping_method(unit_order_obj, shipping_method)
+
+                response["sap_info_render"] = []
+                response["status"] = 200
+                return Response(data=response)
 
             brand_company_dict = {
                 "geepas": "1000",

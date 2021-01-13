@@ -4904,6 +4904,66 @@ class FetchLogixShippingStatusAPI(APIView):
         return Response(data=response)
       
 
+class FetchCouriexShippingStatusAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchCouriexShippingStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_uuid  = data["orderUuid"]
+
+            order_obj = Order.objects.get(uuid=order_uuid)
+            tracking_reference = str(order_obj.couriex_tracking_reference).strip()
+
+            if tracking_reference=="":
+                logger.warning("FetchCouriexShippingStatusAPI: tracking_reference is empty!")
+                return Response(data=response)
+            
+            tracking_reference_info = {
+                "TrackingAWB" : tracking_reference,
+                "UserName":"3000",
+                "Password":"fftes",
+                "AccountNo":"3000",
+                "Country":"AE"
+            }
+            headers = {
+                    'content-type': 'application/json'
+            }
+
+            resp = requests.post(url="https://ontrack.firstflightme.com/FFCService.svc/Tracking", data=json.dumps(tracking_reference_info), headers=headers)
+            status_data = resp.json()
+
+            tracking_details = status_data['AirwayBillTrackList'][0]
+            response['shipmentProgress'] = tracking_details['ShipmentProgress']
+            response['shipperReference'] = tracking_details['ShipperReference']
+            response['trackingLog'] = []
+            for tracking_log in tracking_details['TrackingLogDetails']:
+                temp_dict = {}
+                temp_dict["activityDate"] = tracking_log["ActivityDate"]
+                temp_dict["activityTime"] = tracking_log["ActivityTime"]
+                temp_dict["deliveredTo"] = tracking_log["DeliveredTo"]
+                temp_dict["location"] = tracking_log["Location"]
+                temp_dict["remarks"] = tracking_log["Remarks"]
+                temp_dict["status"] = tracking_log["Status"]
+                response['trackingLog'].append(temp_dict)
+            
+            response['description'] = status_data['Description']
+            response['status'] = 200
+            
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCouriexShippingStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class NotifyOrderStatusAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,) 
@@ -5094,3 +5154,5 @@ AddProductToOrder = AddProductToOrderAPI.as_view()
 NotifyOrderStatus = NotifyOrderStatusAPI.as_view()
 
 FetchLogixShippingStatus = FetchLogixShippingStatusAPI.as_view()
+
+FetchCouriexShippingStatus = FetchCouriexShippingStatusAPI.as_view()
