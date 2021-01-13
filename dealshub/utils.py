@@ -643,7 +643,7 @@ def notify_grn_error(order_obj):
 def notify_new_products_email(filepath, location_group_obj):
     try:
         location_group_name = location_group_obj.name
-        user_objs = CustomPermission.objects.filter(location_group__id = location_group_obj.pk)
+        user_objs = CustomPermission.objects.filter(location_groups__pk = location_group_obj.pk)
         email_list = []
         for user_obj in user_objs:
             email_list.append(user_obj.email)

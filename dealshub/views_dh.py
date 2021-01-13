@@ -5841,10 +5841,10 @@ class SendNewProductEmailNotificationAPI(APIView):
                 product_list = []
                 for temp_dealshub_product_obj in temp_dealshub_product_objs:
                     temp_dict = {
-                    "productName":temp_dealshub_product_obj.product_name,
-                    "productId": temp_dealshub_product_obj.product.get_product_id(),
-                    "brand":  temp_dealshub_product_obj.get_brand(),
-                    "sellerSKU": temp_dealshub_product_obj.get_seller_sku(),
+                        "productName":temp_dealshub_product_obj.product_name,
+                        "productId": temp_dealshub_product_obj.product.get_product_id(),
+                        "brand":  temp_dealshub_product_obj.get_brand(),
+                        "sellerSKU": temp_dealshub_product_obj.get_seller_sku(),
                     }
                     product_list.append(temp_dict)
                     temp_dealshub_product_obj.is_notified = True
