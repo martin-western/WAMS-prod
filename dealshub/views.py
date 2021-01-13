@@ -2878,6 +2878,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
         try:
 
             data = request.data
+            user_obj = request.user
             language_code = data.get("language","en")
             logger.info("FetchDealshubAdminSectionsAPI: %s", str(data))
 
@@ -2890,6 +2891,13 @@ class FetchDealshubAdminSectionsAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             resolution = data.get("resolution", "low")
+
+            is_price_allowed = False
+            if location_group_obj.is_b2b == True:
+                if user_obj != None and check_account_status(user_obj)==True:
+                    is_price_allowed = True
+            else:
+                is_price_allowed = True
 
             if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(location_group_uuid, "has_expired")
@@ -3148,9 +3156,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                             promotion_obj = dealshub_product_obj.promotion
                             
-                            temp_dict3["promotional_price"] = dealshub_product_obj.promotional_price
-                            temp_dict3["now_price"] = dealshub_product_obj.now_price
-                            temp_dict3["was_price"] = dealshub_product_obj.was_price
+                            if is_price_allowed == True:
+                                temp_dict3["promotional_price"] = dealshub_product_obj.promotional_price
+                                temp_dict3["now_price"] = dealshub_product_obj.now_price
+                                temp_dict3["was_price"] = dealshub_product_obj.was_price
                             temp_dict3["stock"] = dealshub_product_obj.stock
                             temp_dict3["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                             if dealshub_product_obj.stock>0:
