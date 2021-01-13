@@ -2158,7 +2158,7 @@ class FetchCustomerDetailsAPI(APIView):
             is_b2b = False
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             location_group_uuid = data.get("locationGroupUuid","")
-            if location_group_obj != "":
+            if location_group_uuid != "":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 is_b2b = location_group_obj.is_b2b
 
@@ -6209,6 +6209,8 @@ PaymentNotification = PaymentNotificationAPI.as_view()
 CalculateSignature = CalculateSignatureAPI.as_view()
 
 ContactUsSendEmail = ContactUsSendEmailAPI.as_view()
+
+FetchAccountStatusB2BUser = FetchAccountStatusB2BUserAPI.as_view()
 
 SendB2BOTPSMSLogin = SendB2BOTPSMSLoginAPI.as_view()
 

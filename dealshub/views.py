@@ -636,9 +636,10 @@ class SetInterestedCategoriesForNewUserAPI(APIView):
 
         try:
             data = request.data
+            user_obj = request.user
             logger.info("SetInterestedCategoriesForNewUserAPI: %s",str(data))
 
-            contact_number = data["contactNumber"]
+            contact_number = user_obj.contact_number
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
@@ -653,8 +654,8 @@ class SetInterestedCategoriesForNewUserAPI(APIView):
                     interested_category_obj = Category.objects.get(uuid = interested_category['uuid'])
                     b2b_user_obj.interested_categories.add(interested_category_obj)
 
-            confs["isInterestedCategories"] = True
-            b2b_user_obj.confs = json.dumps(confs)
+            conf["isInterestedCategories"] = True
+            b2b_user_obj.conf = json.dumps(conf)
             b2b_user_obj.save()
 
             response['status'] = 200
