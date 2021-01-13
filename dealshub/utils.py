@@ -640,16 +640,16 @@ def notify_grn_error(order_obj):
         logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))        
 
 
-def notify_new_products_email(filepath, website_group_obj):
+def notify_new_products_email(filepath, location_group_obj):
     try:
-        website_group_name = website_group_obj.name
-        user_objs = OmnycommUser.objects.filter(website_group=website_group_obj)
+        location_group_name = location_group_obj.name
+        user_objs = CustomPermission.objects.filter(location_group__id = location_group_obj.pk)
         email_list = []
         for user_obj in user_objs:
             email_list.append(user_obj.email)
         try:
-            body = "Please find attached the sheet for new products published on " + website_group_name + "."
-            subject = "Notification for new product created on " + website_group_name
+            body = "Please find attached the sheet for new products published on " + location_group_name + "."
+            subject = "Notification for new product created on " + location_group_name
             with get_connection(
                 host = "smtp.gmail.com",
                 port = 587,

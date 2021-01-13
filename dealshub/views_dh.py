@@ -5830,52 +5830,36 @@ class SendNewProductEmailNotificationAPI(APIView):
         response["status"] = 500
 
         try:
-            new_dealshub_product_objs = DealshubProduct.objects.filter(is_notified = False)
+            dealshub_product_objs = DealshubProduct.objects.filter(is_notified = False)
+            location_group_objs = dealshub_product_objs.values_list("location_group",flat=True)
 
-            website_group_objs = WebsiteGroup.objects.none()
-            for new_dealshub_product_obj in new_dealshub_product_objs:
-                website_group_objs = website_group_objs | new_dealshub_product_obj.location_group.website_group
-
-            omnycomm_users = OmnyCommUser.objects.filter(website_group = website_group_objs)
-
-            for website_group_obj in website_group_objs:
-                omnycomm_users = OmnyCommUser.objects.filter(website_group=website_group_obj)
-                temp_dealshub_product_objs = new_dealshub_product_objs.objects.filter(location_group__website_group = website_group_obj)
+            for location_group_obj in location_group_objs:
+                temp_dealshub_product_objs = dealshub_product_objs.objects.filter(location_group=location_group_obj)
+                location_group_name = location_group_obj.name
 
                 #generate excel sheet
                 product_list = []
                 for temp_dealshub_product_obj in temp_dealshub_product_objs:
                     temp_dict = {
-                        "product_name": temp_dealshub_product_obj.product_name,
-                        "product_name_ar": temp_dealshub_product_obj.product_name_ar,
-                        "product_description": temp_dealshub_product_obj.product_description,
-                        "product_description_ar": temp_dealshub_product_obj.product_description_ar,
-                        "was_price": temp_dealshub_product_obj.was_price,
-                        "now_price": temp_dealshub_product_obj.now_price,
-                        "promotional_price": temp_dealshub_product_obj.promotional_price,
-                        "stock": temp_dealshub_product_obj.stock,
-                        "is_cod_allowed": temp_dealshub_product_obj.is_cod_allowed,
-                        "location_group": temp_dealshub_product_obj.location_group.name,
-                        "is_published": temp_dealshub_product_obj.is_published,
-                        "url": temp_dealshub_product_obj.url,
-                        "is_promo_restricted": temp_dealshub_product_obj.is_promo_restricted,
-                        "is_new_arrival": temp_dealshub_product_obj.is_new_arrival,
-                        "is_on_sale": temp_dealshub_product_obj.is_on_sale,
+                    "productName":temp_dealshub_product_obj.product_name,
+                    "productId": temp_dealshub_product_obj.product.get_product_id(),
+                    "brand":  temp_dealshub_product_obj.get_brand(),
+                    "sellerSKU": temp_dealshub_product_obj.get_seller_sku(),
                     }
-                    product_list.append(temp_dealshub_product_obj)
+                    product_list.append(temp_dict)
                     temp_dealshub_product_obj.is_notified = True
                     temp_dealshub_product_obj.save()
 
-                filename = website_group_name + "-new-product.xlsx"
+                filename = location_group_name + "-new-product.xlsx"
                 filepath = SERVER_IP + os.path.join("/files/csv" + filename)
-                sheet_name = "new-products-" + website_group_name
+                sheet_name = "new-products-" + location_group_name
                 df = pd.DataFrame(product_list)
                 with pd.ExcelWriter(filepath) as workbook:
                     df.to_excel(workbook, sheet_name=sheet_name,index=False)
 
                 #trigger email
                 try:
-                    p1 = threading.Thread(target=notify_new_products_email, args =(filepath,website_group_obj))
+                    p1 = threading.Thread(target=notify_new_products_email, args =(filepath,location_group_obj))
                     p1.start()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
