@@ -3975,6 +3975,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     unit_order_count = unit_order_objs.filter(order=order_obj).count()
                     if unit_order_objs.filter(order=order_obj, cancelled_by_user=True).count() == unit_order_count:
                         temp_dict["cancelled_by_user"] = True
+                    temp_dict["partially_cancelled_by_user"] = False
+                    if temp_dict["cancelled_by_user"]==False and unit_order_objs.filter(order=order_obj, cancelled_by_user=True).exists():
+                        temp_dict["partially_cancelled_by_user"] = True
                     cancelling_note = ""
                     if cancel_status==True and unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
                         cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
