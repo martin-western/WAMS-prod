@@ -224,6 +224,7 @@ class LocationGroup(models.Model):
     is_voucher_allowed_on_cod = models.BooleanField(default=False)
     uuid = models.CharField(max_length=200, default="")
     circular_category_index = models.IntegerField(default=0)
+    is_b2b = models.BooleanField(default = False)
     region_list = models.TextField(default="[]")
 
     def __str__(self):
