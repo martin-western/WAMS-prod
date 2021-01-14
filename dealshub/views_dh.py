@@ -3971,9 +3971,17 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
                     cancel_status = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
                     temp_dict["cancelStatus"] = cancel_status
-                    if cancel_status==True:
+                    temp_dict["cancelled_by_user"] = False
+                    unit_order_count = unit_order_objs.filter(order=order_obj).count()
+                    if unit_order_objs.filter(order=order_obj, cancelled_by_user=True).count() == unit_order_count:
+                        temp_dict["cancelled_by_user"] = True
+                    temp_dict["partially_cancelled_by_user"] = False
+                    if temp_dict["cancelled_by_user"]==False and unit_order_objs.filter(order=order_obj, cancelled_by_user=True).exists():
+                        temp_dict["partially_cancelled_by_user"] = True
+                    cancelling_note = ""
+                    if cancel_status==True and unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
                         cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
-                        temp_dict["cancelling_note"] = cancelling_note
+                    temp_dict["cancelling_note"] = cancelling_note
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
