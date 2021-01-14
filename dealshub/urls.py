@@ -20,6 +20,7 @@ urlpatterns = [
 
     url(r'^search-wig/$', views.SearchWIG),
     url(r'^search-wig2/$', views.SearchWIG2),
+    url(r'^search-daycart/$', views.SearchDaycart),
     url(r'^fetch-wig-categories/$', views.FetchWIGCategories),
     url(r'^fetch-parajohn-categories/$', views.FetchParajohnCategories),
 
@@ -113,6 +114,8 @@ urlpatterns = [
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^order/fetch-order-details/$', views.FetchOrderDetails),
+    url(r'^order/create-unit-order-cancellation-request/$', views.CreateUnitOrderCancellationRequest),
+    url(r'^order/create-order-cancellation-request/$', views.CreateOrderCancellationRequest),
 
     url(r'^payment/fetch-token-request-parameters/$', views.FetchTokenRequestParameters),
     url(r'^payment/make-purchase-request/$', views.MakePurchaseRequest),
@@ -143,6 +146,9 @@ urlpatterns = [
     url(r'^update-order-status/$', views.UpdateOrderStatus),
     url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
+    url(r'^approve-cancellation-request/$', views.ApproveCancellationRequest),
+    url(r'^reject-cancellation-request/$', views.RejectCancellationRequest),
+    url(r'^update-cancellation-request-refund-status/$', views.UpdateCancellationRequestRefundStatus),
     url(r'^fetch-oc-sales-persons/$', views.FetchOCSalesPersons),
 
     url(r'^download-orders/$', views.DownloadOrders),
@@ -153,6 +159,8 @@ urlpatterns = [
     url(r'^apply-offline-voucher-code/$', views.ApplyOfflineVoucherCode),
     url(r'^remove-offline-voucher-code/$', views.RemoveOfflineVoucherCode),
     url(r'^add-offline-reference-medium/$', views.AddOfflineReferenceMedium),
+    url(r'^add-online-additional-note/$', views.AddOnlineAdditionalNote),
+    url(r'^add-offline-additional-note/$', views.AddOfflineAdditionalNote),
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 
@@ -215,6 +223,9 @@ urlpatterns = [
     url(r'^update-location-group-settings/$',views.UpdateLocationGroupSettings),
 
     url(r'^add-product-to-order/$',views.AddProductToOrder),
+
+    url(r'^notify-order-status/$',views.NotifyOrderStatus),
+    url(r'^fetch-logix-shipping-status/$', views.FetchLogixShippingStatus),
 
     url(r'^update-user-name-and-email/$',views.UpdateUserNameAndEmail),
 ]

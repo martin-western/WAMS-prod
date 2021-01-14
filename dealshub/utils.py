@@ -193,6 +193,7 @@ def update_fast_cart_bill(fast_cart_obj):
 def update_order_bill(order_obj):
     
     order_obj.to_pay = order_obj.get_total_amount()
+    order_obj.delivery_fee = order_obj.get_delivery_fee_update()
     order_obj.save()
 
 
@@ -224,6 +225,36 @@ def send_wigme_order_status_sms(unit_order_obj,message):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_wigme_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def send_daycart_order_status_sms(unit_order_obj,message):
+    try:
+        dealshub_user_obj = unit_order_obj.order.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        
+        logger.info("send_daycart_order_status_sms:", message)
+        location_group_obj = unit_order_obj.order.location_group
+        sms_country_info = json.loads(location_group_obj.sms_country_info)
+        prefix_code = sms_country_info["prefix_code"]
+        user = sms_country_info["user"]
+        pwd = sms_country_info["pwd"]
+        contact_number = prefix_code+dealshub_user_obj.contact_number
+
+        url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+        req_data = {
+            "user" : user,
+            "passwd": pwd,
+            "message": message,
+            "mobilenumber": contact_number,
+            "mtype":"N",
+            "DR":"Y"
+        }
+        r = requests.post(url=url, data=req_data)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_daycart_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def send_parajohn_order_status_sms(unit_order_obj,message):
@@ -533,6 +564,60 @@ def send_order_cancelled_mail(unit_order_obj):
         logger.error("send_order_cancelled_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
 
+def notify_order_cancel_status_to_user(unit_order_obj, status):
+    try:
+        if unit_order_obj.order.owner.email_verified==False:
+            return
+        
+        customer_name = unit_order_obj.order.get_customer_first_name()
+
+        address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
+        full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.get_email_website_logo()
+
+        html_message = loader.render_to_string(
+            os.getcwd()+'/dealshub/templates/order-cancel-status.html',
+            {
+                "website_logo": website_logo,
+                "customer_name": customer_name,
+                "order_id": unit_order_obj.orderid,
+                "product_name": unit_order_obj.product.get_name(),
+                "productImageUrl": unit_order_obj.product.get_display_image_url(),
+                "quantity": unit_order_obj.quantity,
+                "status": status,
+                "full_name": full_name,
+                "address_lines": address_lines,
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
+            }
+        )
+
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Cancel Status', 
+                        body='Order Cancel Status',
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("notify_order_cancel_status_to_user")
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("notify_order_cancel_status_to_user: %s at %s", e, str(exc_tb.tb_lineno))
+
+
 def contact_us_send_email(your_email, message, to_email, password):
     try:
         body = """
@@ -823,7 +908,7 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, 
                     holding_qty = item["holding_qty"]
                     batch = item["batch"]
                     uom = item["uom"]
-                    if atp_qty>0:
+                    if holding_qty>0:
                         temp_dict = {
                             "atp_qty": holding_qty,
                             "batch": batch,
@@ -847,6 +932,8 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, 
         order_information_list = []
         remaining_qty = order_qty
         for stock_info in total_stock_info:
+            if remaining_qty==0:
+                break
             if stock_info["atp_qty"]>=remaining_qty:
                 temp_dict = {
                     "qty": format(remaining_qty,'.2f'),
@@ -855,6 +942,7 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, 
                     "from_holding": from_holding,
                     "seller_sku": seller_sku
                 }
+                remaining_qty = 0
             else:
                 temp_dict = {
                     "qty": format(stock_info["atp_qty"],'.2f'),
@@ -866,6 +954,7 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, 
                 remaining_qty -= stock_info["atp_qty"]
             order_information_list.append(temp_dict)
 
+        logger.info("fetch_order_information_for_sap_punching: %s", str(order_information_list))
         return order_information_list
     
     except Exception as e:
