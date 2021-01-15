@@ -2378,12 +2378,16 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj = B2BUser.objects.get(username = username)
 
             logger.info("UpdateB2BCustomerStatusAPI: %s", str(data))
-            company_name = data.get("companyName",b2b_user_obj.company_name)
+            company_name = data["companyName"]
             vat_certificate_status = data["vatCertificateStatus"]
             trade_license_status = data["tradeLicenseStatus"]
             passport_copy_status = data["passportCopyStatus"]
+            customer_name = data["customerName"]
+            email_id = data["emailID"]
 
             b2b_user_obj.company_name = company_name
+            b2b_user_obj.first_name = customer_name
+            b2b_user_obj.email = email_id
             b2b_user_obj.vat_certificate_status = vat_certificate_status
             b2b_user_obj.trade_license_status = trade_license_status
             b2b_user_obj.passport_copy_status = passport_copy_status
