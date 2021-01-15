@@ -2832,6 +2832,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
             if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(location_group_uuid, "has_expired")
                 if cached_value!="has_expired":
+                    response["is_user_authenticated"] = is_user_authenticated
                     response["sections_list"] = json.loads(cached_value)
                     response["circular_category_index"] = location_group_obj.circular_category_index
                     response['status'] = 200
