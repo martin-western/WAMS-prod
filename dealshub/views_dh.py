@@ -3177,12 +3177,14 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                     username = contact_number+"-"+website_group_name,
                     contact_number = contact_number,
                     website_group = website_group_obj,
+                    verification_code = otp
                 )
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.save()
                 is_new_user =True
             elif B2BUser.objects.get(username=contact_number + "-" + website_group_name).contact_verified == False:
                 b2b_user_obj = B2BUser.objects.get(username = contact_number+ "-"+ website_group_name)
+                b2b_user_obj.verification_code = otp
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.save()
                 is_new_user = True
@@ -3635,7 +3637,7 @@ class VerifyB2BOTPSMSAPI(APIView):
             }
 
             is_verified = False
-            if b2b_user_obj.check_password(otp)==True:
+            if b2b_user_obj.verification_code==otp:
                 r = request.POST(url = SERVER_IP+"/token-auth",data=credentials,verify=False)
                 token = json.loads(r.content)["token"]
                 if b2b_user_obj.contact_verified == True:
