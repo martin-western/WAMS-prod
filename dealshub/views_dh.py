@@ -3098,7 +3098,7 @@ class SendB2BOTPSMSLoginAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["888888888", "940804016", "888888881", "702290032"]:
+            if contact_number in ["888888888", "940804016", "888888881", "702290032", "888888883"]:
                 OTP = "777777"
 
             otp_sent = False
