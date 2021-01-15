@@ -2376,7 +2376,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
             logger.info("UpdateB2BCustomerStatusAPI: %s", str(data))
 
             username = data["username"]
-            
+
             b2b_user_obj = B2BUser.objects.get(username = username)
 
             company_name = data["companyName"]
@@ -2397,7 +2397,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
             response["status"] = 200
 
         except Exception as e:
-            exc_type, exc_obj, exc_info = sys.exc_info()
+            exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateB2BCustomerStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
