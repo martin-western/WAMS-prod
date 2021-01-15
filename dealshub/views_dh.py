@@ -3184,7 +3184,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                 is_new_user =True
             elif B2BUser.objects.get(username=contact_number + "-" + website_group_name).contact_verified == False:
                 b2b_user_obj = B2BUser.objects.get(username = contact_number+ "-"+ website_group_name)
-                b2b_user_obj.verification_code = otp
+                b2b_user_obj.verification_code = OTP
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.save()
                 is_new_user = True
