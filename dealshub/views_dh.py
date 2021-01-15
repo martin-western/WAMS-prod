@@ -3633,12 +3633,12 @@ class VerifyB2BOTPSMSAPI(APIView):
 
             credentials = {
                 "username":contact_number+"-"+website_group_name,
-                "password":otp,
+                "password":otp
             }
 
             is_verified = False
             if b2b_user_obj.verification_code==otp:
-                r = request.POST(url = SERVER_IP+"/token-auth",data=credentials,verify=False)
+                r = requests.post(url = SERVER_IP+"/token-auth",data=credentials,verify=False)
                 token = json.loads(r.content)["token"]
                 if b2b_user_obj.contact_verified == True:
                     response["token"] = token
@@ -3649,7 +3649,6 @@ class VerifyB2BOTPSMSAPI(APIView):
 
             response["verified"]=is_verified
             response["status"]=200
-            logger.info("RETURNING %s", str(response))
 
         except exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
