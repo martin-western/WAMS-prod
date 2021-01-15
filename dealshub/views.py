@@ -2805,13 +2805,14 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        request = {}
-        request['status'] = 500
+        response = {}
+        response['status'] = 500
         try:
 
             data = request.data
-            language_code = data.get("language","en")
             logger.info("FetchB2BDealshubAdminSectionsAPI: %s", str(data))
+            
+            language_code = data.get("language","en")
 
             limit = data.get("limit", False)
             is_dealshub = data.get("isDealshub", False)
