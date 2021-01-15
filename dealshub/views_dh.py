@@ -3228,6 +3228,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
 
 class SignUpCompletionAPI(APIView):
 
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
