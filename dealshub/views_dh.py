@@ -3283,7 +3283,7 @@ class SignUpCompletionAPI(APIView):
                 token = json.loads(r.content)["token"]
                 response["token"] = token
 
-            request["status"] = 200
+            response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
