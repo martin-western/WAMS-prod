@@ -2384,7 +2384,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
             trade_license_status = data["tradeLicenseStatus"]
             passport_copy_status = data["passportCopyStatus"]
             customer_name = data["customerName"]
-            email_id = data["emailID"]
+            email_id = data["emailId"]
 
             b2b_user_obj.company_name = company_name
             b2b_user_obj.first_name = customer_name
