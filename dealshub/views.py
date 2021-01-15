@@ -2811,7 +2811,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
             data = request.data
             logger.info("FetchB2BDealshubAdminSectionsAPI: %s", str(data))
-            
+
             language_code = data.get("language","en")
 
             limit = data.get("limit", False)
@@ -2904,7 +2904,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
                 custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
                 if is_dealshub==True:
-                    custom_product_section_objs = custom_product_section_obDealshubjs.exclude(product__now_price=0).exclude(product__stock=0)
+                    custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
 
                 dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
                 
