@@ -3254,7 +3254,7 @@ class SignUpCompletionAPI(APIView):
             b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
 
             is_new_user_created =False
-            if b2b_user_obj.check_password(otp) == True:  
+            if b2b_user_obj.verification_code==otp:  
                 b2b_user_obj.contact_number = contact_number
                 b2b_user_obj.first_name = name
                 b2b_user_obj.email = email
