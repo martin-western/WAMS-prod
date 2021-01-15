@@ -2800,6 +2800,7 @@ class UnPublishDealsHubProductsAPI(APIView):
         
         return Response(data=response)
 
+
 class FetchB2BDealshubAdminSectionsAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
@@ -2824,14 +2825,17 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
             b2b_user_obj = None
             if request.user != None:
-                logger.info("USERNAME: %s", str(request.user.username))
                 b2b_user_obj = B2BUser.objects.get(username = request.user.username)
             is_user_authenticated = check_account_status(b2b_user_obj)
 
             resolution = data.get("resolution", "low")
 
+            show_price = "HIDE"
+            if is_user_authenticated:
+                show_price = "SHOW"
+            cache_key = show_price+"-"+location_group_uuid
             if is_dealshub==True and is_bot==False:
-                cached_value = cache.get(location_group_uuid, "has_expired")
+                cached_value = cache.get(cache_key, "has_expired")
                 if cached_value!="has_expired":
                     response["is_user_authenticated"] = is_user_authenticated
                     response["sections_list"] = json.loads(cached_value)
@@ -3087,7 +3091,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
             dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
 
             if is_dealshub==True:
-                cache.set(location_group_uuid, json.dumps(dealshub_admin_sections))
+                cache.set(cache_key, json.dumps(dealshub_admin_sections))
 
             response["is_user_authenticated"] = is_user_authenticated
             response["sections_list"] = dealshub_admin_sections
