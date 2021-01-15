@@ -3242,9 +3242,9 @@ class SignUpCompletionAPI(APIView):
             company_name = data["companyName"]
             email = data["email"]
             otp = data["otp"]
-            vat_certificate = request.FILES['vat-certificate']
-            trade_license = request.FILES['trade-license']
-            passport_copy = request.FILES['passport-copy']
+            vat_certificate = data["vat-certificate"]
+            trade_license = data["trade-license"]
+            passport_copy = data["passport-copy"]
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
