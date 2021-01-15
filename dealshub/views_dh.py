@@ -3283,7 +3283,6 @@ class SignUpCompletionAPI(APIView):
                 token = json.loads(r.content)["token"]
                 response["token"] = token
 
-            response["IsNewUserCreated"] = is_new_user_created
             request["status"] = 200
 
         except Exception as e:
