@@ -2836,6 +2836,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
                     response["sections_list"] = json.loads(cached_value)
                     response["circular_category_index"] = location_group_obj.circular_category_index
                     response['status'] = 200
+                    logger.info("true or false %s", is_user_authenticated)
                     return Response(data=response)
 
             section_objs = Section.objects.filter(location_group__uuid=location_group_uuid).order_by('order_index')
