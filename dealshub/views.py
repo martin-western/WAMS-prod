@@ -2947,7 +2947,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
                         temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
                         temp_dict2["now_price"] = dealshub_product_obj.now_price
                         temp_dict2["was_price"] = dealshub_product_obj.was_price
-                        temp_dict2["moq"] = dealshub_user_obj.moq
+                        temp_dict2["moq"] = dealshub_product_obj.moq
                     else:
                         temp_dict2["promotional_price"] = 0 
                         temp_dict2["now_price"] = 0
