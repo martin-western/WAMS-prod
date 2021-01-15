@@ -3622,7 +3622,7 @@ class VerifyB2BOTPSMSAPI(APIView):
 
             contact_number = data['contactNumber']
             otp = data["otp"]
-            location_group_uuid = data["locationGroupUuid"].lower()
+            location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
@@ -3630,8 +3630,8 @@ class VerifyB2BOTPSMSAPI(APIView):
             b2b_user_obj = B2BUser.objects.get(username = contact_number+"-"+website_group_name)
 
             credentials = {
-            "username":contact_number+"-"+website_group_name,
-            "password":otp,
+                "username":contact_number+"-"+website_group_name,
+                "password":otp,
             }
 
             is_verified = False
