@@ -2199,6 +2199,14 @@ class FetchCustomerListAPI(APIView):
                     dealshub_user_objs = dealshub_user_objs.filter(cart__in=cart_objs) | dealshub_user_objs.filter(fastcart__in=fast_cart_objs)
                     dealshub_user_objs = dealshub_user_objs.distinct()
 
+            if "b2b-verified" in filter_parameters:
+                if filter_parameters["b2b-verified"]==True:
+                    b2b_user_objs = B2BUser.objects.filter(vat_certificate_status="Approved", trade_license_status="Approved", passport_copy_status="Approved")
+                    dealshub_user_objs = dealshub_user_objs.filter(b2buser__in=b2b_user_objs)
+                elif filter_parameters["b2b-verified"]==False:
+                    b2b_user_objs = B2BUser.objects.exclude(vat_certificate_status="Approved", trade_license_status="Approved", passport_copy_status="Approved")
+                    dealshub_user_objs = dealshub_user_objs.filter(b2buser__in=b2b_user_objs)
+
             page = data.get("page", 1)
             total_customers = dealshub_user_objs.count()
             paginator = Paginator(dealshub_user_objs, 20)
