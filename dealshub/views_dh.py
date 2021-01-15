@@ -3641,6 +3641,7 @@ class VerifyB2BOTPSMSAPI(APIView):
                 logger.info("Enter 1")
                 r = requests.post(url = SERVER_IP+"/token-auth",data=credentials,verify=False)
                 logger.info("Enter 2")
+                logger.info("Enter 33 %s", str(r.content))
                 token = json.loads(r.content)["token"]
                 logger.info("Enter 3")
                 if b2b_user_obj.contact_verified == True:
