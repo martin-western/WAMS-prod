@@ -2368,8 +2368,8 @@ class FetchCustomerDetailsAPI(APIView):
 class UpdateB2BCustomerStatusAPI(APIView):
 
     def post(self, request, *args, **kwargs):
-        request = {}
-        request["status"] = 500
+        response = {}
+        response["status"] = 500
 
         try:
             data = request.data
