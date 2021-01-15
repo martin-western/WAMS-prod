@@ -2214,6 +2214,14 @@ class FetchCustomerListAPI(APIView):
                     temp_dict["username"] = dealshub_user_obj.username
                     temp_dict["is_cart_empty"] = not (UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists() or FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists())
                     temp_dict["is_feedback_available"] = False
+                    if location_group_obj.is_b2b:
+                        b2b_user_obj = B2BUser.objects.get(username = dealshub_user_obj.username)
+                        temp_dict["companyName"] = b2b_user_obj.company_name
+                        total_qty = UnitOrder.objects.filter(order__owner=dealshub_user_obj).aggregate(Sum('quantity'))["quantity__sum"]
+                        if total_qty==None:
+                            total_qty = 0
+                        temp_dict["total_qty"] = total_qty
+                        temp_dict["total_items"] = len(UnitOrder.objects.filter(order__owner=dealshub_user_obj).values("product").distinct())
                     customer_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
