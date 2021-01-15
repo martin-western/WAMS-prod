@@ -3256,7 +3256,7 @@ class SignUpCompletionAPI(APIView):
             is_new_user_created =False
             if b2b_user_obj.check_password(otp) == True:  
                 b2b_user_obj.contact_number = contact_number
-                b2b_user_obj.name = name
+                b2b_user_obj.first_name = name
                 b2b_user_obj.email = email
                 b2b_user_obj.date_created = timezone.now()
                 b2b_user_obj.company_name = company_name
