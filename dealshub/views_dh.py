@@ -2447,6 +2447,8 @@ class FetchCustomerOrdersAPI(APIView):
                     temp_dict2["currency"] = unit_order_obj.product.get_currency()
                     temp_dict2["productName"] = unit_order_obj.product.get_name()
                     temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
+                    temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
+                    temp_dict2["sapStatus"] = unit_order_obj.sap_status
                     unit_order_list.append(temp_dict2)
                 temp_dict["totalBilling"] = str(order_obj.to_pay) + " " + str(order_obj.location_group.location.currency)
                 temp_dict["unitOrderList"] = unit_order_list
@@ -2458,6 +2460,7 @@ class FetchCustomerOrdersAPI(APIView):
 
             response["is_available"] = is_available
             response["total_orders"] = total_orders
+            response["customerName"] = dealshub_user_obj.first_name
 
             response["orderList"] = order_list
             response['status'] = 200
