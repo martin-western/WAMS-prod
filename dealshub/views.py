@@ -634,6 +634,10 @@ class FetchCategoriesForNewUserAPI(APIView):
                 temp_dict["uuid"] = category_obj.uuid
                 category_list.append(temp_dict)
 
+            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+            conf = json.loads(b2b_user_obj.conf)
+
+            response["isInterestedCategoriesSet"] = conf.get("isInterestedCategoriesSet", False)
             response['categoryList'] = category_list
             response['status'] = 200
 
@@ -669,7 +673,7 @@ class SetInterestedCategoriesForNewUserAPI(APIView):
                     interested_category_obj = Category.objects.get(uuid = interested_category['uuid'])
                     b2b_user_obj.interested_categories.add(interested_category_obj)
 
-            conf["isInterestedCategories"] = True
+            conf["isInterestedCategoriesSet"] = True
             b2b_user_obj.conf = json.dumps(conf)
             b2b_user_obj.save()
 
