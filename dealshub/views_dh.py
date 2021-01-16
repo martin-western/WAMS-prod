@@ -3194,7 +3194,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                     username = contact_number+"-"+website_group_name,
                     contact_number = contact_number,
                     website_group = website_group_obj,
-                    verification_code = otp
+                    verification_code = OTP
                 )
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.save()
