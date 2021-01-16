@@ -2825,6 +2825,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
             b2b_user_obj = None
             if request.user != None:
+                logger.info("REQUEST USER: %s", str(request.user))
                 b2b_user_obj = B2BUser.objects.get(username = request.user.username)
             is_user_authenticated = check_account_status(b2b_user_obj)
 
