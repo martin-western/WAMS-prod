@@ -2824,7 +2824,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             b2b_user_obj = None
-            if request.user != None:
+            if request.user != None and str(request.user)!="AnonymousUser":
                 logger.info("REQUEST USER: %s", str(request.user))
                 b2b_user_obj = B2BUser.objects.get(username = request.user.username)
             is_user_authenticated = check_account_status(b2b_user_obj)
