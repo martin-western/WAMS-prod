@@ -160,6 +160,7 @@ class DealsHubProduct(models.Model):
     promotional_price = models.FloatField(default=0)
     stock = models.IntegerField(default=0)
     allowed_qty = models.IntegerField(default=1000)
+    moq = models.IntegerField(default=5)
     is_cod_allowed = models.BooleanField(default=True)
     properties = models.TextField(null=True, blank=True, default="{}")
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
@@ -1214,6 +1215,31 @@ class DealsHubUser(User):
             self.date_created = timezone.now()
         
         super(DealsHubUser, self).save(*args, **kwargs)
+
+
+class B2BUser(DealsHubUser):
+    company_name = models.CharField(default="",max_length=50)
+    interested_categories = models.ManyToManyField(Category,blank = True)
+    vat_certificate = models.FileField(upload_to = 'vat_certificate',null=True, blank=True)
+    trade_license = models.FileField(upload_to = 'trade_license',null=True,blank=True)
+    passport_copy = models.FileField(upload_to = 'passport_copy',null=True,blank=True)
+
+    STATUS_OPTIONS = (
+        ('Pending','Pending'),
+        ('Approved','Approved'),
+        ('Rejected','Rejected'),
+    )
+
+    vat_certificate_status = models.CharField(max_length=30, choices=STATUS_OPTIONS,default='Pending')
+    trade_license_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
+    passport_copy_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
+    conf = models.TextField(default = "{}")
+
+    class Meta:
+        verbose_name = "B2BUser"
+
+    def save(self,*args,**kwargs):
+        super(B2BUser,self).save(*args,**kwargs)
 
 
 class AdminReviewComment(models.Model):

@@ -5922,6 +5922,7 @@ class CheckSectionPermissionsAPI(APIView):
                 temp_dict = {}
                 temp_dict["name"] = location_group_obj.name
                 temp_dict["uuid"] = location_group_obj.uuid
+                temp_dict["is_b2b"] = location_group_obj.is_b2b
                 ecommerce_pages.append(temp_dict)
 
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)

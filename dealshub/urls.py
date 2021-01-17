@@ -11,6 +11,8 @@ urlpatterns = [
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-super-categories/$', views.FetchSuperCategories),
     url(r'^fetch-heading-categories/$', views.FetchHeadingCategories),
+    url(r'^fetch-categories-for-new-user/$', views.FetchCategoriesForNewUser),
+    url(r'^set-interested-categories-for-new-user/$', views.SetInterestedCategoriesForNewUser),
     url(r'^fetch-on-sale-products/$', views.FetchOnSaleProducts),
     url(r'^fetch-new-arrival-products/$', views.FetchNewArrivalProducts),
 
@@ -54,6 +56,7 @@ urlpatterns = [
     url(r'^activate-cod-dealshub-product/$', views.ActivateCODDealsHubProduct),
     url(r'^deactivate-cod-dealshub-product/$', views.DeactivateCODDealsHubProduct),
 
+    url(r'^fetch-b2b-dealshub-admin-sections/$', views.FetchB2BDealshubAdminSections),
     url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
     url(r'^save-dealshub-admin-sections-order/$', views.SaveDealshubAdminSectionsOrder),
 
@@ -130,6 +133,7 @@ urlpatterns = [
 
     url(r'^fetch-customer-list/$', views.FetchCustomerList),
     url(r'^fetch-customer-details/$', views.FetchCustomerDetails),
+    url(r'^update-b2b-customer-status/$',views.UpdateB2BCustomerStatus),
     url(r'^fetch-customer-orders/$', views.FetchCustomerOrders),
 
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
@@ -160,7 +164,12 @@ urlpatterns = [
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 
+    url(r'^fetch-account-status-b2b-user/$',views.FetchAccountStatusB2BUser),
+    url(r'^send-b2b-otp-sms-login/$', views.SendB2BOTPSMSLogin),
+    url(r'^send-b2b-otp-sms-signup/$', views.SendB2BOTPSMSSignUp),
+    url(r'^signup-completion-api/$',views.SignUpCompletion),
     url(r'^send-otp-sms-login/$', views.SendOTPSMSLogin),
+    url(r'^verify-b2b-otp-sms/$', views.VerifyB2BOTPSMS),
     url(r'^verify-otp-sms-login/$', views.VerifyOTPSMSLogin),
 
     url(r'^check-user-pin-set/$', views.CheckUserPinSet),

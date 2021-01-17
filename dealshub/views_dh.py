@@ -2199,6 +2199,14 @@ class FetchCustomerListAPI(APIView):
                     dealshub_user_objs = dealshub_user_objs.filter(cart__in=cart_objs) | dealshub_user_objs.filter(fastcart__in=fast_cart_objs)
                     dealshub_user_objs = dealshub_user_objs.distinct()
 
+            if "b2b-verified" in filter_parameters:
+                if filter_parameters["b2b-verified"]==True:
+                    b2b_user_objs = B2BUser.objects.filter(vat_certificate_status="Approved", trade_license_status="Approved", passport_copy_status="Approved")
+                    dealshub_user_objs = dealshub_user_objs.filter(b2buser__in=b2b_user_objs)
+                elif filter_parameters["b2b-verified"]==False:
+                    b2b_user_objs = B2BUser.objects.exclude(vat_certificate_status="Approved", trade_license_status="Approved", passport_copy_status="Approved")
+                    dealshub_user_objs = dealshub_user_objs.filter(b2buser__in=b2b_user_objs)
+
             page = data.get("page", 1)
             total_customers = dealshub_user_objs.count()
             paginator = Paginator(dealshub_user_objs, 20)
@@ -2214,6 +2222,15 @@ class FetchCustomerListAPI(APIView):
                     temp_dict["username"] = dealshub_user_obj.username
                     temp_dict["is_cart_empty"] = not (UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists() or FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists())
                     temp_dict["is_feedback_available"] = False
+                    temp_dict["date_created"] = str(dealshub_user_obj.date_created.strftime("%d %b %Y"))
+                    if location_group_obj.is_b2b:
+                        b2b_user_obj = B2BUser.objects.get(username = dealshub_user_obj.username)
+                        temp_dict["companyName"] = b2b_user_obj.company_name
+                        total_qty = UnitOrder.objects.filter(order__owner=dealshub_user_obj).aggregate(Sum('quantity'))["quantity__sum"]
+                        if total_qty==None:
+                            total_qty = 0
+                        temp_dict["total_qty"] = total_qty
+                        temp_dict["total_items"] = len(UnitOrder.objects.filter(order__owner=dealshub_user_obj).values("product").distinct())
                     customer_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2251,12 +2268,26 @@ class FetchCustomerDetailsAPI(APIView):
 
             username = data["username"]
 
+            is_b2b = False
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid != "":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                is_b2b = location_group_obj.is_b2b
 
             temp_dict = {}
             temp_dict["customerName"] = dealshub_user_obj.first_name
             temp_dict["emailId"] = dealshub_user_obj.email
             temp_dict["contactNumber"] = dealshub_user_obj.contact_number
+            if is_b2b == True:
+                b2b_user_obj = B2BUser.objects.get(username = dealshub_user_obj.username)
+                temp_dict["companyName"] = b2b_user_obj.company_name
+                temp_dict["vatCertification"] = b2b_user_obj.vat_certificate.url
+                temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
+                temp_dict["passportCopy"] = b2b_user_obj.passport_copy.url
+                temp_dict["vatCertificateStatus"] = b2b_user_obj.vat_certificate_status
+                temp_dict["tradeLicenseStatus"] = b2b_user_obj.trade_license_status
+                temp_dict["passportCopyStatus"] = b2b_user_obj.passport_copy_status
             temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
             try:
                 if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date!=None:
@@ -2334,6 +2365,44 @@ class FetchCustomerDetailsAPI(APIView):
         return Response(data=response)
 
 
+class UpdateB2BCustomerStatusAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("UpdateB2BCustomerStatusAPI: %s", str(data))
+
+            username = data["username"]
+
+            b2b_user_obj = B2BUser.objects.get(username = username)
+
+            company_name = data["companyName"]
+            vat_certificate_status = data["vatCertificateStatus"]
+            trade_license_status = data["tradeLicenseStatus"]
+            passport_copy_status = data["passportCopyStatus"]
+            customer_name = data["customerName"]
+            email_id = data["emailId"]
+
+            b2b_user_obj.company_name = company_name
+            b2b_user_obj.first_name = customer_name
+            b2b_user_obj.email = email_id
+            b2b_user_obj.vat_certificate_status = vat_certificate_status
+            b2b_user_obj.trade_license_status = trade_license_status
+            b2b_user_obj.passport_copy_status = passport_copy_status
+            b2b_user_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateB2BCustomerStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchCustomerOrdersAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2378,6 +2447,8 @@ class FetchCustomerOrdersAPI(APIView):
                     temp_dict2["currency"] = unit_order_obj.product.get_currency()
                     temp_dict2["productName"] = unit_order_obj.product.get_name()
                     temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
+                    temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
+                    temp_dict2["sapStatus"] = unit_order_obj.sap_status
                     unit_order_list.append(temp_dict2)
                 temp_dict["totalBilling"] = str(order_obj.to_pay) + " " + str(order_obj.location_group.location.currency)
                 temp_dict["unitOrderList"] = unit_order_list
@@ -2389,6 +2460,7 @@ class FetchCustomerOrdersAPI(APIView):
 
             response["is_available"] = is_available
             response["total_orders"] = total_orders
+            response["customerName"] = dealshub_user_obj.first_name
 
             response["orderList"] = order_list
             response['status'] = 200
@@ -2995,6 +3067,248 @@ class ContactUsSendEmailAPI(APIView):
         return Response(data=response)
 
 
+class FetchAccountStatusB2BUserAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] =500
+
+        try:
+            data = request.data
+            logger.info("FetchAccountStatusB2BUserAPI: %s", str(data))
+
+            b2b_user_obj = None
+            is_verified = False
+            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+            if check_account_status(b2b_user_obj) == True:
+                is_verified = True
+            
+            response["IsVerified"] = is_verified
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchAccountStatusB2BUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SendB2BOTPSMSLoginAPI(APIView):
+    permission_classes = [AllowAny,]
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("SendB2BOTPSMSLoginAPI: %s", str(data))
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+            sms_country_info = json.loads(location_group_obj.sms_country_info)
+
+            digits = "0123456789"
+            OTP = ""
+            for i in range(6):
+                OTP += digits[int(math.floor(random.random()*10))]
+
+            if contact_number in ["888888888", "940804016", "888888881", "702290032", "888888883"]:
+                OTP = "777777"
+
+            otp_sent = False
+            username = contact_number + "-" + website_group_name
+            if B2BUser.objects.filter(username = username).exists() == True and B2BUser.objects.get(username = username).contact_verified == True:
+                b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+                b2b_user_obj.set_password(OTP)
+                b2b_user_obj.save()
+
+                #Trigger sms
+                try:
+                    prefix_code = sms_country_info["prefix_code"]
+                    user = sms_country_info["user"]
+                    pwd = sms_country_info["pwd"]
+
+                    message = "Login OTP is " + OTP
+                    contact_number = prefix_code+contact_number
+
+                    url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+                    req_data = {
+                        "user" : user,
+                        "passwd": pwd,
+                        "message": message,
+                        "mobilenumber": contact_number,
+                        "mtype":"N",
+                        "DR":"Y"
+                    }
+                    r = requests.post(url=url, data=req_data)
+                    otp_sent = True
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SendB2BOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))  
+
+            response["status"] = 200
+            response["OTPSent"] = otp_sent
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SendB2BOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SendB2BOTPSMSSignUpAPI(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self,request,*args,**kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SendB2BOTPSMSSignUpAPI: %s",str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            contact_number = data["contactNumber"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+            sms_country_info = json.loads(location_group_obj.sms_country_info)
+
+            digits = "0123456789"
+            OTP = ""
+            for i in range(6):
+                OTP += digits[int(math.floor(random.random()*10))]
+
+            if contact_number in ["888888888", "940804016", "888888881", "702290032", "888888883"]:
+                OTP = "777777"
+
+            is_new_user = False
+            if B2BUser.objects.filter(username = contact_number + "-" + website_group_name).exists() == False:
+                b2b_user_obj = B2BUser.objects.create(
+                    username = contact_number+"-"+website_group_name,
+                    contact_number = contact_number,
+                    website_group = website_group_obj,
+                    verification_code = OTP
+                )
+                b2b_user_obj.set_password(OTP)
+                b2b_user_obj.save()
+                is_new_user =True
+            elif B2BUser.objects.get(username=contact_number + "-" + website_group_name).contact_verified == False:
+                b2b_user_obj = B2BUser.objects.get(username = contact_number+ "-"+ website_group_name)
+                b2b_user_obj.verification_code = OTP
+                b2b_user_obj.set_password(OTP)
+                b2b_user_obj.save()
+                is_new_user = True
+            else:
+                response['isNewUser'] = is_new_user
+                response['status'] = 403
+                return Response(data=response)
+
+            #Trigger sms
+            try:
+                prefix_code = sms_country_info["prefix_code"]
+                user = sms_country_info["user"]
+                pwd = sms_country_info["pwd"]
+
+                message = "Login OTP is " + OTP
+                contact_number = prefix_code+contact_number
+
+                url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+                req_data = {
+                    "user" : user,
+                    "passwd": pwd,
+                    "message": message,
+                    "mobilenumber": contact_number,
+                    "mtype":"N",
+                    "DR":"Y"
+                }
+                r = requests.post(url=url, data=req_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SendB2BOTPSMSSignUpAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["isNewUser"] = is_new_user
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SendB2BOTPSMSSignUpAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SignUpCompletionAPI(APIView):
+
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("SignUpCompletionAPI: %s", str(data))
+
+            contact_number = data["contactNumber"]
+            name = data["fullName"]
+            company_name = data["companyName"]
+            email = data["email"]
+            otp = data["otp"]
+            vat_certificate = data["vat-certificate"]
+            trade_license = data["trade-license"]
+            passport_copy = data["passport-copy"]
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+
+            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+
+            is_new_user_created =False
+            if b2b_user_obj.verification_code==otp:  
+                b2b_user_obj.contact_number = contact_number
+                b2b_user_obj.first_name = name
+                b2b_user_obj.email = email
+                b2b_user_obj.date_created = timezone.now()
+                b2b_user_obj.company_name = company_name
+                b2b_user_obj.vat_certificate = vat_certificate
+                b2b_user_obj.trade_license = trade_license   
+                b2b_user_obj.passport_copy = passport_copy
+                is_new_user_created = True
+
+                dealshub_user_obj = DealsHubUser.objects.get(username = b2b_user_obj.username)
+                for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                b2b_user_obj.save()
+
+            credentials = {
+                "username": contact_number+"-"+website_group_name,
+                "password": otp
+            }
+
+            if is_new_user_created == True:            
+                r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+                token = json.loads(r.content)["token"]
+                response["token"] = token
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response) 
+
+
 class SendOTPSMSLoginAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -3307,6 +3621,55 @@ class ForgotLoginPinAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("ForgotLoginPinAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class VerifyB2BOTPSMSAPI(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self,request,*args,**kwargs):
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("VerifyB2BOTPSMSAPI: %s",str(data))
+            if not isinstance(data,dict):
+                data = json.loads(data)
+
+            contact_number = data['contactNumber']
+            otp = data["otp"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+
+            b2b_user_obj = B2BUser.objects.get(username = contact_number+"-"+website_group_name)
+
+            credentials = {
+                "username":contact_number+"-"+website_group_name,
+                "password":otp
+            }
+
+            is_verified = False
+            if b2b_user_obj.verification_code==otp:
+                r = requests.post(url = SERVER_IP+"/token-auth/",data=credentials,verify=False)
+                token = json.loads(r.content)["token"]
+                if b2b_user_obj.contact_verified == True:
+                    response["token"] = token
+                else:
+                    b2b_user_obj.contact_verified = True
+                is_verified = True
+                b2b_user_obj.save()
+
+            response["verified"]=is_verified
+            response["status"]=200
+            logger.info("FINAL DATA 1:  %s", str(response))
+        except exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("VerifyB2BOTPSMSAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -3971,9 +4334,17 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
                     cancel_status = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
                     temp_dict["cancelStatus"] = cancel_status
-                    if cancel_status==True:
+                    temp_dict["cancelled_by_user"] = False
+                    unit_order_count = unit_order_objs.filter(order=order_obj).count()
+                    if unit_order_objs.filter(order=order_obj, cancelled_by_user=True).count() == unit_order_count:
+                        temp_dict["cancelled_by_user"] = True
+                    temp_dict["partially_cancelled_by_user"] = False
+                    if temp_dict["cancelled_by_user"]==False and unit_order_objs.filter(order=order_obj, cancelled_by_user=True).exists():
+                        temp_dict["partially_cancelled_by_user"] = True
+                    cancelling_note = ""
+                    if cancel_status==True and unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
                         cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
-                        temp_dict["cancelling_note"] = cancelling_note
+                    temp_dict["cancelling_note"] = cancelling_note
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
@@ -6193,6 +6564,8 @@ FetchCustomerList = FetchCustomerListAPI.as_view()
 
 FetchCustomerDetails = FetchCustomerDetailsAPI.as_view()
 
+UpdateB2BCustomerStatus = UpdateB2BCustomerStatusAPI.as_view()
+
 FetchCustomerOrders = FetchCustomerOrdersAPI.as_view()
 
 FetchTokenRequestParameters = FetchTokenRequestParametersAPI.as_view()
@@ -6211,7 +6584,17 @@ CalculateSignature = CalculateSignatureAPI.as_view()
 
 ContactUsSendEmail = ContactUsSendEmailAPI.as_view()
 
+FetchAccountStatusB2BUser = FetchAccountStatusB2BUserAPI.as_view()
+
+SendB2BOTPSMSLogin = SendB2BOTPSMSLoginAPI.as_view()
+
+SendB2BOTPSMSSignUp = SendB2BOTPSMSSignUpAPI.as_view()
+
+SignUpCompletion = SignUpCompletionAPI.as_view()
+
 SendOTPSMSLogin = SendOTPSMSLoginAPI.as_view()
+
+VerifyB2BOTPSMS = VerifyB2BOTPSMSAPI.as_view()
 
 VerifyOTPSMSLogin = VerifyOTPSMSLoginAPI.as_view()
 
