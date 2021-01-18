@@ -228,4 +228,6 @@ urlpatterns = [
     url(r'^fetch-logix-shipping-status/$', views.FetchLogixShippingStatus),
 
     url(r'^update-user-name-and-email/$',views.UpdateUserNameAndEmail),
+
+    url(r'^send-new-product-email-notification',views.SendNewProductEmailNotification),
 ]
