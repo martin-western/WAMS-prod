@@ -1512,50 +1512,51 @@ class SearchDaycartAPI(APIView):
                 available_dealshub_products = available_dealshub_products.filter(Q(sub_category__name=subcategory_name) | Q(sub_category__name_ar=subcategory_name))
             
             if search_string!="":
-                search_string = remove_stopwords(search_string)
-                words = search_string.split(" ")
-                target_brand = None
-                for word in words:
-                    if website_group_obj.brands.filter(name=word).exists():
-                        target_brand = website_group_obj.brands.filter(name=word)[0]
-                        words.remove(word)
-                        break
-                if target_brand!=None:
-                    available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
-                if len(words)==1:
-                    available_dealshub_products = available_dealshub_products.filter(Q(search_keywords__icontains=","+words[0]+","))
-                elif len(words)==2:
-                    if available_dealshub_products.filter(search_keywords__icontains=","+search_string+",").exists():
-                        available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+search_string+",")
-                    else:
-                        if available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",").exists():
-                            available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",")
-                        else:
-                            available_dealshub_products = available_dealshub_products.filter(Q(search_keywords__icontains=","+words[0]+",") | Q(search_keywords__icontains=","+words[1]+","))
-                elif len(words)==3:
-                    if available_dealshub_products.filter(search_keywords__icontains=","+search_string+",").exists():
-                        available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+search_string+",")
-                    else:
-                        if available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",").filter(search_keywords__icontains=","+words[2]+",").exists():
-                            available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",").filter(search_keywords__icontains=","+words[2]+",")
-                        else:
-                            temp_available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=words[0]).filter(search_keywords__icontains=words[1])
-                            temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[1]).filter(search_keywords__icontains=words[2])
-                            temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[0]).filter(search_keywords__icontains=words[2])
-                            if temp_available_dealshub_products.exists()==False:
-                                temp_available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=words[0])
-                                temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[1])
-                                temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[2])
-                            available_dealshub_products = temp_available_dealshub_products.distinct()
-                else:
-                    if available_dealshub_products.filter(search_keywords__icontains=","+search_string+",").exists():
-                        available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+search_string+",")
-                    else:
-                        if len(words)>0:
-                            search_results = DealsHubProduct.objects.none()
-                            for word in words:
-                                search_results |= available_dealshub_products.filter(search_keywords__icontains=","+word+",")
-                            available_dealshub_products = search_results.distinct()
+                available_dealshub_products = available_dealshub_products.filter(Q(product_name_ar__icontains=search_string) | Q(product__base_product__base_product_name__icontains=search_string) | Q(product__product_name__icontains=search_string) | Q(product__product_name_sap__icontains=search_string) | Q(product__product_id__icontains=search_string) | Q(product__base_product__seller_sku__icontains=search_string))
+                # search_string = remove_stopwords(search_string)
+                # words = search_string.split(" ")
+                # target_brand = None
+                # for word in words:
+                #     if website_group_obj.brands.filter(name=word).exists():
+                #         target_brand = website_group_obj.brands.filter(name=word)[0]
+                #         words.remove(word)
+                #         break
+                # if target_brand!=None:
+                #     available_dealshub_products = available_dealshub_products.filter(product__base_product__brand=target_brand)
+                # if len(words)==1:
+                #     available_dealshub_products = available_dealshub_products.filter(Q(search_keywords__icontains=","+words[0]+","))
+                # elif len(words)==2:
+                #     if available_dealshub_products.filter(search_keywords__icontains=","+search_string+",").exists():
+                #         available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+search_string+",")
+                #     else:
+                #         if available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",").exists():
+                #             available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",")
+                #         else:
+                #             available_dealshub_products = available_dealshub_products.filter(Q(search_keywords__icontains=","+words[0]+",") | Q(search_keywords__icontains=","+words[1]+","))
+                # elif len(words)==3:
+                #     if available_dealshub_products.filter(search_keywords__icontains=","+search_string+",").exists():
+                #         available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+search_string+",")
+                #     else:
+                #         if available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",").filter(search_keywords__icontains=","+words[2]+",").exists():
+                #             available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+words[0]+",").filter(search_keywords__icontains=","+words[1]+",").filter(search_keywords__icontains=","+words[2]+",")
+                #         else:
+                #             temp_available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=words[0]).filter(search_keywords__icontains=words[1])
+                #             temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[1]).filter(search_keywords__icontains=words[2])
+                #             temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[0]).filter(search_keywords__icontains=words[2])
+                #             if temp_available_dealshub_products.exists()==False:
+                #                 temp_available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=words[0])
+                #                 temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[1])
+                #                 temp_available_dealshub_products |= available_dealshub_products.filter(search_keywords__icontains=words[2])
+                #             available_dealshub_products = temp_available_dealshub_products.distinct()
+                # else:
+                #     if available_dealshub_products.filter(search_keywords__icontains=","+search_string+",").exists():
+                #         available_dealshub_products = available_dealshub_products.filter(search_keywords__icontains=","+search_string+",")
+                #     else:
+                #         if len(words)>0:
+                #             search_results = DealsHubProduct.objects.none()
+                #             for word in words:
+                #                 search_results |= available_dealshub_products.filter(search_keywords__icontains=","+word+",")
+                #             available_dealshub_products = search_results.distinct()
 
             brand_list = []
             try:
