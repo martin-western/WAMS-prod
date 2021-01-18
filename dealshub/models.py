@@ -185,6 +185,7 @@ class DealsHubProduct(models.Model):
     is_deleted = models.BooleanField(default=False)
     objects = DealsHubProductManager()
     recovery = DealsHubProductRecoveryManager()
+    is_notified = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "DealsHub Product"
