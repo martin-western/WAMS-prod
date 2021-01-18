@@ -6114,14 +6114,14 @@ class PlaceOnlineOrderAPI(APIView):
                 update_fast_cart_bill(fast_cart_obj)
 
                 try:
-                    voucher_obj = cart_obj.voucher
+                    voucher_obj = fast_cart_obj.voucher
                     if voucher_obj!=None:
-                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(fast_cart_obj.owner, voucher_obj)==False:
                             voucher_obj.total_usage += 1
                             voucher_obj.save()
                         else:
-                            cart_obj.voucher = None
-                            cart_obj.save()
+                            fast_cart_obj.voucher = None
+                            fast_cart_obj.save()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("PlaceOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
