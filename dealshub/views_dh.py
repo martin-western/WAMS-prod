@@ -6536,10 +6536,10 @@ class SendNewProductEmailNotificationAPI(APIView):
                     temp_dealshub_product_obj.save()
 
                 filename = location_group_name + "-new-product.xlsx"
-                filepath = SERVER_IP + os.path.join("/files/csv" + filename)
+                filepath = os.path.join("files/csv/" + filename)
                 sheet_name = "new-products-" + location_group_name
                 df = pd.DataFrame(product_list)
-                with pd.ExcelWriter('./'+filename) as workbook:
+                with pd.ExcelWriter('./'+filepath) as workbook:
                     df.to_excel(workbook, sheet_name=sheet_name,index=False)
                 #trigger email
                 try:
