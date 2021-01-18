@@ -6550,6 +6550,8 @@ class SendNewProductEmailNotificationAPI(APIView):
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SendNewProductEmailNotificationAPI: %s at %s", str(exc_tb.tb_lineno))
 
+            response["status"] = 200
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SendNewProductEmailNotificationAPI: %s at %s", str(exc_tb.tb_lineno))
