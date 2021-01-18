@@ -6510,6 +6510,7 @@ class SendNewProductEmailNotificationAPI(APIView):
         response["status"] = 500
 
         try:
+            data = request.data
             logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
