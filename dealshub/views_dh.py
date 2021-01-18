@@ -6503,7 +6503,7 @@ class UpdateUserNameAndEmailAPI(APIView):
 
 class SendNewProductEmailNotificationAPI(APIView):
 
-    permission_classes = (AllowAny)
+    permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -6513,7 +6513,7 @@ class SendNewProductEmailNotificationAPI(APIView):
             logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             dealshub_product_objs = DealshubProduct.objects.filter(is_notified = False)
             location_group_objs = dealshub_product_objs.values_list("location_group",flat=True)
 
