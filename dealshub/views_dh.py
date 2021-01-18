@@ -6510,6 +6510,10 @@ class SendNewProductEmailNotificationAPI(APIView):
         response["status"] = 500
 
         try:
+            logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
             dealshub_product_objs = DealshubProduct.objects.filter(is_notified = False)
             location_group_objs = dealshub_product_objs.values_list("location_group",flat=True)
 
