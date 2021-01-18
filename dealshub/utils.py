@@ -701,7 +701,7 @@ def notify_new_products_email(filepath, location_group_obj):
         user_objs = CustomPermission.objects.filter(location_groups__pk = location_group_obj.pk)
         email_list = []
         for user_obj in user_objs:
-            email_list.append(user_obj.email)
+            email_list.append(user_obj.user.email)
         try:
             body = "Please find attached the sheet for new products published on " + location_group_name + "."
             subject = "Notification for new product created on " + location_group_name
