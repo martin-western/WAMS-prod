@@ -695,6 +695,37 @@ def notify_grn_error(order_obj):
         logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))        
 
 
+def notify_new_products_email(filepath, location_group_obj):
+    try:
+        location_group_name = location_group_obj.name
+        user_objs = CustomPermission.objects.filter(location_groups__pk = location_group_obj.pk)
+        email_list = []
+        for user_obj in user_objs:
+            email_list.append(user_obj.user.email)
+        try:
+            body = "Please find the attached sheet for new products published on " + location_group_name + "."
+            subject = "Notification for new products created on " + location_group_name
+            with get_connection(
+                host = "smtp.gmail.com",
+                port = 587,
+                username="nisarg@omnycomm.com",
+                password="verjtzgeqareribg",
+                use_tls=True) as connection:
+                email = EmailMessage(subject=subject,
+                                     body=body,
+                                     from_email="nisarg@omnycomm.com",
+                                     to=email_list,
+                                     connection=connection)
+                email.attach_file(filepath)
+                email.send(fail_silently=False)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("notify_new_products_email:- Email Failure %s at %s", e, str(exc_tb.tb_lineno))
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("notify_new_products_email: %s at %s", e, str(exc_tb.tb_lineno))        
+
+
 def refresh_stock(order_obj):
 
     try:

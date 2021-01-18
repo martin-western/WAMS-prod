@@ -1070,9 +1070,9 @@ class Product(models.Model):
         return dimensions_string
 
     def get_main_image_url(self):
-        cached_url = cache.get("main_url_"+str(self.uuid), "has_expired")
-        if cached_url!="has_expired":
-            return cached_url
+        # cached_url = cache.get("main_url_"+str(self.uuid), "has_expired")
+        # if cached_url!="has_expired":
+        #     return cached_url
         main_images_list = ImageBucket.objects.none()
         main_images_objs = MainImages.objects.filter(product=self)
         for main_images_obj in main_images_objs:
@@ -1080,20 +1080,20 @@ class Product(models.Model):
         main_images_list = main_images_list.distinct()
         if main_images_list.all().count()>0:
             main_image_url = main_images_list.all()[0].image.mid_image.url
-            cache.set("main_url_"+str(self.uuid), main_image_url)
+            #cache.set("main_url_"+str(self.uuid), main_image_url)
             return main_image_url
         main_image_url = Config.objects.all()[0].product_404_image.image.url
-        cache.set("main_url_"+str(self.uuid), main_image_url)
+        #cache.set("main_url_"+str(self.uuid), main_image_url)
         return main_image_url
 
     def get_display_image_url(self):
-        cached_url = cache.get("display_url_"+str(self.uuid), "has_expired")
-        if cached_url!="has_expired":
-            return cached_url
+        # cached_url = cache.get("display_url_"+str(self.uuid), "has_expired")
+        # if cached_url!="has_expired":
+        #     return cached_url
         lifestyle_image_objs = self.lifestyle_images.all()
         if lifestyle_image_objs.exists():
             display_image_url = lifestyle_image_objs[0].mid_image.url
-            cache.set("display_url_"+str(self.uuid), display_image_url)
+            #cache.set("display_url_"+str(self.uuid), display_image_url)
             return display_image_url
         return self.get_main_image_url()
 
