@@ -915,11 +915,11 @@ class SearchAPI(APIView):
 
                 for category_obj in category_objs:
 
-                    cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
-                    if cached_response!="has_expired":
-                        if "subCategoryList" in json.loads(cached_response):
-                            category_list.append(json.loads(cached_response))
-                        continue
+                    #cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
+                    # if cached_response!="has_expired":
+                    #     if "subCategoryList" in json.loads(cached_response):
+                    #         category_list.append(json.loads(cached_response))
+                    #     continue
 
                     if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue
@@ -942,7 +942,7 @@ class SearchAPI(APIView):
                     if len(sub_category_list)>0:
                         temp_dict["subCategoryList"] = sub_category_list
                         category_list.append(temp_dict)
-                    cache.set(location_group_uuid+"-"+str(category_obj.uuid), json.dumps(temp_dict))
+                    #cache.set(location_group_uuid+"-"+str(category_obj.uuid), json.dumps(temp_dict))
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1629,11 +1629,11 @@ class SearchDaycartAPI(APIView):
 
                 for category_obj in category_objs:
 
-                    cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
-                    if cached_response!="has_expired":
-                        if "subCategoryList" in json.loads(cached_response):
-                            category_list.append(json.loads(cached_response))
-                        continue
+                    # cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
+                    # if cached_response!="has_expired":
+                    #     if "subCategoryList" in json.loads(cached_response):
+                    #         category_list.append(json.loads(cached_response))
+                    #     continue
 
                     if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue
@@ -1658,7 +1658,7 @@ class SearchDaycartAPI(APIView):
                     if len(sub_category_list)>0:
                         temp_dict["subCategoryList"] = sub_category_list
                         category_list.append(temp_dict)
-                    cache.set(location_group_uuid+"-"+str(category_obj.uuid), json.dumps(temp_dict))
+                    #cache.set(location_group_uuid+"-"+str(category_obj.uuid), json.dumps(temp_dict))
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1801,11 +1801,11 @@ class FetchWIGCategoriesAPI(APIView):
                 category_objs = Category.objects.filter(super_category=super_category_obj)
                 for category_obj in category_objs:
 
-                    cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
-                    if cached_response!="has_expired":
-                        if "subCategoryList" in json.loads(cached_response):
-                            category_list.append(json.loads(cached_response))
-                        continue
+                    # cached_response = cache.get(location_group_uuid+"-"+str(category_obj.uuid), "has_expired")
+                    # if cached_response!="has_expired":
+                    #     if "subCategoryList" in json.loads(cached_response):
+                    #         category_list.append(json.loads(cached_response))
+                    #     continue
 
                     if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                         continue
@@ -1826,7 +1826,7 @@ class FetchWIGCategoriesAPI(APIView):
                     if len(sub_category_list)>0:
                         temp_dict["subCategoryList"] = sub_category_list
                         category_list.append(temp_dict)
-                    cache.set(location_group_uuid+"-"+str(category_obj.uuid), json.dumps(temp_dict))
+                    #cache.set(location_group_uuid+"-"+str(category_obj.uuid), json.dumps(temp_dict))
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2010,7 +2010,7 @@ class DeleteAdminCategoryAPI(APIView):
                 dealshub_product_obj.save()
 
             location_group_uuid = section_obj.location_group.uuid
-            cache.set(location_group_uuid, "has_expired")
+            #cache.set(location_group_uuid, "has_expired")
                 
             section_obj.delete()
             
@@ -2039,7 +2039,7 @@ class PublishAdminCategoryAPI(APIView):
             section_obj.save()
 
             location_group_uuid = section_obj.location_group.uuid
-            cache.set(location_group_uuid, "has_expired")
+            #cache.set(location_group_uuid, "has_expired")
             
             response['status'] = 200
         except Exception as e:
@@ -2066,7 +2066,7 @@ class UnPublishAdminCategoryAPI(APIView):
             section_obj.save()
 
             location_group_uuid = section_obj.location_group.uuid
-            cache.set(location_group_uuid, "has_expired")
+            #cache.set(location_group_uuid, "has_expired")
             
             response['status'] = 200
         except Exception as e:
@@ -2532,7 +2532,7 @@ class DeleteUnitBannerAPI(APIView):
                 dealshub_product_obj.save()
 
             location_group_uuid = unit_banner_obj.banner.location_group.uuid
-            cache.set(location_group_uuid, "has_expired")
+            #cache.set(location_group_uuid, "has_expired")
 
             unit_banner_obj.delete()
             response['status'] = 200
@@ -2567,7 +2567,7 @@ class DeleteBannerAPI(APIView):
                     dealshub_product_obj.save()
 
             location_group_uuid = banner_obj.location_group.uuid
-            cache.set(location_group_uuid, "has_expired")
+            #cache.set(location_group_uuid, "has_expired")
 
             banner_obj.delete()
             
@@ -2596,7 +2596,7 @@ class PublishBannerAPI(APIView):
             banner_obj.save()
 
             location_group_uuid = banner_obj.location_group.uuid
-            cache.set(location_group_uuid, "has_expired")
+            #cache.set(location_group_uuid, "has_expired")
             
             response['uuid'] = banner_obj.uuid
             response['status'] = 200
@@ -2624,7 +2624,7 @@ class UnPublishBannerAPI(APIView):
             banner_obj.save()
 
             location_group_uuid = banner_obj.location_group.uuid
-            cache.set(location_group_uuid, "has_expired")
+            #cache.set(location_group_uuid, "has_expired")
             
             response['uuid'] = banner_obj.uuid
             response['status'] = 200
