@@ -448,15 +448,22 @@ class FetchSectionProductsAPI(APIView):
             logger.info("FetchSectionProductsAPI: %s", str(data))
             language_code = data.get("language","en")
 
+            sort_filter = data.get("sort_filter", {})
+
             uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
             
             custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj, product__is_published=True)
             custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
             dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
-            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)            
-            dealshub_product_objs = list(dealshub_product_objs)
-            dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+            if sort_filter.get("price", "")=="high-to-low":
+                dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
+            elif sort_filter.get("price", "")=="low-to-high":
+                dealshub_product_objs = dealshub_product_objs.order_by('now_price')
+            else:
+                dealshub_product_objs = list(dealshub_product_objs)
+                dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
 
             temp_dict = {}
             temp_dict["sectionName"] = section_obj.name
@@ -4059,6 +4066,8 @@ class FetchUnitBannerProductsAPI(APIView):
             data = request.data
             logger.info("FetchUnitBannerProductsAPI: %s", str(data))
             language_code = data.get("language","en")
+            sort_filter = data.get("sort_filter", {})
+
             unit_banner_image_uuid = data["unitBannerImageUuid"]
             
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
@@ -4067,9 +4076,14 @@ class FetchUnitBannerProductsAPI(APIView):
             custom_product_unit_banner_objs = custom_product_unit_banner_objs.exclude(product__now_price=0).exclude(product__stock=0)
             dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
-            dealshub_product_objs = list(dealshub_product_objs)
-            dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
 
+            if sort_filter.get("price", "")=="high-to-low":
+                dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
+            elif sort_filter.get("price", "")=="low-to-high":
+                dealshub_product_objs = dealshub_product_objs.order_by('now_price')
+            else:
+                dealshub_product_objs = list(dealshub_product_objs)
+                dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
 
             page = int(data.get('page', 1))
             paginator = Paginator(dealshub_product_objs, 50)
