@@ -229,5 +229,5 @@ urlpatterns = [
 
     url(r'^update-user-name-and-email/$',views.UpdateUserNameAndEmail),
 
-    url(r'^send-new-product-email-notification',views.SendNewProductEmailNotification),
+    url(r'^send-new-product-email-notification/$',views.SendNewProductEmailNotification),
 ]
