@@ -6515,20 +6515,20 @@ class SendNewProductEmailNotificationAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_product_objs = DealshubProduct.objects.filter(is_notified = False)
-            location_group_objs = dealshub_product_objs.values_list("location_group",flat=True)
-
+            dealshub_product_objs = DealsHubProduct.objects.filter(is_notified = False)
+            location_group_pks = dealshub_product_objs.values_list("location_group",flat=True)
+            location_group_objs = LocationGroup.objects.filter(pk__in = location_group_pks)
+            
             for location_group_obj in location_group_objs:
-                temp_dealshub_product_objs = dealshub_product_objs.objects.filter(location_group=location_group_obj)
+                temp_dealshub_product_objs = dealshub_product_objs.filter(location_group=location_group_obj)
                 location_group_name = location_group_obj.name
-
                 #generate excel sheet
                 product_list = []
                 for temp_dealshub_product_obj in temp_dealshub_product_objs:
                     temp_dict = {
-                        "productName":temp_dealshub_product_obj.product_name,
-                        "productId": temp_dealshub_product_obj.product.get_product_id(),
-                        "brand":  temp_dealshub_product_obj.get_brand(),
+                        "productName": temp_dealshub_product_obj.product_name,
+                        "productId": temp_dealshub_product_obj.get_product_id(),
+                        "brand": temp_dealshub_product_obj.get_brand(),
                         "sellerSKU": temp_dealshub_product_obj.get_seller_sku(),
                     }
                     product_list.append(temp_dict)
@@ -6539,9 +6539,8 @@ class SendNewProductEmailNotificationAPI(APIView):
                 filepath = SERVER_IP + os.path.join("/files/csv" + filename)
                 sheet_name = "new-products-" + location_group_name
                 df = pd.DataFrame(product_list)
-                with pd.ExcelWriter(filepath) as workbook:
+                with pd.ExcelWriter('./'+filename) as workbook:
                     df.to_excel(workbook, sheet_name=sheet_name,index=False)
-
                 #trigger email
                 try:
                     p1 = threading.Thread(target=notify_new_products_email, args =(filepath,location_group_obj))
@@ -6554,7 +6553,7 @@ class SendNewProductEmailNotificationAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SendNewProductEmailNotificationAPI: %s at %s", str(exc_tb.tb_lineno))
+            logger.error("SendNewProductEmailNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
