@@ -703,8 +703,8 @@ def notify_new_products_email(filepath, location_group_obj):
         for user_obj in user_objs:
             email_list.append(user_obj.user.email)
         try:
-            body = "Please find attached the sheet for new products published on " + location_group_name + "."
-            subject = "Notification for new product created on " + location_group_name
+            body = "Please find the attached sheet for new products published on " + location_group_name + "."
+            subject = "Notification for new products created on " + location_group_name
             with get_connection(
                 host = "smtp.gmail.com",
                 port = 587,
