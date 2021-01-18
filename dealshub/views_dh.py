@@ -5156,22 +5156,21 @@ class ApproveCancellationRequestAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            unit_order_uuid = data["unit_order_uuid"]
+            unit_order_uuid_list = data["unit_order_uuid_list"]
 
-            unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
+            unit_order_objs = UnitOrder.objects.filter(uuid__in=unit_order_uuid_list)
 
-            if unit_order_obj.order.payment_mode=="COD":
-                unit_order_obj.user_cancellation_status="approved"
-                unit_order_obj.save()
+            for unit_order_obj in unit_order_objs:
+                if unit_order_obj.order.payment_mode=="COD":
+                    unit_order_obj.user_cancellation_status="approved"
+                    unit_order_obj.save()
+                    notify_order_cancel_status_to_user(unit_order_obj,"approved")
+                else:
+                    unit_order_obj.user_cancellation_status="refund processed"
+                    unit_order_obj.save()
+                    notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
 
-                notify_order_cancel_status_to_user(unit_order_obj,"approved")
-            else:
-                unit_order_obj.user_cancellation_status="refund processed"
-                unit_order_obj.save()
-
-                notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
-
-            cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
+                cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
             response['status'] = 200
 
         except Exception as e:
@@ -5195,11 +5194,11 @@ class RejectCancellationRequestAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            unit_order_uuid = data["unit_order_uuid"]
-
-            unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)       
-            unit_order_obj.user_cancellation_status = "rejected"
-            unit_order_obj.save()
+            unit_order_uuid_list = data["unit_order_uuid_list"]
+            for unit_order_uuid in unit_order_uuid_list:
+                unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)       
+                unit_order_obj.user_cancellation_status = "rejected"
+                unit_order_obj.save()
 
             notify_order_cancel_status_to_user(unit_order_obj,"rejected")
             response['status'] = 200
