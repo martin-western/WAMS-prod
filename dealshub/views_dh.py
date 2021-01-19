@@ -3669,7 +3669,7 @@ class VerifyB2BOTPSMSAPI(APIView):
             response["verified"]=is_verified
             response["status"]=200
             logger.info("FINAL DATA 1:  %s", str(response))
-        except exception as e:
+        except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("VerifyB2BOTPSMSAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
