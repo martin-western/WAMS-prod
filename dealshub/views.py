@@ -26,7 +26,7 @@ from rest_framework.permissions import AllowAny
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.db.models import Count
+from django.db.models import Count, F
 
 import xmltodict
 import requests
@@ -1466,6 +1466,11 @@ class SearchDaycartAPI(APIView):
             subcategory_name = data.get("subcategory", "").strip()
             brand_name = data.get("brand", "").strip()
 
+            min_price = data.get("min_price","")
+            max_price = data.get("max_price","")
+            min_rating = data.get("rating",0)
+            min_discount_percent = data.get("discount_percent",0)
+
             brand_filter = data.get("brand_filter", [])
             sort_filter = data.get("sort_filter", {})
 
@@ -1488,6 +1493,20 @@ class SearchDaycartAPI(APIView):
 
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
+            if min_price!="":
+                available_dealshub_products = available_dealshub_products.filter(now_price__gte=int(min_price))
+            if max_price!="":
+                available_dealshub_products = available_dealshub_products.filter(now_price__lte=int(max_price))
+            if min_rating!=0:
+                filtered_dealshub_products = DealshubProduct.objects.none()
+                for available_dealshub_product in available_dealshub_products:
+                    avg_rating  = round(Review.objects.filter(product=available_dealshub_product).aggregate(Avg('rating'))['rating_avg'],2)
+                    if avg_rating >= float(min_rating):
+                        filtered_dealshub_products = filtered_dealshub_products | available_dealshub_product
+                available_dealshub_products = filtered_dealshub_products
+            if min_discount_percent!=0:
+                available_dealshub_products = available_dealshub_products.annotate(result=((F('was_price')-F('now_price'))/F('was_price')*100)).filter(result__gte=float(min_discount_percent))
+                       
             # Filters
             if sort_filter.get("price", "")=="high-to-low":
                 available_dealshub_products = available_dealshub_products.order_by('-now_price')
