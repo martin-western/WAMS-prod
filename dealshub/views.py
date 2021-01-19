@@ -26,7 +26,7 @@ from rest_framework.permissions import AllowAny
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.db.models import Count, F
+from django.db.models import Count, Avg, F
 
 import xmltodict
 import requests
