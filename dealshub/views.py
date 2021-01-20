@@ -4942,18 +4942,19 @@ class FetchCouriexShippingStatusAPI(APIView):
 
             tracking_details = status_data['AirwayBillTrackList'][0]
             response['shipmentProgress'] = tracking_details['ShipmentProgress']
-            response['shipperReference'] = tracking_details['ShipperReference']
-            response['trackingLog'] = []
-            for tracking_log in tracking_details['TrackingLogDetails']:
-                temp_dict = {}
-                temp_dict["activityDate"] = tracking_log["ActivityDate"]
-                temp_dict["activityTime"] = tracking_log["ActivityTime"]
-                temp_dict["deliveredTo"] = tracking_log["DeliveredTo"]
-                temp_dict["location"] = tracking_log["Location"]
-                temp_dict["remarks"] = tracking_log["Remarks"]
-                temp_dict["status"] = tracking_log["Status"]
-                response['trackingLog'].append(temp_dict)
-            
+            if int(tracking_details['ShipmentProgress']) > 0:
+                response['shipperReference'] = tracking_details['ShipperReference']
+                response['trackingLog'] = []
+                for tracking_log in tracking_details['TrackingLogDetails']:
+                    temp_dict = {}
+                    temp_dict["activityDate"] = tracking_log["ActivityDate"]
+                    temp_dict["activityTime"] = tracking_log["ActivityTime"]
+                    temp_dict["deliveredTo"] = tracking_log["DeliveredTo"]
+                    temp_dict["location"] = tracking_log["Location"]
+                    temp_dict["remarks"] = tracking_log["Remarks"]
+                    temp_dict["status"] = tracking_log["Status"]
+                    response['trackingLog'].append(temp_dict)
+                    
             response['description'] = status_data['Description']
             response['status'] = 200
             
