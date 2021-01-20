@@ -1204,6 +1204,7 @@ class Review(models.Model):
     is_fake = models.BooleanField(default=False)
     fake_oc_user = models.ForeignKey(OmnyCommUser, default=None, null=True, on_delete=models.SET_NULL)
     fake_customer_name = models.CharField(max_length=200, default="")
+    is_published = models.BooleanField(default=True)
 
     objects = ReviewManager()
     recovery = ReviewRecoveryManager()
