@@ -4378,6 +4378,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["bundleId"] = order_obj.bundleid
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
+                    temp_dict["shippingMethod"] = unit_order_objs[0].shipping_method
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
