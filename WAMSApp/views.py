@@ -6031,6 +6031,9 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="sales executive":
                 p1 = threading.Thread(target=create_sales_executive_value_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
                 p1.start()
+            elif report_type.lower()=="bulk image":
+                p1 = threading.Thread(target=create_bulk_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
+                p1.start()
                     
             response["approved"] = True
             response['status'] = 200
