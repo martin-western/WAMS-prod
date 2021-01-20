@@ -108,6 +108,7 @@ urlpatterns = [
     url(r'^checkout/select-payment-mode/$', views.SelectPaymentMode),
     url(r'^checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),
     url(r'^checkout/place-order/$', views.PlaceOrder),
+    url(r'^checkout/place-daycart-online-order/$', views.PlaceDaycartOnlineOrder),
     url(r'^checkout/place-offline-order/$',views.PlaceOfflineOrder),
     url(r'^checkout/place-online-order/$',views.PlaceOnlineOrder),
     url(r'^checkout/cancel-order/$', views.CancelOrder),
@@ -119,6 +120,7 @@ urlpatterns = [
 
     url(r'^payment/fetch-token-request-parameters/$', views.FetchTokenRequestParameters),
     url(r'^payment/make-purchase-request/$', views.MakePurchaseRequest),
+    url(r'^payment/request-hyperpay-checkout/$', views.RequestHyperpayCheckout),
     # url(r'^payment/fetch-installment-plans/$', views.FetchInstallmentPlans),
     # url(r'^payment/make-purchase-request-installment/$', views.MakePurchaseRequestInstallment),
 
