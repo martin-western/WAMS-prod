@@ -1498,14 +1498,9 @@ class SearchDaycartAPI(APIView):
             if max_price!="":
                 available_dealshub_products = available_dealshub_products.filter(now_price__lte=int(max_price))
             if min_rating!=0:
-                filtered_dealshub_products = DealshubProduct.objects.none()
-                for available_dealshub_product in available_dealshub_products:
-                    avg_rating  = round(Review.objects.filter(product=available_dealshub_product).aggregate(Avg('rating'))['rating_avg'],2)
-                    if avg_rating >= float(min_rating):
-                        filtered_dealshub_products = filtered_dealshub_products | available_dealshub_product
-                available_dealshub_products = filtered_dealshub_products
+                available_dealshub_products = available_dealshub_products.exclude(review=None).annotate(product_avg_rating=Avg('review__rating')).filter(product_avg_rating__gte=float(min_rating))
             if min_discount_percent!=0:
-                available_dealshub_products = available_dealshub_products.annotate(result=((F('was_price')-F('now_price'))/F('was_price')*100)).filter(result__gte=float(min_discount_percent))
+                available_dealshub_products = available_dealshub_products.annotate(product_discount=((F('was_price')-F('now_price'))/F('was_price')*100)).filter(product_discount__gte=float(min_discount_percent))
                        
             # Filters
             if sort_filter.get("price", "")=="high-to-low":
