@@ -1702,7 +1702,7 @@ class SearchDaycartAPI(APIView):
             response['search'] = search
             response['status'] = 200
 
-            if brand_filter==[] and sort_filter=={"price":""} and search_string=="":
+            if brand_filter==[] and sort_filter=={"price":""} and search_string=="" and min_price=="" and max_price=="" and min_rating==0 and min_discount_percent==0:
                 cache.set(key_hash, json.dumps(response))
 
             t2 = datetime.datetime.now()
