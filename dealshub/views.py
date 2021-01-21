@@ -26,7 +26,7 @@ from rest_framework.permissions import AllowAny
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.db.models import Count
+from django.db.models import Count, Avg, F
 
 import xmltodict
 import requests
@@ -1478,6 +1478,11 @@ class SearchDaycartAPI(APIView):
             subcategory_name = data.get("subcategory", "").strip()
             brand_name = data.get("brand", "").strip()
 
+            min_price = data.get("min_price","")
+            max_price = data.get("max_price","")
+            min_rating = data.get("rating",0)
+            min_discount_percent = data.get("discount_percent",0)
+
             brand_filter = data.get("brand_filter", [])
             sort_filter = data.get("sort_filter", {})
 
@@ -1500,6 +1505,15 @@ class SearchDaycartAPI(APIView):
 
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
 
+            if min_price!="":
+                available_dealshub_products = available_dealshub_products.filter(now_price__gte=int(min_price))
+            if max_price!="":
+                available_dealshub_products = available_dealshub_products.filter(now_price__lte=int(max_price))
+            if min_rating!=0:
+                available_dealshub_products = available_dealshub_products.exclude(review=None).annotate(product_avg_rating=Avg('review__rating')).filter(product_avg_rating__gte=float(min_rating))
+            if min_discount_percent!=0:
+                available_dealshub_products = available_dealshub_products.annotate(product_discount=((F('was_price')-F('now_price'))/F('was_price')*100)).filter(product_discount__gte=float(min_discount_percent))
+                       
             # Filters
             if sort_filter.get("price", "")=="high-to-low":
                 available_dealshub_products = available_dealshub_products.order_by('-now_price')
