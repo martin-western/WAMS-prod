@@ -1931,10 +1931,15 @@ class CreateAdminCategoryAPI(APIView):
             name = data["name"]
             listing_type = data["listingType"]
             products = data["products"]
+            parent_banner_uuid = data.get("parent_banner_uuid","")
             
             order_index = Banner.objects.filter(location_group=location_group_obj).count()+Section.objects.filter(location_group=location_group_obj).count()+1
 
-            section_obj = Section.objects.create(location_group=location_group_obj, name=name, listing_type=listing_type, order_index=order_index)
+            if parent_banner_uuid!="":
+                parent_banner_obj = Banner.objects.get(uuid=parent_banner_uuid)
+                section_obj = Section.objects.create(location_group=location_group_obj, name=name, listing_type=listing_type, order_index=order_index, parent_banner=parent_banner_obj)
+            else: 
+                section_obj = Section.objects.create(location_group=location_group_obj, name=name, listing_type=listing_type, order_index=order_index)
             order_index = 0
             for product in products:
                 dealshub_product_obj = DealsHubProduct.objects.get(uuid=product)
@@ -2325,6 +2330,37 @@ class BannerBulkDownloadAPI(APIView):
         return Response(data=response)
 
 
+class FetchNestedBannersAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchNestedBannersAPI: %s", str(data))
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            nested_banners = []
+
+            for banner_obj in Banner.objects.filter(is_nested=True, location_group=location_group_obj):
+                temp_dict = {}
+                temp_dict["uuid"] = banner_obj.uuid
+                temp_dict["name"] = banner_obj.name
+                nested_banners.append(temp_dict)
+            
+            response['nested_banners'] = nested_banners
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBannerTypesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)     
+
+
 class FetchBannerTypesAPI(APIView):
 
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -2375,6 +2411,8 @@ class CreateBannerAPI(APIView):
             banner_type = data["bannerType"]
             location_group_uuid = data["locationGroupUuid"]
             name = data.get("name", "")
+            is_nested = data.get("is_nested",False)
+            parent_banner_uuid = data.get("parent_banner_uuid","")
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
@@ -2385,7 +2423,11 @@ class CreateBannerAPI(APIView):
 
             order_index = Banner.objects.filter(location_group=location_group_obj).count()+Section.objects.filter(location_group=location_group_obj).count()+1
 
-            banner_obj = Banner.objects.create(name=name, location_group=location_group_obj, order_index=order_index, banner_type=banner_type_obj)
+            if parent_banner_uuid!="":
+                parent_banner_obj = Banner.objects.get(uuid=parent_banner_uuid)
+                banner_obj = Banner.objects.create(name=name,location_group=location_group_obj, order_index=order_index, banner_type=banner_type_obj, parent=parent_banner_obj)
+            else:
+                banner_obj = Banner.objects.create(name=name, location_group=location_group_obj, order_index=order_index, banner_type=banner_type_obj, is_nested=is_nested)
             
             response['uuid'] = banner_obj.uuid
             response["limit"] = banner_type_obj.limit
@@ -3155,6 +3197,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            parent_bannner_uuid = data.get("parent_banner_uuid","")
+            parent_banner_obj = None
+            if parent_banner_uuid!="":
+                parent_banner_obj = Banner.objects.get(uuid=parent_banner_uuid)
 
             resolution = data.get("resolution", "low")
 
@@ -3168,7 +3214,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     return Response(data=response)
 
 
-            section_objs = Section.objects.filter(location_group__uuid=location_group_uuid).order_by('order_index')
+            section_objs = Section.objects.filter(location_group__uuid=location_group_uuid, parent_banner=parent_banner_obj).order_by('order_index')
 
             if is_dealshub==True:
                 section_objs = section_objs.filter(is_published=True)
@@ -3288,7 +3334,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
                 dealshub_admin_sections.append(temp_dict)
 
-            banner_objs = Banner.objects.filter(location_group__uuid=location_group_uuid).order_by('order_index')
+            banner_objs = Banner.objects.filter(location_group__uuid=location_group_uuid, parent=parent_banner_obj).order_by('order_index')
 
             if is_dealshub==True:
                 banner_objs = banner_objs.filter(is_published=True)
@@ -3315,6 +3361,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 temp_dict["name"] = banner_obj.name
                 temp_dict["bannerType"] = banner_obj.banner_type.name
                 temp_dict["limit"] = banner_obj.banner_type.limit
+                temp_dict["is_nested"] = banner_obj.is_nested
                 for unit_banner_image_obj in unit_banner_image_objs:
                     temp_dict2 = {}
                     temp_dict2["uid"] = unit_banner_image_obj.uuid
@@ -5402,6 +5449,8 @@ BannerBulkUpload = BannerBulkUploadAPI.as_view()
 SectionBulkDownload = SectionBulkDownloadAPI.as_view()
 
 BannerBulkDownload = BannerBulkDownloadAPI.as_view()
+
+FetchNestedBanners = FetchNestedBannersAPI.as_view()
 
 FetchBannerTypes = FetchBannerTypesAPI.as_view()
 

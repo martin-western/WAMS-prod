@@ -456,6 +456,7 @@ class Section(models.Model):
     name_ar = models.CharField(max_length=300, default="")
     is_published = models.BooleanField(default=False)
     listing_type = models.CharField(default="Carousel", max_length=200)
+    parent_banner = models.ForeignKey('Banner', null=True, blank=True, on_delete=models.CASCADE)
 
     products = models.ManyToManyField(DealsHubProduct, blank=True)
     hovering_banner_image = models.ForeignKey(Image, related_name="section_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
@@ -524,6 +525,8 @@ class Banner(models.Model):
     modified_by = models.ForeignKey(User, related_name="banner_modified_by", null=True, blank=True, on_delete=models.SET_NULL)
     order_index = models.IntegerField(default=1)
     banner_type = models.ForeignKey(BannerType, on_delete=models.CASCADE)
+    parent = models.ForeignKey('Banner', null=True, blank=True, on_delete=models.CASCADE)
+    is_nested = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.uuid)
