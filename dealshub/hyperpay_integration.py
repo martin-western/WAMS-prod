@@ -5,6 +5,7 @@ from dealshub.constants import *
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -49,13 +50,15 @@ class RequestHyperpayCheckoutAPI(APIView):
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
-            payment_credentials = json.loads(website_group_obj.payment_credentials)
+            payment_credentials = website_group_obj.payment_credentials
+            if not isinstance(payment_credentials, dict):
+                payment_credentials = json.loads(website_group_obj.payment_credentials)
+
             currency = location_group_obj.location.currency
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             amount = 0
             shipping_address = None
-
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = cart_obj.to_pay
@@ -70,15 +73,13 @@ class RequestHyperpayCheckoutAPI(APIView):
                 response["status"] = 403
                 logger.warning("RequestHyperpayCheckoutAPI Cart Amount Zero!")
                 return Response(data=response)
-            
-            HEADERS = payment_credentials["headers"]
-            API_URL = payment_credentials["hyperpay"]["url"]
 
+            API_URL = payment_credentials["hyperpay"]["url"]
             ENTITY_ID = payment_credentials["hyperpay"]["entity_id"][payment_method]
             API_KEY = payment_credentials["hyperpay"]["API_KEY"] # "NDVlNzFjOTAtYjk1ZS00YmE4LWJlZGMtOWI2YjlhMTBhYmE1OmMwODc2OTBjLTM4ZmQtNGZlMS04YjFiLWUzOWQ1ODdiMDhjYg=="
             
             headers = {
-                "Authorization": "Basic "+API_KEY
+                "Authorization": "Bearer "+ API_KEY
             }
 
             data = {
@@ -89,8 +90,7 @@ class RequestHyperpayCheckoutAPI(APIView):
             }
 
             payment_response = requests.post(url=API_URL, data=data, headers=headers)
-            
-            response["checkout_id"] = json.loads(payment_response.content)
+            response["checkout_id"] = json.loads(payment_response.content)["ndc"]
             response["error"] = "checkout Success"
             response["status"] = 200
 
@@ -101,30 +101,49 @@ class RequestHyperpayCheckoutAPI(APIView):
         return Response(data=response)
         
 
-def check_order_status_from_hyperpay(checkout_id, location_group_obj):
+def get_order_info_from_hyperpay(checkout_id, payment_method, location_group_obj):
+    order_info = {}
+
     try:
         payment_credentials = json.loads(location_group_obj.website_group.payment_credentials)
 
-        HEADERS = payment_credentials["headers"]
-
         ENTITY_ID = payment_credentials["hyperpay"]["entity_id"][payment_method]
-        API_KEY = payment_credentials["hyperpay"]["API_KEY"] 
+        API_KEY = payment_credentials["hyperpay"]["API_KEY"]
 
         headers = {
             "Authorization": "Bearer "+API_KEY
         }
-
-        API_URL = payment_credentials["hyperpay"]["url"] + checkout_id + "/payment?entityId="+entity_id
+        API_URL = payment_credentials["hyperpay"]["url"] + checkout_id + "/payment?entityId="+ENTITY_ID
         r = requests.post(url=API_URL, headers=headers)
 
         content = json.loads(r.content)
+        payment_info = {}
+        try:
+            payment_info = {
+                "paymentBrand": content["paymentBrand"],
+                "descriptor": content["descriptor"],
+                "result": content["result"],
+                "amount": content["amount"],
+                "currency": content["currency"],
+                "timestamp": content["timestamp"],
+                "paymentType": content["paymentType"],
+                "risk": content["risk"],
+            }
+        except:
+            pass
+
+        order_info["payment_info"] = payment_info
+
         result_code = content["result"]["code"]
+        order_info["result"] = False
         if result_code == "000.000.000":
-            return True
-        return False
+            order_info["result"] = True
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("check_order_status_from_hyperpay: %s at %s", e, str(exc_tb.tb_lineno))        
-    return False
+        logger.error("get_order_info_from_hyperpay: %s at %s", e, str(exc_tb.tb_lineno))
+
+    return order_info
+
 
 RequestHyperpayCheckout = RequestHyperpayCheckoutAPI.as_view()

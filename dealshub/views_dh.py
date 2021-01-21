@@ -6029,15 +6029,13 @@ class PlaceDaycartOnlineOrderAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            entity_id = payment_credentials["hyperpay"][payment_method]
-
             is_fast_cart = data.get("is_fast_cart", False)
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             order_obj = None
-
-            if check_order_status_from_hyperpay(checkout_id,entity_id, payment_location_group_obj)==False:
+            order_info = get_order_info_from_hyperpay(checkout_id, payment_method, payment_location_group_obj)
+            if order_info["result"]==False:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("PlaceDaycartOnlineOrderAPI: HYPERPAY STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
@@ -6066,8 +6064,8 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                 payment_info = "NA"
                 payment_mode = "NA"
                 try:
-                    payment_info = data["paymentMethod"]
-                    payment_mode = data["paymentMethod"]["name"]
+                    payment_info = order_info["payment_info"]
+                    payment_mode = order_info["payment_info"]["paymentBrand"]
                 except Exception as e:
                     pass
 
@@ -6131,8 +6129,8 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                 payment_info = "NA"
                 payment_mode = "NA"
                 try:
-                    payment_info = data["paymentMethod"]
-                    payment_mode = data["paymentMethod"]["name"]
+                    payment_info = order_info["payment_info"]
+                    payment_mode = order_info["payment_info"]["paymentBrand"]
                 except Exception as e:
                     pass
 
@@ -6909,6 +6907,8 @@ AddOnlineAdditionalNote = AddOnlineAdditionalNoteAPI.as_view()
 AddOfflineAdditionalNote = AddOfflineAdditionalNoteAPI.as_view()
 
 FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
+
+PlaceDaycartOnlineOrder = PlaceDaycartOnlineOrderAPI.as_view()
 
 PlaceOnlineOrder = PlaceOnlineOrderAPI.as_view()
 
