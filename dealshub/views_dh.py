@@ -4373,7 +4373,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                             b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username)
                             temp_dict["companyName"] = b2b_user_obj.company_name
                         except Exception as e:
-                            pass
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.error("b2b user company name: %s at %s", e, str(exc_tb.tb_lineno))
 
                     temp_dict["customerName"] = customer_name
                     temp_dict["emailId"] = order_obj.owner.email
