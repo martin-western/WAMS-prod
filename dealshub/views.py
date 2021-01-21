@@ -1493,7 +1493,7 @@ class SearchDaycartAPI(APIView):
             page = data.get("page", 1)
 
             key_hash = "search-daycart-"+language_code+"-"+super_category_name+"-"+category_name+"-"+subcategory_name+"-"+brand_name+"-"+str(page)
-            if brand_filter==[] and sort_filter=={"price":""} and search_string=="":
+            if brand_filter==[] and sort_filter=={"price":""} and search_string=="" and min_price=="" and max_price=="" and rating==0 and min_discount_percent==0:
                 cached_value = cache.get(key_hash, "has_expired")
                 if cached_value!="has_expired":
                     t2 = datetime.datetime.now()
