@@ -6607,6 +6607,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             promotional_price = data["promotional_price"]
             stock = data["stock"]
             allowed_qty = data.get("allowed_qty", 100)
+            moq = data.get("moq", 5)
             is_cod_allowed = data["is_cod_allowed"]
             is_new_arrival = data.get("is_new_arrival", False)
             is_on_sale = data.get("is_on_sale", False)
@@ -6639,6 +6640,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.product_description = product_description
             dealshub_product_obj.product_description_ar = product_description_ar
             dealshub_product_obj.url = url
+            dealshub_product_obj.moq = moq
 
             dealshub_product_obj.set_search_keywords(search_keywords)
 
