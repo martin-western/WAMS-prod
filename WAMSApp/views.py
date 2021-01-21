@@ -6547,6 +6547,7 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["product_description_ar"] = dealshub_product_obj.get_description("ar")
             response["seller_sku"] = dealshub_product_obj.get_seller_sku()
             response["product_id"] = dealshub_product_obj.get_product_id()
+            response["moq"] = dealshub_product_obj.moq
             response["was_price"] = dealshub_product_obj.was_price
             response["now_price"] = dealshub_product_obj.now_price
             response["promotional_price"] = dealshub_product_obj.promotional_price
