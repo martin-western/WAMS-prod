@@ -3669,7 +3669,7 @@ class VerifyB2BOTPSMSAPI(APIView):
             response["verified"]=is_verified
             response["status"]=200
             logger.info("FINAL DATA 1:  %s", str(response))
-        except exception as e:
+        except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("VerifyB2BOTPSMSAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
@@ -4368,7 +4368,14 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     }
 
                     customer_name = address_obj.first_name
-
+                    if location_group_obj.is_b2b==True:
+                        try:
+                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username)
+                            temp_dict["companyName"] = b2b_user_obj.company_name
+                        except Exception as e:
+                            temp_dict["companyName"] = "NA"
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.error("b2b user company name: %s at %s", e, str(exc_tb.tb_lineno))
 
                     temp_dict["customerName"] = customer_name
                     temp_dict["emailId"] = order_obj.owner.email
@@ -4378,6 +4385,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["bundleId"] = order_obj.bundleid
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
+                    temp_dict["shippingMethod"] = unit_order_objs[0].shipping_method
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
