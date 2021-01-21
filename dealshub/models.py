@@ -1002,6 +1002,7 @@ class UnitOrder(models.Model):
     shipping_method = models.CharField(max_length=100, choices=SHIPPING_METHOD, default="pending")
 
     cancelled_by_user = models.BooleanField(default=False)
+    cancellation_request_action_taken = models.BooleanField(default=False)
     user_cancellation_note = models.CharField(max_length=255,default="")
     user_cancellation_status = models.CharField(max_length=100,default="")
 
