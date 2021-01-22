@@ -6594,15 +6594,15 @@ class FetchB2BUserProfileAPI(APIView):
             response["companyName"] = b2b_user_obj.company_name
 
             response["vat_certificate"] = ""
-            if b2b_user_obj.vat_certificate!=None:
+            if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
                 response["vat_certificate"] = b2b_user_obj.vat_certificate.url
             
             response["passport_copy"] = ""
-            if b2b_user_obj.passport_copy!=None:
+            if b2b_user_obj.passport_copy!=None and b2b_user_obj.passport_copy!="":
                 response["passport_copy"] = b2b_user_obj.passport_copy.url
 
             response["trade_license"] = ""
-            if b2b_user_obj.trade_license!=None:
+            if b2b_user_obj.trade_license!=None and b2b_user_obj.trade_license!="":
                 response["trade_license"] = b2b_user_obj.trade_license.url
 
             response["vat_certificate_status"] = b2b_user_obj.vat_certificate_status
