@@ -498,7 +498,7 @@ class AddToFastCartAPI(APIView):
                 data = json.loads(data)
 
             product_uuid = data["productUuid"]
-            quantity = 1
+            quantity = data.get("quantity", 1)
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -6255,6 +6255,7 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details["quantity"] = fast_cart_obj.quantity
             cart_details["price"] = fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
             cart_details["showNote"] = fast_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+            cart_details["moq"] = fast_cart_obj.product.moq
             cart_details["stock"] = fast_cart_obj.product.stock
             cart_details["allowedQty"] = fast_cart_obj.product.get_allowed_qty()
             cart_details["currency"] = fast_cart_obj.product.get_currency()
