@@ -6605,7 +6605,7 @@ class FetchB2BUserProfileAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SendNewProductEmailNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchB2BUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6638,7 +6638,7 @@ class UploadB2BDocumentAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SendNewProductEmailNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UploadB2BDocumentAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6669,7 +6669,7 @@ class UpdateB2BCustomerDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SendNewProductEmailNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateB2BCustomerDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
