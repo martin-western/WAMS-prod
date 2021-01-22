@@ -6574,6 +6574,106 @@ class SendNewProductEmailNotificationAPI(APIView):
         return Response(data=response)
 
 
+class FetchB2BUserProfileAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("FetchB2BUserProfileAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
+            
+            response["fullName"] = b2b_user_obj.first_name
+            response["contact_number"] = b2b_user_obj.contact_number
+            response["emailId"] = b2b_user_obj.email
+            response["companyName"] = b2b_user_obj.company_name
+
+            response["vat_certificate"] = b2b_user_obj.vat_certificate.url
+            response["passport_copy"] = b2b_user_obj.passport_copy.url
+            response["trade_license"] = b2b_user_obj.trade_license.url
+
+            response["vat_certificate_status"] = b2b_user_obj.vat_certificate_status
+            response["passport_copy_status"] = b2b_user_obj.passport_copy_status
+            response["trade_license_status"] = b2b_user_obj.trade_license_status
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SendNewProductEmailNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadB2BDocumentAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            document_type = data["document_type"]
+
+            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
+
+            if document_type=="VAT":
+                b2b_user_obj.vat_certificate = data["vat_certificate"]
+            if document_type=="PASSPORT":
+                b2b_user_obj.passport_copy = data["passport_copy"]
+            if document_type=="TRADE":
+                b2b_user_obj.trade_license = data["trade_license"]
+
+            b2b_user_obj.save()
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SendNewProductEmailNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UpdateB2BCustomerDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            full_name = data["fullName"]
+            email = data["emailId"]
+            company_name = data["companyName"]
+
+            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
+            b2b_user_obj.first_name = full_name
+            b2b_user_obj.email = email
+            b2b_user_obj.company_name = company_name
+            b2b_user_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SendNewProductEmailNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
@@ -6772,3 +6872,9 @@ GRNProcessingCron = GRNProcessingCronAPI.as_view()
 UpdateUserNameAndEmail = UpdateUserNameAndEmailAPI.as_view()
 
 SendNewProductEmailNotification = SendNewProductEmailNotificationAPI.as_view()
+
+FetchB2BUserProfile = FetchB2BUserProfileAPI.as_view()
+
+UploadB2BDocument = UploadB2BDocumentAPI.as_view()
+
+UpdateB2BCustomerDetails = UpdateB2BCustomerDetailsAPI.as_view()
