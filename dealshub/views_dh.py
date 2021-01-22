@@ -4341,7 +4341,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     cancel_status = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
                     temp_dict["cancelStatus"] = cancel_status
                     temp_dict["cancelled_by_user"] = False
-                    unit_order_count = unit_order_objs.filter(order=order_obj).count()
+                    unit_order_count = UnitOrder.objects.filter(order=order_obj).count()
                     if unit_order_objs.filter(order=order_obj, cancelled_by_user=True).count() == unit_order_count:
                         temp_dict["cancelled_by_user"] = True
                     temp_dict["partially_cancelled_by_user"] = False
@@ -4351,6 +4351,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     if cancel_status==True and unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
                         cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
                     temp_dict["cancelling_note"] = cancelling_note
+                    temp_dict["cancellation_request_action_taken"] = unit_order_objs.filter(order=order_obj, cancellation_request_action_taken=True).exists()
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
@@ -5177,10 +5178,12 @@ class ApproveCancellationRequestAPI(APIView):
             for unit_order_obj in unit_order_objs:
                 if unit_order_obj.order.payment_mode=="COD":
                     unit_order_obj.user_cancellation_status="approved"
+                    unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"approved")
                 else:
                     unit_order_obj.user_cancellation_status="refund processed"
+                    unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
 
@@ -5212,6 +5215,7 @@ class RejectCancellationRequestAPI(APIView):
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)       
                 unit_order_obj.user_cancellation_status = "rejected"
+                unit_order_obj.cancellation_request_action_taken = True
                 unit_order_obj.save()
 
             notify_order_cancel_status_to_user(unit_order_obj,"rejected")
