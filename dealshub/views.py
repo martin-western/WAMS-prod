@@ -1420,6 +1420,7 @@ class SearchWIG2API(APIView):
                     temp_dict["now_price"] = dealshub_product_obj.now_price
                     temp_dict["was_price"] = dealshub_product_obj.was_price
                     temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+                    temp_dict["moq"] = dealshub_product_obj.moq
                     temp_dict["stock"] = dealshub_product_obj.stock
                     temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                     temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
