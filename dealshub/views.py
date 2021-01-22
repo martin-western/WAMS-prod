@@ -1490,6 +1490,7 @@ class SearchWIG2API(APIView):
             search['products'] = products
             response['search'] = search
             response["is_user_authenticated"] = is_user_authenticated
+            logger.info("DEBUGGG : %s", str(is_user_authenticated))
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
