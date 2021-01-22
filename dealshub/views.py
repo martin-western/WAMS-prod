@@ -1275,6 +1275,7 @@ class SearchWIG2API(APIView):
             is_user_authenticated = True
             if location_group_obj.is_b2b==True:
                 b2b_user_obj = None
+                logger.info("REQUEST USER::: %s", str(request.user))
                 if request.user != None and str(request.user)!="AnonymousUser":
                     logger.info("REQUEST USER: %s", str(request.user))
                     b2b_user_obj = B2BUser.objects.get(username = request.user.username)
