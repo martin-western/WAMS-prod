@@ -498,7 +498,7 @@ class AddToFastCartAPI(APIView):
                 data = json.loads(data)
 
             product_uuid = data["productUuid"]
-            quantity = 1
+            quantity = data.get("quantity", 1)
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -692,6 +692,7 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["quantity"] = unit_cart_obj.quantity
                 temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
                 temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+                temp_dict["moq"] = unit_cart_obj.product.moq
                 temp_dict["stock"] = unit_cart_obj.product.stock
                 temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
@@ -2437,6 +2438,9 @@ class FetchCustomerOrdersAPI(APIView):
                 temp_dict["bundleId"] = str(order_obj.bundleid)
                 temp_dict["paymentMode"] = order_obj.payment_mode
                 temp_dict["uuid"] = order_obj.uuid
+                temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[0].shipping_method
+                temp_dict["call_status"] = order_obj.call_status
+                temp_dict["sapStatus"] = order_obj.sap_status
                 unit_order_list = []
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                     temp_dict2 = {}
@@ -4337,7 +4341,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     cancel_status = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
                     temp_dict["cancelStatus"] = cancel_status
                     temp_dict["cancelled_by_user"] = False
-                    unit_order_count = unit_order_objs.filter(order=order_obj).count()
+                    unit_order_count = UnitOrder.objects.filter(order=order_obj).count()
                     if unit_order_objs.filter(order=order_obj, cancelled_by_user=True).count() == unit_order_count:
                         temp_dict["cancelled_by_user"] = True
                     temp_dict["partially_cancelled_by_user"] = False
@@ -4347,6 +4351,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     if cancel_status==True and unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
                         cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
                     temp_dict["cancelling_note"] = cancelling_note
+                    temp_dict["cancellation_request_action_taken"] = unit_order_objs.filter(order=order_obj, cancellation_request_action_taken=True).exists()
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
@@ -5173,10 +5178,12 @@ class ApproveCancellationRequestAPI(APIView):
             for unit_order_obj in unit_order_objs:
                 if unit_order_obj.order.payment_mode=="COD":
                     unit_order_obj.user_cancellation_status="approved"
+                    unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"approved")
                 else:
                     unit_order_obj.user_cancellation_status="refund processed"
+                    unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
 
@@ -5208,6 +5215,7 @@ class RejectCancellationRequestAPI(APIView):
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)       
                 unit_order_obj.user_cancellation_status = "rejected"
+                unit_order_obj.cancellation_request_action_taken = True
                 unit_order_obj.save()
 
             notify_order_cancel_status_to_user(unit_order_obj,"rejected")
@@ -6247,6 +6255,7 @@ class FetchFastCartDetailsAPI(APIView):
             cart_details["quantity"] = fast_cart_obj.quantity
             cart_details["price"] = fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
             cart_details["showNote"] = fast_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+            cart_details["moq"] = fast_cart_obj.product.moq
             cart_details["stock"] = fast_cart_obj.product.stock
             cart_details["allowedQty"] = fast_cart_obj.product.get_allowed_qty()
             cart_details["currency"] = fast_cart_obj.product.get_currency()
@@ -6566,6 +6575,114 @@ class SendNewProductEmailNotificationAPI(APIView):
         return Response(data=response)
 
 
+class FetchB2BUserProfileAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("FetchB2BUserProfileAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
+            
+            response["fullName"] = b2b_user_obj.first_name
+            response["contact_number"] = b2b_user_obj.contact_number
+            response["emailId"] = b2b_user_obj.email
+            response["companyName"] = b2b_user_obj.company_name
+
+            response["vat_certificate"] = ""
+            if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
+                response["vat_certificate"] = b2b_user_obj.vat_certificate.url
+            
+            response["passport_copy"] = ""
+            if b2b_user_obj.passport_copy!=None and b2b_user_obj.passport_copy!="":
+                response["passport_copy"] = b2b_user_obj.passport_copy.url
+
+            response["trade_license"] = ""
+            if b2b_user_obj.trade_license!=None and b2b_user_obj.trade_license!="":
+                response["trade_license"] = b2b_user_obj.trade_license.url
+
+            response["vat_certificate_status"] = b2b_user_obj.vat_certificate_status
+            response["passport_copy_status"] = b2b_user_obj.passport_copy_status
+            response["trade_license_status"] = b2b_user_obj.trade_license_status
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchB2BUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UploadB2BDocumentAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            document_type = data["document_type"]
+
+            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
+
+            if document_type=="VAT":
+                b2b_user_obj.vat_certificate = data["vat_certificate"]
+            if document_type=="PASSPORT":
+                b2b_user_obj.passport_copy = data["passport_copy"]
+            if document_type=="TRADE":
+                b2b_user_obj.trade_license = data["trade_license"]
+
+            b2b_user_obj.save()
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UploadB2BDocumentAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UpdateB2BCustomerDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            full_name = data["fullName"]
+            email = data["emailId"]
+            company_name = data["companyName"]
+
+            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
+            b2b_user_obj.first_name = full_name
+            b2b_user_obj.email = email
+            b2b_user_obj.company_name = company_name
+            b2b_user_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateB2BCustomerDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
@@ -6764,3 +6881,9 @@ GRNProcessingCron = GRNProcessingCronAPI.as_view()
 UpdateUserNameAndEmail = UpdateUserNameAndEmailAPI.as_view()
 
 SendNewProductEmailNotification = SendNewProductEmailNotificationAPI.as_view()
+
+FetchB2BUserProfile = FetchB2BUserProfileAPI.as_view()
+
+UploadB2BDocument = UploadB2BDocumentAPI.as_view()
+
+UpdateB2BCustomerDetails = UpdateB2BCustomerDetailsAPI.as_view()

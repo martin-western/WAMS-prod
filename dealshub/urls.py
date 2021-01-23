@@ -230,4 +230,8 @@ urlpatterns = [
     url(r'^update-user-name-and-email/$',views.UpdateUserNameAndEmail),
 
     url(r'^send-new-product-email-notification/$',views.SendNewProductEmailNotification),
+
+    url(r'^fetch-b2b-user-profile/$',views.FetchB2BUserProfile),
+    url(r'^upload-b2b-document/$',views.UploadB2BDocument),
+    url(r'^update-b2b-customer-details/$',views.UpdateB2BCustomerDetails),
 ]

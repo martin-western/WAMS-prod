@@ -318,6 +318,14 @@ class FetchOnSaleProductsAPI(APIView):
             
             dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_on_sale=True).exclude(now_price=0).exclude(stock=0).prefetch_related('promotion')
 
+            is_user_authenticated = True
+            if location_group_obj.is_b2b==True:
+                b2b_user_obj = None
+                if request.user != None and str(request.user)!="AnonymousUser":
+                    logger.info("REQUEST USER: %s", str(request.user))
+                    b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                is_user_authenticated = check_account_status(b2b_user_obj)
+
             page = int(data.get("page",1))
             paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
@@ -333,6 +341,7 @@ class FetchOnSaleProductsAPI(APIView):
                 temp_dict2["now_price"] = dealshub_product_obj.now_price
                 temp_dict2["was_price"] = dealshub_product_obj.was_price
                 temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
+                temp_dict2["moq"] = dealshub_product_obj.moq
                 temp_dict2["stock"] = dealshub_product_obj.stock
                 temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
@@ -356,6 +365,7 @@ class FetchOnSaleProductsAPI(APIView):
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
             response["products"] = products
+            response["is_user_authenticated"] = is_user_authenticated
             response['status'] = 200
 
         except Exception as e:
@@ -385,6 +395,14 @@ class FetchNewArrivalProductsAPI(APIView):
             
             dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_new_arrival=True).exclude(now_price=0).exclude(stock=0).order_by('-product__created_date').prefetch_related('promotion')
 
+            is_user_authenticated = True
+            if location_group_obj.is_b2b==True:
+                b2b_user_obj = None
+                if request.user != None and str(request.user)!="AnonymousUser":
+                    logger.info("REQUEST USER: %s", str(request.user))
+                    b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                is_user_authenticated = check_account_status(b2b_user_obj)
+
             page = int(data.get("page",1))
             paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
@@ -400,6 +418,7 @@ class FetchNewArrivalProductsAPI(APIView):
                 temp_dict2["now_price"] = dealshub_product_obj.now_price
                 temp_dict2["was_price"] = dealshub_product_obj.was_price
                 temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
+                temp_dict2["moq"] = dealshub_product_obj.moq
                 temp_dict2["stock"] = dealshub_product_obj.stock
                 temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
@@ -425,6 +444,7 @@ class FetchNewArrivalProductsAPI(APIView):
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
             response["products"] = products
+            response["is_user_authenticated"] = is_user_authenticated
             response['status'] = 200
 
         except Exception as e:
@@ -452,6 +472,14 @@ class FetchSectionProductsAPI(APIView):
 
             uuid = data["sectionUuid"]
             section_obj = Section.objects.get(uuid=uuid)
+
+            is_user_authenticated = True
+            if section_obj.location_group.is_b2b==True:
+                b2b_user_obj = None
+                if request.user != None and str(request.user)!="AnonymousUser":
+                    logger.info("REQUEST USER: %s", str(request.user))
+                    b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                is_user_authenticated = check_account_status(b2b_user_obj)
             
             custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj, product__is_published=True)
             custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
@@ -482,6 +510,7 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2["now_price"] = dealshub_product_obj.now_price
                 temp_dict2["was_price"] = dealshub_product_obj.was_price
                 temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
+                temp_dict2["moq"] = dealshub_product_obj.moq
                 temp_dict2["stock"] = dealshub_product_obj.stock
                 temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                 temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
@@ -507,6 +536,7 @@ class FetchSectionProductsAPI(APIView):
 
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
+            response["is_user_authenticated"] = is_user_authenticated
 
             response['sectionData'] = temp_dict
             response['status'] = 200
@@ -1242,6 +1272,15 @@ class SearchWIG2API(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
+            is_user_authenticated = True
+            if location_group_obj.is_b2b==True:
+                b2b_user_obj = None
+                logger.info("REQUEST USER::: %s", str(request.user))
+                if request.user != None and str(request.user)!="AnonymousUser":
+                    logger.info("REQUEST USER: %s", str(request.user))
+                    b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                is_user_authenticated = check_account_status(b2b_user_obj)
+
             page_description = ""
             seo_title = ""
             seo_keywords = ""
@@ -1420,6 +1459,7 @@ class SearchWIG2API(APIView):
                     temp_dict["now_price"] = dealshub_product_obj.now_price
                     temp_dict["was_price"] = dealshub_product_obj.was_price
                     temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+                    temp_dict["moq"] = dealshub_product_obj.moq
                     temp_dict["stock"] = dealshub_product_obj.stock
                     temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                     temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
@@ -1449,6 +1489,8 @@ class SearchWIG2API(APIView):
             response["total_products"] = len(available_dealshub_products)
             search['products'] = products
             response['search'] = search
+            response["is_user_authenticated"] = is_user_authenticated
+            logger.info("DEBUGGG : %s", str(is_user_authenticated))
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1493,7 +1535,7 @@ class SearchDaycartAPI(APIView):
             page = data.get("page", 1)
 
             key_hash = "search-daycart-"+language_code+"-"+super_category_name+"-"+category_name+"-"+subcategory_name+"-"+brand_name+"-"+str(page)
-            if brand_filter==[] and sort_filter=={"price":""} and search_string=="":
+            if brand_filter==[] and sort_filter=={"price":""} and search_string=="" and min_price=="" and max_price=="" and min_rating==0 and min_discount_percent==0:
                 cached_value = cache.get(key_hash, "has_expired")
                 if cached_value!="has_expired":
                     t2 = datetime.datetime.now()
@@ -1702,7 +1744,7 @@ class SearchDaycartAPI(APIView):
             response['search'] = search
             response['status'] = 200
 
-            if brand_filter==[] and sort_filter=={"price":""} and search_string=="":
+            if brand_filter==[] and sort_filter=={"price":""} and search_string=="" and min_price=="" and max_price=="" and min_rating==0 and min_discount_percent==0:
                 cache.set(key_hash, json.dumps(response))
 
             t2 = datetime.datetime.now()
@@ -4086,6 +4128,14 @@ class FetchUnitBannerProductsAPI(APIView):
             
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
 
+            is_user_authenticated = True
+            if unit_banner_image_obj.banner.location_group.is_b2b==True:
+                b2b_user_obj = None
+                if request.user != None and str(request.user)!="AnonymousUser":
+                    logger.info("REQUEST USER: %s", str(request.user))
+                    b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                is_user_authenticated = check_account_status(b2b_user_obj)
+
             custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj, product__is_published=True)
             custom_product_unit_banner_objs = custom_product_unit_banner_objs.exclude(product__now_price=0).exclude(product__stock=0)
             dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
@@ -4114,6 +4164,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 temp_dict["now_price"] = dealshub_product_obj.now_price
                 temp_dict["was_price"] = dealshub_product_obj.was_price
                 temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+                temp_dict["moq"] = dealshub_product_obj.moq
                 temp_dict["stock"] = dealshub_product_obj.stock
                 temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                 temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
@@ -4139,6 +4190,7 @@ class FetchUnitBannerProductsAPI(APIView):
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
             response["productList"] = product_list
+            response["is_user_authenticated"] = is_user_authenticated
             response['status'] = 200
 
         except Exception as e:
