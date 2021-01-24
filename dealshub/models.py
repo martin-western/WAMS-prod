@@ -591,8 +591,8 @@ class Cart(models.Model):
     payment_info = models.TextField(default="{}")
     modified_date = models.DateTimeField(null=True, blank=True)
     reference_medium = models.CharField(max_length=200,default="")
-    offline_delivery_fee = models.IntegerField(default=0)
-    offline_cod_charge = models.IntegerField(default=0)
+    offline_delivery_fee = models.FloatField(default=0)
+    offline_cod_charge = models.FloatField(default=0)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -672,7 +672,7 @@ class UnitCart(models.Model):
     cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
-    offline_price = models.IntegerField(default=0)
+    offline_price = models.FloatField(default=0)
 
     date_created = models.DateTimeField(auto_now_add=True)
     uuid = models.CharField(max_length=200, default="")
