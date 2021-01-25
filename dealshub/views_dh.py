@@ -4567,7 +4567,7 @@ class SetShippingMethodAPI(APIView):
             if shipping_method.lower()=="logix" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
                 order_info = {}
                 
-                order_info["order-id"] = order_obj.uuid
+                order_info["order-id"] = order_obj.bundleid
                 order_info["customer-name"] = order_obj.get_customer_full_name()
                 order_info["customer-address"] = order_obj.shipping_address.get_shipping_address()
                 order_info["customer-contact"] = str(order_obj.owner.contact_number)
