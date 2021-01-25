@@ -50,3 +50,4 @@ admin.site.register(LocationGroup)
 admin.site.register(Voucher)
 admin.site.register(WishList)
 admin.site.register(UnitWishList)
+
