@@ -531,6 +531,7 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2 = {}
                 temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
                 temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
+                temp_dict2["seller_sku"] = dealshub_product_obj.get_seller_sku()
                 temp_dict2["now_price"] = dealshub_product_obj.now_price
                 temp_dict2["was_price"] = dealshub_product_obj.was_price
                 temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
