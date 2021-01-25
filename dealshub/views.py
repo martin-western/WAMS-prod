@@ -467,7 +467,15 @@ class FetchSectionProductsAPI(APIView):
             data = request.data
             logger.info("FetchSectionProductsAPI: %s", str(data))
             language_code = data.get("language","en")
+            
+            brand_name = data.get("brand", "").strip()
 
+            min_price = data.get("min_price","")
+            max_price = data.get("max_price","")
+            min_rating = data.get("rating",0)
+            min_discount_percent = data.get("discount_percent",0)
+
+            brand_filter = data.get("brand_filter", [])
             sort_filter = data.get("sort_filter", {})
 
             uuid = data["sectionUuid"]
@@ -485,6 +493,22 @@ class FetchSectionProductsAPI(APIView):
             custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
             dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+            
+            if min_price!="":
+                dealshub_product_objs = dealshub_product_objs.filter(now_price__gte=int(min_price))
+            if max_price!="":
+                dealshub_product_objs = dealshub_product_objs.filter(now_price__lte=int(max_price))
+            if min_rating!=0:
+                dealshub_product_objs = dealshub_product_objs.exclude(review=None).annotate(product_avg_rating=Avg('review__rating')).filter(product_avg_rating__gte=float(min_rating))
+            if min_discount_percent!=0:
+                dealshub_product_objs = dealshub_product_objs.annotate(product_discount=((F('was_price')-F('now_price'))/F('was_price')*100)).filter(product_discount__gte=float(min_discount_percent))
+            
+            if brand_name!="":
+                dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__brand__name=brand_name) | Q(product__base_product__brand__name_ar=brand_name))
+
+            if len(brand_filter)>0:
+                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name__in=brand_filter)      
+            
             if sort_filter.get("price", "")=="high-to-low":
                 dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
             elif sort_filter.get("price", "")=="low-to-high":
@@ -4122,6 +4146,15 @@ class FetchUnitBannerProductsAPI(APIView):
             data = request.data
             logger.info("FetchUnitBannerProductsAPI: %s", str(data))
             language_code = data.get("language","en")
+                     
+            brand_name = data.get("brand", "").strip()
+
+            min_price = data.get("min_price","")
+            max_price = data.get("max_price","")
+            min_rating = data.get("rating",0)
+            min_discount_percent = data.get("discount_percent",0)
+
+            brand_filter = data.get("brand_filter", [])   
             sort_filter = data.get("sort_filter", {})
 
             unit_banner_image_uuid = data["unitBannerImageUuid"]
@@ -4141,6 +4174,21 @@ class FetchUnitBannerProductsAPI(APIView):
             dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
 
+            if min_price!="":
+                dealshub_product_objs = dealshub_product_objs.filter(now_price__gte=int(min_price))
+            if max_price!="":
+                dealshub_product_objs = dealshub_product_objs.filter(now_price__lte=int(max_price))
+            if min_rating!=0:
+                dealshub_product_objs = dealshub_product_objs.exclude(review=None).annotate(product_avg_rating=Avg('review__rating')).filter(product_avg_rating__gte=float(min_rating))
+            if min_discount_percent!=0:
+                dealshub_product_objs = dealshub_product_objs.annotate(product_discount=((F('was_price')-F('now_price'))/F('was_price')*100)).filter(product_discount__gte=float(min_discount_percent))
+            
+            if brand_name!="":
+                dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__brand__name=brand_name) | Q(product__base_product__brand__name_ar=brand_name))
+
+            if len(brand_filter)>0:
+                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name__in=brand_filter)      
+            
             if sort_filter.get("price", "")=="high-to-low":
                 dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
             elif sort_filter.get("price", "")=="low-to-high":
