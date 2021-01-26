@@ -787,7 +787,8 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
                 temp_dict["price"] = unit_cart_obj.offline_price
-                temp_dict["sellerSku"] = unit_cart_obj.product.get_seller_sku()                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+                temp_dict["sellerSku"] = unit_cart_obj.product.get_seller_sku()
+                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
                 temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
@@ -1619,7 +1620,7 @@ class PlaceOfflineOrderAPI(APIView):
                                              is_order_offline = True,
                                              location_group=cart_obj.location_group,
                                              delivery_fee=cart_obj.offline_delivery_fee,
-                                             cod_charge=cart_obj.offline_cod_charge)
+                                             cod_charge=cart_obj.offline_cod_charge,
                                              offline_sales_person=omnycomm_user_obj)
             
             for unit_cart_obj in unit_cart_objs:
