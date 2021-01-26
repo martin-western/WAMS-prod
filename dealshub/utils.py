@@ -168,9 +168,9 @@ def cancel_order_admin(unit_order_obj, cancelling_note):
         return
 
 
-def update_cart_bill(cart_obj,offline=False):
+def update_cart_bill(cart_obj,cod=False,offline=False):
     
-    cart_obj.to_pay = cart_obj.get_total_amount(offline)
+    cart_obj.to_pay = cart_obj.get_total_amount(cod=cod,offline=offline)
 
     if cart_obj.voucher!=None:
         voucher_obj = cart_obj.voucher
