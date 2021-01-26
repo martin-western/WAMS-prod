@@ -171,6 +171,8 @@ def cancel_order_admin(unit_order_obj, cancelling_note):
 def update_cart_bill(cart_obj,offline=False):
     
     cart_obj.to_pay = cart_obj.get_total_amount(offline)
+    if offline==True and cart_obj.to_pay>=cart_obj.location_group.free_delivery_threshold:
+        cart_obj.offline_delivery_fee = 0
 
     if cart_obj.voucher!=None:
         voucher_obj = cart_obj.voucher
