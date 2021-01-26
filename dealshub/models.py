@@ -731,8 +731,11 @@ class Cart(models.Model):
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
 
+        if offline==True:
+            return self.offline_delivery_fee
+
         if subtotal < self.location_group.free_delivery_threshold:
-            return self.offline_delivery_fee if offline==True else self.location_group.delivery_fee
+            return self.location_group.delivery_fee
         return 0
 
     def get_total_amount(self, cod=False, offline=False):
