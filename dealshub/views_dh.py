@@ -821,6 +821,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
                     
+            response["cartUuid"] = cart_obj.uuid
             response["additional_note"] = cart_obj.additional_note
             response["referenceMedium"] = cart_obj.reference_medium
             response["currency"] = cart_obj.get_currency()
@@ -953,7 +954,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
             cart_obj.offline_delivery_fee = offline_delivery_fee
             cart_obj.save()
 
-            update_cart_bill(unit_cart_obj.cart,offline=is_order_offline)
+            update_cart_bill(cart_obj,offline=is_order_offline)
 
             subtotal = cart_obj.get_offline_subtotal() if is_order_offline==True else cart_obj.get_subtotal()
             
