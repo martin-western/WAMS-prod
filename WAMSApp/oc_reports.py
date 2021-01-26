@@ -2195,7 +2195,8 @@ def create_bulk_image_report(filename, uuid, brand_list, organization_obj=None):
 
         product_objs = Product.objects.filter(base_product__brand__name__in=brand_list, base_product__brand__organization=organization_obj)
 
-        row = ["Main Image",
+        row = ["No.",
+           "Main Image",
            "Sub Image 1",
            "Sub Image 2",
            "Sub Image 3",
