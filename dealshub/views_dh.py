@@ -2306,7 +2306,7 @@ class FetchCustomerDetailsAPI(APIView):
                 address_list.append(", ".join(json.loads(address_obj.address_lines)))
             temp_dict["addressList"] = address_list
 
-            review_objs = Review.objects.filter(dealshub_user=dealshub_user_obj)
+            review_objs = Review.objects.filter(dealshub_user=dealshub_user_obj).exclude(is_published=False)
             
             unit_cart_list = []
             for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj):
@@ -3809,6 +3809,111 @@ class AddReviewAPI(APIView):
         return Response(data=response)
 
 
+class AddFakeReviewAdminAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("AddFakeReviewAdminAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_code = str(data["product_code"])
+            fake_customer_name = data["customerName"]
+            rating = int(data["rating"])
+            review_content = json.loads(data["review_content"])
+
+            subject = str(review_content["subject"])
+            content = str(review_content["content"])
+            
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_code)
+
+            review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+            image_count = int(data.get("image_count", 0))
+            for i in range(image_count):
+                image_obj = Image.objects.create(image=data["image_"+str(i)])
+                review_content_obj.images.add(image_obj)
+
+            review_obj = Review.objects.create(is_fake=True,
+                                               product=dealshub_product_obj,
+                                               rating=rating,
+                                               content=review_content_obj,
+                                               fake_customer_name=fake_customer_name,
+                                               fake_oc_user=request.user)
+            
+            response["uuid"] = review_obj.uuid
+            response["review_content_uuid"] = review_content_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddFakeReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class UpdateReviewAdminAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("UpdateReviewAdminAPI: %s",str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            review_uuid = str(data["review_uuid"])
+            product_code = str(data["product_code"])
+            fake_customer_name = data.get("customerName","")
+            rating = int(data["rating"])
+            review_content = json.loads(data["review_content"])
+
+            subject = str(review_content["subject"])
+            content = str(review_content["content"])
+            
+            review_obj = Review.objects.get(uuid=review_uuid)
+            review_obj.rating = rating
+            if review_obj.is_fake==True:
+                review_obj.fake_customer_name = fake_customer_name
+            
+            review_content_obj = review_obj.content
+            if review_content_obj is None:
+                review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+            else:
+                review_content_obj.subject = subject
+                review_content_obj.content = content
+                review_content_obj.save()
+            
+            image_count = int(data.get("image_count", 0))
+            for i in range(image_count):
+                image_obj = Image.objects.create(image=data["image_"+str(i)])
+                review_content_obj.images.add(image_obj)
+            review_content_obj.save()
+
+            review_obj.content = review_content_obj
+            review_obj.save()
+            
+            response['review_uuid'] = review_obj.uuid
+            response['review_content_uuid'] = review_content_obj.uuid
+            response['status'] = 200
+            
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
 class AddRatingAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
@@ -3993,7 +4098,7 @@ class DeleteUpvoteAPI(APIView):
             logger.error("DeleteUpvoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
+    
 
 class FetchReviewAPI(APIView):
 
@@ -4007,8 +4112,8 @@ class FetchReviewAPI(APIView):
             uuid = str(data["uuid"])
 
             review_obj = Review.objects.get(uuid=uuid)
-            response["username"] = str(review_obj.dealshub_user.username)
-            response["product_code"] = str(review_obj.product.product.uuid)
+            response["username"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.username)
+            response["product_code"] = str(review_obj.product.uuid)
             response["rating"] = str(review_obj.rating)
 
             review_content_obj = review_obj.content
@@ -4029,6 +4134,7 @@ class FetchReviewAPI(APIView):
                 "admin_comment" : admin_comment
             }
 
+            response["is_published"] = review_obj.is_published
             response["review_content"] = review_content
             response["created_date"] = str(review_obj.created_date)
             response["modified_date"] = str(review_obj.modified_date)
@@ -4037,6 +4143,134 @@ class FetchReviewAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchReviewAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchReviewsAdminAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("FetchReviewsAdminAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_code = data.get("product_code","")
+            from_date = data.get("from_date","")
+            to_date = data.get("to_date","")
+            category_uuid = data.get("category_uuid","")
+            is_fake = data.get("is_fake", None)
+
+            location_group_uuid = data["locationGroupUuid"]
+            page = int(data.get("page",1))
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            review_objs = Review.objects.filter(product__location_group=location_group_obj).order_by('-modified_date')
+
+            if product_code!="":
+                dh_product_obj = DealsHubProduct.objects.get(uuid=product_code)
+                review_objs = review_objs.filter(product=dh_product_obj)
+
+            if from_date!="":
+                from_date = from_date[:10]+"T00:00:00+04:00"
+                review_objs = review_objs.filter(modified_date__gte=from_date)
+
+            if to_date!="":
+                to_date = to_date[:10]+"T23:59:59+04:00"
+                review_objs = review_objs.filter(modified_date__lte=to_date)
+            
+            if category_uuid!="":
+                category_obj = Category.objects.get(uuid=category_uuid)
+                review_objs = review_objs.filter(product__category=category_obj)
+
+            if is_fake!=None:
+                review_objs = review_objs.filter(is_fake=is_fake)
+
+            paginator  = Paginator(review_objs,20)
+            total_pages = int(paginator.num_pages)
+
+            if page > total_pages:
+                response['status'] = 404
+                response['message'] = "Page number out of range"
+                logger.warning("FetchReviewsAdminAPI : Page number out of range")
+                return Response(data=response)
+
+            review_objs = paginator.page(page)
+
+            review_list = []
+            for review_obj in review_objs:
+                temp_dict= {}
+                temp_dict["username"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.username)
+                temp_dict["display_name"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.first_name)
+                temp_dict["rating"] = str(review_obj.rating)
+                temp_dict["is_fake"] = review_obj.is_fake
+                temp_dict["is_published"] = review_obj.is_published
+                if review_obj.is_fake and review_obj.fake_oc_user!=None:
+                    temp_dict["fake_oc_user"] = review_obj.fake_oc_user
+
+                review_content_obj = review_obj.content   
+
+                admin_comment_obj = None
+                if review_content_obj!=None:
+                    admin_comment_obj = review_content_obj.admin_comment
+                admin_comment = None
+                if admin_comment_obj is not None:
+                    admin_comment = {
+                        "username" : str(admin_comment_obj.username),
+                        "display_name" : str(admin_comment_obj.user.first_name+" "+admin_comment_obj.user.last_name),
+                        "comment" : str(admin_comment_obj.comment),
+                        "created_date" : str(timezone.localtime(admin_comment_obj.created_date).strftime("%d %b, %Y")),
+                        "modified_date" : str(timezone.localtime(admin_comment_obj.modified_date).strftime("%d %b, %Y"))
+                    }
+
+                review_content = None
+                if review_content_obj is not None:
+                    image_objs = review_content_obj.images.all()
+                    image_url_list = []
+                    for image_obj in image_objs:
+                        try:
+                            image_url_list.append(image_obj.mid_image.url)
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    review_content = {
+                        "subject" : str(review_content_obj.subject),
+                        "content" : str(review_content_obj.content),
+                        "upvotes_count" : str(review_content_obj.upvoted_users.count()),
+                        "admin_comment" : admin_comment,
+                        "image_url_list": image_url_list
+                    }
+                product_details = {
+                    "name" : review_obj.product.product_name,
+                    "image_url" : review_obj.product.get_display_image_url()
+                }
+
+                temp_dict["product_details"] =  product_details
+                temp_dict["review_content"] = review_content
+                temp_dict["created_date"] = str(timezone.localtime(review_obj.created_date).strftime("%d %b, %Y"))
+                temp_dict["modified_date"] = str(timezone.localtime(review_obj.modified_date).strftime("%d %b, %Y"))
+                temp_dict["review_uuid"] = str(review_obj.uuid)
+                review_list.append(temp_dict)
+
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
+            response["totalPages"] = paginator.num_pages
+
+            response["reviewList"] = review_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchReviewsAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4056,16 +4290,17 @@ class FetchProductReviewsAPI(APIView):
             product_code = str(data["product_code"])
 
             product_reviews = []
-            review_objs = Review.objects.filter(product__uuid=product_code)
+            review_objs = Review.objects.filter(product__uuid=product_code).exclude(is_published=False)
             total_reviews = review_objs.count()
 
             total_rating = 0
             for review_obj in review_objs:
                 temp_dict = {}
 
-                temp_dict["username"] = str(review_obj.dealshub_user.username)
-                temp_dict["display_name"] = str(review_obj.dealshub_user.first_name)
+                temp_dict["username"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.username)
+                temp_dict["display_name"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.first_name)
                 temp_dict["rating"] = str(review_obj.rating)
+  
                 total_rating += int(review_obj.rating)
 
                 review_content_obj = review_obj.content
@@ -4118,7 +4353,7 @@ class FetchProductReviewsAPI(APIView):
                 if UnitOrder.objects.filter(product__uuid=product_code, order__owner__username=request.user.username).exists():
                     is_product_purchased = True
 
-                if Review.objects.filter(product__uuid=product_code, dealshub_user__username=request.user.username).exists():
+                if Review.objects.filter(product__uuid=product_code, dealshub_user__username=request.user.username).exclude(is_published=False).exists():
                     is_user_reviewed = True
                     review_obj = Review.objects.get(product__uuid=product_code, dealshub_user__username=request.user.username)
                     review_content = None
@@ -4203,7 +4438,8 @@ class DeleteUserReviewAPI(APIView):
 
             review_obj = Review.objects.get(uuid=uuid)
             if review_obj.dealshub_user.username==request.user.username:
-                review_obj.delete()
+                review_obj.is_deleted = True
+                review_obj.save()
                 
             response["status"] = 200
 
@@ -4212,6 +4448,64 @@ class DeleteUserReviewAPI(APIView):
             logger.error("DeleteUserReviewAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
+class HideReviewAdminAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("HideReviewAdminAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            review_uuid = data["review_uuid"]
+
+            review_obj = Review.objects.get(uuid=review_uuid)
+            review_obj.is_deleted = True
+            review_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("HideReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UpdateReviewPublishStatusAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateReviewPublishStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            review_uuid = data["review_uuid"]
+            is_published = data["is_published"]
+
+            review_obj = Review.objects.get(uuid=review_uuid)
+            review_obj.is_published = is_published
+            review_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateReviewPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 
 class FetchOrdersForWarehouseManagerAPI(APIView):
@@ -6795,6 +7089,10 @@ UpdateUserEmail = UpdateUserEmailAPI.as_view()
 
 AddReview = AddReviewAPI.as_view()
 
+AddFakeReviewAdmin = AddFakeReviewAdminAPI.as_view()
+
+UpdateReviewAdmin = UpdateReviewAdminAPI.as_view()
+
 AddRating = AddRatingAPI.as_view()
 
 UpdateRating = UpdateRatingAPI.as_view()
@@ -6809,11 +7107,17 @@ DeleteUpvote = DeleteUpvoteAPI.as_view()
 
 FetchReview = FetchReviewAPI.as_view()
 
+FetchReviewsAdmin = FetchReviewsAdminAPI.as_view()
+
 FetchProductReviews = FetchProductReviewsAPI.as_view()
 
 DeleteUserReviewImage = DeleteUserReviewImageAPI.as_view()
 
 DeleteUserReview = DeleteUserReviewAPI.as_view()
+
+HideReviewAdmin = HideReviewAdminAPI.as_view()
+
+UpdateReviewPublishStatus = UpdateReviewPublishStatusAPI.as_view()
 
 FetchOrdersForWarehouseManager = FetchOrdersForWarehouseManagerAPI.as_view()
 
