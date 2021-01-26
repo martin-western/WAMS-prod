@@ -951,7 +951,10 @@ class UpdateOfflineCartDetailsAPI(APIView):
             cart_obj = Cart.objects.get(uuid=cart_uuid)
 
             cart_obj.offline_cod_charge = offline_cod_charge
-            cart_obj.offline_delivery_fee = offline_delivery_fee
+            if cart_obj.to_pay >= cart_obj.location_group.free_delivery_threshold:
+                cart_obj.offline_delivery_fee = 0
+            else:
+                cart_obj.offline_delivery_fee = offline_delivery_fee
             cart_obj.save()
 
             update_cart_bill(cart_obj,offline=is_order_offline)
@@ -3213,6 +3216,7 @@ class SendB2BOTPSMSLoginAPI(APIView):
             if B2BUser.objects.filter(username = username).exists() == True and B2BUser.objects.get(username = username).contact_verified == True:
                 b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
                 b2b_user_obj.set_password(OTP)
+                b2b_user_obj.verification_code = OTP
                 b2b_user_obj.save()
 
                 #Trigger sms
