@@ -849,15 +849,11 @@ class UpdateCartDetailsAPI(APIView):
             is_order_offline = data.get("is_order_offline", False)
             if is_order_offline:
                 offline_price = data["offline_price"]
-                offline_cod_charge = data["offline_cod_charge"]
-                offline_delivery_fee = data["offline_delivery_fee"]
 
             unit_cart_obj = UnitCart.objects.get(uuid=unit_cart_uuid)
             unit_cart_obj.quantity = quantity
             if is_order_offline:
                 unit_cart_obj.offline_price = offline_price
-                unit_cart_obj.offline_cod_charge = offline_cod_charge
-                unit_cart_obj.offline_delivery_fee = offline_delivery_fee
             unit_cart_obj.save()
 
             update_cart_bill(unit_cart_obj.cart,offline=is_order_offline)
@@ -912,6 +908,80 @@ class UpdateCartDetailsAPI(APIView):
         
         return Response(data=response)
 
+class UpdateOfflineCartDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateOfflineCartDetailsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            cart_uuid = data["cartUuid"]
+
+            offline_cod_charge = data["offline_cod_charge"]
+            offline_delivery_fee = data["offline_delivery_fee"]
+            is_order_offline = True
+
+            cart_obj = Cart.objects.get(uuid=cart_uuid)
+
+            cart_obj.offline_cod_charge = offline_cod_charge
+            cart_obj.offline_delivery_fee = offline_delivery_fee
+            cart_obj.save()
+
+            update_cart_bill(unit_cart_obj.cart,offline=is_order_offline)
+
+            subtotal = cart_obj.get_offline_subtotal() if is_order_offline==True else cart_obj.get_subtotal()
+            
+            delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
+            total_amount = cart_obj.get_total_amount(offline=is_order_offline)
+            vat = cart_obj.get_vat(offline=is_order_offline)
+
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=is_order_offline)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=is_order_offline)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=is_order_offline)
+
+            is_voucher_applied = cart_obj.voucher!=None
+            voucher_discount = 0
+            voucher_code = ""
+            if is_voucher_applied:
+                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_code = cart_obj.voucher.voucher_code
+                if cart_obj.voucher.voucher_type=="SD":
+                    delivery_fee = delivery_fee_with_cod
+                    voucher_discount = delivery_fee
+
+            response["currency"] = cart_obj.get_currency()
+            response["subtotal"] = subtotal
+
+            response["cardBill"] = {
+                "vat": vat,
+                "toPay": total_amount,
+                "delivery_fee": delivery_fee,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+            response["codBill"] = {
+                "vat": vat_with_cod,
+                "toPay": total_amount_with_cod,
+                "delivery_fee": delivery_fee_with_cod,
+                "codCharge": cart_obj.offline_cod_charge if is_order_offline==True else cart_obj.location_group.cod_charge,
+                "is_voucher_applied": is_voucher_applied,
+                "voucher_discount": voucher_discount,
+                "voucher_code": voucher_code
+            }
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
 
 class BulkUpdateCartDetailsAPI(APIView):
 
@@ -5504,6 +5574,8 @@ FetchCartDetails = FetchCartDetailsAPI.as_view()
 FetchOfflineCartDetails = FetchOfflineCartDetailsAPI.as_view()
 
 UpdateCartDetails = UpdateCartDetailsAPI.as_view()
+
+UpdateOfflineCartDetails = UpdateOfflineCartDetailsAPI.as_view()
 
 RemoveFromCart = RemoveFromCartAPI.as_view()
 
