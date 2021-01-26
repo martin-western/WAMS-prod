@@ -721,10 +721,9 @@ class Cart(models.Model):
         return subtotal
 
     def get_delivery_fee(self, cod=False, offline=False):
+        subtotal = self.get_subtotal()
         if offline==True:
-            subtotal = self.get_offline_subtotal()
-        else:
-            subtotal = self.get_subtotal()
+            subtotal = self.get_offline_subtotal()            
         if subtotal==0:
             return 0
         if (self.location_group.is_voucher_allowed_on_cod==True or cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
@@ -737,17 +736,16 @@ class Cart(models.Model):
         return 0
 
     def get_total_amount(self, cod=False, offline=False):
+        subtotal = self.get_subtotal()
         if offline==True:
-            subtotal = self.get_offline_subtotal()
-        else:
-            subtotal = self.get_subtotal()
+            subtotal = self.get_offline_subtotal()            
         if subtotal==0:
             return 0
         if (self.location_group.is_voucher_allowed_on_cod==True or cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee(cod, offline)
         if cod==True:
-            subtotal += self.offline_cod_charge if offline==True else self.location_group.cod_charge
+            subtotal += float(self.offline_cod_charge) if offline==True else float(self.location_group.cod_charge)
         return round(subtotal+delivery_fee, 2)
 
     def get_vat(self, cod=False, offline=False):
