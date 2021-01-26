@@ -224,6 +224,8 @@ class LocationGroup(models.Model):
     is_voucher_allowed_on_cod = models.BooleanField(default=False)
     uuid = models.CharField(max_length=200, default="")
     circular_category_index = models.IntegerField(default=0)
+    is_b2b = models.BooleanField(default = False)
+    region_list = models.TextField(default="[]")
 
     def __str__(self):
         return str(self.name)
@@ -454,6 +456,7 @@ class Organization(models.Model):
 class SuperCategory(models.Model):
 
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
@@ -466,6 +469,11 @@ class SuperCategory(models.Model):
     long_description = models.TextField(default="")
 
     def __str__(self):
+        return self.name
+
+    def get_name(self,language="en"):
+        if language == "ar":
+            return self.name_ar
         return self.name
 
     class Meta:
@@ -484,6 +492,7 @@ class Category(models.Model):
 
     super_category = models.ForeignKey(SuperCategory, blank=True, default=None, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     property_data = models.TextField(default="[]", blank=True)
@@ -498,6 +507,11 @@ class Category(models.Model):
     long_description = models.TextField(default="")
 
     def __str__(self):
+        return self.name
+
+    def get_name(self,language = "en"):
+        if language == "ar":
+            return self.name_ar
         return self.name
 
     def get_image(self):
@@ -521,6 +535,7 @@ class SubCategory(models.Model):
 
     category = models.ForeignKey(Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
     name = models.CharField(max_length=256, blank=True, default='')
+    name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, default=None, on_delete=models.SET_NULL)
@@ -533,6 +548,11 @@ class SubCategory(models.Model):
     long_description = models.TextField(default="")
 
     def __str__(self):
+        return self.name
+
+    def get_name(self,language="en"):
+        if language == "ar":
+            return self.name_ar
         return self.name
 
     class Meta:
@@ -552,10 +572,92 @@ class SubCategory(models.Model):
         super(SubCategory, self).save(*args, **kwargs)
 
 
+class SEOSuperCategory(models.Model):
+
+    super_category = models.ForeignKey(SuperCategory, on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "SEOSuperCategory"
+        verbose_name_plural = "SEOSuperCategory"
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        
+        super(SEOSuperCategory, self).save(*args, **kwargs)
+
+
+class SEOCategory(models.Model):
+    
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "SEOCategory"
+        verbose_name_plural = "SEOCategory"
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        
+        super(SEOCategory, self).save(*args, **kwargs)
+
+
+class SEOSubCategory(models.Model):
+
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "SEOSubCategory"
+        verbose_name_plural = "SEOSubCategory"
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        
+        super(SEOSubCategory, self).save(*args, **kwargs)
+
+
 class BrandSuperCategory(models.Model):
 
     super_category = models.ForeignKey(SuperCategory, on_delete=models.CASCADE)
     brand = models.ForeignKey('Brand', on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=256, blank=True, default='')
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
@@ -583,6 +685,7 @@ class BrandCategory(models.Model):
 
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     brand = models.ForeignKey('Brand', on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=256, blank=True, default='')
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
@@ -610,6 +713,7 @@ class BrandSubCategory(models.Model):
 
     sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     brand = models.ForeignKey('Brand', on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
     uuid = models.CharField(max_length=256, blank=True, default='')
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
@@ -649,6 +753,7 @@ class Channel(models.Model):
 class Brand(models.Model):
 
     name = models.CharField(max_length=100)
+    name_ar = models.CharField(max_length=100,default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     organization = models.ForeignKey(Organization, null=True, blank=True)
 
@@ -663,8 +768,40 @@ class Brand(models.Model):
         verbose_name = "Brand"
         verbose_name_plural = "Brands"
 
+    def get_name(self, language="en"):
+        if language=="ar":
+            return self.name_ar
+        return self.name
+
     def __str__(self):
         return str(self.name)
+
+
+class SEOBrand(models.Model):
+
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, on_delete=models.SET_NULL)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    page_description = models.TextField(default="")
+    seo_title = models.TextField(default="")
+    seo_keywords = models.TextField(default="")
+    seo_description = models.TextField(default="")
+    short_description = models.TextField(default="")
+    long_description = models.TextField(default="")
+
+    class Meta:
+        verbose_name = "SEOBrand"
+        verbose_name_plural = "SEOBrand"
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        
+        super(SEOBrand, self).save(*args, **kwargs)
 
 
 class WebsiteGroup(models.Model):
@@ -681,6 +818,7 @@ class WebsiteGroup(models.Model):
     email_info = models.CharField(max_length=100,blank=True, default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     footer_logo = models.ForeignKey(Image, related_name="footer_logo", null=True, blank=True, on_delete=models.SET_NULL)
+    logo_ar = models.ForeignKey(Image, related_name="logo_ar", null=True, blank=True, on_delete=models.SET_NULL)
     primary_color = models.CharField(max_length=100,default = "#000000")
     secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
     navbar_text_color = models.CharField(max_length=100,default = "#FFFFFF")
@@ -846,6 +984,7 @@ class Product(models.Model):
     #PFL
     pfl_product_name = models.CharField(max_length=300, default="")
     pfl_product_features = models.TextField(default="[]")
+    pfl_product_features_ar = models.TextField(default="[]")
 
     product_name_sap = models.CharField(max_length=300, default="")
     color_map = models.CharField(max_length=100, default="")
@@ -853,7 +992,12 @@ class Product(models.Model):
     material_type = models.ForeignKey(MaterialType,null=True,blank=True,on_delete=models.SET_NULL)
     standard_price = models.FloatField(null=True, blank=True)
     weight = models.FloatField(default=0.0)
-    
+    size = models.CharField(max_length=100, default="")
+    size_unit = models.CharField(max_length=100, default="")
+    capacity = models.CharField(max_length=100, default="")
+    capacity_unit = models.CharField(max_length=100, default="")
+    target_age_range = models.CharField(max_length=200, default="")
+
     currency = models.CharField(max_length=100, default="")
     quantity = models.IntegerField(null=True, blank=True)
 
@@ -926,9 +1070,9 @@ class Product(models.Model):
         return dimensions_string
 
     def get_main_image_url(self):
-        cached_url = cache.get("main_url_"+str(self.uuid), "has_expired")
-        if cached_url!="has_expired":
-            return cached_url
+        # cached_url = cache.get("main_url_"+str(self.uuid), "has_expired")
+        # if cached_url!="has_expired":
+        #     return cached_url
         main_images_list = ImageBucket.objects.none()
         main_images_objs = MainImages.objects.filter(product=self)
         for main_images_obj in main_images_objs:
@@ -936,20 +1080,20 @@ class Product(models.Model):
         main_images_list = main_images_list.distinct()
         if main_images_list.all().count()>0:
             main_image_url = main_images_list.all()[0].image.mid_image.url
-            cache.set("main_url_"+str(self.uuid), main_image_url)
+            #cache.set("main_url_"+str(self.uuid), main_image_url)
             return main_image_url
         main_image_url = Config.objects.all()[0].product_404_image.image.url
-        cache.set("main_url_"+str(self.uuid), main_image_url)
+        #cache.set("main_url_"+str(self.uuid), main_image_url)
         return main_image_url
 
     def get_display_image_url(self):
-        cached_url = cache.get("display_url_"+str(self.uuid), "has_expired")
-        if cached_url!="has_expired":
-            return cached_url
+        # cached_url = cache.get("display_url_"+str(self.uuid), "has_expired")
+        # if cached_url!="has_expired":
+        #     return cached_url
         lifestyle_image_objs = self.lifestyle_images.all()
         if lifestyle_image_objs.exists():
             display_image_url = lifestyle_image_objs[0].mid_image.url
-            cache.set("display_url_"+str(self.uuid), display_image_url)
+            #cache.set("display_url_"+str(self.uuid), display_image_url)
             return display_image_url
         return self.get_main_image_url()
 
@@ -1484,6 +1628,7 @@ class PriceTagBucket(models.Model):
 class OCReport(models.Model):
 
     name = models.CharField(max_length=200, default="")
+    report_title = models.CharField(max_length=200, default="")
     created_date = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(OmnyCommUser, blank=True)
     is_processed = models.BooleanField(default=False)

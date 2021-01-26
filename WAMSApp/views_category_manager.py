@@ -270,11 +270,19 @@ class UpdateAdminSuperCategoryDetailsAPI(APIView):
             if name!="":
                 super_category_obj.name = name
             
-            if image!=None:
+            if image!=None and image!="":
                 image_obj = Image.objects.create(image=image)
                 super_category_obj.image = image_obj
 
             super_category_obj.save()
+
+            response["name"] = name
+            response["uuid"] = super_category_obj.uuid
+            if super_category_obj.image!=None:
+                response["image"] = super_category_obj.image.image.url
+            else:
+                response["image"] = ""
+
             response['status'] = 200 
 
         except Exception as e:
@@ -308,11 +316,19 @@ class UpdateAdminCategoryDetailsAPI(APIView):
             if name!="":
                 category_obj.name = name
             
-            if image!=None:
+            if image!=None and image!="":
                 image_obj = Image.objects.create(image=image)
                 category_obj.image = image_obj
 
             category_obj.save()
+
+            response["name"] = name
+            response["uuid"] = category_obj.uuid
+            if category_obj.image!=None:
+                response["image"] = category_obj.image.image.url
+            else:
+                response["image"] = ""
+
             response['status'] = 200 
 
         except Exception as e:
@@ -346,11 +362,19 @@ class UpdateAdminSubCategoryDetailsAPI(APIView):
             if name!="":
                 sub_category_obj.name = name
             
-            if image!=None:
+            if image!=None and image!="":
                 image_obj = Image.objects.create(image=image)
                 sub_category_obj.image = image_obj
 
-            sub_category_obj.save()        
+            sub_category_obj.save()
+
+            response["name"] = name
+            response["uuid"] = sub_category_obj.uuid
+            if sub_category_obj.image!=None:
+                response["image"] = sub_category_obj.image.image.url
+            else:
+                response["image"] = ""
+
             response['status'] = 200 
 
         except Exception as e:
@@ -377,10 +401,19 @@ class AddNewAdminSuperCategoryAPI(APIView):
 
             name = data["name"]
             image = data["image"]
-            image_obj = Image.objects.create(image=image)
+            image_obj = None
+            if image!="":
+                image_obj = Image.objects.create(image=image)
 
-            SuperCategory.objects.create(name=name,
-                                         image=image_obj)
+            super_category_obj = SuperCategory.objects.create(name=name,
+                                                              image=image_obj)
+            response["name"] = name
+            response["uuid"] = super_category_obj.uuid
+            if super_category_obj.image!=None:
+                response["image"] = super_category_obj.image.image.url
+            else:
+                response["image"] = ""
+
             
             response['status'] = 200 
 
@@ -408,14 +441,23 @@ class AddNewAdminCategoryAPI(APIView):
 
             name = data["name"]
             image = data["image"]
-            image_obj = Image.objects.create(image=image)
+            image_obj = None
+            if image!="":
+                image_obj = Image.objects.create(image=image)
 
             super_category_uuid = data["super_category_uuid"]
             super_category_obj = SuperCategory.objects.get(uuid=super_category_uuid)
 
-            Category.objects.create(name=name,
-                                    image=image_obj,
-                                    super_category=super_category_obj)
+            category_obj = Category.objects.create(name=name,
+                                                   image=image_obj,
+                                                   super_category=super_category_obj)
+
+            response["name"] = name
+            response["uuid"] = category_obj.uuid
+            if category_obj.image!=None:
+                response["image"] = category_obj.image.image.url
+            else:
+                response["image"] = ""
             
             response['status'] = 200 
 
@@ -443,14 +485,23 @@ class AddNewAdminSubCategoryAPI(APIView):
 
             name = data["name"]
             image = data["image"]
-            image_obj = Image.objects.create(image=image)
+            image_obj = None
+            if image!="":
+                image_obj = Image.objects.create(image=image)
 
             category_uuid = data["category_uuid"]
             category_obj = Category.objects.get(uuid=category_uuid)
 
-            SubCategory.objects.create(name=name,
-                                    image=image_obj,
-                                    category=category_obj)
+            sub_category_obj = SubCategory.objects.create(name=name,
+                                                          image=image_obj,
+                                                          category=category_obj)
+
+            response["name"] = name
+            response["uuid"] = sub_category_obj.uuid
+            if sub_category_obj.image!=None:
+                response["image"] = sub_category_obj.image.image.url
+            else:
+                response["image"] = ""
             
             response['status'] = 200 
 

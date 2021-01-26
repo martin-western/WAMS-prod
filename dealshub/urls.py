@@ -11,12 +11,16 @@ urlpatterns = [
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-super-categories/$', views.FetchSuperCategories),
     url(r'^fetch-heading-categories/$', views.FetchHeadingCategories),
+    url(r'^fetch-categories-for-new-user/$', views.FetchCategoriesForNewUser),
+    url(r'^set-interested-categories-for-new-user/$', views.SetInterestedCategoriesForNewUser),
     url(r'^fetch-on-sale-products/$', views.FetchOnSaleProducts),
     url(r'^fetch-new-arrival-products/$', views.FetchNewArrivalProducts),
 
     url(r'^search/$', views.Search),
 
     url(r'^search-wig/$', views.SearchWIG),
+    url(r'^search-wig2/$', views.SearchWIG2),
+    url(r'^search-daycart/$', views.SearchDaycart),
     url(r'^fetch-wig-categories/$', views.FetchWIGCategories),
     url(r'^fetch-parajohn-categories/$', views.FetchParajohnCategories),
 
@@ -52,11 +56,13 @@ urlpatterns = [
     url(r'^activate-cod-dealshub-product/$', views.ActivateCODDealsHubProduct),
     url(r'^deactivate-cod-dealshub-product/$', views.DeactivateCODDealsHubProduct),
 
+    url(r'^fetch-b2b-dealshub-admin-sections/$', views.FetchB2BDealshubAdminSections),
     url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
     url(r'^save-dealshub-admin-sections-order/$', views.SaveDealshubAdminSectionsOrder),
 
     url(r'^search-section-products-autocomplete/$', views.SearchSectionProductsAutocomplete),
     url(r'^search-products-autocomplete/$', views.SearchProductsAutocomplete),
+    url(r'^search-products-autocomplete2/$', views.SearchProductsAutocomplete2),
     url(r'^search-products/$', views.SearchProducts),
 
     url(r'^fetch-dealshub-price/$', views.FetchDealshubPrice),
@@ -109,6 +115,8 @@ urlpatterns = [
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^order/fetch-order-details/$', views.FetchOrderDetails),
+    url(r'^order/create-unit-order-cancellation-request/$', views.CreateUnitOrderCancellationRequest),
+    url(r'^order/create-order-cancellation-request/$', views.CreateOrderCancellationRequest),
 
     url(r'^payment/fetch-token-request-parameters/$', views.FetchTokenRequestParameters),
     url(r'^payment/make-purchase-request/$', views.MakePurchaseRequest),
@@ -126,15 +134,23 @@ urlpatterns = [
 
     url(r'^fetch-customer-list/$', views.FetchCustomerList),
     url(r'^fetch-customer-details/$', views.FetchCustomerDetails),
+    url(r'^update-b2b-customer-status/$',views.UpdateB2BCustomerStatus),
     url(r'^fetch-customer-orders/$', views.FetchCustomerOrders),
 
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
 
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
+    url(r'^resend-sap-order/$', views.ResendSAPOrder),
+    url(r'^update-manual-order/$', views.UpdateManualOrder),
     url(r'^set-orders-status/$', views.SetOrdersStatus),
+    url(r'^update-order-status/$', views.UpdateOrderStatus),
     url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
+    url(r'^approve-cancellation-request/$', views.ApproveCancellationRequest),
+    url(r'^reject-cancellation-request/$', views.RejectCancellationRequest),
+    url(r'^update-cancellation-request-refund-status/$', views.UpdateCancellationRequestRefundStatus),
+    url(r'^fetch-oc-sales-persons/$', views.FetchOCSalesPersons),
 
     url(r'^download-orders/$', views.DownloadOrders),
     url(r'^upload-orders/$', views.UploadOrders),
@@ -144,10 +160,17 @@ urlpatterns = [
     url(r'^apply-offline-voucher-code/$', views.ApplyOfflineVoucherCode),
     url(r'^remove-offline-voucher-code/$', views.RemoveOfflineVoucherCode),
     url(r'^add-offline-reference-medium/$', views.AddOfflineReferenceMedium),
+    url(r'^add-online-additional-note/$', views.AddOnlineAdditionalNote),
+    url(r'^add-offline-additional-note/$', views.AddOfflineAdditionalNote),
 
     url(r'^contact-us-send-email/$', views.ContactUsSendEmail),
 
+    url(r'^fetch-account-status-b2b-user/$',views.FetchAccountStatusB2BUser),
+    url(r'^send-b2b-otp-sms-login/$', views.SendB2BOTPSMSLogin),
+    url(r'^send-b2b-otp-sms-signup/$', views.SendB2BOTPSMSSignUp),
+    url(r'^signup-completion-api/$',views.SignUpCompletion),
     url(r'^send-otp-sms-login/$', views.SendOTPSMSLogin),
+    url(r'^verify-b2b-otp-sms/$', views.VerifyB2BOTPSMS),
     url(r'^verify-otp-sms-login/$', views.VerifyOTPSMSLogin),
 
     url(r'^check-user-pin-set/$', views.CheckUserPinSet),
@@ -158,6 +181,8 @@ urlpatterns = [
     url(r'^update-user-email/$', views.UpdateUserEmail),
 
     url(r'^add-review/$', views.AddReview),
+    url(r'^add-fake-review-admin/$', views.AddFakeReviewAdmin),
+    url(r'^update-review-admin/$', views.UpdateReviewAdmin),
     url(r'^add-rating/$', views.AddRating),
     url(r'^update-rating/$', views.UpdateRating),
     url(r'^add-admin-comment/$', views.AddAdminComment),
@@ -165,9 +190,12 @@ urlpatterns = [
     url(r'^add-upvote/$', views.AddUpvote),
     url(r'^delete-upvote/$', views.DeleteUpvote),
     url(r'^fetch-review/$', views.FetchReview),
+    url(r'^fetch-reviews-admin/$', views.FetchReviewsAdmin),
     url(r'^fetch-product-reviews/$', views.FetchProductReviews),
     url(r'^delete-user-review-image/$', views.DeleteUserReviewImage),
     url(r'^delete-user-review/$', views.DeleteUserReview),
+    url(r'^hide-review-admin/$', views.HideReviewAdmin),
+    url(r'^update-review-publish-status/$', views.UpdateReviewPublishStatus),
 
     url(r'^create-voucher/$', views.CreateVoucher),
     url(r'^update-voucher/$', views.UpdateVoucher),    
@@ -202,5 +230,14 @@ urlpatterns = [
 
     url(r'^add-product-to-order/$',views.AddProductToOrder),
 
+    url(r'^notify-order-status/$',views.NotifyOrderStatus),
+    url(r'^fetch-logix-shipping-status/$', views.FetchLogixShippingStatus),
+
     url(r'^update-user-name-and-email/$',views.UpdateUserNameAndEmail),
+
+    url(r'^send-new-product-email-notification/$',views.SendNewProductEmailNotification),
+
+    url(r'^fetch-b2b-user-profile/$',views.FetchB2BUserProfile),
+    url(r'^upload-b2b-document/$',views.UploadB2BDocument),
+    url(r'^update-b2b-customer-details/$',views.UpdateB2BCustomerDetails),
 ]

@@ -41,7 +41,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
 
     product_objs = Product.objects.filter(base_product__brand__name__in=brand_list, base_product__brand__organization=organization_obj)
 
-    if product_uuid_list!="":
+    if product_uuid_list!="": 
         product_objs = product_objs.filter(uuid__in=product_uuid_list)
 
     workbook = xlsxwriter.Workbook('./'+filename)
@@ -52,6 +52,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
            "Product ID*",
            "Product Name*",
            "Brand*",
+           "Super Category",
            "Category*",
            "Sub Category*",
            "Seller SKU*",
@@ -269,57 +270,58 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
 
     for product in product_objs:
         try:
-            common_row = ["" for i in range(210)]
+            common_row = ["" for i in range(211)]
             cnt += 1
             common_row[0] = str(cnt)
             common_row[1] = product.product_id
             common_row[2] = product.product_name
             common_row[3] = str(product.base_product.brand)
-            common_row[4] = str(product.base_product.category)
-            common_row[5] = str(product.base_product.sub_category)
-            common_row[6] = str(product.base_product.seller_sku)
-            common_row[7] = str(product.base_product.manufacturer)
-            common_row[8] = str(product.base_product.manufacturer_part_number)
-            common_row[9] = str(product.product_id_type)
-            common_row[10] = str(product.get_non_html_description())
+            common_row[4] = str(product.base_product.category.super_category)
+            common_row[5] = str(product.base_product.category)
+            common_row[6] = str(product.base_product.sub_category)
+            common_row[7] = str(product.base_product.seller_sku)
+            common_row[8] = str(product.base_product.manufacturer)
+            common_row[9] = str(product.base_product.manufacturer_part_number)
+            common_row[10] = str(product.product_id_type)
+            common_row[11] = str(product.get_non_html_description())
             product_features = json.loads(product.pfl_product_features)[:5]
             for i in range(len(product_features)):
-                common_row[11+i] = product_features[i]
-            common_row[16] = str(product.color)
-            common_row[17] = str(product.color_map)
-            common_row[18] = str(product.material_type)
-            common_row[19] = "" if product.standard_price==None else str(product.standard_price)
-            common_row[20] = "" if product.quantity==None else str(product.quantity)
-            common_row[21] = str(product.barcode_string)
+                common_row[12+i] = product_features[i]
+            common_row[17] = str(product.color)
+            common_row[18] = str(product.color_map)
+            common_row[19] = str(product.material_type)
+            common_row[20] = "" if product.standard_price==None else str(product.standard_price)
+            common_row[21] = "" if product.quantity==None else str(product.quantity)
+            common_row[22] = str(product.barcode_string)
             dimensions = json.loads(product.base_product.dimensions)
-            common_row[22] = str(dimensions.get("export_carton_quantity_l", ""))
-            common_row[23] = str(dimensions.get("export_carton_quantity_l_metric", ""))
-            common_row[24] = str(dimensions.get("export_carton_quantity_b"))
-            common_row[25] = str(dimensions.get("export_carton_quantity_b_metric", ""))
-            common_row[26] = str(dimensions.get("export_carton_quantity_h", ""))
-            common_row[27] = str(dimensions.get("export_carton_quantity_h_metric", ""))
-            common_row[28] = str(dimensions.get("export_carton_crm_l", ""))
-            common_row[29] = str(dimensions.get("export_carton_crm_l_metric", ""))
-            common_row[30] = str(dimensions.get("export_carton_crm_b", ""))
-            common_row[31] = str(dimensions.get("export_carton_crm_b_metric", ""))
-            common_row[32] = str(dimensions.get("export_carton_crm_h", ""))
-            common_row[33] = str(dimensions.get("export_carton_crm_h_metric", ""))
-            common_row[34] = str(dimensions.get("product_dimension_l", ""))
-            common_row[35] = str(dimensions.get("product_dimension_l_metric", ""))
-            common_row[36] = str(dimensions.get("product_dimension_b", ""))
-            common_row[37] = str(dimensions.get("product_dimension_b_metric", ""))
-            common_row[38] = str(dimensions.get("product_dimension_h", ""))
-            common_row[39] = str(dimensions.get("product_dimension_h_metric", ""))
-            common_row[40] = str(dimensions.get("giftbox_l", ""))
-            common_row[41] = str(dimensions.get("giftbox_l_metric", ""))
-            common_row[42] = str(dimensions.get("giftbox_b", ""))
-            common_row[43] = str(dimensions.get("giftbox_b_metric", ""))
-            common_row[44] = str(dimensions.get("giftbox_h", ""))
-            common_row[45] = str(dimensions.get("giftbox_h_metric", ""))
+            common_row[23] = str(dimensions.get("export_carton_quantity_l", ""))
+            common_row[24] = str(dimensions.get("export_carton_quantity_l_metric", ""))
+            common_row[25] = str(dimensions.get("export_carton_quantity_b"))
+            common_row[26] = str(dimensions.get("export_carton_quantity_b_metric", ""))
+            common_row[27] = str(dimensions.get("export_carton_quantity_h", ""))
+            common_row[28] = str(dimensions.get("export_carton_quantity_h_metric", ""))
+            common_row[29] = str(dimensions.get("export_carton_crm_l", ""))
+            common_row[30] = str(dimensions.get("export_carton_crm_l_metric", ""))
+            common_row[31] = str(dimensions.get("export_carton_crm_b", ""))
+            common_row[32] = str(dimensions.get("export_carton_crm_b_metric", ""))
+            common_row[33] = str(dimensions.get("export_carton_crm_h", ""))
+            common_row[34] = str(dimensions.get("export_carton_crm_h_metric", ""))
+            common_row[35] = str(dimensions.get("product_dimension_l", ""))
+            common_row[36] = str(dimensions.get("product_dimension_l_metric", ""))
+            common_row[37] = str(dimensions.get("product_dimension_b", ""))
+            common_row[38] = str(dimensions.get("product_dimension_b_metric", ""))
+            common_row[39] = str(dimensions.get("product_dimension_h", ""))
+            common_row[40] = str(dimensions.get("product_dimension_h_metric", ""))
+            common_row[41] = str(dimensions.get("giftbox_l", ""))
+            common_row[42] = str(dimensions.get("giftbox_l_metric", ""))
+            common_row[43] = str(dimensions.get("giftbox_b", ""))
+            common_row[44] = str(dimensions.get("giftbox_b_metric", ""))
+            common_row[45] = str(dimensions.get("giftbox_h", ""))
+            common_row[46] = str(dimensions.get("giftbox_h_metric", ""))
             try:
                 main_images = MainImages.objects.get(product=product, is_sourced=True)
                 main_image = main_images.main_images.all()[0]
-                common_row[46] = main_image.image.image.url
+                common_row[47] = main_image.image.image.url
             except Exception as e:
                 pass
             try:
@@ -327,184 +329,184 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
                 sub_images = sub_images.sub_images.all()[:5]
                 iterr = 0
                 for sub_image in sub_images:
-                    common_row[47+iterr] = sub_image.image.image.url
+                    common_row[48+iterr] = sub_image.image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.white_background_images.all()[:5]:
-                    common_row[52+iterr] = image.image.url
+                    common_row[53+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:            
                 iterr = 0
                 for image in product.pfl_images.all()[:5]:
-                    common_row[57+iterr] = image.image.url
+                    common_row[58+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.lifestyle_images.all()[:5]:
-                    common_row[62+iterr] = image.image.url
+                    common_row[63+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.certificate_images.all()[:5]:
-                    common_row[67+iterr] = image.image.url
+                    common_row[68+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.giftbox_images.all()[:5]:
-                    common_row[72+iterr] = image.image.url
+                    common_row[73+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.diecut_images.all()[:5]:
-                    common_row[77+iterr] = image.image.url
+                    common_row[78+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.aplus_content_images.all()[:5]:
-                    common_row[82+iterr] = image.image.url
+                    common_row[83+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.ads_images.all()[:5]:
-                    common_row[87+iterr] = image.image.url
+                    common_row[88+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.base_product.unedited_images.all()[:5]:
-                    common_row[92+iterr] = image.image.url
+                    common_row[93+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             try:
                 iterr = 0
                 for image in product.transparent_images.all()[:5]:
-                    common_row[97+iterr] = image.image.url
+                    common_row[98+iterr] = image.image.url
                     iterr += 1
             except Exception as e:
                 pass
             ############################################ Amazon UK
             amazon_uk_product_json = json.loads(product.channel_product.amazon_uk_product_json)
-            common_row[102] = str(product.channel_product.is_amazon_uk_product_created)
-            common_row[103] = str(amazon_uk_product_json.get("product_name", ""))
-            common_row[104] = str(amazon_uk_product_json.get("product_description", ""))
+            common_row[103] = str(product.channel_product.is_amazon_uk_product_created)
+            common_row[104] = str(amazon_uk_product_json.get("product_name", ""))
+            common_row[105] = str(amazon_uk_product_json.get("product_description", ""))
             attributes = amazon_uk_product_json.get("product_attribute_list", [])[:5]
             for i in range(len(attributes)):
-                common_row[105+i] = str(attributes[i])
-            common_row[110] = str(amazon_uk_product_json.get("category", ""))
-            common_row[111] = str(amazon_uk_product_json.get("sub_category", ""))
-            common_row[112] = str(amazon_uk_product_json.get("parentage", ""))
-            common_row[113] = str(amazon_uk_product_json.get("parent_sku", ""))
-            common_row[114] = str(amazon_uk_product_json.get("relationship_type", ""))
-            common_row[115] = str(amazon_uk_product_json.get("variation_theme", ""))
-            common_row[116] = str(amazon_uk_product_json.get("feed_product_type", ""))
-            common_row[117] = str(amazon_uk_product_json.get("update_delete", ""))
-            common_row[118] = str(amazon_uk_product_json.get("recommended_browse_nodes", ""))
-            common_row[119] = str(amazon_uk_product_json.get("search_terms", ""))
-            common_row[120] = str(amazon_uk_product_json.get("enclosure_material", ""))
-            common_row[121] = str(amazon_uk_product_json.get("cover_material_type", ""))
+                common_row[106+i] = str(attributes[i])
+            common_row[111] = str(amazon_uk_product_json.get("category", ""))
+            common_row[112] = str(amazon_uk_product_json.get("sub_category", ""))
+            common_row[113] = str(amazon_uk_product_json.get("parentage", ""))
+            common_row[114] = str(amazon_uk_product_json.get("parent_sku", ""))
+            common_row[115] = str(amazon_uk_product_json.get("relationship_type", ""))
+            common_row[116] = str(amazon_uk_product_json.get("variation_theme", ""))
+            common_row[117] = str(amazon_uk_product_json.get("feed_product_type", ""))
+            common_row[118] = str(amazon_uk_product_json.get("update_delete", ""))
+            common_row[119] = str(amazon_uk_product_json.get("recommended_browse_nodes", ""))
+            common_row[120] = str(amazon_uk_product_json.get("search_terms", ""))
+            common_row[121] = str(amazon_uk_product_json.get("enclosure_material", ""))
+            common_row[122] = str(amazon_uk_product_json.get("cover_material_type", ""))
             special_features = amazon_uk_product_json.get("special_features", [])[:5]
             for i in range(len(special_features)):
-                common_row[122+i] = str(special_features[i])        
-            common_row[127] = str(amazon_uk_product_json.get("sale_price", ""))
-            common_row[128] = str(amazon_uk_product_json.get("sale_from", ""))
-            common_row[129] = str(amazon_uk_product_json.get("sale_end", ""))
-            common_row[130] = str(amazon_uk_product_json.get("wattage", ""))
-            common_row[131] = str(amazon_uk_product_json.get("wattage_metric", ""))
-            common_row[132] = str(amazon_uk_product_json.get("item_count", ""))
-            common_row[133] = str(amazon_uk_product_json.get("item_count_metric", ""))
-            common_row[134] = str(amazon_uk_product_json.get("item_condition_note", ""))
-            common_row[135] = str(amazon_uk_product_json.get("max_order_quantity", ""))
-            common_row[136] = str(amazon_uk_product_json.get("number_of_items", ""))
-            common_row[137] = str(amazon_uk_product_json.get("condition_type", ""))
+                common_row[123+i] = str(special_features[i])        
+            common_row[128] = str(amazon_uk_product_json.get("sale_price", ""))
+            common_row[129] = str(amazon_uk_product_json.get("sale_from", ""))
+            common_row[130] = str(amazon_uk_product_json.get("sale_end", ""))
+            common_row[131] = str(amazon_uk_product_json.get("wattage", ""))
+            common_row[132] = str(amazon_uk_product_json.get("wattage_metric", ""))
+            common_row[133] = str(amazon_uk_product_json.get("item_count", ""))
+            common_row[134] = str(amazon_uk_product_json.get("item_count_metric", ""))
+            common_row[135] = str(amazon_uk_product_json.get("item_condition_note", ""))
+            common_row[136] = str(amazon_uk_product_json.get("max_order_quantity", ""))
+            common_row[137] = str(amazon_uk_product_json.get("number_of_items", ""))
+            common_row[138] = str(amazon_uk_product_json.get("condition_type", ""))
             dimensions = amazon_uk_product_json.get("dimensions", {})
-            common_row[138] = dimensions.get("package_length", "")
-            common_row[139] = dimensions.get("package_length_metric", "")
-            common_row[140] = dimensions.get("package_width", "")
-            common_row[141] = dimensions.get("package_width_metric", "")
-            common_row[142] = dimensions.get("package_height", "")
-            common_row[143] = dimensions.get("package_height_metric", "")
-            common_row[144] = dimensions.get("package_weight", "")
-            common_row[145] = dimensions.get("package_weight_metric", "")
+            common_row[139] = dimensions.get("package_length", "")
+            common_row[140] = dimensions.get("package_length_metric", "")
+            common_row[141] = dimensions.get("package_width", "")
+            common_row[142] = dimensions.get("package_width_metric", "")
+            common_row[143] = dimensions.get("package_height", "")
+            common_row[144] = dimensions.get("package_height_metric", "")
+            common_row[145] = dimensions.get("package_weight", "")
+            common_row[146] = dimensions.get("package_weight_metric", "")
             #common_row[146] = dimensions["package_quantity"]
-            common_row[147] = dimensions.get("shipping_weight", "")
-            common_row[148] = dimensions.get("shipping_weight_metric", "")
-            common_row[149] = dimensions.get("item_display_weight", "")
-            common_row[150] = dimensions.get("item_display_weight_metric", "")
-            common_row[151] = dimensions.get("item_display_volume", "")
-            common_row[152] = dimensions.get("item_display_volume_metric", "")
-            common_row[153] = dimensions.get("item_display_length", "")
-            common_row[154] = dimensions.get("item_display_length_metric", "")
-            common_row[155] = dimensions.get("item_display_width", "")
-            common_row[156] = dimensions.get("item_display_width_metric", "")
-            common_row[157] = dimensions.get("item_display_height", "")
-            common_row[158] = dimensions.get("item_display_height_metric", "")
-            common_row[159] = dimensions.get("item_weight", "")
-            common_row[160] = dimensions.get("item_weight_metric", "")
-            common_row[161] = dimensions.get("item_length", "")
-            common_row[162] = dimensions.get("item_length_metric", "")
-            common_row[163] = dimensions.get("item_width", "")
-            common_row[164] = dimensions.get("item_width_metric", "")
-            common_row[165] = dimensions.get("item_height", "")
-            common_row[166] = dimensions.get("item_height_metric", "")
+            common_row[148] = dimensions.get("shipping_weight", "")
+            common_row[149] = dimensions.get("shipping_weight_metric", "")
+            common_row[150] = dimensions.get("item_display_weight", "")
+            common_row[151] = dimensions.get("item_display_weight_metric", "")
+            common_row[152] = dimensions.get("item_display_volume", "")
+            common_row[153] = dimensions.get("item_display_volume_metric", "")
+            common_row[154] = dimensions.get("item_display_length", "")
+            common_row[155] = dimensions.get("item_display_length_metric", "")
+            common_row[156] = dimensions.get("item_display_width", "")
+            common_row[157] = dimensions.get("item_display_width_metric", "")
+            common_row[158] = dimensions.get("item_display_height", "")
+            common_row[159] = dimensions.get("item_display_height_metric", "")
+            common_row[160] = dimensions.get("item_weight", "")
+            common_row[161] = dimensions.get("item_weight_metric", "")
+            common_row[162] = dimensions.get("item_length", "")
+            common_row[163] = dimensions.get("item_length_metric", "")
+            common_row[164] = dimensions.get("item_width", "")
+            common_row[165] = dimensions.get("item_width_metric", "")
+            common_row[166] = dimensions.get("item_height", "")
+            common_row[167] = dimensions.get("item_height_metric", "")
             #common_row[167] = amazon_verified
             amazon_uae_product_json = json.loads(product.channel_product.amazon_uae_product_json)
-            common_row[168] = str(product.channel_product.is_amazon_uae_product_created)
-            common_row[169] = amazon_uae_product_json.get("product_name", "")
-            common_row[170] = amazon_uae_product_json.get("product_description", "")
+            common_row[169] = str(product.channel_product.is_amazon_uae_product_created)
+            common_row[170] = amazon_uae_product_json.get("product_name", "")
+            common_row[171] = amazon_uae_product_json.get("product_description", "")
             attributes = amazon_uae_product_json.get("product_attribute_list", [])[:5]
             for i in range(len(attributes)):
-                common_row[171+i] = attributes[i]
-            common_row[176] = amazon_uae_product_json.get("category", "")
-            common_row[177] = amazon_uae_product_json.get("sub_category", "")
-            common_row[178] = amazon_uae_product_json.get("feed_product_type", "")
-            common_row[179] = amazon_uae_product_json.get("recommended_browse_nodes", "")
-            common_row[180] = amazon_uae_product_json.get("update_delete", "")
+                common_row[172+i] = attributes[i]
+            common_row[177] = amazon_uae_product_json.get("category", "")
+            common_row[178] = amazon_uae_product_json.get("sub_category", "")
+            common_row[179] = amazon_uae_product_json.get("feed_product_type", "")
+            common_row[180] = amazon_uae_product_json.get("recommended_browse_nodes", "")
+            common_row[181] = amazon_uae_product_json.get("update_delete", "")
             #common_row[181] = amazon_verified
             ebay_product_json = json.loads(product.channel_product.ebay_product_json)
-            common_row[182] = str(product.channel_product.is_ebay_product_created)
-            common_row[183] = ebay_product_json.get("product_name", "")
-            common_row[184] = ebay_product_json.get("product_description", "")
+            common_row[183] = str(product.channel_product.is_ebay_product_created)
+            common_row[184] = ebay_product_json.get("product_name", "")
+            common_row[185] = ebay_product_json.get("product_description", "")
             attributes = ebay_product_json.get("product_attribute_list", [])[:5]
             for i in range(len(attributes)):
-                common_row[185+i] = attributes[i]
-            common_row[190] = ebay_product_json.get("category", "")
-            common_row[191] = ebay_product_json.get("sub_category", "")
+                common_row[186+i] = attributes[i]
+            common_row[191] = ebay_product_json.get("category", "")
+            common_row[192] = ebay_product_json.get("sub_category", "")
             #common_row[192] = ebay_verified
             noon_product_json = json.loads(product.channel_product.noon_product_json)
-            common_row[193] = str(product.channel_product.is_noon_product_created)
-            common_row[194] = noon_product_json.get("product_name", "")
-            common_row[195] = noon_product_json.get("product_description", "")
+            common_row[194] = str(product.channel_product.is_noon_product_created)
+            common_row[195] = noon_product_json.get("product_name", "")
+            common_row[196] = noon_product_json.get("product_description", "")
             #common_row[196] = noon_product_json["product_type"]
             #common_row[197] = noon_product_json["product_subtype"]
-            common_row[198] = noon_product_json.get("partner_sku", "")
-            common_row[199] = noon_product_json.get("category", "")
+            common_row[199] = noon_product_json.get("partner_sku", "")
+            common_row[200] = noon_product_json.get("category", "")
             #common_row[200] = noon_product_json["subtitle"]
-            common_row[201] = noon_product_json.get("model_number", "")
-            common_row[202] = noon_product_json.get("model_name", "")
+            common_row[202] = noon_product_json.get("model_number", "")
+            common_row[203] = noon_product_json.get("model_name", "")
             attributes = noon_product_json.get("product_attribute_list", [])[:5]
             for i in range(len(attributes)):
-                common_row[203+i] = attributes[i]
-            common_row[208] = noon_product_json.get("msrp_ae", "")
-            common_row[209] = noon_product_json.get("msrp_ae_unit", "")
+                common_row[204+i] = attributes[i]
+            common_row[209] = noon_product_json.get("msrp_ae", "")
+            common_row[210] = noon_product_json.get("msrp_ae_unit", "")
             #common_row[210] = noon_verified
             colnum = 0
             for k in common_row:
@@ -672,6 +674,9 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
            "Product ID",
            "Seller SKU",
            "Product Name",
+           "Super Category",
+           "Category",
+           "Sub Category",
            "Active",
            "Was Price",
            "Now Price",
@@ -692,15 +697,18 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
         try:
             product_obj = dh_product_obj.product
             cnt += 1
-            common_row = ["" for i in range(8)]
+            common_row = ["" for i in range(11)]
             common_row[0] = str(cnt)
             common_row[1] = str(product_obj.product_id)
             common_row[2] = str(product_obj.base_product.seller_sku)
             common_row[3] = str(product_obj.product_name)
-            common_row[4] = str(dh_product_obj.is_published)
-            common_row[5] = str(dh_product_obj.was_price)
-            common_row[6] = str(dh_product_obj.now_price)
-            common_row[7] = str(dh_product_obj.stock)
+            common_row[4] = dh_product_obj.get_super_category()
+            common_row[5] = dh_product_obj.get_category()
+            common_row[6] = dh_product_obj.get_sub_category()
+            common_row[7] = str(dh_product_obj.is_published)
+            common_row[8] = str(dh_product_obj.was_price)
+            common_row[9] = str(dh_product_obj.now_price)
+            common_row[10] = str(dh_product_obj.stock)
             
             colnum = 0
             for k in common_row:
@@ -1339,8 +1347,8 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
                 order_total_weight = 0
                 for unit_order_obj in unit_order_objs.filter(order=order_obj):
                     dealshub_product_obj = unit_order_obj.product
-
-                    description_product_list.append(dealshub_product_obj.get_seller_sku())
+                    dealshub_product_qty = "(" + str(unit_order_obj.quantity) + ")"
+                    description_product_list.append(dealshub_product_obj.get_seller_sku() + dealshub_product_qty)
                     order_total_items += unit_order_obj.quantity
                     order_total_weight += unit_order_obj.quantity * dealshub_product_obj.get_weight()
                 
@@ -1448,7 +1456,8 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
                 for unit_order_obj in unit_order_objs.filter(order=order_obj):
                     dealshub_product_obj = unit_order_obj.product
                     product_quantity = unit_order_obj.quantity
-                    dealshub_product_seller_sku = dealshub_product_obj.get_seller_sku() + "(" + str(product_quantity) + ")" if product_quantity>1 else dealshub_product_obj.get_seller_sku()
+                    dealshub_product_qty = "(" + str(unit_order_obj.quantity) + ")"
+                    dealshub_product_seller_sku = dealshub_product_obj.get_seller_sku() + dealshub_product_qty
                     description_product_list.append(dealshub_product_seller_sku)
                     order_total_items += product_quantity
                     order_total_weight += product_quantity * dealshub_product_obj.get_weight()
@@ -1472,7 +1481,7 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
                 common_row[4] = "DXB"
                 common_row[5] = customer_name
                 common_row[6] = address_lines_combined
-                common_row[7] = "Alain" if check_alain_location else "Abu Dhabi"
+                common_row[7] = "ALN" if check_alain_location else "AUH"
                 common_row[8] = "Home"
                 common_row[9] = str(address_obj.contact_number)
                 common_row[10] = "PPD"
@@ -1638,3 +1647,791 @@ def create_postaplus_courier_report(filename, uuid, from_date, to_date, custom_p
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_postaplus_courier_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def create_sales_executive_value_report(filename, uuid, from_date, to_date, custom_permission_obj):
+    
+    try:
+        logger.info('Sales Executive Value report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               "sales person",
+               "location group",
+               "currency",
+               "No of orders",
+               "Total value of orders"]
+
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+
+        cnt = 0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        location_group_objs = custom_permission_obj.location_groups.all()
+
+        for location_group_obj in location_group_objs:
+            custom_permission_objs = location_group_obj.custompermission_set.all()
+            for custom_permission_obj in custom_permission_objs:
+                try:
+                    oc_user_obj = custom_permission_obj.user
+                    order_objs = Order.objects.filter(location_group=location_group_obj, offline_sales_person=oc_user_obj, is_order_offline=True)
+                    if from_date!="":
+                        from_date = from_date[:10]+"T00:00:00+04:00"
+                        order_objs = order_objs.filter(order_placed_date__gte=from_date)
+                    if to_date!="":
+                        to_date = to_date[:10]+"T23:59:59+04:00"
+                        order_objs = order_objs.filter(order_placed_date__lte=to_date)
+                    
+                    orders_count = order_objs.count()
+                    orders_total_value = order_objs.aggregate(Sum('to_pay')).to_pay_sum
+
+                    cnt += 1
+
+                    common_row = ["" for i in range(len(row))]
+                    common_row[0] = str(cnt)
+                    common_row[1] = oc_user_obj.username
+                    common_row[2] = location_group_obj.name
+                    common_row[3] = str(location_group_obj.loaction.currency)
+                    common_row[4] = str(orders_count)
+                    common_row[5] = str(orders_total_value)
+                    
+                    colnum = 0
+                    for k in common_row:
+                        worksheet.write(cnt, colnum, k)
+                        colnum += 1
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("Error create_sales_executive_value_report %s %s", e, str(exc_tb.tb_lineno))
+
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_sales_executive_value_report %s %s", e, str(exc_tb.tb_lineno))
+        
+
+def bulk_download_product_seo_details_report(filename, uuid, location_group_obj):
+    try:
+        logger.info('Product seo details download report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               "Product uuid",
+               "Product Name",
+               "seller sku",
+               "page description",
+               "seo title",
+               "seo keywords",
+               "seo description",
+               "search keywords"]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        worksheet.write(0,0,"Type",header_format)
+        worksheet.write(0,1,"product")
+
+        cnt=1
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        dh_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, is_published=True, product__base_product__brand__in=location_group_obj.website_group.brands.all())
+
+        for dh_product_obj in dh_product_objs:
+            try:
+                cnt += 1
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt-1)
+                common_row[1] = str(dh_product_obj.uuid)
+                common_row[2] = dh_product_obj.get_name()
+                common_row[3] = dh_product_obj.get_seller_sku()
+                common_row[4] = dh_product_obj.page_description
+                common_row[5] = dh_product_obj.seo_title
+                common_row[6] = dh_product_obj.seo_keywords
+                common_row[7] = dh_product_obj.seo_description
+                common_row[8] = dh_product_obj.search_keywords
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1    
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error bulk_download_product_seo_details_report %s %s", e, str(exc_tb.tb_lineno))        
+
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_download_product_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_download_categories_seo_details_report(filename, uuid, location_group_obj, category_type):
+    try:
+        logger.info('seo categories download report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               str(category_type + "Category uuid"),
+               str(category_type + "Category Name"),
+               "page description",
+               "seo title",
+               "seo keywords",
+               "seo description",
+               "short description",
+               "long description"]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        worksheet.write(0,0,"Type",header_format)
+        worksheet.write(0,1,category_type+"category")
+
+        cnt=1
+        
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        generic_category_objs = None
+        if category_type=="sub":
+            generic_category_objs = SEOSubCategory.objects.filter(location_group=location_group_obj)
+        elif category_type=="":
+            generic_category_objs = SEOCategory.objects.filter(location_group=location_group_obj)
+        elif category_type=="super":
+            generic_category_objs = SEOSuperCategory.objects.filter(location_group=location_group_obj)
+        
+        if generic_category_objs is not None:
+            for generic_category_obj in generic_category_objs:
+                try:
+                    cnt += 1
+
+                    generic_category_name = ""
+                    if category_type=="sub":
+                        generic_category_name = generic_category_obj.sub_category.get_name()
+                    elif category_type=="":
+                        generic_category_name = generic_category_obj.category.get_name()
+                    elif category_type=="super":
+                        generic_category_name = generic_category_obj.super_category.get_name()
+
+                    common_row = ["" for i in range(len(row))]
+                    common_row[0] = str(cnt-1)
+                    common_row[1] = str(generic_category_obj.uuid)
+                    common_row[2] = generic_category_name
+                    common_row[3] = generic_category_obj.page_description
+                    common_row[4] = generic_category_obj.seo_title
+                    common_row[5] = generic_category_obj.seo_keywords
+                    common_row[6] = generic_category_obj.seo_description
+                    common_row[7] = generic_category_obj.short_description
+                    common_row[8] = generic_category_obj.long_description
+
+                    colnum = 0
+                    for k in common_row:
+                        worksheet.write(cnt, colnum, k)
+                        colnum += 1
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("Error bulk_download_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+        
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_download_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_download_brand_categories_seo_details_report(filename, uuid, location_group_obj, category_type):
+    try:
+        logger.info('Categories+brand seo details download report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               "Brand "+category_type+"Category uuid",
+               "Brand Name",
+               category_type+"Category Name",
+               "page description",
+               "seo title",
+               "seo keywords",
+               "seo description",
+               "short description",
+               "long description"]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        worksheet.write(0,0,"Type",header_format)
+        worksheet.write(0,1,"brand"+category_type+"category")
+  
+        cnt=1
+        
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        generic_category_brand_objs = None
+        if category_type=="sub":
+            generic_category_brand_objs = BrandSubCategory.objects.filter(location_group=location_group_obj, brand__organization__name="WIG")
+        elif category_type=="":
+            generic_category_brand_objs = BrandCategory.objects.filter(location_group=location_group_obj, brand__organization__name="WIG")
+        elif category_type=="super":
+            generic_category_brand_objs = BrandSuperCategory.objects.filter(location_group=location_group_obj, brand__organization__name="WIG")
+        
+        if generic_category_brand_objs is not None:
+            for generic_category_brand_obj in generic_category_brand_objs:
+                try:
+                    cnt += 1
+                    generic_category_name =""
+                    if category_type=="sub":
+                        generic_category_name = generic_category_brand_obj.sub_category.get_name()
+                    elif category_type=="":
+                        generic_category_name = generic_category_brand_obj.category.get_name()
+                    elif category_type=="super":
+                        generic_category_name = generic_category_brand_obj.super_category.get_name()
+
+                    common_row = ["" for i in range(len(row))]
+                    common_row[0] = str(cnt-1)
+                    common_row[1] = str(generic_category_brand_obj.uuid)
+                    common_row[2] = generic_category_brand_obj.brand.get_name()
+                    common_row[3] = generic_category_name
+                    common_row[4] = generic_category_brand_obj.page_description
+                    common_row[5] = generic_category_brand_obj.seo_title
+                    common_row[6] = generic_category_brand_obj.seo_keywords
+                    common_row[7] = generic_category_brand_obj.seo_description
+                    common_row[8] = generic_category_brand_obj.short_description
+                    common_row[9] = generic_category_brand_obj.long_description
+                    
+                    colnum = 0
+                    for k in common_row:
+                        worksheet.write(cnt, colnum, k)
+                        colnum += 1
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("Error bulk_download_brand_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_download_brand_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_download_brand_seo_details_report(filename, uuid, location_group_obj):
+    try:
+        logger.info('Brand seo details download report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               "SEO Brand uuid",
+               "Brand Name",
+               "page description",
+               "seo title",
+               "seo keywords",
+               "seo description",
+               "short description",
+               "long description"]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        worksheet.write(0,0,"Type",header_format)
+        worksheet.write(0,1,"brand")
+
+        cnt=1
+        
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        seo_brand_objs = SEOBrand.objects.filter(location_group=location_group_obj, brand__organization__name="WIG")
+
+        for seo_brand_obj in seo_brand_objs:
+            try:
+                
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt-1)
+                common_row[1] = str(seo_brand_obj.uuid)
+                common_row[2] = seo_brand_obj.brand.get_name()
+                common_row[3] = seo_brand_obj.page_description
+                common_row[4] = seo_brand_obj.seo_title
+                common_row[5] = seo_brand_obj.seo_keywords
+                common_row[6] = seo_brand_obj.seo_description
+                common_row[7] = seo_brand_obj.short_description
+                common_row[8] = seo_brand_obj.long_description
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error bulk_download_brand_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+        
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_download_brand_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_upload_product_seo_details_report(dfs, seo_type, location_group_obj):
+
+    try:
+        logger.info('Product seo details upload report start...')
+        rows = len(dfs.iloc[:])
+
+        for i in range(2,rows):
+            product_uuid = str(dfs.iloc[i][1]).strip()
+            product_name = str(dfs.iloc[i][2]).strip()
+            product_seller_sku = str(dfs.iloc[i][3]).strip()
+            page_description = str(dfs.iloc[i][4]).strip()
+            seo_title = str(dfs.iloc[i][5]).strip()
+            seo_keywords = str(dfs.iloc[i][6]).strip()
+            seo_description = str(dfs.iloc[i][7]).strip()
+            search_keywords = str(dfs.iloc[i][8]).strip()
+
+            dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, uuid=product_uuid)
+
+            dh_product_obj.page_description = page_description
+            dh_product_obj.seo_title = seo_title
+            dh_product_obj.seo_keywords = seo_keywords
+            dh_product_obj.seo_description = seo_description
+            dh_product_obj.search_keywords = search_keywords
+            dh_product_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_upload_product_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+        
+def bulk_upload_categories_seo_details_report(dfs, seo_type, location_group_obj):
+    
+    try:
+        logger.info('Categories seo details upload report start...')
+        rows = len(dfs.iloc[:])
+
+        for i in range(2,rows):
+            generic_category_uuid = str(dfs.iloc[i][1]).strip()
+            generic_category_name = str(dfs.iloc[i][2]).strip()
+            page_description = str(dfs.iloc[i][3]).strip()
+            seo_title = str(dfs.iloc[i][4]).strip()
+            seo_keywords = str(dfs.iloc[i][5]).strip()
+            seo_description = str(dfs.iloc[i][6]).strip()
+            short_description = str(dfs.iloc[i][7]).strip()
+            long_description = str(dfs.iloc[i][8]).strip()
+            
+            generic_category_obj = None
+            if seo_type=="subcategory":
+                generic_category_obj = SEOSubCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
+            elif seo_type=="category":
+                generic_category_obj = SEOCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
+            elif seo_type=="supercategory":
+                generic_category_obj = SEOSuperCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
+
+            if generic_category_obj!=None:
+                generic_category_obj.page_description = page_description
+                generic_category_obj.seo_title = seo_title
+                generic_category_obj.seo_keywords = seo_keywords
+                generic_category_obj.seo_description = seo_description
+                generic_category_obj.short_description = short_description
+                generic_category_obj.long_description = long_description
+                generic_category_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_upload_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+        
+def bulk_upload_brand_categories_seo_details_report(dfs, seo_type, location_group_obj):
+
+    try:
+        logger.info('Brand + Categories seo details upload report start...')
+        rows = len(dfs.iloc[:])
+
+        for i in range(2,rows):
+            generic_brand_category_uuid = str(dfs.iloc[i][1]).strip()
+            generic_category_name = str(dfs.iloc[i][2]).strip()
+            brand_name = str(dfs.iloc[i][3]).strip()
+            page_description = str(dfs.iloc[i][4]).strip()
+            seo_title = str(dfs.iloc[i][5]).strip()
+            seo_keywords = str(dfs.iloc[i][6]).strip()
+            seo_description = str(dfs.iloc[i][7]).strip()
+            short_description = str(dfs.iloc[i][8]).strip()
+            long_description = str(dfs.iloc[i][9]).strip()
+            
+            generic_brand_category_obj = None
+            if seo_type=="subcategory":
+                generic_brand_category_obj = BrandSubCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+            elif seo_type=="category":
+                generic_brand_category_obj = BrandCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+            elif seo_type=="supercategory":
+                generic_brand_category_obj = BrandSuperCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+
+            if generic_brand_category_obj!=None:
+                generic_brand_category_obj.page_description = page_description
+                generic_brand_category_obj.seo_title = seo_title
+                generic_brand_category_obj.seo_keywords = seo_keywords
+                generic_brand_category_obj.seo_description = seo_description
+                generic_brand_category_obj.short_description = short_description
+                generic_brand_category_obj.long_description = long_description
+                generic_brand_category_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_upload_brand_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_upload_brand_seo_details_report(dfs, seo_type, location_group_obj):
+
+    try:
+        logger.info('Brand seo details upload report start...')
+        rows = len(dfs.iloc[:])
+
+        for i in range(2,rows):
+            brand_uuid = str(dfs.iloc[i][1]).strip()
+            brand_name = str(dfs.iloc[i][2]).strip()
+            page_description = str(dfs.iloc[i][3]).strip()
+            seo_title = str(dfs.iloc[i][4]).strip()
+            seo_keywords = str(dfs.iloc[i][5]).strip()
+            seo_description = str(dfs.iloc[i][6]).strip()
+            short_description = str(dfs.iloc[i][7]).strip()
+            long_description = str(dfs.iloc[i][8]).strip()
+
+            brand_obj = SEOBrand.objects.get(uuid=brand_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+
+            brand_obj.page_description = page_description
+            brand_obj.seo_title = seo_title
+            brand_obj.seo_keywords = seo_keywords
+            brand_obj.seo_description = seo_description
+            brand_obj.short_description = short_description
+            brand_obj.long_description = long_description
+            brand_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_upload_brand_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def create_bulk_image_report(filename, uuid, brand_list, organization_obj=None):
+    
+    try:
+        logger.info("Bulk image report started...")
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        product_objs = Product.objects.filter(base_product__brand__name__in=brand_list, base_product__brand__organization=organization_obj)
+
+        row = ["No.",
+           "Main Image",
+           "Sub Image 1",
+           "Sub Image 2",
+           "Sub Image 3",
+           "Sub Image 4",
+           "Sub Image 5",
+           "Sub Image 6",
+           "Sub Image 7",
+           "Sub Image 8",
+           "Sub Image 9",
+           "Sub Image 10",
+           "White Background Image 1",
+           "White Background Image 2",
+           "White Background Image 3",
+           "White Background Image 4",
+           "White Background Image 5",
+           "White Background Image 6",
+           "White Background Image 7",
+           "White Background Image 8",
+           "White Background Image 9",
+           "White Background Image 10",
+           "PFL Image 1",
+           "PFL Image 2",
+           "PFL Image 3",
+           "PFL Image 4",
+           "PFL Image 5",
+           "PFL Image 6",
+           "PFL Image 7",
+           "PFL Image 8",
+           "PFL Image 9",
+           "PFL Image 10",
+           "Lifestyle Image 1",
+           "Lifestyle Image 2",
+           "Lifestyle Image 3",
+           "Lifestyle Image 4",
+           "Lifestyle Image 5",
+           "Lifestyle Image 6",
+           "Lifestyle Image 7",
+           "Lifestyle Image 8",
+           "Lifestyle Image 9",
+           "Lifestyle Image 10",
+           "Certificate Image 1",
+           "Certificate Image 2",
+           "Certificate Image 3",
+           "Certificate Image 4",
+           "Certificate Image 5",
+           "Certificate Image 6",
+           "Certificate Image 7",
+           "Certificate Image 8",
+           "Certificate Image 9",
+           "Certificate Image 10",
+           "Giftbox Image 1",
+           "Giftbox Image 2",
+           "Giftbox Image 3",
+           "Giftbox Image 4",
+           "Giftbox Image 5",
+           "Giftbox Image 6",
+           "Giftbox Image 7",
+           "Giftbox Image 8",
+           "Giftbox Image 9",
+           "Giftbox Image 10",
+           "Diecut Image 1",
+           "Diecut Image 2",
+           "Diecut Image 3",
+           "Diecut Image 4",
+           "Diecut Image 5",
+           "Diecut Image 6",
+           "Diecut Image 7",
+           "Diecut Image 8",
+           "Diecut Image 9",
+           "Diecut Image 10",
+           "A+ Content Image 1",
+           "A+ Content Image 2",
+           "A+ Content Image 3",
+           "A+ Content Image 4",
+           "A+ Content Image 5",
+           "A+ Content Image 6",
+           "A+ Content Image 7",
+           "A+ Content Image 8",
+           "A+ Content Image 9",
+           "A+ Content Image 10",
+           "Ads Image 1",
+           "Ads Image 2",
+           "Ads Image 3",
+           "Ads Image 4",
+           "Ads Image 5",
+           "Ads Image 6",
+           "Ads Image 7",
+           "Ads Image 8",
+           "Ads Image 9",
+           "Ads Image 10",
+           "Unedited Image 1",
+           "Unedited Image 2",
+           "Unedited Image 3",
+           "Unedited Image 4",
+           "Unedited Image 5",
+           "Unedited Image 6",
+           "Unedited Image 7",
+           "Unedited Image 8",
+           "Unedited Image 9",
+           "Unedited Image 10",
+           "Transparent Image 1",
+           "Transparent Image 2",
+           "Transparent Image 3",
+           "Transparent Image 4",
+           "Transparent Image 5",
+           "Transparent Image 6",
+           "Transparent Image 7",
+           "Transparent Image 8",
+           "Transparent Image 9",
+           "Transparent Image 10"]
+        
+        cnt = 0
+        
+        colnum = 0
+        for k in row:
+            worksheet.write(cnt, colnum, k)
+            colnum += 1
+
+        for product in product_objs:
+            try:
+                common_row = ["" for i in range(len(row))]
+                cnt += 1
+                common_row[0] = str(cnt)
+                
+                try:
+                    main_images = MainImages.objects.get(product=product, is_sourced=True)
+                    main_image = main_images.main_images.all()[0]
+                    common_row[1] = main_image.image.image.url
+                except Exception as e:
+                    pass
+                try:
+                    sub_images = SubImages.objects.get(product=product, is_sourced=True)
+                    sub_images = sub_images.sub_images.all()[:10]
+                    iterr = 0
+                    for sub_image in sub_images:
+                        common_row[2+iterr] = sub_image.image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.white_background_images.all()[:10]:
+                        common_row[12+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.white_background_images.all()[:10]:
+                        common_row[22+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:            
+                    iterr = 0
+                    for image in product.pfl_images.all()[:10]:
+                        common_row[32+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.lifestyle_images.all()[:10]:
+                        common_row[42+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.certificate_images.all()[:10]:
+                        common_row[52+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.giftbox_images.all()[:10]:
+                        common_row[62+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.diecut_images.all()[:10]:
+                        common_row[72+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.aplus_content_images.all()[:10]:
+                        common_row[82+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.ads_images.all()[:10]:
+                        common_row[92+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.base_product.unedited_images.all()[:10]:
+                        common_row[102+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.transparent_images.all()[:10]:
+                        common_row[112+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error create_bulk_image_report %s %s", e, str(exc_tb.tb_lineno))
+
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_bulk_image_report %s %s", e, str(exc_tb.tb_lineno))
+

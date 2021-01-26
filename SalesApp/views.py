@@ -305,7 +305,7 @@ class ProductChangeInFavouritesAPI(APIView):
             
             if Product.objects.filter(base_product__brand__organization=ORGANIZATION,base_product__seller_sku=seller_sku).exists():
 
-                product_obj = Product.objects.get(base_product__brand__organization=ORGANIZATION,base_product__seller_sku=seller_sku)
+                product_obj = Product.objects.filter(base_product__brand__organization=ORGANIZATION,base_product__seller_sku=seller_sku)[0]
 
                 if operation == "ADD":
                     sales_user_obj.favourite_products.add(product_obj)
@@ -892,6 +892,7 @@ class FetchProductListByCategoryAPI(APIView):
                     
                     temp_dict = {}
                     temp_dict["product_name"] = product_obj.product_name
+                    temp_dict["image_url"] = product_obj.get_display_image_url()
                     temp_dict["product_description"] = product_obj.product_description
                     temp_dict["seller_sku"] = product_obj.base_product.seller_sku
                     temp_dict["product_id"] = "" if product_obj.product_id==None else str(product_obj.product_id)
