@@ -821,6 +821,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
                     
+            response["cartUuid"] = cart_obj.uuid
             response["additional_note"] = cart_obj.additional_note
             response["referenceMedium"] = cart_obj.reference_medium
             response["currency"] = cart_obj.get_currency()
