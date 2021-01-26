@@ -864,6 +864,7 @@ def get_recommended_products(dealshub_product_objs,language_code):
             temp_dict["name"] = dealshub_product_obj.get_name(language_code)
             temp_dict["brand"] = dealshub_product_obj.get_brand(language_code)
             temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
+            temp_dict["link"] = dealshub_product_obj.url
             temp_dict["now_price"] = dealshub_product_obj.now_price
             temp_dict["was_price"] = dealshub_product_obj.was_price
             temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
