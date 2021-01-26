@@ -951,10 +951,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
             cart_obj = Cart.objects.get(uuid=cart_uuid)
 
             cart_obj.offline_cod_charge = offline_cod_charge
-            if cart_obj.to_pay >= cart_obj.location_group.free_delivery_threshold:
-                cart_obj.offline_delivery_fee = 0
-            else:
-                cart_obj.offline_delivery_fee = offline_delivery_fee
+            cart_obj.offline_delivery_fee = offline_delivery_fee
             cart_obj.save()
 
             update_cart_bill(cart_obj,offline=is_order_offline)
