@@ -96,6 +96,7 @@ urlpatterns = [
     url(r'^cart/fetch-cart-details/$', views.FetchCartDetails),
     url(r'^cart/fetch-offline-cart-details/$',views.FetchOfflineCartDetails),
     url(r'^cart/update-cart-details/$', views.UpdateCartDetails),
+    url(r'^cart/update-offline-cart-details/$', views.UpdateOfflineCartDetails),
     url(r'^cart/remove-from-cart/$', views.RemoveFromCart),
     url(r'^cart/bulk-update-cart-details/$', views.BulkUpdateCartDetails),
 
