@@ -4330,7 +4330,8 @@ class FetchReviewsAdminAPI(APIView):
                     }
                 product_details = {
                     "name" : review_obj.product.product_name,
-                    "image_url" : review_obj.product.get_display_image_url()
+                    "image_url" : review_obj.product.get_display_image_url(),
+                    "seller_sku" : review_obj.product.get_seller_sku()
                 }
 
                 temp_dict["product_details"] =  product_details
