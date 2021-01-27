@@ -4068,13 +4068,11 @@ class AddAdminCommentAPI(APIView):
             logger.info("AddAdminCommentAPI: %s", str(data))
 
             uuid = str(data["uuid"])
-            username = str(data["username"])
-            display_name = str(data["displayName"])
             comment = str(data["comment"])
 
             review_obj = Review.objects.get(uuid=uuid)
 
-            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user)
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
             if review_obj.content==None:
                 response["status"] = 403
