@@ -4082,6 +4082,7 @@ class AddAdminCommentAPI(APIView):
             if review_obj.content.admin_comment!=None:
                 admin_comment_obj = review_obj.content.admin_comment
                 admin_comment_obj.comment = comment
+                admin_comment_obj.user = omnycomm_user_obj
                 admin_comment_obj.save()
             else:
                 admin_comment_obj = AdminReviewComment.objects.create(user=omnycomm_user_obj, comment=comment)
