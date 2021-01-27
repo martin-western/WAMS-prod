@@ -506,14 +506,6 @@ class FetchSectionProductsAPI(APIView):
             if brand_name!="":
                 dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__brand__name=brand_name) | Q(product__base_product__brand__name_ar=brand_name))
 
-            if sort_filter.get("price", "")=="high-to-low":
-                dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
-            elif sort_filter.get("price", "")=="low-to-high":
-                dealshub_product_objs = dealshub_product_objs.order_by('now_price')
-            else:
-                dealshub_product_objs = list(dealshub_product_objs)
-                dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
-
             brand_list = []
             try:
                 brand_list = list(dealshub_product_objs.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
@@ -529,6 +521,14 @@ class FetchSectionProductsAPI(APIView):
 
             if len(brand_filter)>0:
                 dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name__in=brand_filter)      
+
+            if sort_filter.get("price", "")=="high-to-low":
+                dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
+            elif sort_filter.get("price", "")=="low-to-high":
+                dealshub_product_objs = dealshub_product_objs.order_by('now_price')
+            else:
+                dealshub_product_objs = list(dealshub_product_objs)
+                dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
             
             temp_dict = {}
             temp_dict["sectionName"] = section_obj.name
@@ -4201,14 +4201,6 @@ class FetchUnitBannerProductsAPI(APIView):
             if brand_name!="":
                 dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__brand__name=brand_name) | Q(product__base_product__brand__name_ar=brand_name))
 
-            if sort_filter.get("price", "")=="high-to-low":
-                dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
-            elif sort_filter.get("price", "")=="low-to-high":
-                dealshub_product_objs = dealshub_product_objs.order_by('now_price')
-            else:
-                dealshub_product_objs = list(dealshub_product_objs)
-                dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
-
             brand_list = []
             try:
                 brand_list = list(dealshub_product_objs.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
@@ -4224,6 +4216,14 @@ class FetchUnitBannerProductsAPI(APIView):
             
             if len(brand_filter)>0:
                 dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name__in=brand_filter)      
+            
+            if sort_filter.get("price", "")=="high-to-low":
+                dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
+            elif sort_filter.get("price", "")=="low-to-high":
+                dealshub_product_objs = dealshub_product_objs.order_by('now_price')
+            else:
+                dealshub_product_objs = list(dealshub_product_objs)
+                dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
             
             page = int(data.get('page', 1))
             paginator = Paginator(dealshub_product_objs, 50)
