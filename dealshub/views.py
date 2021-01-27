@@ -506,9 +506,6 @@ class FetchSectionProductsAPI(APIView):
             if brand_name!="":
                 dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__brand__name=brand_name) | Q(product__base_product__brand__name_ar=brand_name))
 
-            if len(brand_filter)>0:
-                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name__in=brand_filter)      
-            
             if sort_filter.get("price", "")=="high-to-low":
                 dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
             elif sort_filter.get("price", "")=="low-to-high":
@@ -517,6 +514,22 @@ class FetchSectionProductsAPI(APIView):
                 dealshub_product_objs = list(dealshub_product_objs)
                 dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
 
+            brand_list = []
+            try:
+                brand_list = list(dealshub_product_objs.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+                if language_code == "ar":
+                    brand_list = list(dealshub_product_objs.values_list('product__base_product__brand__name_ar', flat=True).distinct())[:50]
+
+                brand_list = list(set(brand_list))
+                if len(brand_list)==1:
+                    brand_list = []
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
+
+            if len(brand_filter)>0:
+                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name__in=brand_filter)      
+            
             temp_dict = {}
             temp_dict["sectionName"] = section_obj.name
             temp_dict["productsArray"] = []
@@ -563,6 +576,7 @@ class FetchSectionProductsAPI(APIView):
             response["totalPages"] = paginator.num_pages
             response["is_user_authenticated"] = is_user_authenticated
 
+            response["brand_list"] = brand_list
             response['sectionData'] = temp_dict
             response['status'] = 200
         except Exception as e:
@@ -4187,9 +4201,6 @@ class FetchUnitBannerProductsAPI(APIView):
             if brand_name!="":
                 dealshub_product_objs = dealshub_product_objs.filter(Q(product__base_product__brand__name=brand_name) | Q(product__base_product__brand__name_ar=brand_name))
 
-            if len(brand_filter)>0:
-                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name__in=brand_filter)      
-            
             if sort_filter.get("price", "")=="high-to-low":
                 dealshub_product_objs = dealshub_product_objs.order_by('-now_price')
             elif sort_filter.get("price", "")=="low-to-high":
@@ -4198,6 +4209,22 @@ class FetchUnitBannerProductsAPI(APIView):
                 dealshub_product_objs = list(dealshub_product_objs)
                 dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
 
+            brand_list = []
+            try:
+                brand_list = list(dealshub_product_objs.values_list('product__base_product__brand__name', flat=True).distinct())[:50]
+                if language_code == "ar":
+                    brand_list = list(dealshub_product_objs.values_list('product__base_product__brand__name_ar', flat=True).distinct())[:50]
+
+                brand_list = list(set(brand_list))
+                if len(brand_list)==1:
+                    brand_list = []
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))      
+            
+            if len(brand_filter)>0:
+                dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name__in=brand_filter)      
+            
             page = int(data.get('page', 1))
             paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
@@ -4238,6 +4265,7 @@ class FetchUnitBannerProductsAPI(APIView):
 
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
+            response["brand_list"] = brand_list
             response["productList"] = product_list
             response["is_user_authenticated"] = is_user_authenticated
             response['status'] = 200
