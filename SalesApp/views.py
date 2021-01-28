@@ -89,6 +89,10 @@ class SalesAppLoginSubmitAPI(APIView):
                 
                 token = json.loads(r.content)["token"]
                 response["token"] = token
+                sales_user_obj = SalesAppUser.objects.get(username=email)
+                response["customer_id"] = sales_user_obj.customer_id
+                response["contact_number"] = sales_user_obj.contact_number
+                response["country"] = sales_user_obj.country
 
                 response['status'] = 200
                 response['message'] = "Successfully Logged In"
