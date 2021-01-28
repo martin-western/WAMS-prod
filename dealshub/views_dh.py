@@ -3923,7 +3923,7 @@ class AddFakeReviewAdminAPI(APIView):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
                 review_content_obj.images.add(image_obj)
             
-            omnycomm_user_obj = OmnyCommmUser.objects.get(username=request.user.username)
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
             review_obj = Review.objects.create(is_fake=True,
                                                product=dealshub_product_obj,
