@@ -193,6 +193,7 @@ def update_fast_cart_bill(fast_cart_obj):
 def update_order_bill(order_obj):
     
     order_obj.to_pay = order_obj.get_total_amount()
+    order_obj.real_to_pay = order_obj.get_total_amount()
     order_obj.delivery_fee = order_obj.get_delivery_fee_update()
     order_obj.save()
 

@@ -1464,6 +1464,7 @@ class PlaceOrderAPI(APIView):
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
                                                  to_pay=cart_obj.to_pay,
+                                                 real_to_pay=cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
                                                  location_group=cart_obj.location_group,
@@ -1519,6 +1520,7 @@ class PlaceOrderAPI(APIView):
                 order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
                                                  to_pay=fast_cart_obj.to_pay,
+                                                 real_to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
                                                  location_group=fast_cart_obj.location_group,
@@ -1614,6 +1616,7 @@ class PlaceOfflineOrderAPI(APIView):
             order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
                                              to_pay=cart_obj.to_pay,
+                                             real_to_pay=cart_obj.to_pay,
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
                                              reference_medium= cart_obj.reference_medium,
@@ -1920,6 +1923,7 @@ class FetchOrderDetailsAPI(APIView):
             delivery_fee = order_obj.get_delivery_fee()
             cod_fee = order_obj.get_cod_charge()
             to_pay = order_obj.to_pay
+            real_to_pay = order_obj.real_to_pay
             vat = order_obj.get_vat()
 
             response["subtotal"] = str(subtotal)
@@ -1927,6 +1931,7 @@ class FetchOrderDetailsAPI(APIView):
             response["codFee"] = str(cod_fee)
             response["vat"] = str(vat)
             response["toPay"] = str(to_pay)
+            response["realToPay"] = str(real_to_pay)
 
             response["unitOrderList"] = unit_order_list
             response["status"] = 200
@@ -2790,6 +2795,7 @@ class PaymentTransactionAPI(APIView):
                     order_obj = Order.objects.create(owner=cart_obj.owner, 
                                                      shipping_address=cart_obj.shipping_address,
                                                      to_pay=cart_obj.to_pay,
+                                                     real_to_pay=cart_obj.to_pay,
                                                      order_placed_date=timezone.now(),
                                                      voucher=cart_obj.voucher,
                                                      location_group=cart_obj.location_group,
@@ -2846,6 +2852,7 @@ class PaymentTransactionAPI(APIView):
                     order_obj = Order.objects.create(owner=fast_cart_obj.owner, 
                                                      shipping_address=fast_cart_obj.shipping_address,
                                                      to_pay=fast_cart_obj.to_pay,
+                                                     real_to_pay=fast_cart_obj.to_pay,
                                                      order_placed_date=timezone.now(),
                                                      voucher=fast_cart_obj.voucher,
                                                      location_group=fast_cart_obj.location_group,
@@ -5524,10 +5531,19 @@ class CancelOrdersAPI(APIView):
             unit_order_uuid_list = data["unitOrderUuidList"]
             cancelling_note = data["cancellingNote"]
 
+            order_cancel_success = True   
+            order_obj = None
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
+                if unit_order_obj.current_status_admin not in ["pending", "approved", "delivery failed"]:
+                    order_cancel_success = False
                 cancel_order_admin(unit_order_obj, cancelling_note)
-
+                order_obj = unit_order_obj.order
+            
+            if order_obj!=None and order_cancel_success:
+                order_obj.real_to_pay = 0
+                order_obj.save()
+s
             response["status"] = 200
 
         except Exception as e:
@@ -5566,8 +5582,16 @@ class ApproveCancellationRequestAPI(APIView):
                     unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
-
+                unit_order_cancel_success = True
+                if unit_order_obj.current_status_admin not in ["pending", "approved", "delivery failed"]:
+                    unit_order_cancel_success = False
                 cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
+                if unit_order_cancel_success and unit_order_obj.order!=None
+                    order_obj = unit_order_obj.order
+                    order_obj.real_to_pay = min(0,order_obj.real_to_pay - unit_order_obj.get_subtotal())
+                    order_obj.save()
+                    
+
             response['status'] = 200
 
         except Exception as e:
@@ -6466,6 +6490,7 @@ class PlaceOnlineOrderAPI(APIView):
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
                                                  to_pay=cart_obj.to_pay,
+                                                 real_to_pay = cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
                                                  location_group=cart_obj.location_group,
@@ -6534,6 +6559,7 @@ class PlaceOnlineOrderAPI(APIView):
                 order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
                                                  to_pay=fast_cart_obj.to_pay,
+                                                 real_to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
                                                  location_group=fast_cart_obj.location_group,
