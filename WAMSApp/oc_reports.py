@@ -1685,10 +1685,10 @@ def create_sales_executive_value_report(filename, uuid, from_date, to_date, cust
                 try:
                     oc_user_obj = custom_permission_obj.user
                     order_objs = Order.objects.filter(location_group=location_group_obj, offline_sales_person=oc_user_obj, is_order_offline=True)
-                    if from_date!="":
+                    if from_date!="" and from_date!=None:
                         from_date = from_date[:10]+"T00:00:00+04:00"
                         order_objs = order_objs.filter(order_placed_date__gte=from_date)
-                    if to_date!="":
+                    if to_date!="" and to_date!=None:
                         to_date = to_date[:10]+"T23:59:59+04:00"
                         order_objs = order_objs.filter(order_placed_date__lte=to_date)
                     

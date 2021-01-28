@@ -3956,7 +3956,6 @@ class UpdateReviewAdminAPI(APIView):
                 data = json.loads(data)
 
             review_uuid = str(data["review_uuid"])
-            product_code = str(data["product_code"])
             fake_customer_name = data.get("customerName","")
             rating = int(data["rating"])
             review_content = json.loads(data["review_content"])
