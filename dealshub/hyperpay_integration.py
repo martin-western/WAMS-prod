@@ -74,6 +74,8 @@ class RequestHyperpayCheckoutAPI(APIView):
             API_URL = payment_credentials["hyperpay"]["url"]
             ENTITY_ID = payment_credentials["hyperpay"]["entity_id"]
             API_KEY = payment_credentials["hyperpay"]["API_KEY"]
+
+            amount = "{:.2f}".format(amount)
             
             headers = {
                 "Authorization": "Bearer "+ API_KEY
