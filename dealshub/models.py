@@ -806,6 +806,7 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
     payment_mode = models.CharField(default="COD", max_length=100)
     to_pay = models.FloatField(default=0)
+    real_to_pay = models.FloatField(default=0)
     delivery_fee = models.FloatField(default=0)
     cod_charge = models.FloatField(default=0)
     is_order_offline = models.BooleanField(default=False)
