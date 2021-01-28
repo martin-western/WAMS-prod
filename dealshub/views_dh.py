@@ -6591,9 +6591,9 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                 logger.error("PlaceDaycartOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             # Refresh Stock
-            refresh_stock(order_obj)
+            #refresh_stock(order_obj)
 
-            response["purchase"] = calculate_gtm(order_obj)
+            #response["purchase"] = calculate_gtm(order_obj)
 
             response["status"] = 200
         except Exception as e:
