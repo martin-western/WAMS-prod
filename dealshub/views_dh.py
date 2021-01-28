@@ -6443,7 +6443,6 @@ class PlaceDaycartOnlineOrderAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            merchant_reference = data["merchant_reference"]
             checkout_id = data["checkoutID"]
 
             location_group_uuid = data["locationGroupUuid"]
@@ -6498,7 +6497,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                                                  payment_status="paid",
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
-                                                 merchant_reference=merchant_reference,
+                                                 merchant_reference=checkout_id,
                                                  delivery_fee=cart_obj.get_delivery_fee(),
                                                  cod_charge=0)
 
@@ -6563,7 +6562,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                                                  payment_status="paid",
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
-                                                 merchant_reference=merchant_reference,
+                                                 merchant_reference=checkout_id,
                                                  delivery_fee=fast_cart_obj.get_delivery_fee(),
                                                  cod_charge=0)
 
@@ -6591,9 +6590,9 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                 logger.error("PlaceDaycartOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             # Refresh Stock
-            refresh_stock(order_obj)
+            #refresh_stock(order_obj)
 
-            response["purchase"] = calculate_gtm(order_obj)
+            #response["purchase"] = calculate_gtm(order_obj)
 
             response["status"] = 200
         except Exception as e:

@@ -134,7 +134,7 @@ def get_order_info_from_hyperpay(checkout_id, location_group_obj):
 
         result_code = content["result"]["code"]
         order_info["result"] = False
-        if result_code == "000.000.000":
+        if result_code == "000.100.110":
             order_info["result"] = True
 
     except Exception as e:
