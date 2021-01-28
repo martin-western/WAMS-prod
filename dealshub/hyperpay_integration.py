@@ -87,6 +87,7 @@ class RequestHyperpayCheckoutAPI(APIView):
             }
 
             payment_response = requests.post(url=API_URL, data=data, headers=headers)
+            logger.info("payment_response from hyperpay: %s", str(payment_response.content))
             response["checkout_id"] = json.loads(payment_response.content)["ndc"]
             response["status"] = 200
 
