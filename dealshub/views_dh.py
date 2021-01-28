@@ -4296,7 +4296,7 @@ class FetchReviewsAdminAPI(APIView):
                 temp_dict["is_fake"] = review_obj.is_fake
                 temp_dict["is_published"] = review_obj.is_published
                 if review_obj.is_fake and review_obj.fake_oc_user!=None:
-                    temp_dict["fake_oc_user"] = review_obj.fake_oc_user
+                    temp_dict["fake_oc_user"] = review_obj.fake_oc_user.first_name
 
                 review_content_obj = review_obj.content   
 
@@ -5598,8 +5598,8 @@ class RejectCancellationRequestAPI(APIView):
                 unit_order_obj.user_cancellation_status = "rejected"
                 unit_order_obj.cancellation_request_action_taken = True
                 unit_order_obj.save()
-
-            notify_order_cancel_status_to_user(unit_order_obj,"rejected")
+                notify_order_cancel_status_to_user(unit_order_obj,"rejected")
+                
             response['status'] = 200
 
         except Exception as e:
