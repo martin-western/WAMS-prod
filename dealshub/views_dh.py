@@ -5544,7 +5544,7 @@ class CancelOrdersAPI(APIView):
             if order_obj!=None and order_cancel_success:
                 order_obj.real_to_pay = 0
                 order_obj.save()
-s
+
             response["status"] = 200
 
         except Exception as e:
@@ -5587,7 +5587,7 @@ class ApproveCancellationRequestAPI(APIView):
                 if unit_order_obj.current_status_admin not in ["pending", "approved", "delivery failed"]:
                     unit_order_cancel_success = False
                 cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
-                if unit_order_cancel_success and unit_order_obj.order!=None
+                if unit_order_cancel_success and unit_order_obj.order!=None:
                     order_obj = unit_order_obj.order
                     order_obj.real_to_pay = min(0,order_obj.real_to_pay - unit_order_obj.get_subtotal())
                     order_obj.save()
