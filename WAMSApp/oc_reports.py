@@ -41,7 +41,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
 
     product_objs = Product.objects.filter(base_product__brand__name__in=brand_list, base_product__brand__organization=organization_obj)
 
-    if product_uuid_list!="":
+    if product_uuid_list!="": 
         product_objs = product_objs.filter(uuid__in=product_uuid_list)
 
     workbook = xlsxwriter.Workbook('./'+filename)
@@ -2184,3 +2184,254 @@ def bulk_upload_brand_seo_details_report(dfs, seo_type, location_group_obj):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error bulk_upload_brand_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def create_bulk_image_report(filename, uuid, brand_list, organization_obj=None):
+    
+    try:
+        logger.info("Bulk image report started...")
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        product_objs = Product.objects.filter(base_product__brand__name__in=brand_list, base_product__brand__organization=organization_obj)
+
+        row = ["No.",
+           "Main Image",
+           "Sub Image 1",
+           "Sub Image 2",
+           "Sub Image 3",
+           "Sub Image 4",
+           "Sub Image 5",
+           "Sub Image 6",
+           "Sub Image 7",
+           "Sub Image 8",
+           "Sub Image 9",
+           "Sub Image 10",
+           "White Background Image 1",
+           "White Background Image 2",
+           "White Background Image 3",
+           "White Background Image 4",
+           "White Background Image 5",
+           "White Background Image 6",
+           "White Background Image 7",
+           "White Background Image 8",
+           "White Background Image 9",
+           "White Background Image 10",
+           "PFL Image 1",
+           "PFL Image 2",
+           "PFL Image 3",
+           "PFL Image 4",
+           "PFL Image 5",
+           "PFL Image 6",
+           "PFL Image 7",
+           "PFL Image 8",
+           "PFL Image 9",
+           "PFL Image 10",
+           "Lifestyle Image 1",
+           "Lifestyle Image 2",
+           "Lifestyle Image 3",
+           "Lifestyle Image 4",
+           "Lifestyle Image 5",
+           "Lifestyle Image 6",
+           "Lifestyle Image 7",
+           "Lifestyle Image 8",
+           "Lifestyle Image 9",
+           "Lifestyle Image 10",
+           "Certificate Image 1",
+           "Certificate Image 2",
+           "Certificate Image 3",
+           "Certificate Image 4",
+           "Certificate Image 5",
+           "Certificate Image 6",
+           "Certificate Image 7",
+           "Certificate Image 8",
+           "Certificate Image 9",
+           "Certificate Image 10",
+           "Giftbox Image 1",
+           "Giftbox Image 2",
+           "Giftbox Image 3",
+           "Giftbox Image 4",
+           "Giftbox Image 5",
+           "Giftbox Image 6",
+           "Giftbox Image 7",
+           "Giftbox Image 8",
+           "Giftbox Image 9",
+           "Giftbox Image 10",
+           "Diecut Image 1",
+           "Diecut Image 2",
+           "Diecut Image 3",
+           "Diecut Image 4",
+           "Diecut Image 5",
+           "Diecut Image 6",
+           "Diecut Image 7",
+           "Diecut Image 8",
+           "Diecut Image 9",
+           "Diecut Image 10",
+           "A+ Content Image 1",
+           "A+ Content Image 2",
+           "A+ Content Image 3",
+           "A+ Content Image 4",
+           "A+ Content Image 5",
+           "A+ Content Image 6",
+           "A+ Content Image 7",
+           "A+ Content Image 8",
+           "A+ Content Image 9",
+           "A+ Content Image 10",
+           "Ads Image 1",
+           "Ads Image 2",
+           "Ads Image 3",
+           "Ads Image 4",
+           "Ads Image 5",
+           "Ads Image 6",
+           "Ads Image 7",
+           "Ads Image 8",
+           "Ads Image 9",
+           "Ads Image 10",
+           "Unedited Image 1",
+           "Unedited Image 2",
+           "Unedited Image 3",
+           "Unedited Image 4",
+           "Unedited Image 5",
+           "Unedited Image 6",
+           "Unedited Image 7",
+           "Unedited Image 8",
+           "Unedited Image 9",
+           "Unedited Image 10",
+           "Transparent Image 1",
+           "Transparent Image 2",
+           "Transparent Image 3",
+           "Transparent Image 4",
+           "Transparent Image 5",
+           "Transparent Image 6",
+           "Transparent Image 7",
+           "Transparent Image 8",
+           "Transparent Image 9",
+           "Transparent Image 10"]
+        
+        cnt = 0
+        
+        colnum = 0
+        for k in row:
+            worksheet.write(cnt, colnum, k)
+            colnum += 1
+
+        for product in product_objs:
+            try:
+                common_row = ["" for i in range(len(row))]
+                cnt += 1
+                common_row[0] = str(cnt)
+                
+                try:
+                    main_images = MainImages.objects.get(product=product, is_sourced=True)
+                    main_image = main_images.main_images.all()[0]
+                    common_row[1] = main_image.image.image.url
+                except Exception as e:
+                    pass
+                try:
+                    sub_images = SubImages.objects.get(product=product, is_sourced=True)
+                    sub_images = sub_images.sub_images.all()[:10]
+                    iterr = 0
+                    for sub_image in sub_images:
+                        common_row[2+iterr] = sub_image.image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.white_background_images.all()[:10]:
+                        common_row[12+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.white_background_images.all()[:10]:
+                        common_row[22+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:            
+                    iterr = 0
+                    for image in product.pfl_images.all()[:10]:
+                        common_row[32+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.lifestyle_images.all()[:10]:
+                        common_row[42+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.certificate_images.all()[:10]:
+                        common_row[52+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.giftbox_images.all()[:10]:
+                        common_row[62+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.diecut_images.all()[:10]:
+                        common_row[72+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.aplus_content_images.all()[:10]:
+                        common_row[82+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.ads_images.all()[:10]:
+                        common_row[92+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.base_product.unedited_images.all()[:10]:
+                        common_row[102+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                try:
+                    iterr = 0
+                    for image in product.transparent_images.all()[:10]:
+                        common_row[112+iterr] = image.image.url
+                        iterr += 1
+                except Exception as e:
+                    pass
+                
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error create_bulk_image_report %s %s", e, str(exc_tb.tb_lineno))
+
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_bulk_image_report %s %s", e, str(exc_tb.tb_lineno))
+
