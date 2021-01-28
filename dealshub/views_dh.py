@@ -6431,6 +6431,179 @@ class FetchOrderAnalyticsParamsAPI(APIView):
         return Response(data=response)
 
 
+class PlaceDaycartOnlineOrderAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PlaceDaycartOnlineOrderAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            merchant_reference = data["merchant_reference"]
+            checkout_id = data["checkoutID"]
+            payment_method = data.get("payment_method","VISA")
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            is_fast_cart = data.get("is_fast_cart", False)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+
+            order_obj = None
+            order_info = get_order_info_from_hyperpay(checkout_id, payment_method, payment_location_group_obj)
+            if order_info["result"]==False:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("PlaceDaycartOnlineOrderAPI: HYPERPAY STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            if is_fast_cart==False:
+
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                update_cart_bill(cart_obj)
+
+                unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
+
+                try:
+                    voucher_obj = cart_obj.voucher
+                    if voucher_obj!=None:
+                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                            voucher_obj.total_usage += 1
+                            voucher_obj.save()
+                        else:
+                            cart_obj.voucher = None
+                            cart_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PlaceDaycartOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+
+                payment_info = "NA"
+                payment_mode = "NA"
+                try:
+                    payment_info = order_info["payment_info"]
+                    payment_mode = order_info["payment_info"]["paymentBrand"]
+                except Exception as e:
+                    pass
+
+                order_obj = Order.objects.create(owner=cart_obj.owner,
+                                                 shipping_address=cart_obj.shipping_address,
+                                                 to_pay=cart_obj.to_pay,
+                                                 order_placed_date=timezone.now(),
+                                                 voucher=cart_obj.voucher,
+                                                 location_group=cart_obj.location_group,
+                                                 payment_status="paid",
+                                                 payment_info=payment_info,
+                                                 payment_mode=payment_mode,
+                                                 merchant_reference=merchant_reference,
+                                                 delivery_fee=cart_obj.get_delivery_fee(),
+                                                 cod_charge=0)
+
+                for unit_cart_obj in unit_cart_objs:
+                    unit_order_obj = UnitOrder.objects.create(order=order_obj,
+                                                              product=unit_cart_obj.product,
+                                                              quantity=unit_cart_obj.quantity,
+                                                              price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+                    UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+                # Cart gets empty
+                for unit_cart_obj in unit_cart_objs:
+                    unit_cart_obj.delete()
+
+                # cart_obj points to None
+                cart_obj.shipping_address = None
+                cart_obj.voucher = None
+                cart_obj.to_pay = 0
+                cart_obj.merchant_reference = ""
+                cart_obj.payment_info = "{}"
+                cart_obj.save()
+            else:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                try:
+                    if fast_cart_obj.shipping_address==None:
+                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        fast_cart_obj.shipping_address = address_obj
+                        fast_cart_obj.save()
+                except Exception as e:
+                    pass
+
+                update_fast_cart_bill(fast_cart_obj)
+
+                try:
+                    voucher_obj = cart_obj.voucher
+                    if voucher_obj!=None:
+                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                            voucher_obj.total_usage += 1
+                            voucher_obj.save()
+                        else:
+                            cart_obj.voucher = None
+                            cart_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PlaceDaycartOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+
+                payment_info = "NA"
+                payment_mode = "NA"
+                try:
+                    payment_info = order_info["payment_info"]
+                    payment_mode = order_info["payment_info"]["paymentBrand"]
+                except Exception as e:
+                    pass
+
+                order_obj = Order.objects.create(owner=fast_cart_obj.owner,
+                                                 shipping_address=fast_cart_obj.shipping_address,
+                                                 to_pay=fast_cart_obj.to_pay,
+                                                 order_placed_date=timezone.now(),
+                                                 voucher=fast_cart_obj.voucher,
+                                                 location_group=fast_cart_obj.location_group,
+                                                 payment_status="paid",
+                                                 payment_info=payment_info,
+                                                 payment_mode=payment_mode,
+                                                 merchant_reference=merchant_reference,
+                                                 delivery_fee=fast_cart_obj.get_delivery_fee(),
+                                                 cod_charge=0)
+
+                unit_order_obj = UnitOrder.objects.create(order=order_obj,
+                                                          product=fast_cart_obj.product,
+                                                          quantity=fast_cart_obj.quantity,
+                                                          price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+                UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+                # cart_obj points to None
+                fast_cart_obj.shipping_address = None
+                fast_cart_obj.voucher = None
+                fast_cart_obj.to_pay = 0
+                fast_cart_obj.merchant_reference = ""
+                fast_cart_obj.payment_info = "{}"
+                fast_cart_obj.product = None
+                fast_cart_obj.save()
+
+            # Trigger Email
+            try:
+                p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                p1.start()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("PlaceDaycartOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            # Refresh Stock
+            refresh_stock(order_obj)
+
+            response["purchase"] = calculate_gtm(order_obj)
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PlaceDaycartOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class PlaceOnlineOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7278,6 +7451,8 @@ AddOnlineAdditionalNote = AddOnlineAdditionalNoteAPI.as_view()
 AddOfflineAdditionalNote = AddOfflineAdditionalNoteAPI.as_view()
 
 FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
+
+PlaceDaycartOnlineOrder = PlaceDaycartOnlineOrderAPI.as_view()
 
 PlaceOnlineOrder = PlaceOnlineOrderAPI.as_view()
 
