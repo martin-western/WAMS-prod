@@ -4598,6 +4598,70 @@ class UpdateReviewPublishStatusAPI(APIView):
 
         return Response(data=response)
 
+class FetchOrderSalesAnalyticsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOrderSalesAnalyticsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            loccation_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            order_objs = Order.objects.filter(location_group=location_group_obj)
+
+            # today's
+            today = str(datetime.date.today())[:10] + "T00:00:00+04:00"
+            yesterday = str(today - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
+
+            today_order_objs = order_objs.filter(date_created__gt = today)
+            yesterday_order_objs = order_objs.filter(date_created__gt = yesterday, date_created__lt = today)
+
+            today_total_sales = today_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+            today_total_sales = 0 if today_total_sales==None else round(today_total_sales,2)
+            yesterdays_total_sales = yesterday_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+            yesterdays_total_sales = 0 if yesterdays_total_sales==None else round(yesterdays_total_sales,2)
+
+            # all orders except fully cancelled
+            today_order_list = list(today_order_objs)
+            today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            yesterday_order_list = list(yesterday_order_objs)
+            yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+
+            today_avg_order_value = round(today_total_sales/today_total_orders,2)
+            yesterdays_avg_order_value = round(yesterdays_total_sales/yesterday_total_orders,2)
+            
+            today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+
+            today_pending_delivery = today_total_orders - today_done_delivery
+            yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
+
+            
+            # monthly
+            month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
+            prev_month_value = datetime.datetime.now().month-1
+            prev_year_value = datetime.datetime.now().year
+            if prev_month_value==0:
+                prev_month_value = 12
+                prev_year_value -= 1
+            prev_month = str(datetime.datetime.now().replace(year=prev_year_value, month=prev_month_value, day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
+
+            # same calculations TO BE DONE !!!
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrderSalesAnalyticsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 
 class FetchOrdersForWarehouseManagerAPI(APIView):
@@ -7405,6 +7469,8 @@ DeleteUserReview = DeleteUserReviewAPI.as_view()
 HideReviewAdmin = HideReviewAdminAPI.as_view()
 
 UpdateReviewPublishStatus = UpdateReviewPublishStatusAPI.as_view()
+
+FetchOrderSalesAnalytics = FetchOrderSalesAnalyticsAPI.as_view()
 
 FetchOrdersForWarehouseManager = FetchOrdersForWarehouseManagerAPI.as_view()
 
