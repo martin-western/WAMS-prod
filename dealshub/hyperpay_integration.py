@@ -36,7 +36,6 @@ class RequestHyperpayCheckoutAPI(APIView):
 
         response = {}
         response["status"] = 500
-        response["error"] = ""
         
         try:
             
@@ -68,7 +67,6 @@ class RequestHyperpayCheckoutAPI(APIView):
                 shipping_address = fast_cart_obj.shipping_address
 
             if amount == 0.0:
-                response["error"] = "Cart Amount is ZERO!"
                 response["status"] = 403
                 logger.warning("RequestHyperpayCheckoutAPI Cart Amount Zero!")
                 return Response(data=response)
