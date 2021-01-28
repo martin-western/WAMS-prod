@@ -46,7 +46,6 @@ class RequestHyperpayCheckoutAPI(APIView):
             is_fast_cart = data.get("is_fast_cart", False)
 
             location_group_uuid = data["location_group_uuid"]
-            payment_method = data.get("paymentMethod","VISA")
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
@@ -75,8 +74,8 @@ class RequestHyperpayCheckoutAPI(APIView):
                 return Response(data=response)
 
             API_URL = payment_credentials["hyperpay"]["url"]
-            ENTITY_ID = payment_credentials["hyperpay"]["entity_id"][payment_method]
-            API_KEY = payment_credentials["hyperpay"]["API_KEY"] # "NDVlNzFjOTAtYjk1ZS00YmE4LWJlZGMtOWI2YjlhMTBhYmE1OmMwODc2OTBjLTM4ZmQtNGZlMS04YjFiLWUzOWQ1ODdiMDhjYg=="
+            ENTITY_ID = payment_credentials["hyperpay"]["entity_id"]
+            API_KEY = payment_credentials["hyperpay"]["API_KEY"]
             
             headers = {
                 "Authorization": "Bearer "+ API_KEY
@@ -91,7 +90,6 @@ class RequestHyperpayCheckoutAPI(APIView):
 
             payment_response = requests.post(url=API_URL, data=data, headers=headers)
             response["checkout_id"] = json.loads(payment_response.content)["ndc"]
-            response["error"] = "checkout Success"
             response["status"] = 200
 
         except Exception as e:
@@ -101,13 +99,13 @@ class RequestHyperpayCheckoutAPI(APIView):
         return Response(data=response)
         
 
-def get_order_info_from_hyperpay(checkout_id, payment_method, location_group_obj):
+def get_order_info_from_hyperpay(checkout_id, location_group_obj):
     order_info = {}
 
     try:
         payment_credentials = json.loads(location_group_obj.website_group.payment_credentials)
 
-        ENTITY_ID = payment_credentials["hyperpay"]["entity_id"][payment_method]
+        ENTITY_ID = payment_credentials["hyperpay"]["entity_id"]
         API_KEY = payment_credentials["hyperpay"]["API_KEY"]
 
         headers = {
