@@ -5410,6 +5410,40 @@ class SetOrdersStatusAPI(APIView):
         return Response(data=response)
 
 
+class SetOrdersStatusBulkAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SetOrdersStatusBulkAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_status = data["orderStatus"]
+            order_uuid_list = data["orderUuidList"]
+
+            for order_uuid in order_uuid_list:
+                try:
+                    order_obj = Order.objects.get(uuid=order_uuid)
+                    for unit_order_obj in UnitOrder.objects.get(order=order_obj):
+                        set_order_status(unit_order_obj, order_status)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SetOrdersStatusBulkAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SetOrdersStatusBulkAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class UpdateOrderStatusAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,) 
@@ -7416,6 +7450,8 @@ ResendSAPOrder = ResendSAPOrderAPI.as_view()
 UpdateManualOrder = UpdateManualOrderAPI.as_view()
 
 SetOrdersStatus = SetOrdersStatusAPI.as_view()
+
+SetOrdersStatusBulk = SetOrdersStatusBulkAPI.as_view()
 
 UpdateOrderStatus = UpdateOrderStatusAPI.as_view()
 
