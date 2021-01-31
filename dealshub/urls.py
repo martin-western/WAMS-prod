@@ -234,6 +234,7 @@ urlpatterns = [
     url(r'^update-location-group-settings/$',views.UpdateLocationGroupSettings),
 
     url(r'^add-product-to-order/$',views.AddProductToOrder),
+    url(r'^update-order-charges/$',views.UpdateOrderCharges),
 
     url(r'^notify-order-status/$',views.NotifyOrderStatus),
     url(r'^fetch-logix-shipping-status/$', views.FetchLogixShippingStatus),

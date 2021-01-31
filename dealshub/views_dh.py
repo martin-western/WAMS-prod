@@ -4406,7 +4406,7 @@ class FetchProductReviewsAPI(APIView):
                 admin_comment = None
                 if admin_comment_obj is not None:
                     admin_comment = {
-                        "username" : str(admin_comment_obj.username),
+                        "username" : str(admin_comment_obj.user.username),
                         "display_name" : str(admin_comment_obj.user.first_name+" "+admin_comment_obj.user.last_name),
                         "comment" : str(admin_comment_obj.comment),
                         "created_date" : str(timezone.localtime(admin_comment_obj.created_date).strftime("%d %b, %Y")),
