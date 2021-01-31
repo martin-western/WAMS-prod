@@ -1858,6 +1858,7 @@ class FetchOrderDetailsAPI(APIView):
                 enable_order_edit = True
 
             response["enableOrderEdit"] = enable_order_edit
+            response["is_order_offline"] = order_obj.is_order_offline
             response["bundleId"] = order_obj.bundleid 
             response["dateCreated"] = order_obj.get_date_created()
             response["paymentMode"] = order_obj.payment_mode
