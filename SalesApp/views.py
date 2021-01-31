@@ -95,6 +95,7 @@ class SalesAppLoginSubmitAPI(APIView):
                 response["customer_id"] = sales_user_obj.customer_id
                 response["contact_number"] = sales_user_obj.contact_number
                 response["country"] = sales_user_obj.country
+                response["email"] = sales_user_obj.email
 
                 response['status'] = 200
                 response['message'] = "Successfully Logged In"

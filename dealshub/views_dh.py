@@ -15,6 +15,7 @@ from WAMSApp.constants import *
 from WAMSApp.utils import *
 from WAMSApp.utils_SAP_Integration import *
 from dealshub.network_global_integration import *
+from dealshub.hyperpay_integration import *
 from dealshub.postaplus import *
 
 from django.core.paginator import Paginator
