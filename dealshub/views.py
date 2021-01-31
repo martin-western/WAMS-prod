@@ -5490,6 +5490,7 @@ class UpdateOrderChargesAPI(APIView):
                 order_obj.real_to_pay = order_obj.get_total_amount()
                 order_obj.save()
 
+            response["toPay"] = order_obj.to_pay
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
