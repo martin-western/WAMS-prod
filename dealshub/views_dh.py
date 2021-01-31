@@ -4949,6 +4949,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["total_price_without_vat"] = unit_order_obj.get_subtotal_without_vat()
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
+                        temp_dict2["productNameAr"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name("ar")
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
                         temp_dict2["intercompany_order_id"] = unit_order_obj.get_sap_intercompany_order_id()
                         temp_dict2["cancelled_by_user"] = unit_order_obj.cancelled_by_user
