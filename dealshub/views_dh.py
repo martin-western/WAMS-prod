@@ -1900,6 +1900,7 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["price"] = unit_order_obj.price
                 temp_dict["currency"] = unit_order_obj.product.get_currency()
                 temp_dict["productName"] = unit_order_obj.product.get_name(language_code)
+                temp_dict["productNameAr"] = unit_order_obj.product.get_name("ar")
                 temp_dict["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                 temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
                 temp_dict["productId"] = unit_order_obj.product.get_product_id()
