@@ -4613,7 +4613,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            custom_permission_obj = CustomPermission.objects.get(username=request.user.username)
+            custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
             misc = json.loads(custom_permission_obj.misc)
             if "analytics" not in misc:
                 logger.warning("User does not have permission to view analytics!")
