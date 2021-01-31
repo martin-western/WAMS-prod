@@ -4819,6 +4819,10 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
+            total_revenue = order_objs.aggregate(Sum('to_pay'))["to_pay__sum"]
+            if total_revenue==None:
+                total_revenue = 0
+            total_revenue = round(total_revenue, 2)
             total_sales = order_objs.aggregate(Sum('to_pay'))["to_pay__sum"]
             total_sales = 0 if total_sales==None else round(total_sales, 2)
             order_list =  list(order_objs)
@@ -5025,6 +5029,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             response["isAvailable"] = is_available
             response["totalOrders"] = total_orders
             response["orderList"] = order_list
+            response["totalRevenue"] = total_revenue
             response["order_analytics"] = {
                 "sales" : total_sales,
                 "orders" : real_total_orders,
