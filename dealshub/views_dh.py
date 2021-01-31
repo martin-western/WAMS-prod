@@ -4327,7 +4327,8 @@ class FetchReviewsAdminAPI(APIView):
                     image_url_list = []
                     for image_obj in image_objs:
                         try:
-                            image_url_list.append(image_obj.mid_image.url)
+                            if image_obj.mid_image!=None:
+                                image_url_list.append(image_obj.mid_image.url)
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
                             logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4599,6 +4600,129 @@ class UpdateReviewPublishStatusAPI(APIView):
 
         return Response(data=response)
 
+class FetchOrderSalesAnalyticsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOrderSalesAnalyticsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            order_objs = Order.objects.filter(location_group=location_group_obj)
+
+            # today's
+            today = str(datetime.date.today())[:10] + "T00:00:00+04:00"
+            yesterday = str(today - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
+
+            today_order_objs = order_objs.filter(date_created__gt = today)
+            yesterday_order_objs = order_objs.filter(date_created__gt = yesterday, date_created__lt = today)
+
+            today_total_sales = today_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+            today_total_sales = 0 if today_total_sales==None else round(today_total_sales,2)
+            yesterdays_total_sales = yesterday_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+            yesterdays_total_sales = 0 if yesterdays_total_sales==None else round(yesterdays_total_sales,2)
+
+            # all orders except fully cancelled
+            today_order_list = list(today_order_objs)
+            today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            yesterday_order_list = list(yesterday_order_objs)
+            yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+
+            today_avg_order_value = round(float(today_total_sales/today_total_orders),2)
+            yesterday_avg_order_value = round(float(yesterdays_total_sales/yesterday_total_orders),2)
+            
+            today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+
+            today_pending_delivery = today_total_orders - today_done_delivery
+            yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
+
+            
+            # monthly
+            month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
+            prev_month_value = datetime.datetime.now().month-1
+            prev_year_value = datetime.datetime.now().year
+            if prev_month_value==0:
+                prev_month_value = 12
+                prev_year_value -= 1
+            prev_month = str(datetime.datetime.now().replace(year=prev_year_value, month=prev_month_value, day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
+
+            month_order_objs = order_objs.filter(date_created__gt = month)
+            prev_month_order_objs = order_objs.filter(date_created__gt = prev_month, date_created__lt = month)
+
+            month_total_sales = month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+            month_total_sales = 0 if month_total_sales==None else round(month_total_sales,2)
+            prev_month_total_sales = prev_month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+            prev_month_total_sales = 0 if prev_month_total_sales==None else round(prev_month_total_sales,2)
+
+            month_order_list = list(month_order_objs)
+            month_total_orders = UnitOrder.objects.filter(order__in=month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            prev_month_order_list = list(prev_month_order_objs)
+            prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+
+            month_avg_order_value = round(float(month_total_sales/month_total_orders),2)
+            prev_month_avg_order_value = round(float(prev_month_total_sales/prev_month_total_orders),2)
+            
+            month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+
+            month_pending_delivery = month_total_orders - month_done_delivery
+            prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
+
+            days_in_month = float(datetime.datetime.now().day)
+
+            response["targets"] = {
+                "today_sales" : location_group_obj.today_sales_target,
+                "today_orders" : location_group_obj.today_orders_target,
+                "monthly_sales" : location_group_obj.monthly_sales_target,
+                "monthly_orders" : location_group_obj.monthly_orders_target
+            }
+            
+            response["todays"] = {
+                "sales" : today_total_sales,
+                "sales_delta" :  today_total_sales - yesterdays_total_sales,
+                "orders" : today_total_orders,
+                "orders_delta" : today_total_orders - yesterday_total_orders,
+                "avg_value" : today_avg_order_value,
+                "avg_value_delta" : today_avg_order_value - yesterday_avg_order_value,
+                "delivered": today_done_delivery,
+                "delivered_delta" : today_done_delivery - yesterday_done_delivery,
+                "pending" : today_pending_delivery,
+                "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
+                "percent_sales" : round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
+                "percent_orders" : round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
+                "percent_avg" : round(float(today_avg_order_value/float(month_avg_order_value/days_in_month))*100),
+                "percent_delivered" : round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
+                "percent_pending" : round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100)
+            }
+            response["monthly"] = {
+                "sales" : month_total_sales,
+                "sales_delta" :  month_total_sales - prev_month_total_sales,
+                "orders" : month_total_orders,
+                "orders_delta" : month_total_orders - prev_month_total_orders,
+                "avg_value" : month_avg_order_value,
+                "avg_value_delta" : month_avg_order_value - prev_month_avg_order_value,
+                "delivered": month_done_delivery,
+                "delivered_delta" : month_done_delivery - prev_month_done_delivery,
+                "pending" : month_pending_delivery,
+                "pending_delta" : month_pending_delivery - prev_month_pending_delivery
+            }
+            response["currency"] : location_group_obj.location.currency
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrderSalesAnalyticsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 
 class FetchOrdersForWarehouseManagerAPI(APIView):
@@ -4700,6 +4824,15 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if total_revenue==None:
                 total_revenue = 0
             total_revenue = round(total_revenue, 2)
+            total_sales = order_objs.aggregate(Sum('to_pay'))["to_pay__sum"]
+            total_sales = 0 if total_sales==None else round(total_sales, 2)
+            order_list =  list(order_objs)
+            # exclusive of cancelled orders
+            real_total_orders = UnitOrder.objects.filter(order__in=order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            avg_order_value = round(float(total_sales/real_total_orders),2)
+            done_delivery_count = order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            pending_delivery_count = real_total_orders - done_delivery
+
             currency = location_group_obj.location.currency
 
             paginator = Paginator(order_objs, 20)
@@ -4898,6 +5031,13 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             response["totalOrders"] = total_orders
             response["orderList"] = order_list
             response["totalRevenue"] = total_revenue
+            response["order_analytics"] = {
+                "sales" : total_sales,
+                "orders" : real_total_orders,
+                "avg_order_value" : avg_order_value,
+                "delivered_orders" : done_delivery_count,
+                "pending_orders" : pending_delivery_count
+            }
             response["currency"] = currency
             response["status"] = 200
 
@@ -7438,6 +7578,8 @@ DeleteUserReview = DeleteUserReviewAPI.as_view()
 HideReviewAdmin = HideReviewAdminAPI.as_view()
 
 UpdateReviewPublishStatus = UpdateReviewPublishStatusAPI.as_view()
+
+FetchOrderSalesAnalytics = FetchOrderSalesAnalyticsAPI.as_view()
 
 FetchOrdersForWarehouseManager = FetchOrdersForWarehouseManagerAPI.as_view()
 
