@@ -5917,7 +5917,8 @@ class CheckSectionPermissionsAPI(APIView):
 
             website_group_name = ""
             ecommerce_pages = []
-            location_group_objs = CustomPermission.objects.get(user__username=request.user.username).location_groups.all()
+            custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+            location_group_objs = custom_permission_obj.location_groups.all()
             for location_group_obj in location_group_objs:
                 temp_dict = {}
                 temp_dict["name"] = location_group_obj.name
@@ -5929,8 +5930,11 @@ class CheckSectionPermissionsAPI(APIView):
             if omnycomm_user_obj.website_group!=None:
                 website_group_name = omnycomm_user_obj.website_group.name
 
+            misc = json.loads(custom_permission_obj.misc)
+
             response["page_list"] = get_custom_permission_page_list(request.user)
             response["ecommerce_pages"] = ecommerce_pages
+            response["misc"] = misc
             response["websiteGroupName"] = website_group_name
 
             response['status'] = 200

@@ -4613,6 +4613,13 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            custom_permission_obj = CustomPermission.objects.get(username=request.user.username)
+            misc = json.loads(custom_permission_obj.misc)
+            if "analytics" not in misc:
+                logger.warning("User does not have permission to view analytics!")
+                response["status"] = 403
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 

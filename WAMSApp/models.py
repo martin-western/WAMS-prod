@@ -1383,6 +1383,7 @@ class CustomPermission(models.Model):
     page_list = models.TextField(default="[]")
     location_groups = models.ManyToManyField(LocationGroup, blank=True)
     organization = models.ForeignKey(Organization,blank=True,null=True,on_delete=models.SET_NULL)
+    misc = models.TextField(default="[]")
 
     class Meta:
         verbose_name = "CustomPermission"
