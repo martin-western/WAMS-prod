@@ -227,6 +227,11 @@ class LocationGroup(models.Model):
     is_b2b = models.BooleanField(default = False)
     region_list = models.TextField(default="[]")
 
+    today_sales_target = models.FloatField(default=0)
+    monthly_sales_target = models.FloatField(default=0)
+    today_orders_target = models.FloatField(default=0)
+    monthly_orders_target = models.FloatField(default=0)
+
     def __str__(self):
         return str(self.name)
 

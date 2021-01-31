@@ -5277,6 +5277,10 @@ class FetchLocationGroupSettingsAPI(APIView):
             response["cod_charge"] = location_group_obj.cod_charge
             response["free_delivery_threshold"] = location_group_obj.free_delivery_threshold
             response["vat"] = location_group_obj.vat
+            response["today_sales_target"] = location_group_obj.today_sales_target
+            response["monthly_sales_target"] = location_group_obj.monthly_sales_target
+            response["today_orders_target"] = location_group_obj.today_orders_target
+            response["monthly_orders_target"] = location_group_obj.monthly_orders_target
             
             response["region_list"] = json.loads(location_group_obj.region_list)
             
@@ -5304,6 +5308,10 @@ class UpdateLocationGroupSettingsAPI(APIView):
             cod_charge = float(data["cod_charge"])
             free_delivery_threshold = float(data["free_delivery_threshold"])
             vat = float(data.get("vat", 5))
+            today_sales_target = float(data["today_sales_target"])
+            monthly_sales_target = float(data["monthly_sales_target"])
+            today_orders_target = float(data["today_orders_target"])
+            monthly_orders_target = float(data["monthly_orders_target"])
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
@@ -5311,6 +5319,10 @@ class UpdateLocationGroupSettingsAPI(APIView):
             location_group_obj.cod_charge = cod_charge
             location_group_obj.free_delivery_threshold = free_delivery_threshold
             location_group_obj.vat = vat
+            location_group_obj.today_sales_target = today_sales_target
+            location_group_obj.monthly_sales_target = monthly_sales_target
+            location_group_obj.today_orders_target = today_orders_target
+            location_group_obj.monthly_orders_target = monthly_orders_target
             location_group_obj.save()
             
             response['status'] = 200
