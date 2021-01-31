@@ -141,6 +141,7 @@ urlpatterns = [
 
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
 
+    url(r'^fetch-order-sales-analytics/$', views.FetchOrderSalesAnalytics),
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
     url(r'^resend-sap-order/$', views.ResendSAPOrder),
