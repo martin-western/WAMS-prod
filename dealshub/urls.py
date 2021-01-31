@@ -146,6 +146,7 @@ urlpatterns = [
     url(r'^resend-sap-order/$', views.ResendSAPOrder),
     url(r'^update-manual-order/$', views.UpdateManualOrder),
     url(r'^set-orders-status/$', views.SetOrdersStatus),
+    url(r'^set-orders-status-bulk/$', views.SetOrdersStatusBulk),
     url(r'^update-order-status/$', views.UpdateOrderStatus),
     url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
