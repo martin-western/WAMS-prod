@@ -980,6 +980,217 @@ class SearchAPI(APIView):
         return Response(data=response)
 
 
+class FastSearchWIGAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FastSearchAPI: %s", str(data))
+            language_code = data.get("language","en")
+
+            search_string = data.get("name", "").strip()
+            # super_category_name = data.get("superCategory", "").strip()
+            # category_name = data.get("category", "").strip()
+            # subcategory_name = data.get("subcategory", "").strip()
+            # brand_name = data.get("brand", "").strip()
+            # page_type = data.get("page_type", "").strip()
+
+            # page_description = ""
+            # seo_title = ""
+            # seo_keywords = ""
+            # seo_description = ""
+            # short_description = ""
+            # long_description = ""
+
+            # try:
+            #     if page_type=="super_category":
+            #         super_category_obj = SuperCategory.objects.filter(Q(name=super_category_name) | Q(name_ar=super_category_name))[0]
+            #         page_description = super_category_obj.page_description
+            #         seo_title = super_category_obj.seo_title
+            #         seo_keywords = super_category_obj.seo_keywords
+            #         seo_description = super_category_obj.seo_description
+            #         short_description = super_category_obj.short_description
+            #         long_description = super_category_obj.long_description
+            #     elif page_type=="category":
+            #         category_obj = Category.objects.filter(Q(name=category_name) | Q(name_ar=category_name))[0]
+            #         page_description = category_obj.page_description
+            #         seo_title = category_obj.seo_title
+            #         seo_keywords = category_obj.seo_keywords
+            #         seo_description = category_obj.seo_description
+            #         short_description = category_obj.short_description
+            #         long_description = category_obj.long_description
+            #     elif page_type=="sub_category":
+            #         sub_category_obj = SubCategory.objects.filter(Q(name=subcategory_name) | Q(name_ar=subcategory_name))[0]
+            #         page_description = sub_category_obj.page_description
+            #         seo_title = sub_category_obj.seo_title
+            #         seo_keywords = sub_category_obj.seo_keywords
+            #         seo_description = sub_category_obj.seo_description
+            #         short_description = sub_category_obj.short_description
+            #         long_description = sub_category_obj.long_description
+            #     elif page_type=="brand":
+            #         brand_obj = Brand.objects.filter((Q(name=brand_name) | Q(name_ar=brand_name)), organization__name="WIG")[0]
+            #         page_description = brand_obj.page_description
+            #         seo_title = brand_obj.seo_title
+            #         seo_keywords = brand_obj.seo_keywords
+            #         seo_description = brand_obj.seo_description
+            #         short_description = brand_obj.short_description
+            #         long_description = brand_obj.long_description
+            #     elif page_type=="brand_super_category":
+            #         brand_obj = Brand.objects.filter((Q(name=brand_name) | Q(name_ar=brand_name)), organization__name="WIG")[0]
+            #         super_category_obj = SuperCategory.objects.get(Q(name=super_category_name) |Q(name_ar=super_category_name))[0]
+            #         brand_super_category_obj = BrandSuperCategory.objects.get(brand=brand_obj, super_category=super_category_obj)
+            #         page_description = brand_super_category_obj.page_description
+            #         seo_title = brand_super_category_obj.seo_title
+            #         seo_keywords = brand_super_category_obj.seo_keywords
+            #         seo_description = brand_super_category_obj.seo_description
+            #         short_description = brand_super_category_obj.short_description
+            #         long_description = brand_super_category_obj.long_description
+            #     elif page_type=="brand_category":
+            #         brand_obj = Brand.objects.filter((Q(name=brand_name) | Q(name_ar=brand_name)), organization__name="WIG")[0]
+            #         category_obj = Category.objects.filter(Q(name=category_name) | Q(name_ar=category_name))[0]
+            #         brand_category_obj = BrandCategory.objects.get(brand=brand_obj, category=category_obj)
+            #         page_description = brand_category_obj.page_description
+            #         seo_title = brand_category_obj.seo_title
+            #         seo_keywords = brand_category_obj.seo_keywords
+            #         seo_description = brand_category_obj.seo_description
+            #         short_description = brand_category_obj.short_description
+            #         long_description = brand_category_obj.long_description
+            #     elif page_type=="brand_sub_category":
+            #         brand_obj = Brand.objects.get((Q(name=brand_name) | Q(name_ar=brand_name)), organization__name="WIG")
+            #         sub_category_name = data["sub_category_name"]
+            #         sub_category_obj = SubCategory.objects.filter(Q(name=sub_category_name) | Q(name_ar=sub_category_name))[0]
+            #         brand_sub_category_obj = BrandSubCategory.objects.get(brand=brand_obj, sub_category=sub_category_obj)
+            #         page_description = brand_sub_category_obj.page_description
+            #         seo_title = brand_sub_category_obj.seo_title
+            #         seo_keywords = brand_sub_category_obj.seo_keywords
+            #         seo_description = brand_sub_category_obj.seo_description
+            #         short_description = brand_sub_category_obj.short_description
+            #         long_description = brand_sub_category_obj.long_description
+
+            #     response["page_description"] = page_description
+            #     response["seo_title"] = seo_title
+            #     response["seo_keywords"] = seo_keywords
+            #     response["seo_description"] = seo_description
+            #     response["short_description"] = short_description
+            #     response["long_description"] = long_description
+            # except Exception as e:
+            #     response["page_description"] = ""
+            #     response["seo_title"] = ""
+            #     response["seo_keywords"] = ""
+            #     response["seo_description"] = ""
+            #     response["short_description"] = ""
+            #     response["long_description"] = ""
+
+            brand_filter = data.get("brand_filter", [])
+            sort_filter = data.get("sort_filter", {})
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            page = data.get("page", 1)
+            search = {}
+
+            #elastichsearch search request
+            filter_query = []
+            if brand_filter != []:
+                for i in range(len(brand_filter)):
+                    brand_filter[i] = brand_filter[i].lower()
+                filter_query.append({"terms":{"brandName":brand_filter}})
+            #add price filter
+            print(filter_query)
+
+            data = {
+                "size":50,
+                "query":{
+                    "bool":{
+                        "must":{
+                            "multi_match":{
+                                "query":search_string,
+                                "analyzer":"simple",
+                                "fuzziness":"AUTO",
+                                "fields":["productName","category","supercategory","subcategory","sellerSKU","brandName"]
+                            }
+                        }
+                    }
+                }
+            }
+            if filter_query !=[]:
+                data["query"]["bool"]["filter"] = filter_query
+            if isinstance(data,dict):
+                print(True)
+
+            ELASTICSEARCH_IP = "http://localhost:9200/products/"
+            r = requests.get(url=ELASTICSEARCH_IP + "_search",json=data)
+
+            search_content = json.loads(r.content)
+
+            total_products = 0
+            total_products = search_content["hits"]["total"]["value"]
+            dealshub_product_objs = DealsHubProduct.objects.none()
+            if total_products != 0:
+                dealshub_product_uuids  = []
+                hits = search_content["hits"]["hits"]
+                for hit in hits:
+                    dealshub_product_uuids.append(hit["_source"]["uuid"])
+                dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in = dealshub_product_uuids)
+            paginator = Paginator(dealshub_product_objs, 50)
+            dealshub_product_objs = paginator.page(page)
+
+            products = []
+            currency = location_group_obj.location.currency
+            for dealshub_product_obj in dealshub_product_objs:
+                try:
+                    if dealshub_product_obj.get_actual_price()==0:
+                        continue
+                    temp_dict = {}
+                    temp_dict["name"] = dealshub_product_obj.get_name(language_code)
+                    temp_dict["brand"] = dealshub_product_obj.get_brand(language_code)
+                    temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
+                    temp_dict["now_price"] = dealshub_product_obj.now_price
+                    temp_dict["was_price"] = dealshub_product_obj.was_price
+                    temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+                    temp_dict["stock"] = dealshub_product_obj.stock
+                    temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                    temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
+                    temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+                    temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
+                    temp_dict["is_promotional"] = False
+                    if dealshub_product_obj.promotion!=None and check_valid_promotion(dealshub_product_obj.promotion)==True:
+                        temp_dict["is_promotional"] = True
+                    if dealshub_product_obj.promotion!=None:
+                        temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
+                    else:
+                        temp_dict["promotion_tag"] = None
+                    temp_dict["currency"] = currency
+                    temp_dict["uuid"] = dealshub_product_obj.uuid
+                    temp_dict["link"] = dealshub_product_obj.url
+                    temp_dict["id"] = dealshub_product_obj.uuid
+                    temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+                    products.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+            response["is_available"] = is_available
+            response["totalPages"] = paginator.num_pages
+            response["total_products"] = total_products
+            search['products'] = products
+            response['search'] = search
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FastSearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class SearchWIGAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -5360,6 +5571,8 @@ FetchCategoriesForNewUser = FetchCategoriesForNewUserAPI.as_view()
 SetInterestedCategoriesForNewUser = SetInterestedCategoriesForNewUserAPI.as_view()
 
 Search = SearchAPI.as_view()
+
+FastSearchWIG = FastSearchWIGAPI.as_view()
 
 SearchWIG = SearchWIGAPI.as_view()
 
