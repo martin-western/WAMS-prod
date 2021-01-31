@@ -4644,8 +4644,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             yesterday_order_list = list(yesterday_order_objs)
             yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
 
-            today_avg_order_value = round(float(today_total_sales/today_total_orders),2)
-            yesterday_avg_order_value = round(float(yesterdays_total_sales/yesterday_total_orders),2)
+            today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
+            yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
             
             today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").count()
             yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").count()
@@ -4676,8 +4676,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             prev_month_order_list = list(prev_month_order_objs)
             prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
 
-            month_avg_order_value = round(float(month_total_sales/month_total_orders),2)
-            prev_month_avg_order_value = round(float(prev_month_total_sales/prev_month_total_orders),2)
+            month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
+            prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
             
             month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
             prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
@@ -4705,11 +4705,11 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "delivered_delta" : today_done_delivery - yesterday_done_delivery,
                 "pending" : today_pending_delivery,
                 "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
-                "percent_sales" : round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
-                "percent_orders" : round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                "percent_avg" : round(float(today_avg_order_value/float(month_avg_order_value/days_in_month))*100),
-                "percent_delivered" : round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
-                "percent_pending" : round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100)
+                "percent_sales" : 0 if month_total_sales==0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
+                "percent_orders" : 0 if month_total_orders==0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
+                "percent_avg" : 0 if month_avg_order_value==0 else round(float(today_avg_order_value/month_avg_order_value)*100),
+                "percent_delivered" : 0 if month_done_delivery==0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
+                "percent_pending" : 0 if month_pending_delivery==0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100)
             }
             response["monthly"] = {
                 "sales" : month_total_sales,
