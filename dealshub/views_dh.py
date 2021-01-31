@@ -4838,7 +4838,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             real_total_orders = UnitOrder.objects.filter(order__in=order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
             avg_order_value = round(float(total_sales/real_total_orders),2)
             done_delivery_count = order_objs.filter(unitorder__current_status_admin = "delivered").count()
-            pending_delivery_count = real_total_orders - done_delivery
+            pending_delivery_count = real_total_orders - done_delivery_count
 
             currency = location_group_obj.location.currency
 
