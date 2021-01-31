@@ -112,7 +112,7 @@ def get_order_info_from_hyperpay(checkout_id, location_group_obj):
         headers = {
             "Authorization": "Bearer "+API_KEY
         }
-        API_URL = payment_credentials["hyperpay"]["url"] + checkout_id + "/payment?entityId="+ENTITY_ID
+        API_URL = payment_credentials["hyperpay"]["url"] +"/"+ checkout_id + "/payment?entityId="+ENTITY_ID
         r = requests.post(url=API_URL, headers=headers)
         logger.info("get_order_info_from_hyperpay response: %s", str(r.content))
         content = json.loads(r.content)
