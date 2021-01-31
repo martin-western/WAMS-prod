@@ -229,8 +229,8 @@ class LocationGroup(models.Model):
 
     today_sales_target = models.FloatField(default=0)
     monthly_sales_target = models.FloatField(default=0)
-    today_orders_target = models.FloatField(default=0)
-    monthly_orders_target = models.FloatField(default=0)
+    today_orders_target = models.IntegerField(default=0)
+    monthly_orders_target = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.name)
