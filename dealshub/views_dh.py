@@ -6457,7 +6457,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
             order_info = get_order_info_from_hyperpay(checkout_id, location_group_obj)
             if order_info["result"]==False:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("PlaceDaycartOnlineOrderAPI: HYPERPAY STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("PlaceDaycartOnlineOrderAPI: HYPERPAY STATUS MISMATCH!")
                 return Response(data=response)
 
             if is_fast_cart==False:
