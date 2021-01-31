@@ -4628,7 +4628,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
 
             # today's
             today = str(datetime.date.today())[:10] + "T00:00:00+04:00"
-            yesterday = str(today - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
+            yesterday = str(datetime.date.today() - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
 
             today_order_objs = order_objs.filter(date_created__gt = today)
             yesterday_order_objs = order_objs.filter(date_created__gt = yesterday, date_created__lt = today)
