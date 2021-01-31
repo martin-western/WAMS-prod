@@ -4707,7 +4707,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
                 "percent_sales" : 0 if month_total_sales==0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
                 "percent_orders" : 0 if month_total_orders==0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                "percent_avg" : 0 if month_avg_order_value==0 else round(float(today_avg_order_value/float(month_avg_order_value/days_in_month))*100),
+                "percent_avg" : 0 if month_avg_order_value==0 else round(float(today_avg_order_value/month_avg_order_value)*100),
                 "percent_delivered" : 0 if month_done_delivery==0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
                 "percent_pending" : 0 if month_pending_delivery==0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100)
             }
