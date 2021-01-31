@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^add-product-to-section/$', views.AddProductToSection),
     url(r'^delete-product-from-section/$', views.DeleteProductFromSection),
 
+    url(r'^fetch-nested-banners/$', views.FetchNestedBanners),
     url(r'^fetch-banner-types/$', views.FetchBannerTypes),
     url(r'^create-banner/$', views.CreateBanner),
     url(r'^update-banner-name/$', views.UpdateBannerName),
