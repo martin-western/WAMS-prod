@@ -5465,6 +5465,39 @@ class AddProductToOrderAPI(APIView):
         return Response(data=response)
 
 
+class UpdateOrderChargesAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateOrderChargesAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_uuid = data["orderUuid"]
+            offline_cod_charge = float(data["offline_cod_charge"])
+            offline_delivery_fee = float(data["offline_delivery_fee"])
+
+            order_obj = Order.objects.get(uuid=order_uuid)
+            if order_obj.is_order_offline==True:
+                order_obj.delivery_fee = offline_delivery_fee
+                order_obj.cod_charge = offline_cod_charge
+                order_obj.save()
+                order_obj.to_pay = order_obj.get_total_amount()
+                order_obj.real_to_pay = order_obj.get_total_amount()
+                order_obj.save()
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateOrderChargesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchLogixShippingStatusAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5703,5 +5736,7 @@ UpdateLocationGroupSettings = UpdateLocationGroupSettingsAPI.as_view()
 AddProductToOrder = AddProductToOrderAPI.as_view()
 
 NotifyOrderStatus = NotifyOrderStatusAPI.as_view()
+
+UpdateOrderCharges = UpdateOrderChargesAPI.as_view()
 
 FetchLogixShippingStatus = FetchLogixShippingStatusAPI.as_view()
