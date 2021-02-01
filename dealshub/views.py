@@ -5468,7 +5468,7 @@ class AddProductToOrderAPI(APIView):
                 }
             }
 
-            VersionOrder.objects.create(order=ordomnycomm_userer_obj,
+            VersionOrder.objects.create(order=order_obj,
                                         user=omnycomm_user,
                                         changed_information=json.dumps(unit_order_add_information))
 
