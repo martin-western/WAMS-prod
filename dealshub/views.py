@@ -4969,7 +4969,7 @@ class UpdateOrderShippingAdminAPI(APIView):
             order_obj.shipping_address = address_obj
             order_obj.save()
 
-            order_version_obj = OrderVersion.objects.create(order= order_obj,
+            order_version_obj = VersionOrder.objects.create(order= order_obj,
                                                             user= omnycomm_user,
                                                             change_information=json.dumps(address_change_info))
 
