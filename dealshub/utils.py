@@ -168,13 +168,13 @@ def cancel_order_admin(unit_order_obj, cancelling_note):
         return
 
 
-def update_cart_bill(cart_obj):
+def update_cart_bill(cart_obj,cod=False,offline=False):
     
-    cart_obj.to_pay = cart_obj.get_total_amount()
+    cart_obj.to_pay = cart_obj.get_total_amount(cod=cod,offline=offline)
 
     if cart_obj.voucher!=None:
         voucher_obj = cart_obj.voucher
-        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(cart_obj.get_subtotal())==False or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj):
+        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(cart_obj.get_offline_subtotal() if offline==True else cart_obj.get_subtotal())==False or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj):
             cart_obj.voucher = None
     cart_obj.save()
 
@@ -193,6 +193,8 @@ def update_fast_cart_bill(fast_cart_obj):
 def update_order_bill(order_obj):
     
     order_obj.to_pay = order_obj.get_total_amount()
+    order_obj.real_to_pay = order_obj.get_total_amount()
+    order_obj.delivery_fee = order_obj.get_delivery_fee_update()
     order_obj.save()
 
 
@@ -224,6 +226,36 @@ def send_wigme_order_status_sms(unit_order_obj,message):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_wigme_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def send_daycart_order_status_sms(unit_order_obj,message):
+    try:
+        dealshub_user_obj = unit_order_obj.order.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        
+        logger.info("send_daycart_order_status_sms:", message)
+        location_group_obj = unit_order_obj.order.location_group
+        sms_country_info = json.loads(location_group_obj.sms_country_info)
+        prefix_code = sms_country_info["prefix_code"]
+        user = sms_country_info["user"]
+        pwd = sms_country_info["pwd"]
+        contact_number = prefix_code+dealshub_user_obj.contact_number
+
+        url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
+        req_data = {
+            "user" : user,
+            "passwd": pwd,
+            "message": message,
+            "mobilenumber": contact_number,
+            "mtype":"N",
+            "DR":"Y"
+        }
+        r = requests.post(url=url, data=req_data)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_daycart_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def send_parajohn_order_status_sms(unit_order_obj,message):
@@ -533,6 +565,60 @@ def send_order_cancelled_mail(unit_order_obj):
         logger.error("send_order_cancelled_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
 
+def notify_order_cancel_status_to_user(unit_order_obj, status):
+    try:
+        if unit_order_obj.order.owner.email_verified==False:
+            return
+        
+        customer_name = unit_order_obj.order.get_customer_first_name()
+
+        address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
+        full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.get_email_website_logo()
+
+        html_message = loader.render_to_string(
+            os.getcwd()+'/dealshub/templates/order-cancel-status.html',
+            {
+                "website_logo": website_logo,
+                "customer_name": customer_name,
+                "order_id": unit_order_obj.orderid,
+                "product_name": unit_order_obj.product.get_name(),
+                "productImageUrl": unit_order_obj.product.get_display_image_url(),
+                "quantity": unit_order_obj.quantity,
+                "status": status,
+                "full_name": full_name,
+                "address_lines": address_lines,
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
+            }
+        )
+
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Cancel Status', 
+                        body='Order Cancel Status',
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("notify_order_cancel_status_to_user")
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("notify_order_cancel_status_to_user: %s at %s", e, str(exc_tb.tb_lineno))
+
+
 def contact_us_send_email(your_email, message, to_email, password):
     try:
         body = """
@@ -608,6 +694,37 @@ def notify_grn_error(order_obj):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))        
+
+
+def notify_new_products_email(filepath, location_group_obj):
+    try:
+        location_group_name = location_group_obj.name
+        user_objs = CustomPermission.objects.filter(location_groups__pk = location_group_obj.pk)
+        email_list = []
+        for user_obj in user_objs:
+            email_list.append(user_obj.user.email)
+        try:
+            body = "Please find the attached sheet for new products published on " + location_group_name + "."
+            subject = "Notification for new products created on " + location_group_name
+            with get_connection(
+                host = "smtp.gmail.com",
+                port = 587,
+                username="nisarg@omnycomm.com",
+                password="verjtzgeqareribg",
+                use_tls=True) as connection:
+                email = EmailMessage(subject=subject,
+                                     body=body,
+                                     from_email="nisarg@omnycomm.com",
+                                     to=email_list,
+                                     connection=connection)
+                email.attach_file(filepath)
+                email.send(fail_silently=False)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("notify_new_products_email:- Email Failure %s at %s", e, str(exc_tb.tb_lineno))
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("notify_new_products_email: %s at %s", e, str(exc_tb.tb_lineno))        
 
 
 def refresh_stock(order_obj):
@@ -735,7 +852,7 @@ def get_random_products(dealshub_product_objs):
 
 
 
-def get_recommended_products(dealshub_product_objs):
+def get_recommended_products(dealshub_product_objs,language_code):
 
     dealshub_product_objs = get_random_products(dealshub_product_objs)
 
@@ -745,8 +862,10 @@ def get_recommended_products(dealshub_product_objs):
             continue
         try:
             temp_dict = {}
-            temp_dict["name"] = dealshub_product_obj.get_name()
-            temp_dict["brand"] = dealshub_product_obj.get_brand()
+            temp_dict["name"] = dealshub_product_obj.get_name(language_code)
+            temp_dict["brand"] = dealshub_product_obj.get_brand(language_code)
+            temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
+            temp_dict["link"] = dealshub_product_obj.url
             temp_dict["now_price"] = dealshub_product_obj.now_price
             temp_dict["was_price"] = dealshub_product_obj.was_price
             temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
@@ -768,7 +887,7 @@ def get_recommended_products(dealshub_product_objs):
     return product_list
 
 
-def is_user_input_required_for_sap_punching(stock_price_information):
+def is_user_input_required_for_sap_punching(stock_price_information, order_qty):
     
     try:
         
@@ -776,7 +895,7 @@ def is_user_input_required_for_sap_punching(stock_price_information):
         atp_threshold = stock_price_information["atp_threshold"]
         holding_threshold = stock_price_information["holding_threshold"]
         
-        if total_atp > atp_threshold:
+        if total_atp > atp_threshold and total_atp >= order_qty:
             return False
         
         return True
@@ -787,7 +906,7 @@ def is_user_input_required_for_sap_punching(stock_price_information):
         return True
 
 
-def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
+def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, order_qty):
 
     try:
 
@@ -799,17 +918,22 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
         total_holding = result["total_holding"]
         atp_threshold = result["atp_threshold"]
         holding_threshold = result["holding_threshold"]
-
-        order_information = {}
         
-        if total_atp > atp_threshold:
+        total_stock_info = []
+
+        if total_atp > atp_threshold and total_atp>=order_qty:
             from_holding=""
             for item in stock_list:
                 atp_qty = item["atp_qty"]
                 batch = item["batch"]
                 uom = item["uom"]
-                if atp_qty>0.0:
-                    break
+                if atp_qty>0:
+                    temp_dict = {
+                        "atp_qty": atp_qty,
+                        "batch": batch,
+                        "uom": uom
+                    }
+                    total_stock_info.append(temp_dict)
         else:
             from_holding = x_value
             if from_holding == "X":
@@ -817,26 +941,59 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value):
                     holding_qty = item["holding_qty"]
                     batch = item["batch"]
                     uom = item["uom"]
-                    if holding_qty>0.0:
-                        break
+                    if holding_qty>0:
+                        temp_dict = {
+                            "atp_qty": holding_qty,
+                            "batch": batch,
+                            "uom": uom
+                        }
+                        total_stock_info.append(temp_dict)
             else:
                 for item in stock_list:
                     atp_qty = item["atp_qty"]
                     batch = item["batch"]
                     uom = item["uom"]
-                    if atp_qty>0.0:
-                        break
+                    if atp_qty>0:
+                        temp_dict = {
+                            "atp_qty": atp_qty,
+                            "batch": batch,
+                            "uom": uom
+                        }
+                        total_stock_info.append(temp_dict)
 
-        order_information["from_holding"] = from_holding
-        order_information["uom"] = uom
-        order_information["batch"] = batch
+        total_stock_info = sorted(total_stock_info, key=lambda k: k["atp_qty"], reverse=True) 
+        order_information_list = []
+        remaining_qty = order_qty
+        for stock_info in total_stock_info:
+            if remaining_qty==0:
+                break
+            if stock_info["atp_qty"]>=remaining_qty:
+                temp_dict = {
+                    "qty": format(remaining_qty,'.2f'),
+                    "batch": stock_info["batch"],
+                    "uom": stock_info["uom"],
+                    "from_holding": from_holding,
+                    "seller_sku": seller_sku
+                }
+                remaining_qty = 0
+            else:
+                temp_dict = {
+                    "qty": format(stock_info["atp_qty"],'.2f'),
+                    "batch": stock_info["batch"],
+                    "uom": stock_info["uom"],
+                    "from_holding": from_holding,
+                    "seller_sku": seller_sku
+                }
+                remaining_qty -= stock_info["atp_qty"]
+            order_information_list.append(temp_dict)
 
-        return order_information
+        logger.info("fetch_order_information_for_sap_punching: %s", str(order_information_list))
+        return order_information_list
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("fetch_order_information_for_sap_punching: %s at %s", e, str(exc_tb.tb_lineno))
-        return {}
+        return []
 
 
 def create_section_banner_product_report(dealshub_product_objs, filename):
@@ -927,3 +1084,11 @@ def remove_stopwords(string):
             cleaned_words.append(word)
     cleaned_string = " ".join(cleaned_words)
     return cleaned_string
+
+def check_account_status(b2b_user_obj):
+
+    if b2b_user_obj == None:
+        return False
+    elif b2b_user_obj.vat_certificate_status == "Approved" and b2b_user_obj.trade_license_status == "Approved" and b2b_user_obj.passport_copy_status == "Approved":
+        return True
+    return False

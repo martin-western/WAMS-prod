@@ -270,7 +270,7 @@ class UpdateAdminSuperCategoryDetailsAPI(APIView):
             if name!="":
                 super_category_obj.name = name
             
-            if image!=None:
+            if image!=None and image!="":
                 image_obj = Image.objects.create(image=image)
                 super_category_obj.image = image_obj
 
@@ -316,7 +316,7 @@ class UpdateAdminCategoryDetailsAPI(APIView):
             if name!="":
                 category_obj.name = name
             
-            if image!=None:
+            if image!=None and image!="":
                 image_obj = Image.objects.create(image=image)
                 category_obj.image = image_obj
 
@@ -362,7 +362,7 @@ class UpdateAdminSubCategoryDetailsAPI(APIView):
             if name!="":
                 sub_category_obj.name = name
             
-            if image!=None:
+            if image!=None and image!="":
                 image_obj = Image.objects.create(image=image)
                 sub_category_obj.image = image_obj
 

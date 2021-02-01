@@ -757,14 +757,22 @@ class FetchProductDetailsAPI(APIView):
                 response["pfl_product_features"] = []
 
             try:
+                response["pfl_product_features_ar"] = json.loads(
+                    product_obj.pfl_product_features_ar)
+            except Exception as e:
+                response["pfl_product_features_ar"] = []
+
+            try:
                 response["brand_logo"] = brand_obj.logo.image.url
             except Exception as e:
                 response["brand_logo"] = ''
             
             if brand_obj == None:
                 response["brand_name"] = ""
+                response["brand_name_ar"] = ""
             else:
                 response["brand_name"] = brand_obj.name
+                response["brand_name_ar"] = brand_obj.name_ar
             
             response["base_product_name"] = base_product_obj.base_product_name
             response["super_category"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category)
@@ -798,6 +806,9 @@ class FetchProductDetailsAPI(APIView):
             response["color"] = product_obj.color
             response["weight"] = product_obj.weight
             response["dimensions"] = product_obj.get_dimensions()
+            response["size"] = "NA" if str(product_obj.size)=="" else str(product_obj.size + product_obj.size_unit)
+            response["capacity"] = "NA" if str(product_obj.capacity)=="" else str(product_obj.capacity + product_obj.capacity_unit)
+            response["target_age_range"] = str(product_obj.target_age_range)
 
             response["min_price"] = product_obj.min_price
             response["max_price"] = product_obj.max_price
@@ -1062,6 +1073,8 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["product_uuid"] = dealshub_product_obj.uuid
                     temp_dict["product_id"] = product_obj.product_id
                     temp_dict["product_name"] = dealshub_product_obj.product_name
+                    temp_dict["product_name_ar"] = dealshub_product_obj.product_name_ar
+                    temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
                     temp_dict["channel_status"] = dealshub_product_obj.is_published
                     temp_dict["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
@@ -1517,6 +1530,12 @@ class SaveProductAPI(APIView):
             barcode_string = data["barcode_string"]
             color = convert_to_ascii(data["color"])
             color_map = convert_to_ascii(data["color_map"])
+            size = data.get("size","")
+            size_unit = data.get("size_unit","")
+            capacity = data.get("capacity","")
+            capacity_unit = data.get("capacity_unit","")
+            target_age_range = data.get("target_age_range","")
+
             weight = 0
             try:
                 weight = float(data.get("weight", 0))
@@ -1534,6 +1553,7 @@ class SaveProductAPI(APIView):
             
             pfl_product_name = convert_to_ascii(data["pfl_product_name"])
             pfl_product_features = data["pfl_product_features"]
+            pfl_product_features_ar = data.get("pfl_product_features_ar",[])
 
             factory_notes = convert_to_ascii(data["factory_notes"])
 
@@ -1570,6 +1590,11 @@ class SaveProductAPI(APIView):
             product_obj.product_id_type = product_id_type_obj
             product_obj.color_map = color_map
             product_obj.color = color
+            product_obj.size = size
+            product_obj.size_unit = size_unit
+            product_obj.capacity = capacity
+            product_obj.capacity_unit = capacity_unit
+            product_obj.target_age_range = target_age_range
             product_obj.weight = weight
             
             product_obj.material_type = material_type_obj
@@ -1578,6 +1603,7 @@ class SaveProductAPI(APIView):
             
             product_obj.pfl_product_name = pfl_product_name
             product_obj.pfl_product_features = json.dumps(pfl_product_features)
+            product_obj.pfl_product_features_ar = json.dumps(pfl_product_features_ar)
 
             product_obj.factory_notes = factory_notes
 
@@ -3905,6 +3931,7 @@ class FetchBrandsAPI(APIView):
             for brand_obj in brand_objs:
                 temp_dict = {}
                 temp_dict["name"] = brand_obj.name
+                temp_dict["name_ar"] = brand_obj.name_ar
                 temp_dict["pk"] = brand_obj.pk
                 brand_list.append(temp_dict)
 
@@ -5838,18 +5865,21 @@ class FetchAllCategoriesAPI(APIView):
                 try:
                     temp_dict = {}
                     temp_dict["name"] = super_category_obj.name
+                    temp_dict["name_ar"] = super_category_obj.name_ar
                     temp_dict["super_category_uuid"] = super_category_obj.uuid
                     category_objs = Category.objects.filter(super_category=super_category_obj)
                     category_list = []
                     for category_obj in category_objs:
                         temp_dict2 = {}
                         temp_dict2["name"] = category_obj.name
+                        temp_dict2["name_ar"] = category_obj.name_ar
                         temp_dict2["category_uuid"] = category_obj.uuid
                         sub_category_objs = SubCategory.objects.filter(category=category_obj)
                         sub_category_list = []
                         for sub_category_obj in sub_category_objs:
                             temp_dict3 = {}
                             temp_dict3["name"] = sub_category_obj.name
+                            temp_dict3["name_ar"] = sub_category_obj.name_ar
                             temp_dict3["sub_category_uuid"] = sub_category_obj.uuid
                             sub_category_list.append(temp_dict3)
                         temp_dict2["sub_category_list"] = sub_category_list
@@ -5887,19 +5917,24 @@ class CheckSectionPermissionsAPI(APIView):
 
             website_group_name = ""
             ecommerce_pages = []
-            location_group_objs = CustomPermission.objects.get(user__username=request.user.username).location_groups.all()
+            custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+            location_group_objs = custom_permission_obj.location_groups.all()
             for location_group_obj in location_group_objs:
                 temp_dict = {}
                 temp_dict["name"] = location_group_obj.name
                 temp_dict["uuid"] = location_group_obj.uuid
+                temp_dict["is_b2b"] = location_group_obj.is_b2b
                 ecommerce_pages.append(temp_dict)
 
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             if omnycomm_user_obj.website_group!=None:
                 website_group_name = omnycomm_user_obj.website_group.name
 
+            misc = json.loads(custom_permission_obj.misc)
+
             response["page_list"] = get_custom_permission_page_list(request.user)
             response["ecommerce_pages"] = ecommerce_pages
+            response["misc"] = misc
             response["websiteGroupName"] = website_group_name
 
             response['status'] = 200
@@ -5944,7 +5979,7 @@ class CreateOCReportAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
 
-            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
 
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
@@ -5986,6 +6021,8 @@ class CreateOCReportAPI(APIView):
                 p1.start()
             elif report_type.lower()=="delivery":
                 shipping_method = data["shipping_method"]
+                oc_report_obj.report_title = oc_report_obj.report_title + " " + shipping_method
+                oc_report_obj.save()
                 if shipping_method.lower()=="sendex":
                     p1 = threading.Thread(target=create_sendex_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
                     p1.start()
@@ -5995,7 +6032,12 @@ class CreateOCReportAPI(APIView):
                 elif shipping_method.lower()=="postaplus":
                     p1 =  threading.Thread(target=create_postaplus_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
                     p1.start()
-
+            elif report_type.lower()=="sales executive":
+                p1 = threading.Thread(target=create_sales_executive_value_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                p1.start()
+            elif report_type.lower()=="bulk image":
+                p1 = threading.Thread(target=create_bulk_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
+                p1.start()
                     
             response["approved"] = True
             response['status'] = 200
@@ -6005,6 +6047,134 @@ class CreateOCReportAPI(APIView):
             logger.error("CreateOCReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+class CreateSEOReportAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("CreateSEOReportAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if OCReport.objects.filter(is_processed=False).count()>4:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+            
+            report_type = "SEO"
+            seo_type = data["seo_type"] 
+            note = data["note"]
+            location_group_uuid = data["locationGroupUuid"]
+
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            report_name = report_type+" "+seo_type
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_name, created_by=oc_user_obj, note=note, filename=filename, organization=organization_obj)
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            if seo_type=="product":
+                p1 = threading.Thread(target=bulk_download_product_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
+                p1.start()
+            elif seo_type=="subcategory":
+                p1 = threading.Thread(target=bulk_download_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"sub",))
+                p1.start()
+            elif seo_type=="category":
+                p1 = threading.Thread(target=bulk_download_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"",))
+                p1.start()
+            elif seo_type=="supercategory":
+                p1 = threading.Thread(target=bulk_download_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"super",))
+                p1.start()
+            elif seo_type=="brand":
+                p1 = threading.Thread(target=bulk_download_brand_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
+                p1.start()
+            elif seo_type=="brandsubcategory":
+                p1 = threading.Thread(target=bulk_download_brand_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"sub",))
+                p1.start()
+            elif seo_type=="brandcategory":
+                p1 = threading.Thread(target=bulk_download_brand_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"",))
+                p1.start()
+            elif seo_type=="brandsupercategory":
+                p1 = threading.Thread(target=bulk_download_brand_categories_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,"super",))
+                p1.start()
+
+            response["approved"] = True
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateSEOReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class BulkUploadSEODetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("BulkUploadSEODetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            path = default_storage.save('tmp/bulk-upload-seo-details.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            dfs = pd.read_excel(path, sheet_name=None, header=None)["Sheet1"]
+            dfs = dfs.fillna("")
+
+            seo_type = dfs.iloc[0][1] # identifier
+
+            if seo_type=="product":
+                p1 = threading.Thread(target=bulk_upload_product_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="subcategory":
+                p1 = threading.Thread(target=bulk_upload_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="category":
+                p1 = threading.Thread(target=bulk_upload_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="supercategory":
+                p1 = threading.Thread(target=bulk_upload_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brandsubcategory":
+                p1 = threading.Thread(target=bulk_upload_brand_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brandcategory":
+                p1 = threading.Thread(target=bulk_upload_brand_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brandsupercategory":
+                p1 = threading.Thread(target=bulk_upload_brand_categories_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+            elif seo_type=="brand":
+                p1 = threading.Thread(target=bulk_upload_brand_seo_details_report, args=(dfs, seo_type, location_group_obj,))
+                p1.start()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUploadSEODetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+        
+
 
 class CreateContentReportAPI(APIView):
 
@@ -6038,7 +6208,7 @@ class CreateContentReportAPI(APIView):
 
             organization_obj = custom_permission_obj.organization
 
-            oc_report_obj = OCReport.objects.create(name=report_type, created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
 
             filter_parameters = data["filter_parameters"]
 
@@ -6123,7 +6293,7 @@ class FetchOCReportListAPI(APIView):
                     if oc_report_obj.completion_date!=None:
                         completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
                     temp_dict = {
-                        "name": oc_report_obj.name,
+                        "name": oc_report_obj.report_title,
                         "created_date": str(timezone.localtime(oc_report_obj.created_date).strftime("%d %m, %Y %H:%M")),
                         "created_by": str(oc_report_obj.created_by),
                         "is_processed": oc_report_obj.is_processed,
@@ -6379,9 +6549,12 @@ class FetchDealshubProductDetailsAPI(APIView):
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
 
             response["product_name"] = dealshub_product_obj.get_name()
+            response["product_name_ar"] = dealshub_product_obj.get_name("ar")
             response["product_description"] = dealshub_product_obj.get_description()
+            response["product_description_ar"] = dealshub_product_obj.get_description("ar")
             response["seller_sku"] = dealshub_product_obj.get_seller_sku()
             response["product_id"] = dealshub_product_obj.get_product_id()
+            response["moq"] = dealshub_product_obj.moq
             response["was_price"] = dealshub_product_obj.was_price
             response["now_price"] = dealshub_product_obj.now_price
             response["promotional_price"] = dealshub_product_obj.promotional_price
@@ -6391,6 +6564,11 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["is_published"] = dealshub_product_obj.is_published
             response["is_new_arrival"] = dealshub_product_obj.is_new_arrival
             response["is_on_sale"] = dealshub_product_obj.is_on_sale
+
+            response["search_keywords"] = dealshub_product_obj.get_search_keywords()
+
+            response["url"] = dealshub_product_obj.url
+
             response["category"] = dealshub_product_obj.get_category()
             response["sub_category"] = dealshub_product_obj.get_sub_category()
             response["category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.uuid)
@@ -6436,6 +6614,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             promotional_price = data["promotional_price"]
             stock = data["stock"]
             allowed_qty = data.get("allowed_qty", 100)
+            moq = data.get("moq", 5)
             is_cod_allowed = data["is_cod_allowed"]
             is_new_arrival = data.get("is_new_arrival", False)
             is_on_sale = data.get("is_on_sale", False)
@@ -6443,9 +6622,15 @@ class SaveDealshubProductDetailsAPI(APIView):
             sub_category_uuid = data["sub_category_uuid"]
 
             product_name = data.get("product_name", "")
+            product_name_ar = data.get("product_name_ar","")
             product_description = data.get("product_description", "")
+            product_description_ar = data.get("product_description_ar","")
 
             is_promo_restricted = data.get("is_promo_restricted", False)
+
+            search_keywords = data.get("search_keywords", [])
+
+            url = data.get("url", "default-product")
 
             dealshub_product_obj.was_price = was_price
             dealshub_product_obj.now_price = now_price
@@ -6458,7 +6643,13 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.is_promo_restricted = is_promo_restricted
 
             dealshub_product_obj.product_name = product_name
+            dealshub_product_obj.product_name_ar = product_name_ar
             dealshub_product_obj.product_description = product_description
+            dealshub_product_obj.product_description_ar = product_description_ar
+            dealshub_product_obj.url = url
+            dealshub_product_obj.moq = moq
+
+            dealshub_product_obj.set_search_keywords(search_keywords)
 
             category_obj = None
             try:
@@ -6810,6 +7001,10 @@ CreateOCReport = CreateOCReportAPI.as_view()
 FetchOCReportPermissions = FetchOCReportPermissionsAPI.as_view()
 
 FetchOCReportList = FetchOCReportListAPI.as_view()
+
+CreateSEOReport = CreateSEOReportAPI.as_view()
+
+BulkUploadSEODetails = BulkUploadSEODetailsAPI.as_view()
 
 CreateContentReport = CreateContentReportAPI.as_view()
 
