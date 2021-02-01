@@ -4862,7 +4862,7 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
                         "event" : "unit_order_delete",
                         "information" : {
                             "orderid":unit_order_obj.orderid,
-                            "seller sku": unit_order_obj.product.get_seller_sku(),
+                            "seller_sku": unit_order_obj.product.get_seller_sku(),
                             "qty": unit_order_obj.quantity
                         }
                     }
@@ -4876,7 +4876,7 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
                     "event" : "unit_order_update",
                     "information" : {
                         "orderid": unit_order_obj.orderid,
-                        "seller sku": unit_order_obj.product.get_seller_sku(),
+                        "seller_sku": unit_order_obj.product.get_seller_sku(),
                         "old_qty": unit_order_obj.quantity,
                         "new_qty": quantity
                     }
