@@ -1147,6 +1147,23 @@ class UnitOrderStatus(models.Model):
         return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
 
 
+class VersionOrder(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="")
+    timestamp = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(OmnyCommUser, on_delete=models.SET_NULL, null=True)
+    change_information = models.TextField(default="{}")
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+
+        if self.pk == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(VersionOrder, self).save(*args, **kwargs)
+
 class FastCart(models.Model):
 
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)

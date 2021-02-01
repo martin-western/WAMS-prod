@@ -4851,14 +4851,40 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
 
             unit_order_obj = UnitOrder.objects.get(uuid=uuid)
             order_obj = unit_order_obj.order
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)
 
             if quantity==0:
                 if UnitOrder.objects.filter(order=order_obj).count()==1:
                     response["message"] = "order cannot be empty"
                     return Response(data=response)
                 else:
+                    unit_order_cancel_information = {
+                        "event" : "unit_order_delete",
+                        "information" : {
+                            "orderid":unit_order_obj.orderid,
+                            "seller sku": unit_order_obj.get_seller_sku(),
+                            "qty": unit_order_obj.quantity
+                        }
+                    }
+
+                    VersionOrder.objects.create(order=order_obj,
+                                            user= omnycomm_user,
+                                            changed_information=json.dumps(unit_order_cancel_information))
                     unit_order_obj.delete()
             else:
+                unit_order_update_information = {
+                    "event" : "unit_order_update",
+                    "information" : {
+                        "orderid": unit_order_obj.orderid,
+                        "seller sku": unit_order_obj.get_seller_sku(),
+                        "old_qty": unit_order_obj.quantity,
+                        "new_qty": quantity
+                    }
+                }
+                VersionOrder.objects.create(order=order_obj,
+                                            user= omnycomm_user,
+                                            changed_information=json.dumps(unit_order_update_information))
+
                 unit_order_obj.quantity = quantity
                 unit_order_obj.save()
 
@@ -4906,6 +4932,30 @@ class UpdateOrderShippingAdminAPI(APIView):
             tag = "Home"
             emirates = data.get("emirates", "")
 
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)
+            old_address_lines = json.loads(order_obj.shipping_address.address_lines)
+            address_change_info = {
+                "event" : "address",
+                "information" : {
+                    "new_address" : {
+                        "first_name" : first_name,
+                        "last_name" : last_name,
+                        "contact_number" : contact_number,
+                        "line1" : line1,
+                        "line2" : line2,
+                        "emirates" : emirates
+                    },
+                    "old_address": {
+                        "first_name" : order_obj.shipping_address.first_name,
+                        "last_name" : order_obj.shipping_address.last_name,
+                        "contact_number" : order_obj.shipping_address.contact_number,
+                        "line1" : old_address_lines[0],
+                        "line2" : old_address_lines[1],
+                        "emirates" : order_obj.shipping_address.emirates
+                    }
+                }
+            }
+
             address_obj = Address.objects.create(first_name=first_name, 
                                                  last_name=last_name, 
                                                  address_lines=address_lines, 
@@ -4918,6 +4968,10 @@ class UpdateOrderShippingAdminAPI(APIView):
                                                  emirates=emirates)
             order_obj.shipping_address = address_obj
             order_obj.save()
+
+            order_version_obj = OrderVersion.objects.create(order= order_obj,
+                                                            user= omnycomm_user,
+                                                            changed_information=json.dumps(address_change_info))
 
             response["status"] = 200
 
@@ -5404,6 +5458,19 @@ class AddProductToOrderAPI(APIView):
                                                       quantity=1,
                                                       price=dealshub_product_obj.get_actual_price())
             UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)
+            unit_order_add_information = {
+                "event" : "unit_order_add",
+                "information" : {
+                    "orderid": unit_order_obj.orderid,
+                    "seller_sku": dealshub_product_obj.get_seller_sku()
+                }
+            }
+
+            VersionOrder.objects.create(order=ordomnycomm_userer_obj,
+                                        user=omnycomm_user,
+                                        changed_information=json.dumps(unit_order_add_information))
 
             update_order_bill(order_obj)
 

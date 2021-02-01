@@ -117,6 +117,7 @@ urlpatterns = [
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^order/fetch-order-details/$', views.FetchOrderDetails),
+    url(r'^order/fetch-order-version-details/$', views.FetchOrderVersionDetails),
     url(r'^order/create-unit-order-cancellation-request/$', views.CreateUnitOrderCancellationRequest),
     url(r'^order/create-order-cancellation-request/$', views.CreateOrderCancellationRequest),
 
