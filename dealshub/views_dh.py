@@ -1979,7 +1979,7 @@ class FetchOrderVersionDetailsAPI(APIView):
                 temp_dict["timestamp"] = version_order_obj.timestamp
                 if version_order_obj.user!=None:
                     temp_dict["user"] = version_order_obj.user.username
-                temp_dict["change_info"] = version_order_obj.change_information
+                temp_dict["change_info"] = json.loads(version_order_obj.change_information)
                 version_order_list.append(temp_dict)
             response['status'] = 200
             response['version_order_list'] = version_order_list
