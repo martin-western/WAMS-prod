@@ -5369,7 +5369,7 @@ class SetShippingMethodAPI(APIView):
 
             VersionOrder.objects.create(order=order_obj,
                                         user= omnycomm_user,
-                                        changed_information=json.dumps(order_status_change_information))
+                                        change_information=json.dumps(order_status_change_information))
 
             response["sap_info_render"] = sap_info_render
             response["status"] = 200
@@ -5623,7 +5623,7 @@ class SetOrdersStatusAPI(APIView):
 
             VersionOrder.objects.create(order=first_unit_order_obj.order,
                                         user= omnycomm_user,
-                                        changed_information=json.dumps(order_status_change_information))
+                                        change_information=json.dumps(order_status_change_information))
 
             response["status"] = 200
 
@@ -5808,7 +5808,7 @@ class CancelOrdersAPI(APIView):
 
             VersionOrder.objects.create(order=order_obj,
                                         user= omnycomm_user,
-                                        changed_information=json.dumps(order_cancel_information))
+                                        change_information=json.dumps(order_cancel_information))
             
             if order_obj!=None and order_cancel_success:
                 order_obj.real_to_pay = 0
