@@ -4869,7 +4869,7 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
 
                     VersionOrder.objects.create(order=order_obj,
                                             user= omnycomm_user,
-                                            changed_information=json.dumps(unit_order_cancel_information))
+                                            change_information=json.dumps(unit_order_cancel_information))
                     unit_order_obj.delete()
             else:
                 unit_order_update_information = {
@@ -4883,7 +4883,7 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
                 }
                 VersionOrder.objects.create(order=order_obj,
                                             user= omnycomm_user,
-                                            changed_information=json.dumps(unit_order_update_information))
+                                            change_information=json.dumps(unit_order_update_information))
 
                 unit_order_obj.quantity = quantity
                 unit_order_obj.save()
@@ -4971,7 +4971,7 @@ class UpdateOrderShippingAdminAPI(APIView):
 
             order_version_obj = OrderVersion.objects.create(order= order_obj,
                                                             user= omnycomm_user,
-                                                            changed_information=json.dumps(address_change_info))
+                                                            change_information=json.dumps(address_change_info))
 
             response["status"] = 200
 
@@ -5470,7 +5470,7 @@ class AddProductToOrderAPI(APIView):
 
             VersionOrder.objects.create(order=order_obj,
                                         user=omnycomm_user,
-                                        changed_information=json.dumps(unit_order_add_information))
+                                        change_information=json.dumps(unit_order_add_information))
 
             update_order_bill(order_obj)
 
