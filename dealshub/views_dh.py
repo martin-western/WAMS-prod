@@ -4922,7 +4922,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     temp_dict["shippingMethod"] = unit_order_objs.filter(order=order_obj)[0].shipping_method
-                    temp_dict["currentStatus"] = unit_order_objs.filter(order=order_obj)[0].current_status_admin
+
+                    if partially_cancelled_by_user==True:
+                        temp_dict["currentStatus"] = unit_order_objs.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
+                    else:
+                        temp_dict["currentStatus"] = unit_order_objs.filter(order=order_obj)[0].current_status_admin
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
