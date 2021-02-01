@@ -41,6 +41,29 @@ def get_actual_price(dealshub_product_obj):
         return dealshub_product_obj.promotional_price
     return dealshub_product_obj.now_price
 
+def get_product_promotion_details(dealshub_product_obj):
+    data = {}
+    data["is_promotional"] = dealshub_product_obj.promotion!=None
+    data["product_is_promotional"] = dealshub_product_obj.is_promotional
+    if dealshub_product_obj.promotion!=None and check_valid_promotion(dealshub_product_obj.promotion):
+        data["start_time"] = str(dealshub_product_obj.promotion.start_time)[:19]
+        data["end_time"] = str(dealshub_product_obj.promotion.end_time)[:19]
+        now_time = datetime.datetime.now()
+        total_seconds = (timezone.localtime(promotion_obj.end_time).replace(tzinfo=None) - now_time).total_seconds()
+        data["remaining_time"] = {
+            "days": int(total_seconds/(3600*24)),
+            "hours": int(total_seconds/3600)%24,
+            "minutes": int(total_seconds/60)%60,
+            "seconds": int(total_seconds)%60
+        }
+        data["promotion_tag"] = str(dealshub_product_obj.promotion.promotion_tag)
+    else:
+        data["remaining_time"] = {}
+        data["start_time"] = None
+        data["end_time"] = None
+        data["promotion_tag"] = None
+    return data
+
 def calc_response_signature(PASS, data):
     try:
         keys = list(data.keys())
