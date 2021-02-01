@@ -445,6 +445,14 @@ class DealsHubProduct(models.Model):
             except Exception as e:
                 pass
         
+        #index product on elasticsearch
+        try:
+            p1 = threading.Thread(target=index_on_elasticsearch, args = (self,))
+            p1.start()
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DealsHubProduct Save Method: %s at %s", e, str(exc_tb.tb_lineno))
+
         super(DealsHubProduct, self).save(*args, **kwargs)
 
 
