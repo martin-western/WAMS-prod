@@ -5207,12 +5207,14 @@ class SetShippingMethodAPI(APIView):
                 "ken jardene": "5550",
                 "younglife": "5000",
                 "para john" : "6000",
+                "parry life" : "6000",
                 "delcasa": "3050"
             }
 
             sap_info_render = []
             
             wigme_website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
+            """
             if order_obj.location_group.website_group==wigme_website_group_obj and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
 
                 user_input_requirement = {}
@@ -5355,7 +5357,7 @@ class SetShippingMethodAPI(APIView):
                             unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                             unit_order_obj.sap_status = "In GRN"
                             unit_order_obj.save()
-                        
+            """            
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                 set_shipping_method(unit_order_obj, shipping_method)
 
@@ -5409,6 +5411,7 @@ class ResendSAPOrderAPI(APIView):
                 "ken jardene": "5550",
                 "younglife": "5000",
                 "para john" : "6000",
+                "parry life" : "6000",
                 "delcasa": "3050"
             }
 
