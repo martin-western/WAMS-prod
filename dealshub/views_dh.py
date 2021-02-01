@@ -1976,7 +1976,8 @@ class FetchOrderVersionDetailsAPI(APIView):
             for version_order_obj in version_order_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = version_order_obj.uuid
-                temp_dict["timestamp"] = version_order_obj.timestamp
+                temp_dict["date"] = str(timezone.localtime(version_order_obj.timestamp).strftime("%d %b, %Y"))
+                temp_dict["time"] = str(timezone.localtime(version_order_obj.timestamp).strftime("%I:%M %p"))
                 if version_order_obj.user!=None:
                     temp_dict["user"] = version_order_obj.user.username
                 temp_dict["change_info"] = json.loads(version_order_obj.change_information)
