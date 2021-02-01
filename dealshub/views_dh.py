@@ -4869,20 +4869,20 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["paymentMode"] = order_obj.payment_mode
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
-                    cancel_status = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
+                    cancel_status = UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled").exists()
                     temp_dict["cancelStatus"] = cancel_status
                     temp_dict["cancelled_by_user"] = False
                     unit_order_count = UnitOrder.objects.filter(order=order_obj).count()
-                    if unit_order_objs.filter(order=order_obj, cancelled_by_user=True).count() == unit_order_count:
+                    if UnitOrder.objects.filter(order=order_obj, cancelled_by_user=True).count() == unit_order_count:
                         temp_dict["cancelled_by_user"] = True
                     temp_dict["partially_cancelled_by_user"] = False
-                    if temp_dict["cancelled_by_user"]==False and unit_order_objs.filter(order=order_obj, cancelled_by_user=True).exists():
+                    if temp_dict["cancelled_by_user"]==False and UnitOrder.objects.filter(order=order_obj, cancelled_by_user=True).exists():
                         temp_dict["partially_cancelled_by_user"] = True
                     cancelling_note = ""
-                    if cancel_status==True and unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
-                        cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
+                    if cancel_status==True and UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
+                        cancelling_note = UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
                     temp_dict["cancelling_note"] = cancelling_note
-                    temp_dict["cancellation_request_action_taken"] = unit_order_objs.filter(order=order_obj, cancellation_request_action_taken=True).exists()
+                    temp_dict["cancellation_request_action_taken"] = UnitOrder.objects.filter(order=order_obj, cancellation_request_action_taken=True).exists()
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
@@ -4921,8 +4921,12 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["bundleId"] = order_obj.bundleid
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
-                    temp_dict["shippingMethod"] = unit_order_objs.filter(order=order_obj)[0].shipping_method
-                    temp_dict["currentStatus"] = unit_order_objs.filter(order=order_obj)[0].current_status_admin
+                    temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[0].shipping_method
+
+                    if partially_cancelled_by_user==True:
+                        temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
+                    else:
+                        temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
@@ -4934,7 +4938,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     unit_order_list = []
                     subtotal = 0
-                    for unit_order_obj in unit_order_objs.filter(order=order_obj):
+                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                         temp_dict2 = {}
                         temp_dict2["orderId"] = unit_order_obj.orderid
                         temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
@@ -4983,10 +4987,10 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     temp_dict["sapStatus"] = order_obj.sap_status
                     sap_warning_list = ["GRN Conflict", "Failed"]
-                    sap_warning = True if order_obj.sap_status=="Manual" or unit_order_objs.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
+                    sap_warning = True if order_obj.sap_status=="Manual" or UnitOrder.objects.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
                     temp_dict["showSapWarning"] = sap_warning
 
-                    temp_dict["showResendSAPOrder"] = True if unit_order_objs.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
+                    temp_dict["showResendSAPOrder"] = True if UnitOrder.objects.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
 
                     subtotal = order_obj.get_subtotal()
                     subtotal_vat = order_obj.get_subtotal_vat()
