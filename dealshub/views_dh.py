@@ -5206,6 +5206,7 @@ class SetShippingMethodAPI(APIView):
                 "ken jardene": "5550",
                 "younglife": "5000",
                 "para john" : "6000",
+                "parry life" : "6000",
                 "delcasa": "3050"
             }
 
@@ -5408,6 +5409,7 @@ class ResendSAPOrderAPI(APIView):
                 "ken jardene": "5550",
                 "younglife": "5000",
                 "para john" : "6000",
+                "parry life" : "6000",
                 "delcasa": "3050"
             }
 
