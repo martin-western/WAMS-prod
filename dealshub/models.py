@@ -733,10 +733,10 @@ class Cart(models.Model):
             return self.location_group.delivery_fee
         return 0
 
-    def get_cod_charge(self, cod=False, offline=False):
-        if cod==True:
-            return float(self.offline_cod_charge) if offline==True else float(self.location_group.cod_charge)
-        return 0
+    def get_cod_charge(self, cod=True, offline=False):
+        if cod==False:
+            return 0
+        return float(self.offline_cod_charge) if offline==True else float(self.location_group.cod_charge)
 
     def get_total_amount(self, cod=False, offline=False, delivery_fee_calculate=True):
         subtotal = self.get_subtotal(offline=offline)
