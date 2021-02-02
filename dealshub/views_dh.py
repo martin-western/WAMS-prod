@@ -5207,11 +5207,11 @@ class SetShippingMethodAPI(APIView):
             sap_info_render = []
             
             wigme_website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-            if order_obj.location_group.website_group==wigme_website_group_obj and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+            if order_obj.location_group.website_group==wigme_website_group_obj and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
 
                 user_input_requirement = {}
                 
-                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
                     company_code = brand_company_dict[brand_name.lower()]
@@ -5231,7 +5231,7 @@ class SetShippingMethodAPI(APIView):
                     
                     modal_info_list = []
                     
-                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
                         company_code = brand_company_dict[brand_name.lower()]
@@ -5253,7 +5253,7 @@ class SetShippingMethodAPI(APIView):
 
                 # [ List pf Querysets of (UnitOrder Objects grouped by Brand) ]
 
-                unit_order_objs = UnitOrder.objects.filter(order=order_obj)
+                unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
 
                 if unit_order_objs.filter(grn_filename="").exists():
 
@@ -5350,7 +5350,7 @@ class SetShippingMethodAPI(APIView):
                             unit_order_obj.sap_status = "In GRN"
                             unit_order_obj.save()
                 
-            for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+            for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                 set_shipping_method(unit_order_obj, shipping_method)
 
             omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
@@ -5414,7 +5414,7 @@ class ResendSAPOrderAPI(APIView):
 
                 user_input_requirement = {}
                 
-                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
                     company_code = brand_company_dict[brand_name.lower()]
@@ -5433,7 +5433,7 @@ class ResendSAPOrderAPI(APIView):
                     
                     modal_info_list = []
                     
-                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
                         company_code = brand_company_dict[brand_name.lower()]
@@ -5455,7 +5455,7 @@ class ResendSAPOrderAPI(APIView):
 
                 # [ List pf Querysets of (UnitOrder Objects grouped by Brand) ]
 
-                unit_order_objs = UnitOrder.objects.filter(order=order_obj)
+                unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
 
                 if unit_order_objs.filter(grn_filename="").exists():
 
@@ -5575,7 +5575,7 @@ class UpdateManualOrderAPI(APIView):
             order_obj.sap_status = "Success"
             order_obj.save()
 
-            unit_order_objs = UnitOrder.objects.filter(order=order_obj)
+            unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
             unit_order_objs.update(sap_status="GRN Done")
             
             response["status"] = 200
