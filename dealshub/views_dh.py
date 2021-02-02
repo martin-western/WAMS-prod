@@ -4866,11 +4866,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
-            total_revenue = order_objs.aggregate(Sum('to_pay'))["to_pay__sum"]
+            total_revenue = order_objs.aggregate(Sum('real_to_pay'))["real_to_pay__sum"]
             if total_revenue==None:
                 total_revenue = 0
             total_revenue = round(total_revenue, 2)
-            total_sales = order_objs.aggregate(Sum('to_pay'))["to_pay__sum"]
+            total_sales = order_objs.aggregate(Sum('real_to_pay'))["real_to_pay__sum"]
             total_sales = 0 if total_sales==None else round(total_sales, 2)
             order_list =  list(order_objs)
             # exclusive of cancelled orders
