@@ -1922,17 +1922,6 @@ class FetchOrderDetailsAPI(APIView):
 
                 temp_dict["UnitOrderStatusList"] = unit_order_status_list
                 unit_order_list.append(temp_dict)
-
-            version_order_list = []
-            version_order_objs = VersionOrder.objects.filter(order=order_obj).order_by('-pk')
-            for version_order_obj in version_order_objs:
-                temp_dict = {}
-                temp_dict["uuid"] = version_order_obj.uuid
-                temp_dict["timestamp"] = version_order_obj.timestamp
-                if version_order_obj.user!=None:
-                    temp_dict["user"] = version_order_obj.user.username
-                temp_dict["change_info"] = version_order_obj.change_information
-                version_order_list.append(temp_dict) 
             
             subtotal = order_obj.get_subtotal()
             delivery_fee = order_obj.get_delivery_fee()
@@ -1948,7 +1937,6 @@ class FetchOrderDetailsAPI(APIView):
             response["toPay"] = str(to_pay)
             response["realToPay"] = str(real_to_pay)
 
-            response["versionOrderList"] = version_order_list
             response["unitOrderList"] = unit_order_list
             response["status"] = 200
 
