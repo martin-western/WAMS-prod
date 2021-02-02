@@ -619,8 +619,7 @@ class AddToOfflineCartAPI(APIView):
 
             update_cart_bill(cart_obj,offline=True)
 
-            subtotal = cart_obj.get_offline_subtotal()
-
+            subtotal = cart_obj.get_subtotal(offline=True)
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)
             vat = cart_obj.get_vat(offline=True)
@@ -628,7 +627,6 @@ class AddToOfflineCartAPI(APIView):
             delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
             total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
             vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
-
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -803,7 +801,7 @@ class FetchOfflineCartDetailsAPI(APIView):
 
             update_cart_bill(cart_obj,offline=True)
 
-            subtotal = cart_obj.get_offline_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=True)
 
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)
@@ -884,7 +882,7 @@ class UpdateCartDetailsAPI(APIView):
 
             cart_obj = unit_cart_obj.cart
 
-            subtotal = cart_obj.get_offline_subtotal() if is_order_offline==True else cart_obj.get_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=is_order_offline)
             
             delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
             total_amount = cart_obj.get_total_amount(offline=is_order_offline)
@@ -956,17 +954,17 @@ class UpdateOfflineCartDetailsAPI(APIView):
             cart_obj.offline_delivery_fee = offline_delivery_fee
             cart_obj.save()
 
-            update_cart_bill(cart_obj,offline=is_order_offline)
+            update_cart_bill(cart_obj,offline=is_order_offline, delivery_fee_calculate=False)
 
-            subtotal = cart_obj.get_offline_subtotal() if is_order_offline==True else cart_obj.get_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=is_order_offline)
             
-            delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
-            total_amount = cart_obj.get_total_amount(offline=is_order_offline)
-            vat = cart_obj.get_vat(offline=is_order_offline)
+            delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline, calculate=False)
+            total_amount = cart_obj.get_total_amount(offline=is_order_offline, delivery_fee_calculate=False)
+            vat = cart_obj.get_vat(offline=is_order_offline, delivery_fee_calculate=False)
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=is_order_offline)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=is_order_offline)
-            vat_with_cod = cart_obj.get_vat(cod=True, offline=is_order_offline)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=is_order_offline, calculate=False)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=is_order_offline, delivery_fee_calculate=False)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=is_order_offline, delivery_fee_calculate=False)
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -1174,7 +1172,7 @@ class RemoveFromCartAPI(APIView):
 
             update_cart_bill(cart_obj,offline=is_order_offline)
 
-            subtotal = cart_obj.get_offline_subtotal() if is_order_offline==True else cart_obj.get_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=is_order_offline)
             
             delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
             total_amount = cart_obj.get_total_amount(offline=is_order_offline)
@@ -5791,27 +5789,23 @@ class CancelOrdersAPI(APIView):
             unit_order_uuid_list = data["unitOrderUuidList"]
             cancelling_note = data["cancellingNote"]
 
-            order_cancel_success = True   
             order_obj = None
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
-                if unit_order_obj.current_status_admin not in ["pending", "approved", "delivery failed"]:
-                    order_cancel_success = False
                 cancel_order_admin(unit_order_obj, cancelling_note)
                 order_obj = unit_order_obj.order
-                
-            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)
-            order_cancel_information = {
-                "event" : "order_cancel",
-                "information" : {}
-            }
 
-            VersionOrder.objects.create(order=order_obj,
-                                        user= omnycomm_user,
-                                        change_information=json.dumps(order_cancel_information))
-            
-            if order_obj!=None and order_cancel_success:
-                order_obj.real_to_pay = 0
+            if order_obj!=None:
+
+                omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+                order_cancel_information = {
+                    "event" : "order_cancel",
+                    "information" : {}
+                }
+                VersionOrder.objects.create(order=order_obj,
+                                            user= omnycomm_user_obj,
+                                            change_information=json.dumps(order_cancel_information))
+                order_obj.real_to_pay = order_obj.get_total_amount(is_real=True)
                 order_obj.save()
 
             response["status"] = 200
@@ -5852,15 +5846,12 @@ class ApproveCancellationRequestAPI(APIView):
                     unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
-                unit_order_cancel_success = True
-                if unit_order_obj.current_status_admin not in ["pending", "approved", "delivery failed"]:
-                    unit_order_cancel_success = False
                 cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
-                if unit_order_cancel_success and unit_order_obj.order!=None:
-                    order_obj = unit_order_obj.order
-                    order_obj.real_to_pay = min(0,order_obj.real_to_pay - unit_order_obj.get_subtotal())
-                    order_obj.save()
-                    
+            
+            if unit_order_objs.exists():
+                order_obj = unit_order_objs[0].order
+                order_obj.real_to_pay = order_obj.get_total_amount(is_real=True)
+                order_obj.save()
 
             response['status'] = 200
 
@@ -6444,7 +6435,7 @@ class ApplyOfflineVoucherCodeAPI(APIView):
 
             update_cart_bill(cart_obj, offline=True)
 
-            subtotal = cart_obj.get_offline_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=True)
             
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)
@@ -6518,7 +6509,7 @@ class RemoveOfflineVoucherCodeAPI(APIView):
 
             update_cart_bill(cart_obj)
 
-            subtotal = cart_obj.get_offline_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=True)
             
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)

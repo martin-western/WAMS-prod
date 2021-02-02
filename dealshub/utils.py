@@ -168,13 +168,13 @@ def cancel_order_admin(unit_order_obj, cancelling_note):
         return
 
 
-def update_cart_bill(cart_obj,cod=False,offline=False):
+def update_cart_bill(cart_obj,cod=False,offline=False, delivery_fee_calculate=True):
     
-    cart_obj.to_pay = cart_obj.get_total_amount(cod=cod,offline=offline)
+    cart_obj.to_pay = cart_obj.get_total_amount(cod=cod,offline=offline, delivery_fee_calculate=delivery_fee_calculate)
 
     if cart_obj.voucher!=None:
         voucher_obj = cart_obj.voucher
-        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(cart_obj.get_offline_subtotal() if offline==True else cart_obj.get_subtotal())==False or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj):
+        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(cart_obj.get_subtotal(offline=offline))==False or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj):
             cart_obj.voucher = None
     cart_obj.save()
 
@@ -192,9 +192,9 @@ def update_fast_cart_bill(fast_cart_obj):
 
 def update_order_bill(order_obj):
     
-    order_obj.to_pay = order_obj.get_total_amount()
-    order_obj.real_to_pay = order_obj.get_total_amount()
     order_obj.delivery_fee = order_obj.get_delivery_fee_update()
+    order_obj.to_pay = order_obj.get_total_amount()
+    order_obj.real_to_pay = order_obj.get_total_amount(is_real=True)
     order_obj.save()
 
 

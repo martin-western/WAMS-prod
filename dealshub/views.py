@@ -5572,13 +5572,12 @@ class UpdateOrderChargesAPI(APIView):
                     }
                     VersionOrder.objects.create(order=order_obj, user=omnycomm_user_obj, change_information=json.dumps(cod_change_information))
                 order_obj.cod_charge = offline_cod_charge
-                order_obj.save()
                 order_obj.to_pay = order_obj.get_total_amount()
-                order_obj.real_to_pay = order_obj.get_total_amount()
+                order_obj.real_to_pay = order_obj.get_total_amount(is_real=True)
                 order_obj.save()
 
             response["toPay"] = order_obj.to_pay
-            response["vat"] = order_obj.get_vat()
+            response["vat"] = order_obj.get_vat(is_real=True)
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

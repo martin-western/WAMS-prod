@@ -709,53 +709,47 @@ class Cart(models.Model):
         self.modified_date = timezone.now()
         super(Cart, self).save(*args, **kwargs)
 
-    def get_subtotal(self):
+    def get_subtotal(self, offline=False):
         unit_cart_objs = UnitCart.objects.filter(cart=self)
         subtotal = 0
         for unit_cart_obj in unit_cart_objs:
-            subtotal += float(unit_cart_obj.product.get_actual_price_for_customer(self.owner))*float(unit_cart_obj.quantity)
-        return subtotal
-    
-    def get_offline_subtotal(self):
-        unit_cart_objs = UnitCart.objects.filter(cart=self)
-        subtotal = 0
-        for unit_cart_obj in unit_cart_objs:
-            subtotal += float(unit_cart_obj.offline_price)*float(unit_cart_obj.quantity)
+            if offline==True:
+                subtotal += float(unit_cart_obj.offline_price)*float(unit_cart_obj.quantity)
+            else:
+                subtotal += float(unit_cart_obj.product.get_actual_price_for_customer(self.owner))*float(unit_cart_obj.quantity)
         return subtotal
 
-    def get_delivery_fee(self, cod=False, offline=False):
-        subtotal = self.get_subtotal()
-        if offline==True:
-            subtotal = self.get_offline_subtotal()            
+    def get_delivery_fee(self, cod=False, offline=False, calculate=True):
+        if calculate==False:
+            return self.offline_delivery_fee
+        subtotal = self.get_subtotal(offline=offline)
         if subtotal==0:
             return 0
         if (self.location_group.is_voucher_allowed_on_cod==True or cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
-
-        if offline==True:
-            return self.offline_delivery_fee
-
         if subtotal < self.location_group.free_delivery_threshold:
             return self.location_group.delivery_fee
         return 0
 
-    def get_total_amount(self, cod=False, offline=False):
-        subtotal = self.get_subtotal()
-        if offline==True:
-            subtotal = self.get_offline_subtotal()            
+    def get_cod_charge(self, cod=False, offline=False):
+        if cod==True:
+            return float(self.offline_cod_charge) if offline==True else float(self.location_group.cod_charge)
+        return 0
+
+    def get_total_amount(self, cod=False, offline=False, delivery_fee_calculate=True):
+        subtotal = self.get_subtotal(offline=offline)
         if subtotal==0:
             return 0
         if (self.location_group.is_voucher_allowed_on_cod==True or cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
-        delivery_fee = self.get_delivery_fee(cod, offline)
-        if cod==True:
-            subtotal += float(self.offline_cod_charge) if offline==True else float(self.location_group.cod_charge)
-        return round(subtotal+delivery_fee, 2)
+        delivery_fee = self.get_delivery_fee(cod=cod, offline=offline, calculate=delivery_fee_calculate)
+        cod_charge = self.get_cod_charge(cod=cod, offline=offline)
+        return round(subtotal+delivery_fee+cod_charge, 2)
 
-    def get_vat(self, cod=False, offline=False):
-        total_amount = self.get_total_amount(cod, offline)
+    def get_vat(self, cod=False, offline=False, delivery_fee_calculate=True):
+        total_amount = self.get_total_amount(cod=cod, offline=offline, delivery_fee_calculate=delivery_fee_calculate)
         if self.location_group.vat==0:
             return 0
         vat_divider = 1+(self.location_group.vat/100)
@@ -876,8 +870,10 @@ class Order(models.Model):
     def get_currency(self):
         return str(self.location_group.location.currency)
 
-    def get_subtotal(self):
+    def get_subtotal(self, is_real=False):
         unit_order_objs = UnitOrder.objects.filter(order=self)
+        if is_real==True:
+            unit_order_objs = unit_order_objs.exclude(current_status_admin="cancelled")
         subtotal = 0
         for unit_order_obj in unit_order_objs:
             subtotal += float(unit_order_obj.price)*float(unit_order_obj.quantity)
@@ -938,16 +934,16 @@ class Order(models.Model):
         vat_divider = 1+(self.location_group.vat/100)
         return str(round(cod_fee/vat_divider, 2))
 
-    def get_total_amount(self):
-        subtotal = self.get_subtotal()
+    def get_total_amount(self, is_real=False):
+        subtotal = self.get_subtotal(is_real)
         if self.voucher!=None:
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee()
         cod_charge = self.get_cod_charge()
         return round(subtotal+delivery_fee+cod_charge, 2)
 
-    def get_vat(self):
-        total_amount = self.get_total_amount()
+    def get_vat(self, is_real=False):
+        total_amount = self.get_total_amount(is_real=is_real)
         if self.location_group.vat==0:
             return 0
         vat_divider = 1+(self.location_group.vat/100)
