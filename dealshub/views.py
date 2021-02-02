@@ -5548,9 +5548,29 @@ class UpdateOrderChargesAPI(APIView):
             offline_cod_charge = float(data["offline_cod_charge"])
             offline_delivery_fee = float(data["offline_delivery_fee"])
 
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+
             order_obj = Order.objects.get(uuid=order_uuid)
             if order_obj.is_order_offline==True:
+                if order_obj.delivery_fee != offline_delivery_fee:
+                    delivery_change_information = {
+                        "event": "update_delivery_fee",
+                        "information": {
+                            "old_delivery_fee": order_obj.delivery_fee,
+                            "new_delivery_fee": offline_delivery_fee
+                        }
+                    }
+                    VersionOrder.objects.create(order=order_obj, user=omnycomm_user_obj, change_information=json.dumps(delivery_change_information))
                 order_obj.delivery_fee = offline_delivery_fee
+                if order_obj.cod_charge != offline_cod_charge:
+                    cod_change_information = {
+                        "event": "update_cod_charge",
+                        "information": {
+                            "old_cod_charge": order_obj.cod_charge,
+                            "new_cod_charge": offline_cod_charge
+                        }
+                    }
+                    VersionOrder.objects.create(order=order_obj, user=omnycomm_user_obj, change_information=json.dumps(cod_change_information))
                 order_obj.cod_charge = offline_cod_charge
                 order_obj.save()
                 order_obj.to_pay = order_obj.get_total_amount()
