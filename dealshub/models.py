@@ -733,7 +733,7 @@ class Cart(models.Model):
             return self.location_group.delivery_fee
         return 0
 
-    def get_cod_charge(self, cod=True, offline=False):
+    def get_cod_charge(self, cod=False, offline=False):
         if cod==False:
             return 0
         return float(self.offline_cod_charge) if offline==True else float(self.location_group.cod_charge)

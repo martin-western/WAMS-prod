@@ -617,7 +617,7 @@ class AddToOfflineCartAPI(APIView):
                                                         quantity=quantity,
                                                         offline_price=dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj))
 
-            update_cart_bill(cart_obj,offline=True)
+            update_cart_bill(cart_obj,cod=True,offline=True)
 
             subtotal = cart_obj.get_subtotal(offline=True)
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
@@ -799,7 +799,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
-            update_cart_bill(cart_obj,offline=True)
+            update_cart_bill(cart_obj,cod=True,offline=True)
 
             subtotal = cart_obj.get_subtotal(offline=True)
 
@@ -878,7 +878,11 @@ class UpdateCartDetailsAPI(APIView):
                 unit_cart_obj.offline_price = offline_price
             unit_cart_obj.save()
 
-            update_cart_bill(unit_cart_obj.cart,offline=is_order_offline)
+            cod=False
+            if is_order_offline==True:
+                cod=True
+
+            update_cart_bill(unit_cart_obj.cart,cod=cod,offline=is_order_offline)
 
             cart_obj = unit_cart_obj.cart
 
@@ -954,7 +958,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
             cart_obj.offline_delivery_fee = offline_delivery_fee
             cart_obj.save()
 
-            update_cart_bill(cart_obj,offline=is_order_offline, delivery_fee_calculate=False)
+            update_cart_bill(cart_obj,cod=True,offline=is_order_offline, delivery_fee_calculate=False)
 
             subtotal = cart_obj.get_subtotal(offline=is_order_offline)
             
@@ -1170,7 +1174,11 @@ class RemoveFromCartAPI(APIView):
             cart_obj = unit_cart_obj.cart
             unit_cart_obj.delete()
 
-            update_cart_bill(cart_obj,offline=is_order_offline)
+            cod = False
+            if is_order_offline==True:
+                cod = True
+
+            update_cart_bill(cart_obj,cod=cod,offline=is_order_offline)
 
             subtotal = cart_obj.get_subtotal(offline=is_order_offline)
             
@@ -6424,7 +6432,7 @@ class ApplyOfflineVoucherCodeAPI(APIView):
             cart_obj.voucher = voucher_obj
             cart_obj.save()
 
-            update_cart_bill(cart_obj, offline=True)
+            update_cart_bill(cart_obj,cod=True,offline=True)
 
             subtotal = cart_obj.get_subtotal(offline=True)
             
@@ -6498,7 +6506,7 @@ class RemoveOfflineVoucherCodeAPI(APIView):
             cart_obj.voucher = None
             cart_obj.save()
 
-            update_cart_bill(cart_obj)
+            update_cart_bill(cart_obj,cod=True,offline=True)
 
             subtotal = cart_obj.get_subtotal(offline=True)
             
