@@ -1600,19 +1600,8 @@ class PlaceOfflineOrderAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
-            update_cart_bill(cart_obj,cod=True,offline=True)
-
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
-
-            # Check if COD is allowed
-            # is_cod_allowed = True
-            # if is_cod_allowed==False:
-            #     response["status"] = 403
-            #     logger.error("PlaceOfflineOrderAPI: COD not allowed!")
-            #     return Response(data=response)
-
-            #cart_obj.to_pay += cart_obj.offline_cod_charge
-            cart_obj.save()
+            
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
             order_obj = Order.objects.create(owner=cart_obj.owner,
