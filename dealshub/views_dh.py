@@ -5657,7 +5657,7 @@ class SetOrdersStatusBulkAPI(APIView):
             for order_uuid in order_uuid_list:
                 try:
                     order_obj = Order.objects.get(uuid=order_uuid)
-                    for unit_order_obj in UnitOrder.objects.get(order=order_obj):
+                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                         set_order_status(unit_order_obj, order_status)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
