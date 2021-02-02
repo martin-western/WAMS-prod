@@ -4033,6 +4033,7 @@ class UpdateReviewAdminAPI(APIView):
                 review_content_obj.save()
             
             image_count = int(data.get("image_count", 0))
+            review_content_obj.images.clear()
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
                 review_content_obj.images.add(image_obj)
