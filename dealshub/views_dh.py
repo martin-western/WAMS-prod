@@ -4134,6 +4134,13 @@ class AddAdminCommentAPI(APIView):
                 response["status"] = 403
                 return Response(data=response)
 
+            if comment.strip()=="":
+                review_content_obj = review_obj.content 
+                review_content_obj.admin_comment = None
+                review_content_obj.save()
+                response["status"] = 200
+                return Response(data=response)
+            
             admin_comment_obj = None
             if review_obj.content.admin_comment!=None:
                 admin_comment_obj = review_obj.content.admin_comment
