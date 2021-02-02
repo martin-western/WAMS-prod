@@ -7,6 +7,7 @@ BRAND_COMPANY_DICT = {
     "ken jardene": "5550",
     "younglife": "5000",
     "para john" : "6000",
+    "parry life" : "6000",
     "delcasa": "3050"
 }
 

@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^add-product-to-section/$', views.AddProductToSection),
     url(r'^delete-product-from-section/$', views.DeleteProductFromSection),
 
+    url(r'^fetch-nested-banners/$', views.FetchNestedBanners),
     url(r'^fetch-banner-types/$', views.FetchBannerTypes),
     url(r'^create-banner/$', views.CreateBanner),
     url(r'^update-banner-name/$', views.UpdateBannerName),
@@ -109,17 +110,20 @@ urlpatterns = [
     url(r'^checkout/select-payment-mode/$', views.SelectPaymentMode),
     url(r'^checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),
     url(r'^checkout/place-order/$', views.PlaceOrder),
+    url(r'^checkout/place-daycart-online-order/$', views.PlaceDaycartOnlineOrder),
     url(r'^checkout/place-offline-order/$',views.PlaceOfflineOrder),
     url(r'^checkout/place-online-order/$',views.PlaceOnlineOrder),
     url(r'^checkout/cancel-order/$', views.CancelOrder),
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^order/fetch-order-details/$', views.FetchOrderDetails),
+    url(r'^order/fetch-order-version-details/$', views.FetchOrderVersionDetails),
     url(r'^order/create-unit-order-cancellation-request/$', views.CreateUnitOrderCancellationRequest),
     url(r'^order/create-order-cancellation-request/$', views.CreateOrderCancellationRequest),
 
     url(r'^payment/fetch-token-request-parameters/$', views.FetchTokenRequestParameters),
     url(r'^payment/make-purchase-request/$', views.MakePurchaseRequest),
+    url(r'^payment/request-hyperpay-checkout/$', views.RequestHyperpayCheckout),
     # url(r'^payment/fetch-installment-plans/$', views.FetchInstallmentPlans),
     # url(r'^payment/make-purchase-request-installment/$', views.MakePurchaseRequestInstallment),
 
@@ -139,11 +143,13 @@ urlpatterns = [
 
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
 
+    url(r'^fetch-order-sales-analytics/$', views.FetchOrderSalesAnalytics),
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
     url(r'^resend-sap-order/$', views.ResendSAPOrder),
     url(r'^update-manual-order/$', views.UpdateManualOrder),
     url(r'^set-orders-status/$', views.SetOrdersStatus),
+    url(r'^set-orders-status-bulk/$', views.SetOrdersStatusBulk),
     url(r'^update-order-status/$', views.UpdateOrderStatus),
     url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
@@ -229,6 +235,7 @@ urlpatterns = [
     url(r'^update-location-group-settings/$',views.UpdateLocationGroupSettings),
 
     url(r'^add-product-to-order/$',views.AddProductToOrder),
+    url(r'^update-order-charges/$',views.UpdateOrderCharges),
 
     url(r'^notify-order-status/$',views.NotifyOrderStatus),
     url(r'^fetch-logix-shipping-status/$', views.FetchLogixShippingStatus),

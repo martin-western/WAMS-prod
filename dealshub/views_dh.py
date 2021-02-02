@@ -15,6 +15,7 @@ from WAMSApp.constants import *
 from WAMSApp.utils import *
 from WAMSApp.utils_SAP_Integration import *
 from dealshub.network_global_integration import *
+from dealshub.hyperpay_integration import *
 from dealshub.postaplus import *
 
 from django.core.paginator import Paginator
@@ -22,7 +23,8 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.utils import timezone
 
-from datetime import datetime
+#from datetime import datetime
+import datetime
 
 from WAMSApp.utils_SAP_Integration import *
 
@@ -615,10 +617,9 @@ class AddToOfflineCartAPI(APIView):
                                                         quantity=quantity,
                                                         offline_price=dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj))
 
-            update_cart_bill(cart_obj,offline=True)
+            update_cart_bill(cart_obj,cod=True,offline=True)
 
-            subtotal = cart_obj.get_offline_subtotal()
-
+            subtotal = cart_obj.get_subtotal(offline=True)
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)
             vat = cart_obj.get_vat(offline=True)
@@ -626,7 +627,6 @@ class AddToOfflineCartAPI(APIView):
             delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
             total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
             vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
-
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -799,9 +799,9 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
-            update_cart_bill(cart_obj,offline=True)
+            update_cart_bill(cart_obj,cod=True,offline=True)
 
-            subtotal = cart_obj.get_offline_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=True)
 
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)
@@ -878,11 +878,15 @@ class UpdateCartDetailsAPI(APIView):
                 unit_cart_obj.offline_price = offline_price
             unit_cart_obj.save()
 
-            update_cart_bill(unit_cart_obj.cart,offline=is_order_offline)
+            cod=False
+            if is_order_offline==True:
+                cod=True
+
+            update_cart_bill(unit_cart_obj.cart,cod=cod,offline=is_order_offline)
 
             cart_obj = unit_cart_obj.cart
 
-            subtotal = cart_obj.get_offline_subtotal() if is_order_offline==True else cart_obj.get_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=is_order_offline)
             
             delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
             total_amount = cart_obj.get_total_amount(offline=is_order_offline)
@@ -954,17 +958,17 @@ class UpdateOfflineCartDetailsAPI(APIView):
             cart_obj.offline_delivery_fee = offline_delivery_fee
             cart_obj.save()
 
-            update_cart_bill(cart_obj,offline=is_order_offline)
+            update_cart_bill(cart_obj,cod=True,offline=is_order_offline, delivery_fee_calculate=False)
 
-            subtotal = cart_obj.get_offline_subtotal() if is_order_offline==True else cart_obj.get_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=is_order_offline)
             
-            delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
-            total_amount = cart_obj.get_total_amount(offline=is_order_offline)
-            vat = cart_obj.get_vat(offline=is_order_offline)
+            delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline, calculate=False)
+            total_amount = cart_obj.get_total_amount(offline=is_order_offline, delivery_fee_calculate=False)
+            vat = cart_obj.get_vat(offline=is_order_offline, delivery_fee_calculate=False)
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=is_order_offline)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=is_order_offline)
-            vat_with_cod = cart_obj.get_vat(cod=True, offline=is_order_offline)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=is_order_offline, calculate=False)
+            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=is_order_offline, delivery_fee_calculate=False)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=is_order_offline, delivery_fee_calculate=False)
 
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
@@ -991,7 +995,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.offline_cod_charge if is_order_offline==True else cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.get_cod_charge(offline=is_order_offline),
                 "is_voucher_applied": is_voucher_applied,
                 "voucher_discount": voucher_discount,
                 "voucher_code": voucher_code
@@ -1170,9 +1174,13 @@ class RemoveFromCartAPI(APIView):
             cart_obj = unit_cart_obj.cart
             unit_cart_obj.delete()
 
-            update_cart_bill(cart_obj,offline=is_order_offline)
+            cod = False
+            if is_order_offline==True:
+                cod = True
 
-            subtotal = cart_obj.get_offline_subtotal() if is_order_offline==True else cart_obj.get_subtotal()
+            update_cart_bill(cart_obj,cod=cod,offline=is_order_offline)
+
+            subtotal = cart_obj.get_subtotal(offline=is_order_offline)
             
             delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
             total_amount = cart_obj.get_total_amount(offline=is_order_offline)
@@ -1275,6 +1283,8 @@ class SelectOfflineAddressAPI(APIView):
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
             
             cart_obj.shipping_address = address_obj
+            cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
+            cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
             cart_obj.save()
 
             response["status"] = 200
@@ -1464,6 +1474,7 @@ class PlaceOrderAPI(APIView):
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
                                                  to_pay=cart_obj.to_pay,
+                                                 real_to_pay=cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
                                                  location_group=cart_obj.location_group,
@@ -1519,6 +1530,7 @@ class PlaceOrderAPI(APIView):
                 order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
                                                  to_pay=fast_cart_obj.to_pay,
+                                                 real_to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
                                                  location_group=fast_cart_obj.location_group,
@@ -1596,24 +1608,14 @@ class PlaceOfflineOrderAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
-            update_cart_bill(cart_obj,cod=True,offline=True)
-
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
-
-            # Check if COD is allowed
-            # is_cod_allowed = True
-            # if is_cod_allowed==False:
-            #     response["status"] = 403
-            #     logger.error("PlaceOfflineOrderAPI: COD not allowed!")
-            #     return Response(data=response)
-
-            #cart_obj.to_pay += cart_obj.offline_cod_charge
-            cart_obj.save()
+            
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
             order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
                                              to_pay=cart_obj.to_pay,
+                                             real_to_pay=cart_obj.to_pay,
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
                                              reference_medium= cart_obj.reference_medium,
@@ -1853,6 +1855,7 @@ class FetchOrderDetailsAPI(APIView):
                 enable_order_edit = True
 
             response["enableOrderEdit"] = enable_order_edit
+            response["is_order_offline"] = order_obj.is_order_offline
             response["bundleId"] = order_obj.bundleid 
             response["dateCreated"] = order_obj.get_date_created()
             response["paymentMode"] = order_obj.payment_mode
@@ -1895,6 +1898,7 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["price"] = unit_order_obj.price
                 temp_dict["currency"] = unit_order_obj.product.get_currency()
                 temp_dict["productName"] = unit_order_obj.product.get_name(language_code)
+                temp_dict["productNameAr"] = unit_order_obj.product.get_name("ar")
                 temp_dict["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                 temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
                 temp_dict["productId"] = unit_order_obj.product.get_product_id()
@@ -1915,11 +1919,12 @@ class FetchOrderDetailsAPI(APIView):
 
                 temp_dict["UnitOrderStatusList"] = unit_order_status_list
                 unit_order_list.append(temp_dict)
-
+            
             subtotal = order_obj.get_subtotal()
             delivery_fee = order_obj.get_delivery_fee()
             cod_fee = order_obj.get_cod_charge()
             to_pay = order_obj.to_pay
+            real_to_pay = order_obj.real_to_pay
             vat = order_obj.get_vat()
 
             response["subtotal"] = str(subtotal)
@@ -1927,6 +1932,7 @@ class FetchOrderDetailsAPI(APIView):
             response["codFee"] = str(cod_fee)
             response["vat"] = str(vat)
             response["toPay"] = str(to_pay)
+            response["realToPay"] = str(real_to_pay)
 
             response["unitOrderList"] = unit_order_list
             response["status"] = 200
@@ -1938,6 +1944,37 @@ class FetchOrderDetailsAPI(APIView):
         return Response(data=response)
 
 
+class FetchOrderVersionDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOrderVersionDetails: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            order_uuid = data["uuid"]
+            order_obj = Order.objects.get(uuid=order_uuid)
+            version_order_list = []
+            version_order_objs = VersionOrder.objects.filter(order=order_obj).order_by('-pk')
+            for version_order_obj in version_order_objs:
+                temp_dict = {}
+                temp_dict["uuid"] = version_order_obj.uuid
+                temp_dict["date"] = str(timezone.localtime(version_order_obj.timestamp).strftime("%d %b, %Y"))
+                temp_dict["time"] = str(timezone.localtime(version_order_obj.timestamp).strftime("%I:%M %p"))
+                if version_order_obj.user!=None:
+                    temp_dict["user"] = version_order_obj.user.username
+                temp_dict["change_info"] = json.loads(version_order_obj.change_information)
+                version_order_list.append(temp_dict)
+            response['status'] = 200
+            response['version_order_list'] = version_order_list
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrderVersionDetails: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+      
+      
 class CreateUnitOrderCancellationRequestAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2790,6 +2827,7 @@ class PaymentTransactionAPI(APIView):
                     order_obj = Order.objects.create(owner=cart_obj.owner, 
                                                      shipping_address=cart_obj.shipping_address,
                                                      to_pay=cart_obj.to_pay,
+                                                     real_to_pay=cart_obj.to_pay,
                                                      order_placed_date=timezone.now(),
                                                      voucher=cart_obj.voucher,
                                                      location_group=cart_obj.location_group,
@@ -2846,6 +2884,7 @@ class PaymentTransactionAPI(APIView):
                     order_obj = Order.objects.create(owner=fast_cart_obj.owner, 
                                                      shipping_address=fast_cart_obj.shipping_address,
                                                      to_pay=fast_cart_obj.to_pay,
+                                                     real_to_pay=fast_cart_obj.to_pay,
                                                      order_placed_date=timezone.now(),
                                                      voucher=fast_cart_obj.voucher,
                                                      location_group=fast_cart_obj.location_group,
@@ -3922,13 +3961,15 @@ class AddFakeReviewAdminAPI(APIView):
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
                 review_content_obj.images.add(image_obj)
+            
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
             review_obj = Review.objects.create(is_fake=True,
                                                product=dealshub_product_obj,
                                                rating=rating,
                                                content=review_content_obj,
                                                fake_customer_name=fake_customer_name,
-                                               fake_oc_user=request.user)
+                                               fake_oc_user=omnycomm_user_obj)
             
             response["uuid"] = review_obj.uuid
             response["review_content_uuid"] = review_content_obj.uuid
@@ -3956,7 +3997,6 @@ class UpdateReviewAdminAPI(APIView):
                 data = json.loads(data)
 
             review_uuid = str(data["review_uuid"])
-            product_code = str(data["product_code"])
             fake_customer_name = data.get("customerName","")
             rating = int(data["rating"])
             review_content = json.loads(data["review_content"])
@@ -3978,6 +4018,7 @@ class UpdateReviewAdminAPI(APIView):
                 review_content_obj.save()
             
             image_count = int(data.get("image_count", 0))
+            review_content_obj.images.clear()
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
                 review_content_obj.images.add(image_obj)
@@ -4078,6 +4119,13 @@ class AddAdminCommentAPI(APIView):
                 response["status"] = 403
                 return Response(data=response)
 
+            if comment.strip()=="":
+                review_content_obj = review_obj.content 
+                review_content_obj.admin_comment = None
+                review_content_obj.save()
+                response["status"] = 200
+                return Response(data=response)
+            
             admin_comment_obj = None
             if review_obj.content.admin_comment!=None:
                 admin_comment_obj = review_obj.content.admin_comment
@@ -4262,11 +4310,11 @@ class FetchReviewsAdminAPI(APIView):
 
             if from_date!="":
                 from_date = from_date[:10]+"T00:00:00+04:00"
-                review_objs = review_objs.filter(modified_date__gte=from_date)
+                review_objs = review_objs.filter(created_date__gte=from_date)
 
             if to_date!="":
                 to_date = to_date[:10]+"T23:59:59+04:00"
-                review_objs = review_objs.filter(modified_date__lte=to_date)
+                review_objs = review_objs.filter(created_date__lte=to_date)
             
             if category_uuid!="":
                 category_obj = Category.objects.get(uuid=category_uuid)
@@ -4295,7 +4343,7 @@ class FetchReviewsAdminAPI(APIView):
                 temp_dict["is_fake"] = review_obj.is_fake
                 temp_dict["is_published"] = review_obj.is_published
                 if review_obj.is_fake and review_obj.fake_oc_user!=None:
-                    temp_dict["fake_oc_user"] = review_obj.fake_oc_user
+                    temp_dict["fake_oc_user"] = review_obj.fake_oc_user.first_name
 
                 review_content_obj = review_obj.content   
 
@@ -4318,7 +4366,8 @@ class FetchReviewsAdminAPI(APIView):
                     image_url_list = []
                     for image_obj in image_objs:
                         try:
-                            image_url_list.append(image_obj.mid_image.url)
+                            if image_obj.mid_image!=None:
+                                image_url_list.append(image_obj.mid_image.url)
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
                             logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4395,7 +4444,7 @@ class FetchProductReviewsAPI(APIView):
                 admin_comment = None
                 if admin_comment_obj is not None:
                     admin_comment = {
-                        "username" : str(admin_comment_obj.username),
+                        "username" : str(admin_comment_obj.user.username),
                         "display_name" : str(admin_comment_obj.user.first_name+" "+admin_comment_obj.user.last_name),
                         "comment" : str(admin_comment_obj.comment),
                         "created_date" : str(timezone.localtime(admin_comment_obj.created_date).strftime("%d %b, %Y")),
@@ -4590,6 +4639,136 @@ class UpdateReviewPublishStatusAPI(APIView):
 
         return Response(data=response)
 
+class FetchOrderSalesAnalyticsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOrderSalesAnalyticsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+            misc = json.loads(custom_permission_obj.misc)
+            if "analytics" not in misc:
+                logger.warning("User does not have permission to view analytics!")
+                response["status"] = 403
+                return Response(data=response)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            order_objs = Order.objects.filter(location_group=location_group_obj)
+
+            # today's
+            today = str(datetime.date.today())[:10] + "T00:00:00+04:00"
+            yesterday = str(datetime.date.today() - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
+
+            today_order_objs = order_objs.filter(date_created__gt = today)
+            yesterday_order_objs = order_objs.filter(date_created__gt = yesterday, date_created__lt = today)
+
+            today_total_sales = today_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+            today_total_sales = 0 if today_total_sales==None else round(today_total_sales,2)
+            yesterdays_total_sales = yesterday_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+            yesterdays_total_sales = 0 if yesterdays_total_sales==None else round(yesterdays_total_sales,2)
+
+            # all orders except fully cancelled
+            today_order_list = list(today_order_objs)
+            today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            yesterday_order_list = list(yesterday_order_objs)
+            yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+
+            today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
+            yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
+            
+            today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+
+            today_pending_delivery = today_total_orders - today_done_delivery
+            yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
+
+            
+            # monthly
+            month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
+            prev_month_value = datetime.datetime.now().month-1
+            prev_year_value = datetime.datetime.now().year
+            if prev_month_value==0:
+                prev_month_value = 12
+                prev_year_value -= 1
+            prev_month = str(datetime.datetime.now().replace(year=prev_year_value, month=prev_month_value, day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
+
+            month_order_objs = order_objs.filter(date_created__gt = month)
+            prev_month_order_objs = order_objs.filter(date_created__gt = prev_month, date_created__lt = month)
+
+            month_total_sales = month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+            month_total_sales = 0 if month_total_sales==None else round(month_total_sales,2)
+            prev_month_total_sales = prev_month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+            prev_month_total_sales = 0 if prev_month_total_sales==None else round(prev_month_total_sales,2)
+
+            month_order_list = list(month_order_objs)
+            month_total_orders = UnitOrder.objects.filter(order__in=month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            prev_month_order_list = list(prev_month_order_objs)
+            prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+
+            month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
+            prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
+            
+            month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+
+            month_pending_delivery = month_total_orders - month_done_delivery
+            prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
+
+            days_in_month = float(datetime.datetime.now().day)
+
+            response["targets"] = {
+                "today_sales" : location_group_obj.today_sales_target,
+                "today_orders" : location_group_obj.today_orders_target,
+                "monthly_sales" : location_group_obj.monthly_sales_target,
+                "monthly_orders" : location_group_obj.monthly_orders_target
+            }
+            
+            response["todays"] = {
+                "sales" : today_total_sales,
+                "sales_delta" :  today_total_sales - yesterdays_total_sales,
+                "orders" : today_total_orders,
+                "orders_delta" : today_total_orders - yesterday_total_orders,
+                "avg_value" : today_avg_order_value,
+                "avg_value_delta" : today_avg_order_value - yesterday_avg_order_value,
+                "delivered": today_done_delivery,
+                "delivered_delta" : today_done_delivery - yesterday_done_delivery,
+                "pending" : today_pending_delivery,
+                "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
+                "percent_sales" : 0 if month_total_sales==0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
+                "percent_orders" : 0 if month_total_orders==0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
+                "percent_avg" : 0 if month_avg_order_value==0 else round(float(today_avg_order_value/month_avg_order_value)*100),
+                "percent_delivered" : 0 if month_done_delivery==0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
+                "percent_pending" : 0 if month_pending_delivery==0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100)
+            }
+            response["monthly"] = {
+                "sales" : month_total_sales,
+                "sales_delta" :  month_total_sales - prev_month_total_sales,
+                "orders" : month_total_orders,
+                "orders_delta" : month_total_orders - prev_month_total_orders,
+                "avg_value" : month_avg_order_value,
+                "avg_value_delta" : month_avg_order_value - prev_month_avg_order_value,
+                "delivered": month_done_delivery,
+                "delivered_delta" : month_done_delivery - prev_month_done_delivery,
+                "pending" : month_pending_delivery,
+                "pending_delta" : month_pending_delivery - prev_month_pending_delivery
+            }
+            response["currency"] : location_group_obj.location.currency
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrderSalesAnalyticsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 
 class FetchOrdersForWarehouseManagerAPI(APIView):
@@ -4691,6 +4870,15 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if total_revenue==None:
                 total_revenue = 0
             total_revenue = round(total_revenue, 2)
+            total_sales = order_objs.aggregate(Sum('to_pay'))["to_pay__sum"]
+            total_sales = 0 if total_sales==None else round(total_sales, 2)
+            order_list =  list(order_objs)
+            # exclusive of cancelled orders
+            real_total_orders = UnitOrder.objects.filter(order__in=order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            avg_order_value = 0 if real_total_orders==0 else round(float(total_sales/real_total_orders),2)
+            done_delivery_count = order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            pending_delivery_count = real_total_orders - done_delivery_count
+
             currency = location_group_obj.location.currency
 
             paginator = Paginator(order_objs, 20)
@@ -4717,20 +4905,20 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["paymentMode"] = order_obj.payment_mode
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
-                    cancel_status = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").exists()
+                    cancel_status = UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled").exists()
                     temp_dict["cancelStatus"] = cancel_status
                     temp_dict["cancelled_by_user"] = False
                     unit_order_count = UnitOrder.objects.filter(order=order_obj).count()
-                    if unit_order_objs.filter(order=order_obj, cancelled_by_user=True).count() == unit_order_count:
+                    if UnitOrder.objects.filter(order=order_obj, cancelled_by_user=True).count() == unit_order_count:
                         temp_dict["cancelled_by_user"] = True
                     temp_dict["partially_cancelled_by_user"] = False
-                    if temp_dict["cancelled_by_user"]==False and unit_order_objs.filter(order=order_obj, cancelled_by_user=True).exists():
+                    if temp_dict["cancelled_by_user"]==False and UnitOrder.objects.filter(order=order_obj, cancelled_by_user=True).exists():
                         temp_dict["partially_cancelled_by_user"] = True
                     cancelling_note = ""
-                    if cancel_status==True and unit_order_objs.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
-                        cancelling_note = unit_order_objs.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
+                    if cancel_status==True and UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
+                        cancelling_note = UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
                     temp_dict["cancelling_note"] = cancelling_note
-                    temp_dict["cancellation_request_action_taken"] = unit_order_objs.filter(order=order_obj, cancellation_request_action_taken=True).exists()
+                    temp_dict["cancellation_request_action_taken"] = UnitOrder.objects.filter(order=order_obj, cancellation_request_action_taken=True).exists()
                     temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
@@ -4769,8 +4957,12 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["bundleId"] = order_obj.bundleid
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
-                    temp_dict["shippingMethod"] = unit_order_objs.filter(order=order_obj)[0].shipping_method
-                    temp_dict["currentStatus"] = unit_order_objs.filter(order=order_obj)[0].current_status_admin
+                    temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[0].shipping_method
+
+                    if temp_dict["partially_cancelled_by_user"]==True:
+                        temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
+                    else:
+                        temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
@@ -4782,7 +4974,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     unit_order_list = []
                     subtotal = 0
-                    for unit_order_obj in unit_order_objs.filter(order=order_obj):
+                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                         temp_dict2 = {}
                         temp_dict2["orderId"] = unit_order_obj.orderid
                         temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
@@ -4798,6 +4990,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["total_price_without_vat"] = unit_order_obj.get_subtotal_without_vat()
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
+                        temp_dict2["productNameAr"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name("ar")
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
                         temp_dict2["intercompany_order_id"] = unit_order_obj.get_sap_intercompany_order_id()
                         temp_dict2["cancelled_by_user"] = unit_order_obj.cancelled_by_user
@@ -4830,10 +5023,10 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     temp_dict["sapStatus"] = order_obj.sap_status
                     sap_warning_list = ["GRN Conflict", "Failed"]
-                    sap_warning = True if order_obj.sap_status=="Manual" or unit_order_objs.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
+                    sap_warning = True if order_obj.sap_status=="Manual" or UnitOrder.objects.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
                     temp_dict["showSapWarning"] = sap_warning
 
-                    temp_dict["showResendSAPOrder"] = True if unit_order_objs.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
+                    temp_dict["showResendSAPOrder"] = True if UnitOrder.objects.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
 
                     subtotal = order_obj.get_subtotal()
                     subtotal_vat = order_obj.get_subtotal_vat()
@@ -4889,6 +5082,13 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             response["totalOrders"] = total_orders
             response["orderList"] = order_list
             response["totalRevenue"] = total_revenue
+            response["order_analytics"] = {
+                "sales" : total_sales,
+                "orders" : real_total_orders,
+                "avg_order_value" : avg_order_value,
+                "delivered_orders" : done_delivery_count,
+                "pending_orders" : pending_delivery_count
+            }
             response["currency"] = currency
             response["status"] = 200
 
@@ -5000,6 +5200,7 @@ class SetShippingMethodAPI(APIView):
                 "ken jardene": "5550",
                 "younglife": "5000",
                 "para john" : "6000",
+                "parry life" : "6000",
                 "delcasa": "3050"
             }
 
@@ -5148,9 +5349,22 @@ class SetShippingMethodAPI(APIView):
                             unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
                             unit_order_obj.sap_status = "In GRN"
                             unit_order_obj.save()
-                        
+                
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                 set_shipping_method(unit_order_obj, shipping_method)
+
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            order_status_change_information = {
+                "event": "order_status",
+                "information": {
+                    "old_status": "pending",
+                    "new_status": "approved"
+                }
+            }
+
+            VersionOrder.objects.create(order=order_obj,
+                                        user= omnycomm_user,
+                                        change_information=json.dumps(order_status_change_information))
 
             response["sap_info_render"] = sap_info_render
             response["status"] = 200
@@ -5189,6 +5403,7 @@ class ResendSAPOrderAPI(APIView):
                 "ken jardene": "5550",
                 "younglife": "5000",
                 "para john" : "6000",
+                "parry life" : "6000",
                 "delcasa": "3050"
             }
 
@@ -5387,16 +5602,64 @@ class SetOrdersStatusAPI(APIView):
 
             order_status = data["orderStatus"]
             unit_order_uuid_list = data["unitOrderUuidList"]
+            first_unit_order_obj  = UnitOrder.objects.get(uuid=unit_order_uuid_list[0])
 
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
                 set_order_status(unit_order_obj, order_status)
+               
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            order_status_change_information = {
+                "event": "order_status",
+                "information": {
+                    "old_status": first_unit_order_obj.current_status_admin,
+                    "new_status": order_status
+                }
+            }
+
+            VersionOrder.objects.create(order=first_unit_order_obj.order,
+                                        user= omnycomm_user,
+                                        change_information=json.dumps(order_status_change_information))
 
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SetOrdersStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SetOrdersStatusBulkAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SetOrdersStatusBulkAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_status = data["orderStatus"]
+            order_uuid_list = data["orderUuidList"]
+
+            for order_uuid in order_uuid_list:
+                try:
+                    order_obj = Order.objects.get(uuid=order_uuid)
+                    for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
+                        set_order_status(unit_order_obj, order_status)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("SetOrdersStatusBulkAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SetOrdersStatusBulkAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -5524,9 +5787,24 @@ class CancelOrdersAPI(APIView):
             unit_order_uuid_list = data["unitOrderUuidList"]
             cancelling_note = data["cancellingNote"]
 
+            order_obj = None
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
                 cancel_order_admin(unit_order_obj, cancelling_note)
+                order_obj = unit_order_obj.order
+
+            if order_obj!=None:
+
+                omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+                order_cancel_information = {
+                    "event" : "order_cancel",
+                    "information" : {}
+                }
+                VersionOrder.objects.create(order=order_obj,
+                                            user= omnycomm_user_obj,
+                                            change_information=json.dumps(order_cancel_information))
+                order_obj.real_to_pay = order_obj.get_total_amount(is_real=True)
+                order_obj.save()
 
             response["status"] = 200
 
@@ -5566,8 +5844,13 @@ class ApproveCancellationRequestAPI(APIView):
                     unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
-
                 cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
+            
+            if unit_order_objs.exists():
+                order_obj = unit_order_objs[0].order
+                order_obj.real_to_pay = order_obj.get_total_amount(is_real=True)
+                order_obj.save()
+
             response['status'] = 200
 
         except Exception as e:
@@ -5597,8 +5880,8 @@ class RejectCancellationRequestAPI(APIView):
                 unit_order_obj.user_cancellation_status = "rejected"
                 unit_order_obj.cancellation_request_action_taken = True
                 unit_order_obj.save()
-
-            notify_order_cancel_status_to_user(unit_order_obj,"rejected")
+                notify_order_cancel_status_to_user(unit_order_obj,"rejected")
+                
             response['status'] = 200
 
         except Exception as e:
@@ -6148,9 +6431,9 @@ class ApplyOfflineVoucherCodeAPI(APIView):
             cart_obj.voucher = voucher_obj
             cart_obj.save()
 
-            update_cart_bill(cart_obj, offline=True)
+            update_cart_bill(cart_obj,cod=True,offline=True)
 
-            subtotal = cart_obj.get_offline_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=True)
             
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)
@@ -6222,9 +6505,9 @@ class RemoveOfflineVoucherCodeAPI(APIView):
             cart_obj.voucher = None
             cart_obj.save()
 
-            update_cart_bill(cart_obj)
+            update_cart_bill(cart_obj,cod=True,offline=True)
 
-            subtotal = cart_obj.get_offline_subtotal()
+            subtotal = cart_obj.get_subtotal(offline=True)
             
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)
@@ -6406,6 +6689,177 @@ class FetchOrderAnalyticsParamsAPI(APIView):
         return Response(data=response)
 
 
+class PlaceDaycartOnlineOrderAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PlaceDaycartOnlineOrderAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            checkout_id = data["checkoutID"]
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            is_fast_cart = data.get("is_fast_cart", False)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+
+            order_obj = None
+            order_info = get_order_info_from_hyperpay(checkout_id, location_group_obj)
+            if order_info["result"]==False:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("PlaceDaycartOnlineOrderAPI: HYPERPAY STATUS MISMATCH!")
+                return Response(data=response)
+
+            if is_fast_cart==False:
+
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                update_cart_bill(cart_obj)
+
+                unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
+
+                try:
+                    voucher_obj = cart_obj.voucher
+                    if voucher_obj!=None:
+                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                            voucher_obj.total_usage += 1
+                            voucher_obj.save()
+                        else:
+                            cart_obj.voucher = None
+                            cart_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PlaceDaycartOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+
+                payment_info = "NA"
+                payment_mode = "NA"
+                try:
+                    payment_info = order_info["payment_info"]
+                    payment_mode = order_info["payment_info"]["paymentBrand"]
+                except Exception as e:
+                    pass
+
+                order_obj = Order.objects.create(owner=cart_obj.owner,
+                                                 shipping_address=cart_obj.shipping_address,
+                                                 to_pay=cart_obj.to_pay,
+                                                 order_placed_date=timezone.now(),
+                                                 voucher=cart_obj.voucher,
+                                                 location_group=cart_obj.location_group,
+                                                 payment_status="paid",
+                                                 payment_info=payment_info,
+                                                 payment_mode=payment_mode,
+                                                 merchant_reference=checkout_id,
+                                                 delivery_fee=cart_obj.get_delivery_fee(),
+                                                 cod_charge=0)
+
+                for unit_cart_obj in unit_cart_objs:
+                    unit_order_obj = UnitOrder.objects.create(order=order_obj,
+                                                              product=unit_cart_obj.product,
+                                                              quantity=unit_cart_obj.quantity,
+                                                              price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+                    UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+                # Cart gets empty
+                for unit_cart_obj in unit_cart_objs:
+                    unit_cart_obj.delete()
+
+                # cart_obj points to None
+                cart_obj.shipping_address = None
+                cart_obj.voucher = None
+                cart_obj.to_pay = 0
+                cart_obj.merchant_reference = ""
+                cart_obj.payment_info = "{}"
+                cart_obj.save()
+            else:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                try:
+                    if fast_cart_obj.shipping_address==None:
+                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        fast_cart_obj.shipping_address = address_obj
+                        fast_cart_obj.save()
+                except Exception as e:
+                    pass
+
+                update_fast_cart_bill(fast_cart_obj)
+
+                try:
+                    voucher_obj = cart_obj.voucher
+                    if voucher_obj!=None:
+                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                            voucher_obj.total_usage += 1
+                            voucher_obj.save()
+                        else:
+                            cart_obj.voucher = None
+                            cart_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PlaceDaycartOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+
+                payment_info = "NA"
+                payment_mode = "NA"
+                try:
+                    payment_info = order_info["payment_info"]
+                    payment_mode = order_info["payment_info"]["paymentBrand"]
+                except Exception as e:
+                    pass
+
+                order_obj = Order.objects.create(owner=fast_cart_obj.owner,
+                                                 shipping_address=fast_cart_obj.shipping_address,
+                                                 to_pay=fast_cart_obj.to_pay,
+                                                 order_placed_date=timezone.now(),
+                                                 voucher=fast_cart_obj.voucher,
+                                                 location_group=fast_cart_obj.location_group,
+                                                 payment_status="paid",
+                                                 payment_info=payment_info,
+                                                 payment_mode=payment_mode,
+                                                 merchant_reference=checkout_id,
+                                                 delivery_fee=fast_cart_obj.get_delivery_fee(),
+                                                 cod_charge=0)
+
+                unit_order_obj = UnitOrder.objects.create(order=order_obj,
+                                                          product=fast_cart_obj.product,
+                                                          quantity=fast_cart_obj.quantity,
+                                                          price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+                UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+                # cart_obj points to None
+                fast_cart_obj.shipping_address = None
+                fast_cart_obj.voucher = None
+                fast_cart_obj.to_pay = 0
+                fast_cart_obj.merchant_reference = ""
+                fast_cart_obj.payment_info = "{}"
+                fast_cart_obj.product = None
+                fast_cart_obj.save()
+
+            # Trigger Email
+            try:
+                p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                p1.start()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("PlaceDaycartOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            # Refresh Stock
+            #refresh_stock(order_obj)
+
+            #response["purchase"] = calculate_gtm(order_obj)
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PlaceDaycartOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class PlaceOnlineOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6466,6 +6920,7 @@ class PlaceOnlineOrderAPI(APIView):
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
                                                  to_pay=cart_obj.to_pay,
+                                                 real_to_pay = cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
                                                  location_group=cart_obj.location_group,
@@ -6534,6 +6989,7 @@ class PlaceOnlineOrderAPI(APIView):
                 order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
                                                  to_pay=fast_cart_obj.to_pay,
+                                                 real_to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
                                                  location_group=fast_cart_obj.location_group,
@@ -7114,6 +7570,8 @@ FetchOrderListAdmin = FetchOrderListAdminAPI.as_view()
 
 FetchOrderDetails = FetchOrderDetailsAPI.as_view()
 
+FetchOrderVersionDetails = FetchOrderVersionDetailsAPI.as_view()
+
 CreateOfflineCustomer = CreateOfflineCustomerAPI.as_view()
 
 UpdateOfflineUserProfile = UpdateOfflineUserProfileAPI.as_view()
@@ -7206,6 +7664,8 @@ HideReviewAdmin = HideReviewAdminAPI.as_view()
 
 UpdateReviewPublishStatus = UpdateReviewPublishStatusAPI.as_view()
 
+FetchOrderSalesAnalytics = FetchOrderSalesAnalyticsAPI.as_view()
+
 FetchOrdersForWarehouseManager = FetchOrdersForWarehouseManagerAPI.as_view()
 
 FetchShippingMethod = FetchShippingMethodAPI.as_view()
@@ -7217,6 +7677,8 @@ ResendSAPOrder = ResendSAPOrderAPI.as_view()
 UpdateManualOrder = UpdateManualOrderAPI.as_view()
 
 SetOrdersStatus = SetOrdersStatusAPI.as_view()
+
+SetOrdersStatusBulk = SetOrdersStatusBulkAPI.as_view()
 
 UpdateOrderStatus = UpdateOrderStatusAPI.as_view()
 
@@ -7251,6 +7713,8 @@ AddOnlineAdditionalNote = AddOnlineAdditionalNoteAPI.as_view()
 AddOfflineAdditionalNote = AddOfflineAdditionalNoteAPI.as_view()
 
 FetchOrderAnalyticsParams = FetchOrderAnalyticsParamsAPI.as_view()
+
+PlaceDaycartOnlineOrder = PlaceDaycartOnlineOrderAPI.as_view()
 
 PlaceOnlineOrder = PlaceOnlineOrderAPI.as_view()
 

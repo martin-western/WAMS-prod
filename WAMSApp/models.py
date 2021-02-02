@@ -227,6 +227,11 @@ class LocationGroup(models.Model):
     is_b2b = models.BooleanField(default = False)
     region_list = models.TextField(default="[]")
 
+    today_sales_target = models.FloatField(default=0)
+    monthly_sales_target = models.FloatField(default=0)
+    today_orders_target = models.IntegerField(default=0)
+    monthly_orders_target = models.IntegerField(default=0)
+
     def __str__(self):
         return str(self.name)
 
@@ -1378,6 +1383,7 @@ class CustomPermission(models.Model):
     page_list = models.TextField(default="[]")
     location_groups = models.ManyToManyField(LocationGroup, blank=True)
     organization = models.ForeignKey(Organization,blank=True,null=True,on_delete=models.SET_NULL)
+    misc = models.TextField(default="[]")
 
     class Meta:
         verbose_name = "CustomPermission"
