@@ -936,6 +936,8 @@ class Order(models.Model):
 
     def get_total_amount(self, is_real=False):
         subtotal = self.get_subtotal(is_real)
+        if subtotal==0:
+            return 0
         if self.voucher!=None:
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee()
