@@ -991,7 +991,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.offline_cod_charge if is_order_offline==True else cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.get_cod_charge(offline=is_order_offline),
                 "is_voucher_applied": is_voucher_applied,
                 "voucher_discount": voucher_discount,
                 "voucher_code": voucher_code

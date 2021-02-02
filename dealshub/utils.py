@@ -171,6 +171,7 @@ def cancel_order_admin(unit_order_obj, cancelling_note):
 def update_cart_bill(cart_obj,cod=False,offline=False, delivery_fee_calculate=True):
     
     cart_obj.to_pay = cart_obj.get_total_amount(cod=cod,offline=offline, delivery_fee_calculate=delivery_fee_calculate)
+    cart_obj.offline_delivery_fee = cart_obj.get_delivery_fee(cod=cod,offline=offline, calculate=delivery_fee_calculate)
 
     if cart_obj.voucher!=None:
         voucher_obj = cart_obj.voucher
