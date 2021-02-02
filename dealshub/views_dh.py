@@ -4325,11 +4325,11 @@ class FetchReviewsAdminAPI(APIView):
 
             if from_date!="":
                 from_date = from_date[:10]+"T00:00:00+04:00"
-                review_objs = review_objs.filter(modified_date__gte=from_date)
+                review_objs = review_objs.filter(created_date__gte=from_date)
 
             if to_date!="":
                 to_date = to_date[:10]+"T23:59:59+04:00"
-                review_objs = review_objs.filter(modified_date__lte=to_date)
+                review_objs = review_objs.filter(created_date__lte=to_date)
             
             if category_uuid!="":
                 category_obj = Category.objects.get(uuid=category_uuid)
