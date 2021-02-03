@@ -6675,7 +6675,8 @@ class SaveDealshubProductDetailsAPI(APIView):
             else:
                 dealshub_product_obj.is_promotional = False
                 promotion_obj = None
-
+            dealshub_product_obj.promotion = promotion_obj
+            
             category_obj = None
             try:
                 category_obj = Category.objects.get(uuid=category_uuid)
