@@ -4322,6 +4322,8 @@ class FetchReviewsAdminAPI(APIView):
 
             if is_fake!=None:
                 review_objs = review_objs.filter(is_fake=is_fake)
+            
+            total_reviews = review_objs.count()
 
             paginator  = Paginator(review_objs,20)
             total_pages = int(paginator.num_pages)
@@ -4397,6 +4399,7 @@ class FetchReviewsAdminAPI(APIView):
 
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
+            response["total_reviews"] = total_reviews
 
             response["reviewList"] = review_list
             response["status"] = 200
