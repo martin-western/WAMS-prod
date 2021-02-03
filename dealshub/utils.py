@@ -49,7 +49,7 @@ def get_product_promotion_details(dealshub_product_obj):
         data["start_time"] = str(dealshub_product_obj.promotion.start_time)[:19]
         data["end_time"] = str(dealshub_product_obj.promotion.end_time)[:19]
         now_time = datetime.datetime.now()
-        total_seconds = (timezone.localtime(dealshub_product_obj.promotion_obj.end_time).replace(tzinfo=None) - now_time).total_seconds()
+        total_seconds = (timezone.localtime(dealshub_product_obj.promotion.end_time).replace(tzinfo=None) - now_time).total_seconds()
         data["remaining_time"] = {
             "days": int(total_seconds/(3600*24)),
             "hours": int(total_seconds/3600)%24,
