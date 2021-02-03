@@ -1986,12 +1986,13 @@ class CreateAdminCategoryAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
+            parent_banner_uuid = data.get("parent_banner_uuid","")
+
             data = data["sectionData"]
 
             name = data["name"]
             listing_type = data["listingType"]
             products = data["products"]
-            parent_banner_uuid = data.get("parent_banner_uuid","")
             
             order_index = Banner.objects.filter(location_group=location_group_obj).count()+Section.objects.filter(location_group=location_group_obj).count()+1
 
