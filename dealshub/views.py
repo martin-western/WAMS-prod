@@ -104,17 +104,9 @@ class FetchProductDetailsAPI(APIView):
 
             response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
 
-            promotion_obj = dealshub_product_obj.promotion
-            if promotion_obj is None:
-                response["is_promotional"] = False
-                response["start_time"] = None
-                response["end_time"] = None
-                response["promotion_tag"] = None
-            else:
-                response["is_promotional"] = True
-                response["start_time"] = str(promotion_obj.start_time)[:19]
-                response["end_time"] = str(promotion_obj.end_time)[:19]
-                response["promotion_tag"] = str(promotion_obj.promotion_tag)
+            product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+            for key in product_promotion_details.keys():
+                response[key]=product_promotion_details[key]
 
             try:
                 variant_list = []
@@ -317,7 +309,7 @@ class FetchOnSaleProductsAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             
-            dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_on_sale=True).exclude(now_price=0).exclude(stock=0).prefetch_related('promotion')
+            dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_on_sale=True).exclude(now_price=0).exclude(stock=0).order_by('-is_promotional').prefetch_related('promotion')
 
             is_user_authenticated = True
             if location_group_obj.is_b2b==True:
@@ -346,11 +338,9 @@ class FetchOnSaleProductsAPI(APIView):
                 temp_dict2["stock"] = dealshub_product_obj.stock
                 temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
-                temp_dict2["is_promotional"] = dealshub_product_obj.promotion!=None
-                if dealshub_product_obj.promotion!=None:
-                    temp_dict2["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
-                else:
-                    temp_dict2["promotion_tag"] = None
+                product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+                for key in product_promotion_details.keys():
+                    temp_dict2[key]=product_promotion_details[key]
                 temp_dict2["currency"] = dealshub_product_obj.get_currency()
                 temp_dict2["uuid"] = dealshub_product_obj.uuid
                 temp_dict2["link"] = dealshub_product_obj.url
@@ -425,11 +415,9 @@ class FetchNewArrivalProductsAPI(APIView):
                 temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
                 temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                 temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
-                temp_dict2["is_promotional"] = dealshub_product_obj.promotion!=None
-                if dealshub_product_obj.promotion!=None:
-                    temp_dict2["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
-                else:
-                    temp_dict2["promotion_tag"] = None
+                product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+                for key in product_promotion_details.keys():
+                    temp_dict2[key]=product_promotion_details[key]
                 temp_dict2["currency"] = dealshub_product_obj.get_currency()
                 temp_dict2["uuid"] = dealshub_product_obj.uuid
                 temp_dict2["id"] = dealshub_product_obj.uuid
@@ -555,11 +543,9 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
                 temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
-                temp_dict2["is_promotional"] = dealshub_product_obj.promotion!=None
-                if dealshub_product_obj.promotion!=None:
-                    temp_dict2["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
-                else:
-                    temp_dict2["promotion_tag"] = None
+                product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+                for key in product_promotion_details.keys():
+                    temp_dict2[key]=product_promotion_details[key]
                 temp_dict2["currency"] = dealshub_product_obj.get_currency()
                 temp_dict2["uuid"] = dealshub_product_obj.uuid
                 temp_dict2["link"] = dealshub_product_obj.url
@@ -1256,13 +1242,9 @@ class SearchWIGAPI(APIView):
                     temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
                     temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                     temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
-                    temp_dict["is_promotional"] = False
-                    if dealshub_product_obj.promotion!=None and check_valid_promotion(dealshub_product_obj.promotion)==True:
-                        temp_dict["is_promotional"] = True
-                    if dealshub_product_obj.promotion!=None:
-                        temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
-                    else:
-                        temp_dict["promotion_tag"] = None
+                    product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+                    for key in product_promotion_details.keys():
+                        temp_dict[key]=product_promotion_details[key]
                     temp_dict["currency"] = currency
                     temp_dict["uuid"] = dealshub_product_obj.uuid
                     temp_dict["link"] = dealshub_product_obj.url
@@ -1505,13 +1487,9 @@ class SearchWIG2API(APIView):
                     temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
                     temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                     temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
-                    temp_dict["is_promotional"] = False
-                    if dealshub_product_obj.promotion!=None and check_valid_promotion(dealshub_product_obj.promotion)==True:
-                        temp_dict["is_promotional"] = True
-                    if dealshub_product_obj.promotion!=None:
-                        temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
-                    else:
-                        temp_dict["promotion_tag"] = None
+                    product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+                    for key in product_promotion_details.keys():
+                        temp_dict[key]=product_promotion_details[key]
                     temp_dict["currency"] = currency
                     temp_dict["uuid"] = dealshub_product_obj.uuid
                     temp_dict["link"] = dealshub_product_obj.url
@@ -2084,8 +2062,12 @@ class UpdateAdminCategoryAPI(APIView):
             custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
             for custom_product_section_obj in custom_product_section_objs:
                 dealshub_product_obj = custom_product_section_obj.product
-                dealshub_product_obj.promotion = promotion_obj
-                dealshub_product_obj.save()
+                if dealshub_product_obj.is_promotional==False:
+                    dealshub_product_obj.promotion = promotion_obj
+                    dealshub_product_obj.save()
+                else:
+                    if promotion_obj!=None:
+                        custom_product_section_obj.delete()                     
 
             section_obj.save()
 
@@ -3405,6 +3387,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["stock"] = dealshub_product_obj.stock
                     temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                     temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
+                    if promotion_obj==None:
+                        product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+                        for key in product_promotion_details.keys():
+                            temp_dict2[key]=product_promotion_details[key]
                     temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                     if dealshub_product_obj.stock>0:
                         temp_dict2["isStockAvailable"] = True
