@@ -6756,6 +6756,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
                                                  merchant_reference=checkout_id,
+                                                 bundleid=cart_obj.merchant_reference,
                                                  delivery_fee=cart_obj.get_delivery_fee(),
                                                  cod_charge=0)
 
@@ -6821,6 +6822,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
                                                  merchant_reference=checkout_id,
+                                                 bundleid=fast_cart_obj.merchant_reference,
                                                  delivery_fee=fast_cart_obj.get_delivery_fee(),
                                                  cod_charge=0)
 
