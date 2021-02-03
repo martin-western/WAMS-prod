@@ -3379,8 +3379,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     if is_dealshub==True:
                         temp_dict2["category"] = dealshub_product_obj.get_category(language_code)
                         temp_dict2["currency"] = dealshub_product_obj.get_currency()
-
-                    promotion_obj = dealshub_product_obj.promotion
                     
                     temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
                     temp_dict2["now_price"] = dealshub_product_obj.now_price
