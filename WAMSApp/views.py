@@ -6671,7 +6671,9 @@ class SaveDealshubProductDetailsAPI(APIView):
                     promotion_obj.start_time = start_date
                     promotion_obj.end_time = end_date
                     promotion_obj.save()
+                dealshub_product_obj.is_promotional = True
             else:
+                dealshub_product_obj.is_promotional = False
                 promotion_obj = None
 
             category_obj = None
