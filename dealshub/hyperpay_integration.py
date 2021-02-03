@@ -103,20 +103,16 @@ class RequestHyperpayCheckoutAPI(APIView):
                 "amount" : amount,
                 "currency" : "SAR",
                 "paymentType" : "DB",
-                "customer": {
-                    "email": dealshub_user_obj.email,
-                    "givenName": first_name,
-                    "surname": last_name
-                },
-                "billing": {
-                    "street1": address[0],
-                    "city": shipping_address.emirates,
-                    "state": shipping_address.neighbourhood,
-                    "country": "SA",
-                    "postcode": "",
-                },
+                "customer.email": dealshub_user_obj.email,
+                "customer.givenName": first_name,
+                "customer.surname": last_name,
+                "billing.street1": address[0],
+                "billing.city": shipping_address.emirates,
+                "billing.state": shipping_address.neighbourhood,
+                "billing.country": "SA",
+                "billing.postcode": "",
                 "merchantTransactionId": merchant_reference,
-                "testMode": "EXTERNAL"
+                "testMode": "INTERNAL"
             }
 
             payment_response = requests.post(url=API_URL, data=data, headers=headers)
