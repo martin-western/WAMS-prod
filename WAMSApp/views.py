@@ -6564,6 +6564,12 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["is_published"] = dealshub_product_obj.is_published
             response["is_new_arrival"] = dealshub_product_obj.is_new_arrival
             response["is_on_sale"] = dealshub_product_obj.is_on_sale
+            response["is_promotional"] = dealshub_product_obj.promotion!=None
+            response["product_is_promotional"] = dealshub_product_obj.is_promotional
+            if dealshub_product_obj.promotion!=None:
+                response["promo_tag_name"] = dealshub_product_obj.promotion.promotion_tag
+                response["promo_start_time"] = dealshub_product_obj.promotion.start_time
+                response["promo_end_time"] = dealshub_product_obj.promotion.end_time
 
             response["search_keywords"] = dealshub_product_obj.get_search_keywords()
 
@@ -6618,6 +6624,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             is_cod_allowed = data["is_cod_allowed"]
             is_new_arrival = data.get("is_new_arrival", False)
             is_on_sale = data.get("is_on_sale", False)
+            is_promotional = data.get("is_promotional",False)
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
 
@@ -6650,6 +6657,22 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.moq = moq
 
             dealshub_product_obj.set_search_keywords(search_keywords)
+
+            promotion_obj = dealshub_product_obj.promotion
+            if is_promotional:
+                promotion = data["promotion"]
+                start_date = convert_to_datetime(promotion["start_date"])
+                end_date = convert_to_datetime(promotion["end_date"])
+                promotional_tag = promotion["promotional_tag"]
+                if promotion_obj==None:
+                    promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
+                else:
+                    promotion_obj.promotion_tag = promotional_tag
+                    promotion_obj.start_time = start_date
+                    promotion_obj.end_time = end_date
+                    promotion_obj.save()
+            else:
+                promotion_obj = None
 
             category_obj = None
             try:
