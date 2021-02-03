@@ -3387,7 +3387,10 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["stock"] = dealshub_product_obj.stock
                     temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                     temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
-                    temp_dict2["is_promotional"] = dealshub_product_obj.is_promotional
+                    if promotion_obj==None:
+                        product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+                        for key in product_promotion_details.keys():
+                            temp_dict2[key]=product_promotion_details[key]
                     temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                     if dealshub_product_obj.stock>0:
                         temp_dict2["isStockAvailable"] = True
