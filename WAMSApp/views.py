@@ -6661,8 +6661,8 @@ class SaveDealshubProductDetailsAPI(APIView):
             promotion_obj = dealshub_product_obj.promotion
             if is_promotional:
                 promotion = data["promotion"]
-                start_date = convert_to_datetime(promotion["start_date"])
-                end_date = convert_to_datetime(promotion["end_date"])
+                start_date = str(promotion["start_date"])[:-1] + "+0400"
+                end_date = str(promotion["end_date"])[:-1] + "+0400"
                 promotional_tag = promotion["promotional_tag"]
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
