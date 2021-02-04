@@ -3269,7 +3269,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
             resolution = data.get("resolution", "low")
 
-            cache_key = location_group_uuid + "-" + language_code
+            cache_key = location_group_uuid + "-" + parent_banner_uuid + "-" + language_code
             if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(cache_key, "has_expired")
                 if cached_value!="has_expired":
