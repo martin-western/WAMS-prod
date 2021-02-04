@@ -6705,6 +6705,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                 data = json.loads(data)
 
             checkout_id = data["checkoutID"]
+            payment_method = data["paymentMethod"]
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -6714,7 +6715,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             order_obj = None
-            order_info = get_order_info_from_hyperpay(checkout_id, location_group_obj)
+            order_info = get_order_info_from_hyperpay(checkout_id, payment_method, location_group_obj)
             if order_info["result"]==False:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("PlaceDaycartOnlineOrderAPI: HYPERPAY STATUS MISMATCH!")
