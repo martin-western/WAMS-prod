@@ -4038,9 +4038,6 @@ class AddProductToSectionAPI(APIView):
 
             section_obj = Section.objects.get(uuid=section_uuid)
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
-
-            dealshub_product_obj.promotion = section_obj.promotion
-            dealshub_product_obj.save()
             
             response["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
             response["name"] = dealshub_product_obj.get_name()
@@ -4053,6 +4050,15 @@ class AddProductToSectionAPI(APIView):
             response["promotional_price"] = str(dealshub_product_obj.promotional_price)
             response["stock"] = str(dealshub_product_obj.stock)
             response["allowedQty"] = str(dealshub_product_obj.get_allowed_qty())
+            response["is_product_promotional"] = dealshub_product_obj.is_promotional
+            
+            if dealshub_product_obj.is_promotional:
+                logger.info("product is already in product promotion")
+                response['status'] = 403
+                return Response(data=response)
+
+            dealshub_product_obj.promotion = section_obj.promotion
+            dealshub_product_obj.save()
 
             if CustomProductSection.objects.filter(section=section_obj, product=dealshub_product_obj).exists()==False:
                 order_index = 0
