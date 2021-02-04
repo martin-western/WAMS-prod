@@ -128,13 +128,13 @@ class RequestHyperpayCheckoutAPI(APIView):
         return Response(data=response)
         
 
-def get_order_info_from_hyperpay(checkout_id, location_group_obj):
+def get_order_info_from_hyperpay(checkout_id, payment_method, location_group_obj):
     order_info = {}
 
     try:
         payment_credentials = json.loads(location_group_obj.website_group.payment_credentials)
 
-        ENTITY_ID = payment_credentials["hyperpay"]["entity_id"]
+        ENTITY_ID = payment_credentials["hyperpay"]["entity_id"][payment_method]
         API_KEY = payment_credentials["hyperpay"]["API_KEY"]
 
         headers = {
