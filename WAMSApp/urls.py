@@ -103,6 +103,8 @@ urlpatterns = [
 
     url(r'^fetch-channel-product-list/$',views.FetchChannelProductList),
 
+    url(r'^fetch-location-group-list/$', views.FetchLocationGroupList),
+
     url(r'^save-company-profile/$',views.SaveCompanyProfile),
     url(r'^upload-company-logo/$',views.UploadCompanyLogo),
     url(r'^upload-company-footer-logo/$',views.UploadCompanyFooterLogo),

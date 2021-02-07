@@ -2435,3 +2435,65 @@ def create_bulk_image_report(filename, uuid, brand_list, organization_obj=None):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_bulk_image_report %s %s", e, str(exc_tb.tb_lineno))
 
+
+def create_stock_report(filename, uuid, brand_list, location_group_obj):
+    try:
+        logger.info('Stock Report download report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["No.",
+               "Product id",
+               "Seller SKU",
+               "Product Name",
+               "Stocks",
+               "Price"]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        cnt=0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        dh_product_objs = DealsHubProduct.objects.filter(product__base_product__brand__name__in=brand_list, location_group=location_group_obj)
+
+        for dh_product_obj in dh_product_objs:
+            try:
+                
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = dh_product_obj.get_product_id()
+                common_row[2] = dh_product_obj.get_seller_sku()
+                common_row[3] = dh_product_obj.get_name()
+                common_row[4] = str(dh_product_obj.stock)
+                common_row[5] = str(dh_product_obj.now_price)
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error create_stock_report %s %s", e, str(exc_tb.tb_lineno))
+        
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_stock_report %s %s", e, str(exc_tb.tb_lineno))
