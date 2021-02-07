@@ -154,7 +154,7 @@ def process_order_checkout(generic_cart_obj, is_fast_cart, reference):
         }
         logger.info(order_info)
 
-        resp = requests.post(url="https://api.sandbox.spotii.me/api/v1.0/checkouts/", data=order_info, headers=headers)
+        resp = requests.post(url="https://api.sandbox.spotii.me/api/v1.0/checkouts/", data=json.dumps(order_info), headers=headers)
         resp = resp.json()
 
         logger.info(resp)
