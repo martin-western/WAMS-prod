@@ -152,9 +152,12 @@ def process_order_checkout(generic_cart_obj, is_fast_cart, reference):
             "Accept" : "application/json; indent=4",
             "Authorization" : "Bearer " + str(get_auth_token())
         }
+        logger.info(order_info)
 
         resp = requests.post(url="https://api.sandbox.spotii.me/api/v1.0/checkouts/", data=order_info, headers=headers)
         resp = resp.json()
+
+        logger.info(resp)
         
         checkout_result_urls = {
             "confirm_callback_url" : resp["confirm_callback_url"],
