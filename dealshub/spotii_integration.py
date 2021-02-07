@@ -157,8 +157,8 @@ def process_order_checkout(generic_cart_obj, is_fast_cart, reference):
         resp = resp.json()
         
         checkout_result_urls = {
-            "confirm_callback_url" : resp["confirm_callback_url"]
-            "reject_callback_url" : resp["reject_callback_url"]
+            "confirm_callback_url" : resp["confirm_callback_url"],
+            "reject_callback_url" : resp["reject_callback_url"],
             "checkout_url" : resp["checkout_url"]
         }
         return checkout_result_urls   

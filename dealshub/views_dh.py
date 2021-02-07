@@ -6892,7 +6892,7 @@ class PlaceOnlineOrderAPI(APIView):
             order_obj = None
 
             if online_payment_mode.strip().lower()=="spotii":
-                if on_approve_capture_order(merchant_reference)==False
+                if on_approve_capture_order(merchant_reference)==False:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
                     return Response(data=response)
