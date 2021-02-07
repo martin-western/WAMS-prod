@@ -129,8 +129,8 @@ def process_order_checkout(generic_cart_obj, is_fast_cart, reference):
             "description" : "Cart #"+ str(reference),
             "total": float(generic_cart_obj.get_total_amount()),
             "currency": generic_cart_obj.get_currency(),
-            "confirm_callback_url": "https://qa.wigme.com/transaction-processing/?reference="+reference,
-            "reject_callback_url": "https://qa.wigme.com/order-failed",
+            "confirm_callback_url": "https://localhost:3010/transaction-processing/?reference="+reference,
+            "reject_callback_url": "https://localhost:3010/order-failed",
             "order": {
                 "tax_amount": 0,
                 "shipping_amount": generic_cart_obj.get_delivery_fee(),
