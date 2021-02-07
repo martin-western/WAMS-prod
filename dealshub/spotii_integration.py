@@ -94,7 +94,7 @@ def process_order_checkout(generic_cart_obj, is_fast_cart, reference):
             address_info["line4"] = json.loads(address_obj.address_lines)[3]
             address_info["state"] = address_obj.state
             address_info["postcode"] = address_obj.postcode
-            address_info["country"] = address_obj.get_country()
+            address_info["country"] = "AE"
             address_info["phone"] = address_obj.contact_number
 
         generic_unit_cart_list_info = []
