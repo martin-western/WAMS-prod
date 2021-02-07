@@ -65,8 +65,8 @@ class MakePaymentSpotiiAPI(APIView):
 def get_auth_token():
     try:
         auth_key_info = {
-            "public_key": "",
-            "private_key": ""
+            "public_key": "Qlegb7n2MSUb0pp8GCp7OR8Phj4TWZXF",
+            "private_key": "Gt01506Xko46NYjJgYhbw8ICb3tpdzRKbfmqGrVBwzps5soDRWa3K2ZMhqTRevIv"
         }
         headers = { 
             "Content-Type": "application/json", 
