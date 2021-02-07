@@ -5628,6 +5628,36 @@ class FetchChannelProductListAPI(APIView):
 
         return Response(data=response)
 
+class FetchLocationGroupListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchLocationGroupListAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_list = []
+            for location_group_obj in LocationGroup.objects.all():
+                temp_dict = {}
+                temp_dict["uuid"] = location_group_obj.uuid
+                temp_dict["name"] = location_group_obj.name
+                location_group_list.append(temp_dict)
+
+            response["location_group_list"] = location_group_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchLocationGroupListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class UploadBulkExportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6043,7 +6073,7 @@ class CreateOCReportAPI(APIView):
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 p1 = threading.Thread(target=create_stock_report, args=(filename,oc_report_obj.uuid,brand_list,location_group_obj,))
                 p1.start()
-                
+
             response["approved"] = True
             response['status'] = 200
         
@@ -6997,6 +7027,8 @@ FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 CreateRequestHelp = CreateRequestHelpAPI.as_view()
 
 FetchChannelProductList = FetchChannelProductListAPI.as_view()
+
+FetchLocationGroupList = FetchLocationGroupListAPI.as_view()
 
 FetchAuditLogs = FetchAuditLogsAPI.as_view()
 
