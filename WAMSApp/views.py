@@ -6038,7 +6038,12 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="bulk image":
                 p1 = threading.Thread(target=create_bulk_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
                 p1.start()
-                    
+            elif report_type.lower()=="stock":
+                location_group_uuid = data["locationGroupUuid"]
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                p1 = threading.Thread(target=create_stock_report, args=(filename,oc_report_obj.uuid,brand_list,location_group_obj,))
+                p1.start()
+                
             response["approved"] = True
             response['status'] = 200
         
