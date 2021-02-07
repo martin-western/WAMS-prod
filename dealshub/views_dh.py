@@ -1479,7 +1479,8 @@ class PlaceOrderAPI(APIView):
                                                  voucher=cart_obj.voucher,
                                                  location_group=cart_obj.location_group,
                                                  delivery_fee=cart_obj.get_delivery_fee(),
-                                                 cod_charge=cart_obj.location_group.cod_charge)
+                                                 cod_charge=cart_obj.location_group.cod_charge,
+                                                 additional_note=cart_obj.additional_note)
 
                 for unit_cart_obj in unit_cart_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -1535,7 +1536,8 @@ class PlaceOrderAPI(APIView):
                                                  voucher=fast_cart_obj.voucher,
                                                  location_group=fast_cart_obj.location_group,
                                                  delivery_fee=fast_cart_obj.get_delivery_fee(),
-                                                 cod_charge=fast_cart_obj.location_group.cod_charge)
+                                                 cod_charge=fast_cart_obj.location_group.cod_charge,
+                                                 additional_note=fast_cart_obj.additional_note)
 
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
