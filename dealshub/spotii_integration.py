@@ -176,9 +176,14 @@ def on_approve_capture_order(order_reference):
             "Authorization" : "Bearer " + str(get_auth_token())
         }
         resp = requests.post(url="https://api.sandbox.spotii.me/api/v1.0/orders/"+order_reference+"/capture/", data={}, headers=headers)
-        return resp.json()
+        resp = resp.json()
+        if resp["status"]=="SUCCESS":
+            logger.info("Spotii ref id : ",resp["order_id"])
+            return True
+        return False
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Spotii on_approve_capture_order: %s at %s", e, str(exc_tb.tb_lineno))
 
 
+MakePaymentSpotii = MakePaymentSpotiiAPI.as_view()
