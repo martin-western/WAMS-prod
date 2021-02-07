@@ -124,6 +124,7 @@ urlpatterns = [
     url(r'^payment/fetch-token-request-parameters/$', views.FetchTokenRequestParameters),
     url(r'^payment/make-purchase-request/$', views.MakePurchaseRequest),
     url(r'^payment/request-hyperpay-checkout/$', views.RequestHyperpayCheckout),
+    url(r'^payment/make-payment-spotii/$', views.MakePaymentSpotii),
     # url(r'^payment/fetch-installment-plans/$', views.FetchInstallmentPlans),
     # url(r'^payment/make-purchase-request-installment/$', views.MakePurchaseRequestInstallment),
 
