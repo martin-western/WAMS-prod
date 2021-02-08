@@ -4020,16 +4020,19 @@ class UpdateReviewAdminAPI(APIView):
                 review_content_obj.content = content
                 review_content_obj.save()
             
+            images_list = []
             image_count = int(data.get("image_count", 0))
             review_content_obj.images.clear()
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
                 review_content_obj.images.add(image_obj)
+                images_list.append(image_obj.image.url)
             review_content_obj.save()
 
             review_obj.content = review_content_obj
             review_obj.save()
             
+            response['images_list'] = images_list
             response['review_uuid'] = review_obj.uuid
             response['review_content_uuid'] = review_content_obj.uuid
             response['status'] = 200
