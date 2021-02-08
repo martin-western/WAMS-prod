@@ -27,7 +27,7 @@ def is_number(s):
 
 def refresh_section_cache(location_group_uuid):
     try:
-        url = "https://qa.omnycomm.com/dealshub/fetch-dealshub-admin-sections/"
+        url = "https://qa.omnycomm.com:8028/dealshub/fetch-dealshub-admin-sections/"
         data = {
             "isDealshub": True,
             "limit": True,
