@@ -41,6 +41,29 @@ def get_actual_price(dealshub_product_obj):
         return dealshub_product_obj.promotional_price
     return dealshub_product_obj.now_price
 
+def get_product_promotion_details(dealshub_product_obj):
+    data = {}
+    data["is_promotional"] = dealshub_product_obj.promotion!=None
+    data["product_is_promotional"] = dealshub_product_obj.is_promotional
+    if dealshub_product_obj.promotion!=None and check_valid_promotion(dealshub_product_obj.promotion):
+        data["start_time"] = str(dealshub_product_obj.promotion.start_time)[:19]
+        data["end_time"] = str(dealshub_product_obj.promotion.end_time)[:19]
+        now_time = datetime.datetime.now()
+        total_seconds = (timezone.localtime(dealshub_product_obj.promotion.end_time).replace(tzinfo=None) - now_time).total_seconds()
+        data["remaining_time"] = {
+            "days": int(total_seconds/(3600*24)),
+            "hours": int(total_seconds/3600)%24,
+            "minutes": int(total_seconds/60)%60,
+            "seconds": int(total_seconds)%60
+        }
+        data["promotion_tag"] = str(dealshub_product_obj.promotion.promotion_tag)
+    else:
+        data["remaining_time"] = {}
+        data["start_time"] = None
+        data["end_time"] = None
+        data["promotion_tag"] = None
+    return data
+
 def calc_response_signature(PASS, data):
     try:
         keys = list(data.keys())
@@ -168,13 +191,14 @@ def cancel_order_admin(unit_order_obj, cancelling_note):
         return
 
 
-def update_cart_bill(cart_obj):
+def update_cart_bill(cart_obj,cod=False,offline=False, delivery_fee_calculate=True):
     
-    cart_obj.to_pay = cart_obj.get_total_amount()
+    cart_obj.to_pay = cart_obj.get_total_amount(cod=cod,offline=offline, delivery_fee_calculate=delivery_fee_calculate)
+    cart_obj.offline_delivery_fee = cart_obj.get_delivery_fee(cod=cod,offline=offline, calculate=delivery_fee_calculate)
 
     if cart_obj.voucher!=None:
         voucher_obj = cart_obj.voucher
-        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(cart_obj.get_subtotal())==False or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj):
+        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(cart_obj.get_subtotal(offline=offline))==False or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj):
             cart_obj.voucher = None
     cart_obj.save()
 
@@ -192,7 +216,9 @@ def update_fast_cart_bill(fast_cart_obj):
 
 def update_order_bill(order_obj):
     
+    order_obj.delivery_fee = order_obj.get_delivery_fee_update()
     order_obj.to_pay = order_obj.get_total_amount()
+    order_obj.real_to_pay = order_obj.get_total_amount(is_real=True)
     order_obj.save()
 
 
@@ -694,6 +720,37 @@ def notify_grn_error(order_obj):
         logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))        
 
 
+def notify_new_products_email(filepath, location_group_obj):
+    try:
+        location_group_name = location_group_obj.name
+        user_objs = CustomPermission.objects.filter(location_groups__pk = location_group_obj.pk)
+        email_list = []
+        for user_obj in user_objs:
+            email_list.append(user_obj.user.email)
+        try:
+            body = "Please find the attached sheet for new products published on " + location_group_name + "."
+            subject = "Notification for new products created on " + location_group_name
+            with get_connection(
+                host = "smtp.gmail.com",
+                port = 587,
+                username="nisarg@omnycomm.com",
+                password="verjtzgeqareribg",
+                use_tls=True) as connection:
+                email = EmailMessage(subject=subject,
+                                     body=body,
+                                     from_email="nisarg@omnycomm.com",
+                                     to=email_list,
+                                     connection=connection)
+                email.attach_file(filepath)
+                email.send(fail_silently=False)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("notify_new_products_email:- Email Failure %s at %s", e, str(exc_tb.tb_lineno))
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("notify_new_products_email: %s at %s", e, str(exc_tb.tb_lineno))        
+
+
 def refresh_stock(order_obj):
 
     try:
@@ -832,6 +889,7 @@ def get_recommended_products(dealshub_product_objs,language_code):
             temp_dict["name"] = dealshub_product_obj.get_name(language_code)
             temp_dict["brand"] = dealshub_product_obj.get_brand(language_code)
             temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
+            temp_dict["link"] = dealshub_product_obj.url
             temp_dict["now_price"] = dealshub_product_obj.now_price
             temp_dict["was_price"] = dealshub_product_obj.was_price
             temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
@@ -1050,3 +1108,11 @@ def remove_stopwords(string):
             cleaned_words.append(word)
     cleaned_string = " ".join(cleaned_words)
     return cleaned_string
+
+def check_account_status(b2b_user_obj):
+
+    if b2b_user_obj == None:
+        return False
+    elif b2b_user_obj.vat_certificate_status == "Approved" and b2b_user_obj.trade_license_status == "Approved" and b2b_user_obj.passport_copy_status == "Approved":
+        return True
+    return False

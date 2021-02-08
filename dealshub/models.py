@@ -160,6 +160,7 @@ class DealsHubProduct(models.Model):
     promotional_price = models.FloatField(default=0)
     stock = models.IntegerField(default=0)
     allowed_qty = models.IntegerField(default=1000)
+    moq = models.IntegerField(default=5)
     is_cod_allowed = models.BooleanField(default=True)
     properties = models.TextField(null=True, blank=True, default="{}")
     promotion = models.ForeignKey(Promotion,null=True,blank=True)
@@ -180,10 +181,12 @@ class DealsHubProduct(models.Model):
     is_promo_restricted = models.BooleanField(default=False)
     is_new_arrival = models.BooleanField(default=False)
     is_on_sale = models.BooleanField(default=False)
+    is_promotional = models.BooleanField(default=False)
 
     is_deleted = models.BooleanField(default=False)
     objects = DealsHubProductManager()
     recovery = DealsHubProductRecoveryManager()
+    is_notified = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "DealsHub Product"
@@ -340,9 +343,9 @@ class DealsHubProduct(models.Model):
         return min(self.stock, self.allowed_qty)
 
     def get_main_image_url(self):
-        cached_url = cache.get("main_url_"+str(self.uuid), "has_expired")
-        if cached_url!="has_expired":
-            return cached_url
+        # cached_url = cache.get("main_url_"+str(self.uuid), "has_expired")
+        # if cached_url!="has_expired":
+        #     return cached_url
         main_images_list = ImageBucket.objects.none()
         main_images_objs = MainImages.objects.filter(product=self.product)
         for main_images_obj in main_images_objs:
@@ -350,32 +353,32 @@ class DealsHubProduct(models.Model):
         main_images_list = main_images_list.distinct()
         if main_images_list.all().count()>0:
             main_image_url = main_images_list.all()[0].image.mid_image.url
-            cache.set("main_url_"+str(self.uuid), main_image_url)
+            #cache.set("main_url_"+str(self.uuid), main_image_url)
             return main_image_url
         main_image_url = Config.objects.all()[0].product_404_image.image.url
-        cache.set("main_url_"+str(self.uuid), main_image_url)
+        #cache.set("main_url_"+str(self.uuid), main_image_url)
         return main_image_url
 
     def get_display_image_url(self):
-        cached_url = cache.get("display_url_"+str(self.uuid), "has_expired")
-        if cached_url!="has_expired":
-            return cached_url
+        # cached_url = cache.get("display_url_"+str(self.uuid), "has_expired")
+        # if cached_url!="has_expired":
+        #     return cached_url
         lifestyle_image_objs = self.product.lifestyle_images.all()
         if lifestyle_image_objs.exists():
             display_image_url = lifestyle_image_objs[0].mid_image.url
-            cache.set("display_url_"+str(self.uuid), display_image_url)
+            #cache.set("display_url_"+str(self.uuid), display_image_url)
             return display_image_url
         return self.get_main_image_url()
 
     def get_optimized_display_image_url(self):
         try:
-            cached_url = cache.get("optimized_display_url_"+str(self.uuid), "has_expired")
-            if cached_url!="has_expired":
-                return cached_url
+            # cached_url = cache.get("optimized_display_url_"+str(self.uuid), "has_expired")
+            # if cached_url!="has_expired":
+            #     return cached_url
             lifestyle_image_objs = self.product.lifestyle_images.all()
             if lifestyle_image_objs.exists():
                 display_image_url = lifestyle_image_objs[0].thumbnail.url
-                cache.set("optimized_display_url_"+str(self.uuid), display_image_url)
+                #cache.set("optimized_display_url_"+str(self.uuid), display_image_url)
                 return display_image_url
         except Exception as e:
             pass
@@ -456,6 +459,7 @@ class Section(models.Model):
     listing_type = models.CharField(default="Carousel", max_length=200)
     promo_slider_image = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name="section_promo_slider_image", null=True)
     promo_slider_image_ar = models.ForeignKey(Image, on_delete=models.SET_NULL, related_name="section_promo_slider_image_ar", null=True)
+    parent_banner = models.ForeignKey('Banner', null=True, blank=True, on_delete=models.CASCADE)
 
     products = models.ManyToManyField(DealsHubProduct, blank=True)
     hovering_banner_image = models.ForeignKey(Image, related_name="section_hovering_banner_image", on_delete=models.SET_NULL, null=True,blank=True)
@@ -472,6 +476,9 @@ class Section(models.Model):
         verbose_name_plural = "Sections"
 
     def save(self, *args, **kwargs):
+
+        if self.location_group !=None:
+            refresh_section_cache(self.location_group.uuid)
         
         if self.pk == None:
             self.created_date = timezone.now()
@@ -529,12 +536,17 @@ class Banner(models.Model):
     modified_by = models.ForeignKey(User, related_name="banner_modified_by", null=True, blank=True, on_delete=models.SET_NULL)
     order_index = models.IntegerField(default=1)
     banner_type = models.ForeignKey(BannerType, on_delete=models.CASCADE)
+    parent = models.ForeignKey('Banner', null=True, blank=True, on_delete=models.CASCADE)
+    is_nested = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.uuid)
 
     def save(self, *args, **kwargs):
         
+        if self.location_group !=None:
+            refresh_section_cache(self.location_group.uuid)
+
         if self.pk == None:
             self.created_date = timezone.now()
             self.modified_date = timezone.now()
@@ -566,6 +578,9 @@ class UnitBannerImage(models.Model):
         return str(self.uuid)
 
     def save(self, *args, **kwargs):
+
+        if self.banner!=None and self.banner.location_group!=None:
+            refresh_section_cache(self.banner.location_group.uuid)
 
         if self.uuid == None or self.uuid=="":
             self.uuid = str(uuid.uuid4())
@@ -700,6 +715,9 @@ class Cart(models.Model):
     payment_info = models.TextField(default="{}")
     modified_date = models.DateTimeField(null=True, blank=True)
     reference_medium = models.CharField(max_length=200,default="")
+    offline_delivery_fee = models.FloatField(default=0)
+    offline_cod_charge = models.FloatField(default=0)
+    additional_note = models.TextField(default="", blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -708,39 +726,47 @@ class Cart(models.Model):
         self.modified_date = timezone.now()
         super(Cart, self).save(*args, **kwargs)
 
-    def get_subtotal(self):
+    def get_subtotal(self, offline=False):
         unit_cart_objs = UnitCart.objects.filter(cart=self)
         subtotal = 0
         for unit_cart_obj in unit_cart_objs:
-            subtotal += float(unit_cart_obj.product.get_actual_price_for_customer(self.owner))*float(unit_cart_obj.quantity)
+            if offline==True:
+                subtotal += float(unit_cart_obj.offline_price)*float(unit_cart_obj.quantity)
+            else:
+                subtotal += float(unit_cart_obj.product.get_actual_price_for_customer(self.owner))*float(unit_cart_obj.quantity)
         return subtotal
 
-    def get_delivery_fee(self, cod=False, offline=False):
-        subtotal = self.get_subtotal()
+    def get_delivery_fee(self, cod=False, offline=False, calculate=True):
+        if calculate==False:
+            return self.offline_delivery_fee
+        subtotal = self.get_subtotal(offline=offline)
         if subtotal==0:
             return 0
         if (self.location_group.is_voucher_allowed_on_cod==True or cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             if self.voucher.voucher_type=="SD":
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
-
         if subtotal < self.location_group.free_delivery_threshold:
             return self.location_group.delivery_fee
         return 0
 
-    def get_total_amount(self, cod=False, offline=False):
-        subtotal = self.get_subtotal()
+    def get_cod_charge(self, cod=False, offline=False):
+        if cod==False:
+            return 0
+        return float(self.offline_cod_charge) if offline==True else float(self.location_group.cod_charge)
+
+    def get_total_amount(self, cod=False, offline=False, delivery_fee_calculate=True):
+        subtotal = self.get_subtotal(offline=offline)
         if subtotal==0:
             return 0
         if (self.location_group.is_voucher_allowed_on_cod==True or cod==False or offline==True) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
             subtotal = self.voucher.get_discounted_price(subtotal)
-        delivery_fee = self.get_delivery_fee(cod, offline)
-        if cod==True:
-            subtotal += self.location_group.cod_charge
-        return round(subtotal+delivery_fee, 2)
+        delivery_fee = self.get_delivery_fee(cod=cod, offline=offline, calculate=delivery_fee_calculate)
+        cod_charge = self.get_cod_charge(cod=cod, offline=offline)
+        return round(subtotal+delivery_fee+cod_charge, 2)
 
-    def get_vat(self, cod=False, offline=False):
-        total_amount = self.get_total_amount(cod, offline)
+    def get_vat(self, cod=False, offline=False, delivery_fee_calculate=True):
+        total_amount = self.get_total_amount(cod=cod, offline=offline, delivery_fee_calculate=delivery_fee_calculate)
         if self.location_group.vat==0:
             return 0
         vat_divider = 1+(self.location_group.vat/100)
@@ -766,7 +792,8 @@ class UnitCart(models.Model):
     cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
-    
+    offline_price = models.FloatField(default=0)
+
     date_created = models.DateTimeField(auto_now_add=True)
     uuid = models.CharField(max_length=200, default="")
 
@@ -793,6 +820,7 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
     payment_mode = models.CharField(default="COD", max_length=100)
     to_pay = models.FloatField(default=0)
+    real_to_pay = models.FloatField(default=0)
     delivery_fee = models.FloatField(default=0)
     cod_charge = models.FloatField(default=0)
     is_order_offline = models.BooleanField(default=False)
@@ -819,6 +847,7 @@ class Order(models.Model):
     postaplus_info = models.TextField(default="{}")
     is_postaplus = models.BooleanField(default=False)
 
+    additional_note = models.TextField(default="", blank=True)
     reference_medium = models.CharField(max_length=200, default="")
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
@@ -858,8 +887,10 @@ class Order(models.Model):
     def get_currency(self):
         return str(self.location_group.location.currency)
 
-    def get_subtotal(self):
+    def get_subtotal(self, is_real=False):
         unit_order_objs = UnitOrder.objects.filter(order=self)
+        if is_real==True:
+            unit_order_objs = unit_order_objs.exclude(current_status_admin="cancelled")
         subtotal = 0
         for unit_order_obj in unit_order_objs:
             subtotal += float(unit_order_obj.price)*float(unit_order_obj.quantity)
@@ -876,6 +907,19 @@ class Order(models.Model):
         subtotal = self.get_subtotal()
         vat_divider = 1+(self.location_group.vat/100)
         return str(round(subtotal/vat_divider, 2))
+
+    def get_delivery_fee_update(self, cod=False, offline=False):
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if self.voucher!=None:
+            if self.voucher.voucher_type=="SD":
+                return 0
+            subtotal = self.voucher.get_discounted_price(subtotal)
+
+        if subtotal < self.location_group.free_delivery_threshold:
+            return self.location_group.delivery_fee
+        return 0
 
     def get_delivery_fee(self):
         return self.delivery_fee
@@ -907,16 +951,18 @@ class Order(models.Model):
         vat_divider = 1+(self.location_group.vat/100)
         return str(round(cod_fee/vat_divider, 2))
 
-    def get_total_amount(self):
-        subtotal = self.get_subtotal()
+    def get_total_amount(self, is_real=False):
+        subtotal = self.get_subtotal(is_real)
+        if subtotal==0:
+            return 0
         if self.voucher!=None:
             subtotal = self.voucher.get_discounted_price(subtotal)
         delivery_fee = self.get_delivery_fee()
         cod_charge = self.get_cod_charge()
         return round(subtotal+delivery_fee+cod_charge, 2)
 
-    def get_vat(self):
-        total_amount = self.get_total_amount()
+    def get_vat(self, is_real=False):
+        total_amount = self.get_total_amount(is_real=is_real)
         if self.location_group.vat==0:
             return 0
         vat_divider = 1+(self.location_group.vat/100)
@@ -992,6 +1038,7 @@ class UnitOrder(models.Model):
     shipping_method = models.CharField(max_length=100, choices=SHIPPING_METHOD, default="pending")
 
     cancelled_by_user = models.BooleanField(default=False)
+    cancellation_request_action_taken = models.BooleanField(default=False)
     user_cancellation_note = models.CharField(max_length=255,default="")
     user_cancellation_status = models.CharField(max_length=100,default="")
 
@@ -1115,6 +1162,23 @@ class UnitOrderStatus(models.Model):
         return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
 
 
+class VersionOrder(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200, default="")
+    timestamp = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(OmnyCommUser, on_delete=models.SET_NULL, null=True)
+    change_information = models.TextField(default="{}")
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+
+        if self.pk == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(VersionOrder, self).save(*args, **kwargs)
+
 class FastCart(models.Model):
 
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
@@ -1129,6 +1193,7 @@ class FastCart(models.Model):
     modified_date = models.DateTimeField(null=True, blank=True)
     product = models.ForeignKey(DealsHubProduct, null=True, blank=True, on_delete=models.SET_NULL)
     quantity = models.IntegerField(default=1)
+    additional_note = models.TextField(default="", blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -1207,6 +1272,31 @@ class DealsHubUser(User):
         super(DealsHubUser, self).save(*args, **kwargs)
 
 
+class B2BUser(DealsHubUser):
+    company_name = models.CharField(default="",max_length=50)
+    interested_categories = models.ManyToManyField(Category,blank = True)
+    vat_certificate = models.FileField(upload_to = 'vat_certificate',null=True, blank=True)
+    trade_license = models.FileField(upload_to = 'trade_license',null=True,blank=True)
+    passport_copy = models.FileField(upload_to = 'passport_copy',null=True,blank=True)
+
+    STATUS_OPTIONS = (
+        ('Pending','Pending'),
+        ('Approved','Approved'),
+        ('Rejected','Rejected'),
+    )
+
+    vat_certificate_status = models.CharField(max_length=30, choices=STATUS_OPTIONS,default='Pending')
+    trade_license_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
+    passport_copy_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
+    conf = models.TextField(default = "{}")
+
+    class Meta:
+        verbose_name = "B2BUser"
+
+    def save(self,*args,**kwargs):
+        super(B2BUser,self).save(*args,**kwargs)
+
+
 class AdminReviewComment(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
@@ -1252,15 +1342,36 @@ class ReviewContent(models.Model):
         super(ReviewContent, self).save(*args, **kwargs)
 
 
+class ReviewManager(models.Manager):
+    
+    def get_queryset(self):
+        return super(ReviewManager, self).get_queryset().exclude(is_deleted=True)
+
+
+class ReviewRecoveryManager(models.Manager):
+
+    def get_queryset(self):
+        return super(ReviewRecoveryManager, self).get_queryset()
+
+
 class Review(models.Model):
 
     uuid = models.CharField(max_length=200, unique=True)
-    dealshub_user = models.ForeignKey(DealsHubUser, on_delete=models.CASCADE)
+    dealshub_user = models.ForeignKey(DealsHubUser, null=True, default=None, on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
     content = models.ForeignKey(ReviewContent, default=None, null=True, blank=True,on_delete=models.SET_DEFAULT)
     created_date = models.DateTimeField(blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
+
+    is_deleted = models.BooleanField(default=False)
+    is_fake = models.BooleanField(default=False)
+    fake_oc_user = models.ForeignKey(OmnyCommUser, default=None, null=True, on_delete=models.SET_NULL)
+    fake_customer_name = models.CharField(max_length=200, default="")
+    is_published = models.BooleanField(default=True)
+
+    objects = ReviewManager()
+    recovery = ReviewRecoveryManager()
 
     def __str__(self):
         return str(self.uuid)

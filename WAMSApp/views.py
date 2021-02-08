@@ -1074,6 +1074,7 @@ class FetchDealsHubProductsAPI(APIView):
                     temp_dict["product_id"] = product_obj.product_id
                     temp_dict["product_name"] = dealshub_product_obj.product_name
                     temp_dict["product_name_ar"] = dealshub_product_obj.product_name_ar
+                    temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
                     temp_dict["brand_name"] = product_obj.base_product.brand.name
                     temp_dict["channel_status"] = dealshub_product_obj.is_published
                     temp_dict["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
@@ -5627,6 +5628,36 @@ class FetchChannelProductListAPI(APIView):
 
         return Response(data=response)
 
+class FetchLocationGroupListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchLocationGroupListAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_list = []
+            for location_group_obj in LocationGroup.objects.all():
+                temp_dict = {}
+                temp_dict["uuid"] = location_group_obj.uuid
+                temp_dict["name"] = location_group_obj.name
+                location_group_list.append(temp_dict)
+
+            response["location_group_list"] = location_group_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchLocationGroupListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class UploadBulkExportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5916,19 +5947,24 @@ class CheckSectionPermissionsAPI(APIView):
 
             website_group_name = ""
             ecommerce_pages = []
-            location_group_objs = CustomPermission.objects.get(user__username=request.user.username).location_groups.all()
+            custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+            location_group_objs = custom_permission_obj.location_groups.all()
             for location_group_obj in location_group_objs:
                 temp_dict = {}
                 temp_dict["name"] = location_group_obj.name
                 temp_dict["uuid"] = location_group_obj.uuid
+                temp_dict["is_b2b"] = location_group_obj.is_b2b
                 ecommerce_pages.append(temp_dict)
 
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             if omnycomm_user_obj.website_group!=None:
                 website_group_name = omnycomm_user_obj.website_group.name
 
+            misc = json.loads(custom_permission_obj.misc)
+
             response["page_list"] = get_custom_permission_page_list(request.user)
             response["ecommerce_pages"] = ecommerce_pages
+            response["misc"] = misc
             response["websiteGroupName"] = website_group_name
 
             response['status'] = 200
@@ -6029,7 +6065,15 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="sales executive":
                 p1 = threading.Thread(target=create_sales_executive_value_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
                 p1.start()
-                    
+            elif report_type.lower()=="bulk image":
+                p1 = threading.Thread(target=create_bulk_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
+                p1.start()
+            elif report_type.lower()=="stock":
+                location_group_uuid = data["locationGroupUuid"]
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                p1 = threading.Thread(target=create_stock_report, args=(filename,oc_report_obj.uuid,brand_list,location_group_obj,))
+                p1.start()
+
             response["approved"] = True
             response['status'] = 200
         
@@ -6199,7 +6243,7 @@ class CreateContentReportAPI(APIView):
 
             organization_obj = custom_permission_obj.organization
 
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title="Content Health", created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
 
             filter_parameters = data["filter_parameters"]
 
@@ -6545,6 +6589,7 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["product_description_ar"] = dealshub_product_obj.get_description("ar")
             response["seller_sku"] = dealshub_product_obj.get_seller_sku()
             response["product_id"] = dealshub_product_obj.get_product_id()
+            response["moq"] = dealshub_product_obj.moq
             response["was_price"] = dealshub_product_obj.was_price
             response["now_price"] = dealshub_product_obj.now_price
             response["promotional_price"] = dealshub_product_obj.promotional_price
@@ -6554,6 +6599,12 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["is_published"] = dealshub_product_obj.is_published
             response["is_new_arrival"] = dealshub_product_obj.is_new_arrival
             response["is_on_sale"] = dealshub_product_obj.is_on_sale
+            response["is_promotional"] = dealshub_product_obj.promotion!=None
+            response["product_is_promotional"] = dealshub_product_obj.is_promotional
+            if dealshub_product_obj.promotion!=None:
+                response["promo_tag_name"] = dealshub_product_obj.promotion.promotion_tag
+                response["promo_start_time"] = dealshub_product_obj.promotion.start_time
+                response["promo_end_time"] = dealshub_product_obj.promotion.end_time
 
             response["search_keywords"] = dealshub_product_obj.get_search_keywords()
 
@@ -6604,9 +6655,11 @@ class SaveDealshubProductDetailsAPI(APIView):
             promotional_price = data["promotional_price"]
             stock = data["stock"]
             allowed_qty = data.get("allowed_qty", 100)
+            moq = data.get("moq", 5)
             is_cod_allowed = data["is_cod_allowed"]
             is_new_arrival = data.get("is_new_arrival", False)
             is_on_sale = data.get("is_on_sale", False)
+            is_promotional = data.get("is_promotional",False)
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
 
@@ -6636,9 +6689,29 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.product_description = product_description
             dealshub_product_obj.product_description_ar = product_description_ar
             dealshub_product_obj.url = url
+            dealshub_product_obj.moq = moq
 
             dealshub_product_obj.set_search_keywords(search_keywords)
 
+            promotion_obj = dealshub_product_obj.promotion
+            if is_promotional:
+                promotion = data["promotion"]
+                start_date = str(promotion["start_date"])[:-1] + "+0400"
+                end_date = str(promotion["end_date"])[:-1] + "+0400"
+                promotional_tag = promotion["promotional_tag"]
+                if promotion_obj==None:
+                    promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
+                else:
+                    promotion_obj.promotion_tag = promotional_tag
+                    promotion_obj.start_time = start_date
+                    promotion_obj.end_time = end_date
+                    promotion_obj.save()
+                dealshub_product_obj.is_promotional = True
+            else:
+                dealshub_product_obj.is_promotional = False
+                promotion_obj = None
+            dealshub_product_obj.promotion = promotion_obj
+            
             category_obj = None
             try:
                 category_obj = Category.objects.get(uuid=category_uuid)
@@ -6954,6 +7027,8 @@ FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 CreateRequestHelp = CreateRequestHelpAPI.as_view()
 
 FetchChannelProductList = FetchChannelProductListAPI.as_view()
+
+FetchLocationGroupList = FetchLocationGroupListAPI.as_view()
 
 FetchAuditLogs = FetchAuditLogsAPI.as_view()
 
