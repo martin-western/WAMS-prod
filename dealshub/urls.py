@@ -200,6 +200,7 @@ urlpatterns = [
     url(r'^fetch-reviews-admin/$', views.FetchReviewsAdmin),
     url(r'^fetch-product-reviews/$', views.FetchProductReviews),
     url(r'^delete-user-review-image/$', views.DeleteUserReviewImage),
+    url(r'^delete-admin-review-image/$', views.DeleteAdminReviewImage),
     url(r'^delete-user-review/$', views.DeleteUserReview),
     url(r'^hide-review-admin/$', views.HideReviewAdmin),
     url(r'^update-review-publish-status/$', views.UpdateReviewPublishStatus),

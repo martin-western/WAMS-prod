@@ -4020,19 +4020,21 @@ class UpdateReviewAdminAPI(APIView):
                 review_content_obj.content = content
                 review_content_obj.save()
             
-            images_list = []
+            image_url_list = []
             image_count = int(data.get("image_count", 0))
-            review_content_obj.images.clear()
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
                 review_content_obj.images.add(image_obj)
-                images_list.append(image_obj.image.url)
+                temp_dict2 = {}
+                temp_dict2["url"] = image_obj.image.url
+                temp_dict2["uuid"] = image_obj.pk
+                image_url_list.append(temp_dict2)
             review_content_obj.save()
 
             review_obj.content = review_content_obj
             review_obj.save()
             
-            response['images_list'] = images_list
+            response['image_url_list'] = image_url_list
             response['review_uuid'] = review_obj.uuid
             response['review_content_uuid'] = review_content_obj.uuid
             response['status'] = 200
@@ -4375,7 +4377,10 @@ class FetchReviewsAdminAPI(APIView):
                     for image_obj in image_objs:
                         try:
                             if image_obj.mid_image!=None:
-                                image_url_list.append(image_obj.mid_image.url)
+                                temp_dict2 = {}
+                                temp_dict2["url"] = image_obj.mid_image.url
+                                temp_dict2["uuid"] = image_obj.pk
+                                image_url_list.append(temp_dict2)
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
                             logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4562,6 +4567,35 @@ class DeleteUserReviewImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteUserReviewImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DeleteAdminReviewImageAPI(APIView):
+
+    def post(self, request, *arg, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteAdminReviewImageAPI: %s", str(data))
+            
+            image_uuid = int(data["image_uuid"])
+            review_uuid = data["review_uuid"]
+
+            review_obj = Review.objects.get(uuid=review_uuid)
+            review_content_obj = review_obj.content
+            image_obj = Image.objects.get(pk=image_uuid)
+            review_content_obj.images.remove(image_obj)
+            review_content_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteAdminReviewImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -7677,6 +7711,8 @@ FetchReviewsAdmin = FetchReviewsAdminAPI.as_view()
 FetchProductReviews = FetchProductReviewsAPI.as_view()
 
 DeleteUserReviewImage = DeleteUserReviewImageAPI.as_view()
+
+DeleteAdminReviewImage = DeleteAdminReviewImageAPI.as_view()
 
 DeleteUserReview = DeleteUserReviewAPI.as_view()
 
