@@ -1,4 +1,9 @@
 from django.utils import timezone
+import requests
+import sys
+import logging
+
+logger = logging.getLogger(__name__)
 
 def check_valid_promotion(promotion_obj):
     return timezone.now() >= promotion_obj.start_time and timezone.now() <= promotion_obj.end_time
