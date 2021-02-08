@@ -6243,7 +6243,7 @@ class CreateContentReportAPI(APIView):
 
             organization_obj = custom_permission_obj.organization
 
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title="Content Health", created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
 
             filter_parameters = data["filter_parameters"]
 
