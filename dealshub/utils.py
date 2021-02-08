@@ -1116,3 +1116,18 @@ def check_account_status(b2b_user_obj):
     elif b2b_user_obj.vat_certificate_status == "Approved" and b2b_user_obj.trade_license_status == "Approved" and b2b_user_obj.passport_copy_status == "Approved":
         return True
     return False
+
+def refresh_section_cache(location_group_uuid):
+    try:
+        url = "https://api.omnycomm.com/dealshub/fetch-dealshub-admin-sections/"
+        data = {
+            "isDealshub": True,
+            "limit": True,
+            "locationGroupUuid": location_group_uuid,
+            "resolution": "high",
+            "isBot": True
+        }
+        r = requests.post(url=url, json=data)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("refresh_section_cache: %s at %s", e, str(exc_tb.tb_lineno)) 
