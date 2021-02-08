@@ -572,7 +572,7 @@ class UnitBannerImage(models.Model):
 
     def save(self, *args, **kwargs):
 
-        if self.banner!=None or self.banner.location_group!=None:
+        if self.banner!=None and self.banner.location_group!=None:
             refresh_section_cache(self.banner.location_group.uuid)
 
         if self.uuid == None or self.uuid=="":
