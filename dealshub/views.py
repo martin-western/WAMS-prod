@@ -4052,13 +4052,13 @@ class AddProductToSectionAPI(APIView):
             response["allowedQty"] = str(dealshub_product_obj.get_allowed_qty())
             response["is_product_promotional"] = dealshub_product_obj.is_promotional
             
-            if dealshub_product_obj.is_promotional:
+            if section_obj.promotion!=None and dealshub_product_obj.is_promotional:
                 logger.info("product is already in product promotion")
                 response['status'] = 403
                 return Response(data=response)
-
-            dealshub_product_obj.promotion = section_obj.promotion
-            dealshub_product_obj.save()
+            if section_obj.promotion!=None:
+                dealshub_product_obj.promotion = section_obj.promotion
+                dealshub_product_obj.save()
 
             if CustomProductSection.objects.filter(section=section_obj, product=dealshub_product_obj).exists()==False:
                 order_index = 0
