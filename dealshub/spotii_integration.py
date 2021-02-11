@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from dealshub.models import *
+from dealshub.constants import *
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,9 @@ class MakePaymentSpotiiAPI(APIView):
                 response["message"] = "Cannot use this method for less than 200 valued order"
                 return Response(data=response)
             
-            reference = "spotii"+str(uuid.uuid4())
+            order_prefix = json.loads(location_group_obj.website_group.conf)["order_prefix"]
+            order_cnt = Order.objects.filter(location_group=location_group_obj).count()+1
+            reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
 
             if is_fast_cart==True:
                 fast_cart_obj.merchant_reference = reference
@@ -61,7 +64,6 @@ class MakePaymentSpotiiAPI(APIView):
         return Response(data=response)
 
 
-
 def get_auth_token():
     try:
         auth_key_info = {
@@ -72,7 +74,7 @@ def get_auth_token():
             "Content-Type": "application/json", 
             "Accept": "application/json; indent=4" 
         }
-        resp = requests.post(url="https://auth.sandbox.spotii.me/api/v1.0/merchant/authentication/",data=json.dumps(auth_key_info),headers=headers)
+        resp = requests.post(url=SPOTII_IP+"/api/v1.0/merchant/authentication/",data=json.dumps(auth_key_info),headers=headers)
         token = resp.json()["token"]
         return token
     except Exception as e:
@@ -129,8 +131,8 @@ def process_order_checkout(generic_cart_obj, is_fast_cart, reference):
             "description" : "Cart #"+ str(reference),
             "total": float(generic_cart_obj.get_total_amount()),
             "currency": generic_cart_obj.get_currency(),
-            "confirm_callback_url": "http://localhost:3010/transaction-processing/?reference="+reference,
-            "reject_callback_url": " http://localhost:3010/transaction-processing/?orderFailed=true",
+            "confirm_callback_url": WIGME_IP+"/transaction-processing/?reference="+reference,
+            "reject_callback_url": WIGME_IP+"/transaction-processing/?orderFailed=true",
             "order": {
                 "tax_amount": 0,
                 "shipping_amount": generic_cart_obj.get_delivery_fee(),
@@ -154,7 +156,7 @@ def process_order_checkout(generic_cart_obj, is_fast_cart, reference):
         }
         logger.info(order_info)
 
-        resp = requests.post(url="https://api.sandbox.spotii.me/api/v1.0/checkouts/", data=json.dumps(order_info), headers=headers)
+        resp = requests.post(url=SPOTII_IP+"/api/v1.0/checkouts/", data=json.dumps(order_info), headers=headers)
         resp = resp.json()
 
         logger.info(resp)
@@ -178,7 +180,7 @@ def on_approve_capture_order(order_reference):
             "Accept" : "application/json; indent=4",
             "Authorization" : "Bearer " + str(get_auth_token())
         }
-        resp = requests.post(url="https://api.sandbox.spotii.me/api/v1.0/orders/"+order_reference+"/capture/", data={}, headers=headers)
+        resp = requests.post(url=SPOTII_IP+"/api/v1.0/orders/"+order_reference+"/capture/", data={}, headers=headers)
         resp = resp.json()
         if resp["status"]=="SUCCESS":
             logger.info("Spotii ref id : ",resp["order_id"])
