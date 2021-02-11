@@ -1567,7 +1567,7 @@ class PlaceOrderAPI(APIView):
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
-                elif website_group=="shopnesto":
+                elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
@@ -7082,7 +7082,7 @@ class PlaceOnlineOrderAPI(APIView):
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
-                elif website_group=="shopnesto":
+                elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
