@@ -74,7 +74,7 @@ def get_auth_token():
             "Content-Type": "application/json", 
             "Accept": "application/json; indent=4" 
         }
-        resp = requests.post(url=SPOTII_IP+"/api/v1.0/merchant/authentication/",data=json.dumps(auth_key_info),headers=headers)
+        resp = requests.post(url=SPOTII_AUTH_IP+"/api/v1.0/merchant/authentication/",data=json.dumps(auth_key_info),headers=headers)
         token = resp.json()["token"]
         return token
     except Exception as e:
