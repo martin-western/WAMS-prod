@@ -6583,6 +6583,12 @@ class FetchDealshubProductDetailsAPI(APIView):
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
 
+            is_b2b = False
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid != "":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                is_b2b = location_group_obj.is_b2b
+
             response["product_name"] = dealshub_product_obj.get_name()
             response["product_name_ar"] = dealshub_product_obj.get_name("ar")
             response["product_description"] = dealshub_product_obj.get_description()
@@ -6605,6 +6611,25 @@ class FetchDealshubProductDetailsAPI(APIView):
                 response["promo_tag_name"] = dealshub_product_obj.promotion.promotion_tag
                 response["promo_start_time"] = dealshub_product_obj.promotion.start_time
                 response["promo_end_time"] = dealshub_product_obj.promotion.end_time
+
+            if is_b2b == True:
+                response["now_price_cohort1"] = dealshub_product_obj.now_price_cohort1
+                response["now_price_cohort2"] = dealshub_product_obj.now_price_cohort2
+                response["now_price_cohort3"] = dealshub_product_obj.now_price_cohort3
+                response["now_price_cohort4"] = dealshub_product_obj.now_price_cohort4
+                response["now_price_cohort5"] = dealshub_product_obj.now_price_cohort5
+
+                response["promotional_price_cohort1"] = dealshub_product_obj.promotional_price_cohort1
+                response["promotional_price_cohort2"] = dealshub_product_obj.promotional_price_cohort2
+                response["promotional_price_cohort3"] = dealshub_product_obj.promotional_price_cohort3
+                response["promotional_price_cohort4"] = dealshub_product_obj.promotional_price_cohort4
+                response["promotional_price_cohort5"] = dealshub_product_obj.promotional_price_cohort5
+
+                response["moq_cohort1"] = dealshub_product_obj.moq_cohort1
+                response["moq_cohort2"] = dealshub_product_obj.moq_cohort2
+                response["moq_cohort3"] = dealshub_product_obj.moq_cohort3
+                response["moq_cohort4"] = dealshub_product_obj.moq_cohort4
+                response["moq_cohort5"] = dealshub_product_obj.moq_cohort5
 
             response["search_keywords"] = dealshub_product_obj.get_search_keywords()
 
@@ -6649,7 +6674,13 @@ class SaveDealshubProductDetailsAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            
+
+            is_b2b = False
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid != "":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                is_b2b = location_group_obj.is_b2b
+
             was_price = data["was_price"]
             now_price = data["now_price"]
             promotional_price = data["promotional_price"]
@@ -6690,6 +6721,25 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.product_description_ar = product_description_ar
             dealshub_product_obj.url = url
             dealshub_product_obj.moq = moq
+
+            if is_b2b == True:
+                dealshub_product_obj.now_price_cohort1 = response["now_price_cohort1"]
+                dealshub_product_obj.now_price_cohort2 = response["now_price_cohort2"]
+                dealshub_product_obj.now_price_cohort3 = response["now_price_cohort3"]
+                dealshub_product_obj.now_price_cohort4 = response["now_price_cohort4"]
+                dealshub_product_obj.now_price_cohort5 = response["now_price_cohort5"]
+
+                dealshub_product_obj.promotional_price_cohort1 = response["promotional_price_cohort1"]
+                dealshub_product_obj.promotional_price_cohort2 = response["promotional_price_cohort2"]
+                dealshub_product_obj.promotional_price_cohort3 = response["promotional_price_cohort3"]
+                dealshub_product_obj.promotional_price_cohort4 = response["promotional_price_cohort4"]
+                dealshub_product_obj.promotional_price_cohort5 = response["promotional_price_cohort5"]
+
+                dealshub_product_obj.moq_cohort1 = response["moq_cohort1"]
+                dealshub_product_obj.moq_cohort2 = response["moq_cohort2"]
+                dealshub_product_obj.moq_cohort3 = response["moq_cohort3"]
+                dealshub_product_obj.moq_cohort4 = response["moq_cohort4"]
+                dealshub_product_obj.moq_cohort5 = response["moq_cohort5"]
 
             dealshub_product_obj.set_search_keywords(search_keywords)
 
