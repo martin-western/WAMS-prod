@@ -895,11 +895,9 @@ def get_recommended_products(dealshub_product_objs,language_code):
             temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
             temp_dict["stock"] = dealshub_product_obj.stock
             temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
-            temp_dict["is_promotional"] = dealshub_product_obj.promotion!=None
-            if dealshub_product_obj.promotion!=None:
-                temp_dict["promotion_tag"] = dealshub_product_obj.promotion.promotion_tag
-            else:
-                temp_dict["promotion_tag"] = None
+            product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+            for key in product_promotion_details.keys():
+                temp_dict[key]=product_promotion_details[key]
             temp_dict["currency"] = dealshub_product_obj.get_currency()
             temp_dict["uuid"] = dealshub_product_obj.uuid
             temp_dict["id"] = dealshub_product_obj.uuid
