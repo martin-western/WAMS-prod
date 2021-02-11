@@ -316,6 +316,7 @@ class FetchOnSaleProductsAPI(APIView):
             
             dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_on_sale=True).exclude(now_price=0).exclude(stock=0).order_by('-is_promotional').prefetch_related('promotion')
 
+            dealshub_user_obj = None
             if location_group_obj.is_b2b==True:
                 if request.user != None and str(request.user)!="AnonymousUser":
                     logger.info("FetchOnSaleProductsAPI REQUEST USER: %s", str(request.user))
@@ -1059,7 +1060,7 @@ class SearchWIGAPI(APIView):
 
             dealshub_user_obj = None
             if request.user != None and str(request.user)!="AnonymousUser":
-                logger.info("FetchProductDetailsAPI REQUEST USER: %s", str(request.user))
+                logger.info("SearchWIGAPI REQUEST USER: %s", str(request.user))
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             page_description = ""
