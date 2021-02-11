@@ -6708,8 +6708,10 @@ class SaveDealshubProductDetailsAPI(APIView):
                     promotion_obj.save()
                 dealshub_product_obj.is_promotional = True
             else:
+                if dealshub_product_obj.is_promotional==True:
+                    promotion_obj = None
                 dealshub_product_obj.is_promotional = False
-                promotion_obj = None
+
             dealshub_product_obj.promotion = promotion_obj
             
             category_obj = None
