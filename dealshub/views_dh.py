@@ -16,6 +16,7 @@ from WAMSApp.utils import *
 from WAMSApp.utils_SAP_Integration import *
 from dealshub.network_global_integration import *
 from dealshub.hyperpay_integration import *
+from dealshub.spotii_integration import *
 from dealshub.postaplus import *
 
 from django.core.paginator import Paginator
@@ -428,7 +429,7 @@ class AddToCartAPI(APIView):
                 unit_cart_obj.quantity += quantity
                 unit_cart_obj.save()
             else:
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity)
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity, offline_price=dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj))
 
             update_cart_bill(cart_obj)
 
@@ -1479,7 +1480,8 @@ class PlaceOrderAPI(APIView):
                                                  voucher=cart_obj.voucher,
                                                  location_group=cart_obj.location_group,
                                                  delivery_fee=cart_obj.get_delivery_fee(),
-                                                 cod_charge=cart_obj.location_group.cod_charge)
+                                                 cod_charge=cart_obj.location_group.cod_charge,
+                                                 additional_note=cart_obj.additional_note)
 
                 for unit_cart_obj in unit_cart_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -1535,7 +1537,8 @@ class PlaceOrderAPI(APIView):
                                                  voucher=fast_cart_obj.voucher,
                                                  location_group=fast_cart_obj.location_group,
                                                  delivery_fee=fast_cart_obj.get_delivery_fee(),
-                                                 cod_charge=fast_cart_obj.location_group.cod_charge)
+                                                 cod_charge=fast_cart_obj.location_group.cod_charge,
+                                                 additional_note=fast_cart_obj.additional_note)
 
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=fast_cart_obj.product,
@@ -1564,7 +1567,7 @@ class PlaceOrderAPI(APIView):
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
-                elif website_group=="shopnesto":
+                elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
@@ -4017,16 +4020,21 @@ class UpdateReviewAdminAPI(APIView):
                 review_content_obj.content = content
                 review_content_obj.save()
             
+            image_url_list = []
             image_count = int(data.get("image_count", 0))
-            review_content_obj.images.clear()
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
                 review_content_obj.images.add(image_obj)
+                temp_dict2 = {}
+                temp_dict2["url"] = image_obj.image.url
+                temp_dict2["uuid"] = image_obj.pk
+                image_url_list.append(temp_dict2)
             review_content_obj.save()
 
             review_obj.content = review_content_obj
             review_obj.save()
             
+            response['image_url_list'] = image_url_list
             response['review_uuid'] = review_obj.uuid
             response['review_content_uuid'] = review_content_obj.uuid
             response['status'] = 200
@@ -4322,6 +4330,8 @@ class FetchReviewsAdminAPI(APIView):
 
             if is_fake!=None:
                 review_objs = review_objs.filter(is_fake=is_fake)
+            
+            total_reviews = review_objs.count()
 
             paginator  = Paginator(review_objs,20)
             total_pages = int(paginator.num_pages)
@@ -4367,7 +4377,10 @@ class FetchReviewsAdminAPI(APIView):
                     for image_obj in image_objs:
                         try:
                             if image_obj.mid_image!=None:
-                                image_url_list.append(image_obj.mid_image.url)
+                                temp_dict2 = {}
+                                temp_dict2["url"] = image_obj.mid_image.url
+                                temp_dict2["uuid"] = image_obj.pk
+                                image_url_list.append(temp_dict2)
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
                             logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4397,6 +4410,7 @@ class FetchReviewsAdminAPI(APIView):
 
             response["is_available"] = is_available
             response["totalPages"] = paginator.num_pages
+            response["total_reviews"] = total_reviews
 
             response["reviewList"] = review_list
             response["status"] = 200
@@ -4553,6 +4567,35 @@ class DeleteUserReviewImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteUserReviewImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DeleteAdminReviewImageAPI(APIView):
+
+    def post(self, request, *arg, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("DeleteAdminReviewImageAPI: %s", str(data))
+            
+            image_uuid = int(data["image_uuid"])
+            review_uuid = data["review_uuid"]
+
+            review_obj = Review.objects.get(uuid=review_uuid)
+            review_content_obj = review_obj.content
+            image_obj = Image.objects.get(pk=image_uuid)
+            review_content_obj.images.remove(image_obj)
+            review_content_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteAdminReviewImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6702,6 +6745,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                 data = json.loads(data)
 
             checkout_id = data["checkoutID"]
+            payment_method = data["paymentMethod"]
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -6711,7 +6755,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             order_obj = None
-            order_info = get_order_info_from_hyperpay(checkout_id, location_group_obj)
+            order_info = get_order_info_from_hyperpay(checkout_id, payment_method, location_group_obj)
             if order_info["result"]==False:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("PlaceDaycartOnlineOrderAPI: HYPERPAY STATUS MISMATCH!")
@@ -6756,6 +6800,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
                                                  merchant_reference=checkout_id,
+                                                 bundleid=cart_obj.merchant_reference,
                                                  delivery_fee=cart_obj.get_delivery_fee(),
                                                  cod_charge=0)
 
@@ -6821,6 +6866,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                                                  payment_info=payment_info,
                                                  payment_mode=payment_mode,
                                                  merchant_reference=checkout_id,
+                                                 bundleid=fast_cart_obj.merchant_reference,
                                                  delivery_fee=fast_cart_obj.get_delivery_fee(),
                                                  cod_charge=0)
 
@@ -6879,14 +6925,22 @@ class PlaceOnlineOrderAPI(APIView):
 
             is_fast_cart = data.get("is_fast_cart", False)
 
+            online_payment_mode = data.get("online_payment_mode","card")
+            
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             order_obj = None
 
-            if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
-                return Response(data=response)
+            if online_payment_mode.strip().lower()=="spotii":
+                if on_approve_capture_order(merchant_reference)==False:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                    return Response(data=response)
+            else:
+                if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                    return Response(data=response)
 
             if is_fast_cart==False:
 
@@ -7022,6 +7076,20 @@ class PlaceOnlineOrderAPI(APIView):
             try:
                 p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
+                website_group = order_obj.location_group.website_group.name
+                unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
+                if website_group=="parajohn":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
+                elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
+                elif website_group=="daycart":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -7657,6 +7725,8 @@ FetchReviewsAdmin = FetchReviewsAdminAPI.as_view()
 FetchProductReviews = FetchProductReviewsAPI.as_view()
 
 DeleteUserReviewImage = DeleteUserReviewImageAPI.as_view()
+
+DeleteAdminReviewImage = DeleteAdminReviewImageAPI.as_view()
 
 DeleteUserReview = DeleteUserReviewAPI.as_view()
 

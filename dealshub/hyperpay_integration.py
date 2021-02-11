@@ -22,6 +22,7 @@ import csv
 import logging
 import sys
 import xlrd
+import uuid
 import time
 
 
@@ -45,6 +46,7 @@ class RequestHyperpayCheckoutAPI(APIView):
             is_fast_cart = data.get("is_fast_cart", False)
 
             location_group_uuid = data["location_group_uuid"]
+            payment_method = data["paymentMethod"]
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
@@ -57,12 +59,21 @@ class RequestHyperpayCheckoutAPI(APIView):
 
             amount = 0
             shipping_address = None
+
+            order_prefix = json.loads(location_group_obj.website_group.conf)["order_prefix"]
+            order_cnt = Order.objects.filter(location_group=location_group_obj).count()+1
+            merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                cart_obj.merchant_reference = merchant_reference
+                cart_obj.save()
                 amount = cart_obj.to_pay
                 shipping_address = cart_obj.shipping_address 
             else:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                fast_cart_obj.merchant_reference = merchant_reference
+                fast_cart_obj.save()
                 amount = fast_cart_obj.to_pay
                 shipping_address = fast_cart_obj.shipping_address
 
@@ -72,8 +83,15 @@ class RequestHyperpayCheckoutAPI(APIView):
                 return Response(data=response)
 
             API_URL = payment_credentials["hyperpay"]["url"]
-            ENTITY_ID = payment_credentials["hyperpay"]["entity_id"]
+            ENTITY_ID = payment_credentials["hyperpay"]["entity_id"][payment_method]
             API_KEY = payment_credentials["hyperpay"]["API_KEY"]
+
+            first_name = dealshub_user_obj.first_name.split()[0]
+            last_name = ""
+            if len(dealshub_user_obj.first_name.split())>1:
+                last_name = dealshub_user_obj.first_name.split()[1]
+
+            address = json.loads(shipping_address.address_lines)
 
             amount = "{:.2f}".format(amount)
             
@@ -85,7 +103,17 @@ class RequestHyperpayCheckoutAPI(APIView):
                 "entityId" : ENTITY_ID,
                 "amount" : amount,
                 "currency" : "SAR",
-                "paymentType" : "DB"
+                "paymentType" : "DB",
+                "customer.email": dealshub_user_obj.email,
+                "customer.givenName": first_name,
+                "customer.surname": last_name,
+                "billing.street1": address[0],
+                "billing.city": shipping_address.emirates,
+                "billing.state": shipping_address.neighbourhood,
+                "billing.country": "SA",
+                "billing.postcode": "",
+                "merchantTransactionId": merchant_reference,
+                "testMode": "INTERNAL"
             }
 
             payment_response = requests.post(url=API_URL, data=data, headers=headers)
@@ -100,13 +128,13 @@ class RequestHyperpayCheckoutAPI(APIView):
         return Response(data=response)
         
 
-def get_order_info_from_hyperpay(checkout_id, location_group_obj):
+def get_order_info_from_hyperpay(checkout_id, payment_method, location_group_obj):
     order_info = {}
 
     try:
         payment_credentials = json.loads(location_group_obj.website_group.payment_credentials)
 
-        ENTITY_ID = payment_credentials["hyperpay"]["entity_id"]
+        ENTITY_ID = payment_credentials["hyperpay"]["entity_id"][payment_method]
         API_KEY = payment_credentials["hyperpay"]["API_KEY"]
 
         headers = {

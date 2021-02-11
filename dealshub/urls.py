@@ -124,6 +124,7 @@ urlpatterns = [
     url(r'^payment/fetch-token-request-parameters/$', views.FetchTokenRequestParameters),
     url(r'^payment/make-purchase-request/$', views.MakePurchaseRequest),
     url(r'^payment/request-hyperpay-checkout/$', views.RequestHyperpayCheckout),
+    url(r'^payment/make-payment-spotii/$', views.MakePaymentSpotii),
     # url(r'^payment/fetch-installment-plans/$', views.FetchInstallmentPlans),
     # url(r'^payment/make-purchase-request-installment/$', views.MakePurchaseRequestInstallment),
 
@@ -199,6 +200,7 @@ urlpatterns = [
     url(r'^fetch-reviews-admin/$', views.FetchReviewsAdmin),
     url(r'^fetch-product-reviews/$', views.FetchProductReviews),
     url(r'^delete-user-review-image/$', views.DeleteUserReviewImage),
+    url(r'^delete-admin-review-image/$', views.DeleteAdminReviewImage),
     url(r'^delete-user-review/$', views.DeleteUserReview),
     url(r'^hide-review-admin/$', views.HideReviewAdmin),
     url(r'^update-review-publish-status/$', views.UpdateReviewPublishStatus),

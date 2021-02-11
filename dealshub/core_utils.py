@@ -1,4 +1,10 @@
 from django.utils import timezone
+import requests
+import sys
+import logging
+from WAMSApp.constants import *
+
+logger = logging.getLogger(__name__)
 
 def check_valid_promotion(promotion_obj):
     return timezone.now() >= promotion_obj.start_time and timezone.now() <= promotion_obj.end_time
@@ -19,3 +25,18 @@ def is_number(s):
         return True
     except ValueError:
         return False
+
+def refresh_section_cache(location_group_uuid):
+    try:
+        url = SERVER_IP+"/dealshub/fetch-dealshub-admin-sections/"
+        data = {
+            "isDealshub": True,
+            "limit": True,
+            "locationGroupUuid": location_group_uuid,
+            "resolution": "high",
+            "isBot": True
+        }
+        r = requests.post(url=url, json=data)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("refresh_section_cache: %s at %s", e, str(exc_tb.tb_lineno)) 

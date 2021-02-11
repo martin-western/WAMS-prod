@@ -181,6 +181,7 @@ class DealsHubProduct(models.Model):
     is_promo_restricted = models.BooleanField(default=False)
     is_new_arrival = models.BooleanField(default=False)
     is_on_sale = models.BooleanField(default=False)
+    is_promotional = models.BooleanField(default=False)
 
     is_deleted = models.BooleanField(default=False)
     objects = DealsHubProductManager()
@@ -473,6 +474,9 @@ class Section(models.Model):
         verbose_name_plural = "Sections"
 
     def save(self, *args, **kwargs):
+
+        if self.location_group !=None:
+            refresh_section_cache(self.location_group.uuid)
         
         if self.pk == None:
             self.created_date = timezone.now()
@@ -533,6 +537,9 @@ class Banner(models.Model):
 
     def save(self, *args, **kwargs):
         
+        if self.location_group !=None:
+            refresh_section_cache(self.location_group.uuid)
+
         if self.pk == None:
             self.created_date = timezone.now()
             self.modified_date = timezone.now()
@@ -564,6 +571,9 @@ class UnitBannerImage(models.Model):
         return str(self.uuid)
 
     def save(self, *args, **kwargs):
+
+        if self.banner!=None and self.banner.location_group!=None:
+            refresh_section_cache(self.banner.location_group.uuid)
 
         if self.uuid == None or self.uuid=="":
             self.uuid = str(uuid.uuid4())

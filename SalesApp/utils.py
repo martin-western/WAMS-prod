@@ -21,7 +21,7 @@ from django.template import loader
 
 logger = logging.getLogger(__name__)
 
-SERVER_TOKEN = "AAAARH4JrjU:APA91bEi1uAlKWWMNnX7pCwXs2RBoAnLahZ0MAT92jOp80lE25Cbjn03iXHxNZeNvuMlYZYYKjXtmw21rz8IJEEGYHUS8khTiNzUgn61x_HFBQM78Q9QUNismYfmsc8B8WVrWRkTlX8S"
+SERVER_TOKEN = "AAAAW2sMgmc:APA91bEAA0ee0EBOvBZo8u3HfPC5NVAhlJLF8duV9rvpah522XK42HW5kPaO2cltOHoVW3AT4vAWY_0W_1CYRYYto5tepjXVVHnOODTMVj_ipQHLlEoAzPmGIalLuY5Vfr94cxS7KQLT"
 
 def convert_to_ascii(s):
     
