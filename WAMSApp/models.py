@@ -424,7 +424,31 @@ class OmnyCommUser(User):
     class Meta:
         verbose_name = "OmnyCommUser"
         verbose_name_plural = "OmnyCommUser"
-        
+
+
+class SalesTarget(models.Model):
+
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    user = models.ForeignKey("OmnyCommUser", null=True, blank=True, on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.CASCADE)
+
+    today_sales_target = models.FloatField(default=0)
+    monthly_sales_target = models.FloatField(default=0)
+    today_orders_target = models.IntegerField(default=0)
+    monthly_orders_target = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Sales Target"
+        verbose_name_plural = "Sales Targets"
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+
+        if self.pk == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        super(SalesTarget, self).save(*args, **kwargs)
 
 class ImageBucket(models.Model):
 

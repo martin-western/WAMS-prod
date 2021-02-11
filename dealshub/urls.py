@@ -236,6 +236,10 @@ urlpatterns = [
     url(r'^fetch-location-group-settings/$',views.FetchLocationGroupSettings),
     url(r'^update-location-group-settings/$',views.UpdateLocationGroupSettings),
 
+    url(r'^fetch-sales-targets-list/$',views.FetchSalesTargetsList),
+    url(r'^update-sales-target/$',views.UpdateSalesTarget),
+    url(r'^add-sales-target/$',views.AddSalesTarget),
+
     url(r'^add-product-to-order/$',views.AddProductToOrder),
     url(r'^update-order-charges/$',views.UpdateOrderCharges),
 

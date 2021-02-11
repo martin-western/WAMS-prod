@@ -4697,7 +4697,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
 
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
             misc = json.loads(custom_permission_obj.misc)
-            if "analytics" not in misc:
+            if ("analytics" not in misc) and ("sales-analytics" not in misc):
                 logger.warning("User does not have permission to view analytics!")
                 response["status"] = 403
                 return Response(data=response)
@@ -4706,6 +4706,10 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             order_objs = Order.objects.filter(location_group=location_group_obj)
+
+            if ("sales-analytics" in misc) and ("analytics" not in misc):
+                oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+                order_objs = order_objs.filter(is_order_offline=True, offline_sales_person=oc_user_obj)
 
             # today's
             today = str(datetime.date.today())[:10] + "T00:00:00+04:00"
