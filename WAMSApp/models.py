@@ -541,6 +541,7 @@ class Category(models.Model):
 class SubCategory(models.Model):
 
     category = models.ForeignKey(Category, related_name="sub_categories", blank=True, default='', on_delete=models.CASCADE)
+    erp_id = models.CharField(max_length=200, blank=True, default='')
     name = models.CharField(max_length=256, blank=True, default='')
     name_ar = models.CharField(max_length=256, blank=True, default='')
     description = models.CharField(max_length=256, blank=True, default='')
