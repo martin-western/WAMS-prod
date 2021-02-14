@@ -450,6 +450,7 @@ class SalesTarget(models.Model):
             self.uuid = str(uuid.uuid4())
         super(SalesTarget, self).save(*args, **kwargs)
 
+
 class ImageBucket(models.Model):
 
     description = models.TextField(null=True, blank=True)
