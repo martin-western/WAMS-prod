@@ -166,5 +166,6 @@ urlpatterns = [
     url(r'^admin/add-new-admin-sub-category/$', views.AddNewAdminSubCategory),
 
     url(r'^secure-delete-product/$',views.SecureDeleteProduct),
-
+    url(r'^logout-ocuser/$',views.LogoutOCUser),
+    
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
