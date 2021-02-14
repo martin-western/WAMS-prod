@@ -7113,3 +7113,5 @@ CreateExportTemplate = CreateExportTemplateAPI.as_view()
 DeleteExportTemplate = DeleteExportTemplateAPI.as_view()
 
 SecureDeleteProduct = SecureDeleteProductAPI.as_view()
+
+LogoutOCUser = LogoutOCUserAPI.as_view()
