@@ -188,6 +188,24 @@ class DealsHubProduct(models.Model):
     recovery = DealsHubProductRecoveryManager()
     is_notified = models.BooleanField(default=False)
 
+    moq_cohort1 = models.IntegerField(default=5)
+    moq_cohort2 = models.IntegerField(default=5)
+    moq_cohort3 = models.IntegerField(default=5)
+    moq_cohort4 = models.IntegerField(default=5)
+    moq_cohort5 = models.IntegerField(default=5)
+
+    now_price_cohort1 = models.IntegerField(default=0)
+    now_price_cohort2 = models.IntegerField(default=0)
+    now_price_cohort3 = models.IntegerField(default=0)
+    now_price_cohort4 = models.IntegerField(default=0)
+    now_price_cohort5 = models.IntegerField(default=0)
+
+    promotional_price_cohort1 = models.IntegerField(default=0)
+    promotional_price_cohort2 = models.IntegerField(default=0)
+    promotional_price_cohort3 = models.IntegerField(default=0)
+    promotional_price_cohort4 = models.IntegerField(default=0)
+    promotional_price_cohort5 = models.IntegerField(default=0)
+
     class Meta:
         verbose_name = "DealsHub Product"
         verbose_name_plural = "DealsHub Products"
@@ -298,22 +316,114 @@ class DealsHubProduct(models.Model):
     def get_how_to_use(self):
         return json.loads(self.product.how_to_use)
 
-    def get_actual_price(self):
-        if self.promotion==None:
-            return self.now_price
-        if check_valid_promotion(self.promotion)==True:
-            return self.promotional_price
+    def get_moq(self,dealshub_user_obj=None):
+        if self.location_group.is_b2b == True:
+            b2b_user_obj = B2BUser.objects.get(username=dealshub_user_obj.username)
+            cohort = b2b_user_obj.cohort
+            if cohort == "1":
+                return self.moq_cohort1
+            elif cohort == "2":
+                return self.moq_cohort2
+            elif cohort == "3":
+                return self.moq_cohort3
+            elif cohort == "4":
+                return self.moq_cohort4
+            elif cohort == "5":
+                return self.moq_cohort5
+        return self.moq
+
+    def get_b2b_price(self,cohort):
+        if cohort == "1":
+            return self.now_price_cohort1
+        elif cohort == "2":
+            return self.now_price_cohort2
+        elif cohort == "3":
+            return self.now_price_cohort3
+        elif cohort == "4":
+            return self.now_price_cohort4
+        elif cohort == "5":
+            return self.now_price_cohort5
         return self.now_price
 
-    def get_actual_price_for_customer(self, dealshub_user_obj):
-        if self.is_promo_restricted==False:
-            return self.get_actual_price()
-        if self.promotion==None:
-            return self.now_price
-        if check_valid_promotion(self.promotion)==True:
-            promotional_price = self.promotional_price
-            if UnitOrder.objects.filter(order__owner=dealshub_user_obj, product=self, price=promotional_price).exists()==False:
+    def get_now_price(self,dealshub_user_obj=None):
+        if self.location_group.is_b2b==True:
+            if dealshub_user_obj == None:
+                return 0
+            b2b_user_obj = B2BUser.objects.get(username=dealshub_user_obj.username)
+            if check_account_status(b2b_user_obj)==True:
+                return  self.get_b2b_price(b2b_user_obj.cohort)
+            return 0
+        return self.now_price
+
+    def get_was_price(self,dealshub_user_obj):
+        if self.location_group.is_b2b==True:
+            if dealshub_user_obj == None:
+                return 0
+            b2b_user_obj = B2BUser.objects.get(username=dealshub_user_obj.username)
+            if check_account_status(b2b_user_obj)==True:
+                return self.was_price
+            return 0
+        return self.was_price
+
+    def get_b2b_promotional_price(self,cohort):
+        if cohort == "1":
+            return self.promotional_price_cohort1
+        elif cohort == "2":
+            return self.promotional_price_cohort2
+        elif cohort == "3":
+            return self.promotional_price_cohort3
+        elif cohort == "4":
+            return self.promotional_price_cohort4
+        elif cohort == "5":
+            return self.promotional_price_cohort5
+        return self.promotional_price
+
+    def get_promotional_price(self,dealshub_user_obj=None):
+        if self.location_group.is_b2b == True:
+            if dealshub_user_obj == None:
+                return 0
+            b2b_user_obj = B2BUser.objects.get(username=dealshub_user_obj.username)
+            if check_account_status(b2b_user_obj)==True:
+                return self.get_b2b_promotional_price(b2b_user_obj.cohort)
+            return 0
+        return self.promotional_price
+
+    def get_actual_price(self,dealshub_user_obj=None):
+        if self.location_group.is_b2b == False:
+            if self.promotion==None:
+                return self.now_price
+            if check_valid_promotion(self.promotion)==True:
                 return self.promotional_price
+            return self.now_price
+        else:
+            if dealshub_user_obj == None:
+                return 0
+            b2b_user_obj = B2BUser.objects.get(username = dealshub_user_obj.username)
+            if check_account_status(b2b_user_obj) == False:
+                return 0
+            cohort = b2b_user_obj.cohort
+
+            if self.promotion == None:
+                return self.get_b2b_price(cohort)
+            if check_valid_promotion(self.promotion)==True:
+                return self.get_b2b_promotional_price(cohort)
+            return self.get_b2b_price(cohort)
+
+    def get_actual_price_for_customer(self, dealshub_user_obj):
+        if self.is_promo_restricted==False or self.promotion==None:
+            return self.get_actual_price(dealshub_user_obj)
+
+        if check_valid_promotion(self.promotion)==True:
+            promotional_price = self.get_actual_price(dealshub_user_obj)
+            if UnitOrder.objects.filter(order__owner=dealshub_user_obj, product=self, price=promotional_price).exists()==False:
+                return self.get_actual_price(dealshub_user_obj)
+
+        if self.location_group.is_b2b==True:
+            b2b_user_obj = B2BUser.objects.get(username=dealshub_user_obj.username)
+            if check_account_status(b2b_user_obj) == False:
+                return 0
+            cohort = b2b_user_obj.cohort
+            return self.get_b2b_price(cohort)
         return self.now_price
 
     def is_user_eligible_for_promotion(self, dealshub_user_obj):
@@ -1281,6 +1391,9 @@ class B2BUser(DealsHubUser):
     vat_certificate_status = models.CharField(max_length=30, choices=STATUS_OPTIONS,default='Pending')
     trade_license_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
     passport_copy_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
+    is_profile_approved = models.BooleanField(default=False)
+
+    cohort = models.TextField(default="",blank=True)
     conf = models.TextField(default = "{}")
 
     class Meta:
