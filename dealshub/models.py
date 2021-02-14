@@ -8,6 +8,7 @@ import uuid
 
 from WAMSApp.models import *
 from dealshub.core_utils import *
+from dealshub.utils import *
 from WAMSApp.SAP_constants import *
 from django.core.cache import cache
 
