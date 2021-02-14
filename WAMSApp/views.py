@@ -6952,6 +6952,33 @@ class SecureDeleteProductAPI(APIView):
 
         return Response(data=response)
 
+
+class LogoutOCUserAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("LogoutUserAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            request.user.auth_token.delete()
+
+            logout(request)
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("LogoutUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
 
 BulkUploadDynamicExcel = BulkUploadDynamicExcelAPI.as_view()
@@ -7136,3 +7163,5 @@ CreateExportTemplate = CreateExportTemplateAPI.as_view()
 DeleteExportTemplate = DeleteExportTemplateAPI.as_view()
 
 SecureDeleteProduct = SecureDeleteProductAPI.as_view()
+
+LogoutOCUser = LogoutOCUserAPI.as_view()
