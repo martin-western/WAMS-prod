@@ -2,6 +2,7 @@ from django.utils import timezone
 import requests
 import sys
 import logging
+from WAMSApp.constants import *
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ def is_number(s):
 
 def refresh_section_cache(location_group_uuid):
     try:
-        url = "https://qa.omnycomm.com:8028/dealshub/fetch-dealshub-admin-sections/"
+        url = SERVER_IP+"/dealshub/fetch-dealshub-admin-sections/"
         data = {
             "isDealshub": True,
             "limit": True,

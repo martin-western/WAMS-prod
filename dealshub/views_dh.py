@@ -696,7 +696,7 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["quantity"] = unit_cart_obj.quantity
                 temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
                 temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
-                temp_dict["moq"] = unit_cart_obj.product.moq
+                temp_dict["moq"] = unit_cart_obj.product.get_moq(dealshub_user_obj)
                 temp_dict["stock"] = unit_cart_obj.product.stock
                 temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
@@ -1567,7 +1567,7 @@ class PlaceOrderAPI(APIView):
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
-                elif website_group=="shopnesto":
+                elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
@@ -2408,6 +2408,7 @@ class FetchCustomerDetailsAPI(APIView):
             temp_dict["contactNumber"] = dealshub_user_obj.contact_number
             if is_b2b == True:
                 b2b_user_obj = B2BUser.objects.get(username = dealshub_user_obj.username)
+                temp_dict["cohort"] = b2b_user_obj.cohort
                 temp_dict["companyName"] = b2b_user_obj.company_name
                 temp_dict["vatCertification"] = b2b_user_obj.vat_certificate.url
                 temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
@@ -2512,6 +2513,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
             passport_copy_status = data["passportCopyStatus"]
             customer_name = data["customerName"]
             email_id = data["emailId"]
+            cohort = data["cohort"]
 
             b2b_user_obj.company_name = company_name
             b2b_user_obj.first_name = customer_name
@@ -2519,6 +2521,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.vat_certificate_status = vat_certificate_status
             b2b_user_obj.trade_license_status = trade_license_status
             b2b_user_obj.passport_copy_status = passport_copy_status
+            b2b_user_obj.cohort = cohort
             b2b_user_obj.save()
 
             response["status"] = 200
@@ -7076,6 +7079,20 @@ class PlaceOnlineOrderAPI(APIView):
             try:
                 p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
+                website_group = order_obj.location_group.website_group.name
+                unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
+                if website_group=="parajohn":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
+                elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
+                elif website_group=="daycart":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
