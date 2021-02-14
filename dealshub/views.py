@@ -5426,6 +5426,107 @@ class UpdateLocationGroupSettingsAPI(APIView):
         return Response(data=response)
 
 
+class FetchSalesTargetsListAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSalesExecutiveTargetsListAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            sales_target_objs = SalesTarget.objects.filter(location_group=location_group_obj)
+
+            sales_target_list = []
+            for sales_target_obj in sales_target_objs:
+                temp_dict = {}
+                temp_dict["user_first_name"] = sales_target_obj.user.first_name
+                temp_dict["user_username"] = sales_target_obj.user.username
+                temp_dict["uuid"] = sales_target_obj.uuid
+                temp_dict["today_sales_target"] = sales_target_obj.today_sales_target
+                temp_dict["monthly_sales_target"] = sales_target_obj.monthly_sales_target
+                temp_dict["today_orders_target"] = sales_target_obj.today_orders_target
+                temp_dict["monthly_orders_target"] = sales_target_obj.monthly_orders_target
+                sales_target_list.append(temp_dict)
+            
+            response["sales_target_list"] = sales_target_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSalesExecutiveTargetsListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class UpdateSalesTargetAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateSalesTargetAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            sales_target_uuid = data["sales_target_uuid"]
+            sales_target_obj = SalesTarget.objects.get(uuid=sales_target_uuid, location_group=location_group_obj)
+            
+            today_sales_target = float(data["today_sales_target"])
+            monthly_sales_target = float(data["monthly_sales_target"])
+            today_orders_target = float(data["today_orders_target"])
+            monthly_orders_target = float(data["monthly_orders_target"])
+            
+            sales_target_obj.today_sales_target = today_sales_target
+            sales_target_obj.monthly_sales_target = monthly_sales_target
+            sales_target_obj.today_orders_target = today_orders_target
+            sales_target_obj.monthly_orders_target = monthly_orders_target
+            sales_target_obj.save()
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateSalesTargetAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class AddSalesTargetAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+            
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddSalesTargetAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            sales_person_obj = OmnyCommUser.objects.get(username=data["sales_person_username"])
+
+            sales_target_obj = SalesTarget.objects.create(location_group=location_group_obj,
+                                                          user=sales_person_obj,
+                                                          today_sales_target=data["today_sales_target"],
+                                                          monthly_sales_target=data["monthly_sales_target"],
+                                                          today_orders_target=data["today_orders_target"],
+                                                          monthly_orders_target=data["monthly_orders_target"])
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddSalesTargetAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class AddProductToOrderAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -5812,6 +5913,12 @@ SaveSEOAdminDetails = SaveSEOAdminDetailsAPI.as_view()
 FetchLocationGroupSettings = FetchLocationGroupSettingsAPI.as_view()
 
 UpdateLocationGroupSettings = UpdateLocationGroupSettingsAPI.as_view()
+
+FetchSalesTargetsList = FetchSalesTargetsListAPI.as_view()
+
+UpdateSalesTarget = UpdateSalesTargetAPI.as_view()
+
+AddSalesTarget = AddSalesTargetAPI.as_view()
 
 AddProductToOrder = AddProductToOrderAPI.as_view()
 
