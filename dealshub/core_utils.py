@@ -40,3 +40,12 @@ def refresh_section_cache(location_group_uuid):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("refresh_section_cache: %s at %s", e, str(exc_tb.tb_lineno)) 
+
+def check_account_status(b2b_user_obj):
+
+    if b2b_user_obj == None:
+        return False
+    elif b2b_user_obj.vat_certificate_status == "Approved" and b2b_user_obj.trade_license_status == "Approved" and b2b_user_obj.passport_copy_status == "Approved":
+        return True
+    return False
+    
