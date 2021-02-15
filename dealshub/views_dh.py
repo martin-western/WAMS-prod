@@ -4915,13 +4915,26 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
 
             days_in_month = float(datetime.datetime.now().day)
-
-            response["targets"] = {
-                "today_sales" : location_group_obj.today_sales_target,
-                "today_orders" : location_group_obj.today_orders_target,
-                "monthly_sales" : location_group_obj.monthly_sales_target,
-                "monthly_orders" : location_group_obj.monthly_orders_target
-            }
+            
+            if ("sales-analytics" in misc) and ("analytics" not in misc):
+                oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+                sales_target_obj = SalesTarget.objects.get(user=oc_user_obj, location_group=location_group_obj)
+                if sales_target_obj!=None:
+                    response["targets"] = {
+                        "today_sales" : sales_target_obj.today_sales_target,
+                        "today_orders" : sales_target_obj.today_orders_target,
+                        "monthly_sales" : sales_target_obj.monthly_sales_target,
+                        "monthly_orders" : sales_target_obj.monthly_orders_target
+                    }
+                else:
+                    response["targets"] = { "today_sales" : 0, "today_orders" : 0, "monthly_sales" : 0, "monthly_orders" : 0 }
+            else:
+                response["targets"] = {
+                    "today_sales" : location_group_obj.today_sales_target,
+                    "today_orders" : location_group_obj.today_orders_target,
+                    "monthly_sales" : location_group_obj.monthly_sales_target,
+                    "monthly_orders" : location_group_obj.monthly_orders_target
+                }                                
             
             response["todays"] = {
                 "sales" : today_total_sales,
