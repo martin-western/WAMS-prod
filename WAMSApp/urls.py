@@ -167,5 +167,14 @@ urlpatterns = [
 
     url(r'^secure-delete-product/$',views.SecureDeleteProduct),
     url(r'^logout-ocuser/$',views.LogoutOCUser),
+
+    url(r'^create-nesto-product/$',views.CreateNestoProduct),
+    url(r'^update-nesto-product/$',views.UpdateNestoProduct),
+    url(r'^fetch-nesto-product-details/$',views.FetchNestoProductDetails),
+    url(r'^fetch-nesto-product-list/$',views.FetchNestoProductList),
+    url(r'^add-nesto-product-images/$',views.AddNestoProductImages),
+    url(r'^remove-nesto-product-image/$',views.RemoveNestoProductImageAPI),
+    url(r'^link-nesto-product/$',views.LinkNestoProduct),
+    url(r'^unlink-nesto-product/$',views.UnLinkNestoProduct),
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
