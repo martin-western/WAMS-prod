@@ -1275,7 +1275,7 @@ class NestoProduct(models.Model):
     product_content_images = models.ManyToManyField(Image, related_name="product_content_images", blank=True)
 
     created_date = models.DateTimeField(null=True, blank=True)
-    modified_date = models.DateTimeField()
+    modified_date = models.DateTimeField(null=True, blank=True)
     uuid = models.CharField(default="", max_length=200, unique=True)
 
     def save(self, *args, **kwargs):
