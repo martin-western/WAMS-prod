@@ -821,7 +821,7 @@ class SendNotificationAPI(APIView):
                 logger.warning("SendNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
-            fcm_ids = SalesAppUser.objects.values_list('fcm_id',flat=True)
+            fcm_ids = list(SalesAppUser.objects.values_list('fcm_id',flat=True))
 
             notification_info = {}
             notification_info["title"] = notification_obj.title

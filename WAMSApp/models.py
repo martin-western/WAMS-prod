@@ -787,6 +787,7 @@ class Brand(models.Model):
     name_ar = models.CharField(max_length=100,default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     organization = models.ForeignKey(Organization, null=True, blank=True)
+    description = models.TextField(default="")
 
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
@@ -1231,6 +1232,43 @@ auditlog.register(Product.aplus_content_images.through)
 auditlog.register(Product.ads_images.through)
 auditlog.register(Product.pfl_generated_images.through)
 auditlog.register(Product.transparent_images.through)
+
+
+nesto_dimensions_json = {
+    "product_length": "",
+    "product_length_metric": "",
+    "product_width": "",
+    "product_width_metric": "",
+    "product_height": "",
+    "product_height_metric": "",
+}
+
+class NestoProduct(models.Model):
+    article_number = models.CharField(default="", blank=True, max_length=100)
+    product_name = models.CharField(default="", blank=True, max_length=250)
+    product_name_ecommerce = models.CharField(default="", blank=True, max_length=250)
+    barcode = models.CharField(unique=True, default="", blank=True, max_length=100)
+    uom = models.CharField(default="", blank=True, max_length=100)
+    language_key = models.CharField(default="", blank=True, max_length=100)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
+    weight_volume = models.CharField(default="", blank=True, max_length=100)
+    country_of_origin = models.CharField(default="", blank=True, max_length=100)
+    highlights = models.TextField(default="", blank=True)
+    storage_condition = models.TextField(default="", blank=True)
+    preparation_and_usage = models.TextField(default="", blank=True)
+    allergic_information = models.TextField(default="", blank=True)
+    product_description = models.TextField(default="", blank=True)
+    dimensions = models.TextField(default=nesto_dimensions_json)
+    nutrition_facts = models.TextField(default="", blank=True)
+    ingredients = models.TextField(default="", blank=True)
+    return_days = models.CharField(default="", blank=True, max_length=100)
+    substitute_products = models.ManyToManyField('self', related_name="substitute_products", blank=True)
+    complimentary_products = models.ManyToManyField('self', related_name="complimentary_products", blank=True)
+    front_images = models.ManyToManyField(Image, related_name="front_images", blank=True)
+    back_images = models.ManyToManyField(Image, related_name="back_images", blank=True)
+    side_images = models.ManyToManyField(Image, related_name="side_images", blank=True)
+    nutrition_images = models.ManyToManyField(Image, related_name="nutrition_images", blank=True)
+    product_content_images = models.ManyToManyField(Image, related_name="product_content_images", blank=True)
 
 
 class ProductImage(models.Model):
