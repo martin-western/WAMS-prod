@@ -16,7 +16,9 @@ WIGME_COMPANY_CODE = 1200
 ######### TESTING URLS ############
 PRICE_STOCK_URL = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_stock_price/150/zser_stock_price/zbin_stock_price"
 TRANSFER_HOLDING_URL = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
-ONLINE_ORDER_URL = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"  
+ONLINE_ORDER_URL = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_online_order/150/zser_online_order/zbin_online_order"
+PRODUCT_HOLDING_URL = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_article_holding_rpt/150/zser_article_holding_rpt/zbin_article_holding_rpt"
+
 
 CUSTOMER_ID = "40000195"
 CUSTOMER_ID_FINAL_BILLING = "50000151"

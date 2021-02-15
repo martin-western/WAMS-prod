@@ -701,3 +701,60 @@ def create_holding_transfer_report(dealshub_product_objs):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("create_holding_transfer_report: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+
+def fetch_product_holding_details(dealshub_product_obj):
+
+    try:
+        seller_sku = dealshub_product_obj.get_seller_sku()
+        brand_name = dealshub_product_obj.get_brand()
+        status = "FAILED"
+        
+        try:
+            company_code = BRAND_COMPANY_DICT[brand_name.lower()]
+        except Exception as e:
+            company_code = "BRAND NOT RECOGNIZED"
+        
+        product_holding_details = {}
+
+        if company_code != "BRAND NOT RECOGNIZED":
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            
+            body = xml_generator_for_product_holding_details(company_code,seller_sku)
+
+            response = requests.post(url=PRODUCT_HOLDING_URL, auth=credentials, data=body, headers=headers)
+
+            content = response.content
+            xml_content = xmltodict.parse(content)
+            response_dict = json.loads(json.dumps(xml_content))
+
+            items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ARTICLE_HOLDING_RPTResponse"]["T_DATA"]["item"]
+
+            temp_list = []
+            for item in items:
+                flag = 0
+                for temp_item in temp_list:
+                    if temp_item["channel"] == item["VORNA"]:
+                        temp_item["qty"] += float(item["OMENG"])
+                        flag=1
+                        break
+                if flag==0:
+                    temp_dict = {}
+                    temp_dict["channel"] = item["VORNA"]
+                    temp_dict["qty"] = float(item["OMENG"])
+                    temp_list.append(temp_dict)
+            
+            prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
+
+            total_holding = float(prices_and_stock_information["total_holding"])
+            total_atp = float(prices_and_stock_information["total_atp"])
+
+            product_holding_details["channel_holding_qty_list"] = temp_list
+            product_holding_details["ATP"] = total_atp
+            product_holding_details["holding"] = total_holding
+           
+        return product_holding_details
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_product_holding_details: %s at %s", str(e), str(exc_tb.tb_lineno))

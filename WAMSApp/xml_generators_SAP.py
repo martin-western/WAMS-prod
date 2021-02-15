@@ -383,3 +383,52 @@ def xml_generator_for_final_billing(company_code,customer_id,order_information):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("xml_generator_for_final_billing: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
+
+
+def xml_generator_for_product_holding_details(company_code,seller_sku):
+   try:
+      xml_feed = """ <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
+                        <soapenv:Header/>
+                        <soapenv:Body>
+                           <urn:ZAPP_ARTICLE_HOLDING_RPT>
+                              <!--Optional:-->
+                              <IM_MATNR>
+                                 <!--Zero or more repetitions:-->
+                                 <item>
+                                    <MATNR>"""str(seller_sku)"""</MATNR>
+                                 </item>
+                              </IM_MATNR>
+                              <!--Optional:-->
+                              <IM_VKORG>
+                                 <!--Zero or more repetitions:-->
+                                 <item>
+                                    <VKORG>"""str(company_code)"""</VKORG>
+                                 </item>
+                              </IM_VKORG>
+                              <!--Optional:-->
+                              <T_DATA>
+                              <!--Zero or more repetitions:-->
+                              <item>
+                                 <VBELN></VBELN>
+                                 <MATNR></MATNR>
+                                 <MAKTX></MAKTX>
+                                 <NAME1></NAME1>
+                                 <OMENG></OMENG>
+                                 <MEINS></MEINS>
+                                 <CHARG></CHARG>
+                                 <ERDAT></ERDAT>
+                                 <VORNA></VORNA>
+                                 <DOCTY></DOCTY>
+                                 <BEZEI></BEZEI>
+                              </item>
+                           </T_DATA>
+                           </urn:ZAPP_ARTICLE_HOLDING_RPT>
+                        </soapenv:Body>
+                     </soapenv:Envelope>"""
+      return xml_feed
+
+   except Exception as e:
+        
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("xml_generator_for_product_holding_details: %s at %s", str(e), str(exc_tb.tb_lineno))
+        return []
