@@ -1244,6 +1244,7 @@ nesto_dimensions_json = {
 }
 
 class NestoProduct(models.Model):
+
     article_number = models.CharField(default="", blank=True, max_length=100)
     product_name = models.CharField(default="", blank=True, max_length=250)
     product_name_ecommerce = models.CharField(default="", blank=True, max_length=250)
@@ -1263,12 +1264,28 @@ class NestoProduct(models.Model):
     ingredients = models.TextField(default="", blank=True)
     return_days = models.CharField(default="", blank=True, max_length=100)
     substitute_products = models.ManyToManyField('self', related_name="substitute_products", blank=True)
-    complimentary_products = models.ManyToManyField('self', related_name="complimentary_products", blank=True)
+    cross_selling_products = models.ManyToManyField('self', related_name="cross_selling_products", blank=True)
+    upselling_products = models.ManyToManyField('self', related_name="upselling_products", blank=True)
     front_images = models.ManyToManyField(Image, related_name="front_images", blank=True)
     back_images = models.ManyToManyField(Image, related_name="back_images", blank=True)
     side_images = models.ManyToManyField(Image, related_name="side_images", blank=True)
     nutrition_images = models.ManyToManyField(Image, related_name="nutrition_images", blank=True)
     product_content_images = models.ManyToManyField(Image, related_name="product_content_images", blank=True)
+
+    created_date = models.DateTimeField(null=True, blank=True)
+    modified_date = models.DateTimeField()
+    uuid = models.CharField(default="", max_length=200, unique=True)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.modified_date = timezone.now()
+            self.uuid = str(uuid.uuid4())
+        else:
+            self.modified_date = timezone.now()
+        
+        super(NestoProduct, self).save(*args, **kwargs)
 
 
 class ProductImage(models.Model):
