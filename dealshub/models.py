@@ -916,6 +916,65 @@ class UnitCart(models.Model):
         verbose_name_plural = "Unit Carts"
 
 
+class OrderRequest(models.Model):
+
+    bundleid = models.CharField(max_length=100,default="")
+    owner = models.ForeignKey('B2BUser',on_delete = models.CASCADE)
+    uuid = models.CharField(max_length = 200,default="")
+    date_created = models.DateTimeField(auto_now_add=True)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    payment_mode = models.CharField(max_length=50, default="COD")
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
+    additional_note = models.TextField(default="", blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+            if self.bundleid=="":
+                order_prefix = ""
+                order_cnt = 1
+                try:
+                    order_prefix = json.loads(self.location_group.website_group.conf)["order_prefix"]
+                    order_cnt = Order.objects.filter(location_group=self.location_group).count()+1
+                except Exception as e:
+                    pass
+                self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+
+        super(OrderRequest, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Order Request"
+        verbose_name_plural = "Order Requests"
+
+
+class UnitOrderRequest(models.Model):
+
+    order_request = models.ForeignKey(OrderRequest, on_delete=models.CASCADE)
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)
+    user_price = models.IntegerField(default=0)
+    date_created = models.DateTimeField(auto_now_add=True)
+    order_req_id = models.CharField(max_length=100,default="")
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.user_price = product.get_now_price(order_request.owner.cohort)
+            self.uuid = str(uuid.uuid4())
+            order_prefix = ""
+            try:
+                order_prefix = json.loads(self.order_request.location_group.website_group.conf)["order_prefix"]
+            except Exception as e:
+                pass
+            self.order_req_id = order_prefix + str(uuid.uuid4())[:5]
+
+        super(UnitOrderRequest, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Unit Order Request"
+        verbose_name_plural = "Unit Order Requests"        
+
+
 class Order(models.Model):
 
     bundleid = models.CharField(max_length=100, default="")
