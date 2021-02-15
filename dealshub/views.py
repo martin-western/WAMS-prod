@@ -5513,7 +5513,7 @@ class AddSalesTargetAPI(APIView):
             sales_person_obj = OmnyCommUser.objects.get(username=data["sales_person_username"])
 
             if SalesTarget.objects.filter(location_group=location_group_obj, user=sales_person_obj).exists():
-                response['status'] = 403
+                response['status'] = 409
                 response['message'] = "Target already set for this user"
                 return Response(data=response)
 
