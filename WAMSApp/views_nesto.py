@@ -21,10 +21,10 @@ class CreateNestoProductAPI(APIView):
             data = request.data
             logger.info("CreateNestoProductAPI: %s", str(data))
 
-            if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
-                logger.warning("CreateNestoProductAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
+            #     logger.warning("CreateNestoProductAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -98,10 +98,10 @@ class UpdateNestoProductAPI(APIView):
             data = request.data
             logger.info("CreateNestoProductAPI: %s", str(data))
 
-            if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
-                logger.warning("CreateNestoProductAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
+            #     logger.warning("CreateNestoProductAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -179,10 +179,10 @@ class FetchNestoProductDetailsAPI(APIView):
             data = request.data
             logger.info("CreateNestoProductAPI: %s", str(data))
 
-            if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
-                logger.warning("FetchNestoProductDetailsAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
+            #     logger.warning("FetchNestoProductDetailsAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             if not isinstance(data, dict):
                 data = json.loads(data)
