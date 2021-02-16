@@ -2784,6 +2784,12 @@ class PublishDealsHubProductAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
+            
+            if dealshub_product_obj.product.no_of_images_for_filter==0:
+                response['status'] = 403
+                response['message'] = 'product without images cannot be published'
+                return Response(data=response)
+
             dealshub_product_obj.is_published = True
             dealshub_product_obj.save()
 
