@@ -1422,6 +1422,228 @@ class FetchActiveOrderDetailsAPI(APIView):
         return Response(data=response)
 
 
+class PlaceOrderRequestAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PlaceOrderRequestAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+
+            is_fast_cart = data.get("is_fast_cart", False)
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+
+            order_request_obj = None
+            if is_fast_cart==False:
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                try:
+                    if cart_obj.shipping_address==None:
+                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        cart_obj.shipping_address = address_obj
+                        cart_obj.save()
+                except Exception as e:
+                    pass
+
+                if location_group_obj.is_voucher_allowed_on_cod==False:
+                    cart_obj.voucher = None
+                    cart_obj.save()
+
+                update_cart_bill(cart_obj)
+
+                unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
+
+                cart_obj.to_pay += cart_obj.location_group.cod_charge
+                cart_obj.save()
+
+                order_request_obj = OrderRequest.objects.create(owner=cart_obj.owner,
+                                                 shipping_address=cart_obj.shipping_address,
+                                                 to_pay=cart_obj.to_pay,
+                                                 real_to_pay=cart_obj.to_pay,
+                                                 voucher=cart_obj.voucher,
+                                                 location_group=cart_obj.location_group,
+                                                 delivery_fee=cart_obj.get_delivery_fee(),
+                                                 cod_charge=cart_obj.location_group.cod_charge,
+                                                 additional_note=cart_obj.additional_note)
+
+                for unit_cart_obj in unit_cart_objs:
+                    unit_order_request_obj = UnitOrderRequest.objects.create(order_request=order_request_obj,
+                                                              product=unit_cart_obj.product,
+                                                              initial_quantity=unit_cart_obj.quantity,
+                                                              initial_price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+
+                # Cart gets empty
+                for unit_cart_obj in unit_cart_objs:
+                    unit_cart_obj.delete()
+
+                # cart_obj points to None
+                cart_obj.shipping_address = None
+                cart_obj.voucher = None
+                cart_obj.to_pay = 0
+                cart_obj.additional_note = ""
+                cart_obj.merchant_reference = ""
+                cart_obj.payment_info = "{}"
+                cart_obj.save()
+            else:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                try:
+                    if fast_cart_obj.shipping_address==None:
+                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        fast_cart_obj.shipping_address = address_obj
+                        fast_cart_obj.save()
+                except Exception as e:
+                    pass
+
+                if location_group_obj.is_voucher_allowed_on_cod==False:
+                    fast_cart_obj.voucher = None
+                    fast_cart_obj.save()
+
+                update_fast_cart_bill(fast_cart_obj)
+
+                fast_cart_obj.to_pay += fast_cart_obj.location_group.cod_charge
+                fast_cart_obj.save()
+
+                order_request_obj = OrderRequest.objects.create(owner=fast_cart_obj.owner,
+                                                 shipping_address=fast_cart_obj.shipping_address,
+                                                 to_pay=fast_cart_obj.to_pay,
+                                                 real_to_pay=fast_cart_obj.to_pay,
+                                                 voucher=fast_cart_obj.voucher,
+                                                 location_group=fast_cart_obj.location_group,
+                                                 delivery_fee=fast_cart_obj.get_delivery_fee(),
+                                                 cod_charge=fast_cart_obj.location_group.cod_charge,
+                                                 additional_note=fast_cart_obj.additional_note)
+
+                unit_order_request_obj = UnitOrderRequest.objects.create(order_request=order_request_obj,
+                                                          product=fast_cart_obj.product,
+                                                          initial_quantity=fast_cart_obj.quantity,
+                                                          initial_price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+
+                # cart_obj points to None
+                fast_cart_obj.shipping_address = None
+                fast_cart_obj.voucher = None
+                fast_cart_obj.to_pay = 0
+                fast_cart_obj.additional_note = ""
+                fast_cart_obj.merchant_reference = ""
+                fast_cart_obj.payment_info = "{}"
+                fast_cart_obj.product = None
+                fast_cart_obj.save()
+
+
+            # Trigger Email
+            try:
+                p1 = threading.Thread(target=send_order_request_placed_mail, args=(order_obj,))
+                p1.start()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class ProcessOrderRequestAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("ProcessOrderRequestAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = request["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+            dealshub_products = data["DealsHubProducts"]
+
+            order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
+
+            for dealshub_product in dealshub_products:
+                dealshub_product_obj = DealsHubProduct.objects.get(uuid=dealshub_product["uuid"],location_group=location_group_obj)
+                unit_order_request_obj = UnitOrderRequest.objects.get(product=dealshub_product_obj, order_request=order_request_obj)
+                unit_order_request_obj.final_quantity = dealshub_product["quantity"]
+                unit_order_request_obj.final_price = dealshub_product["price"]
+                unit_order_request_obj.request_status = "Approved"
+                unit_order_request_obj.save()
+
+            order_request_obj.order_status = "Approved"
+            order_request_obj.save()
+
+            if order_request_obj.payment_mode == "COD":
+                try:
+                    if order_request_obj.shipping_address==None:
+                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        order_request_obj.shipping_address = address_obj
+                        order_request_obj.save()
+                except Exception as e:
+                    pass
+
+                if location_group_obj.is_voucher_allowed_on_cod==False:
+                    order_request_obj.voucher = None
+                    order_request_obj.save()
+
+                update_request_status_bill(order_request_obj)
+
+                order_obj = Order.objects.create(owner = order_request_obj.owner,
+                                                 shipping_address=order_request_obj.shipping_address,
+                                                 to_pay=order_request_obj.to_pay,
+                                                 real_to_pay=order_request_obj.to_pay,
+                                                 payment_mode = order_request_obj.payment_mode,
+                                                 order_placed_date=timezone.now(),
+                                                 voucher=order_request_obj.voucher,
+                                                 location_group=order_request_obj.location_group,
+                                                 delivery_fee=order_request_obj.get_delivery_fee(),
+                                                 cod_charge=order_request_obj.location_group.cod_charge,
+                                                 additional_note=order_request_obj.additional_note)
+
+                order_request_obj.is_placed = True
+                order_request_obj.save()
+
+                # Trigger Email
+                try:
+                    p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                    p1.start()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("ProcessOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+                # Refresh Stock
+                refresh_stock(order_obj)
+
+            else:
+                update_request_status_bill(order_request_obj)
+
+                # Trigger Email
+                try:
+                    p1 = threading.Thread(target=send_order_request_approval_mail, args=(order_request_obj,))
+                    p1.start()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("ProcessOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ProcessOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
+
 class PlaceOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7614,6 +7836,10 @@ SelectOfflineAddress = SelectOfflineAddressAPI.as_view()
 SelectPaymentMode = SelectPaymentModeAPI.as_view()
 
 FetchActiveOrderDetails = FetchActiveOrderDetailsAPI.as_view()
+
+PlaceOrderRequest = PlaceOrderRequestAPI.as_view()
+
+ProcessOrderRequest = ProcessOrderRequestAPI.as_view()
 
 PlaceOrder = PlaceOrderAPI.as_view()
 

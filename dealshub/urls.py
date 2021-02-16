@@ -114,6 +114,7 @@ urlpatterns = [
     url(r'^checkout/place-offline-order/$',views.PlaceOfflineOrder),
     url(r'^checkout/place-online-order/$',views.PlaceOnlineOrder),
     url(r'^checkout/cancel-order/$', views.CancelOrder),
+    url(r'^checkout/place-order-request/$',views.PlaceOrderRequest),
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^order/fetch-order-details/$', views.FetchOrderDetails),
@@ -249,4 +250,5 @@ urlpatterns = [
     url(r'^fetch-b2b-user-profile/$',views.FetchB2BUserProfile),
     url(r'^upload-b2b-document/$',views.UploadB2BDocument),
     url(r'^update-b2b-customer-details/$',views.UpdateB2BCustomerDetails),
+    url(r'^process-order-request/$',views.ProcessOrderRequest),
 ]
