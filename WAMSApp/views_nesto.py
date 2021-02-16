@@ -72,7 +72,7 @@ class CreateNestoProductAPI(APIView):
                                                             preparation_and_usage=preparation_and_usage,
                                                             allergic_information=allergic_information,
                                                             product_description=product_description,
-                                                            dimensions=dimensions,
+                                                            dimensions=json.dumps(dimensions),
                                                             nutrition_facts=nutrition_facts,
                                                             ingredients=ingredients,
                                                             return_days=return_days)
