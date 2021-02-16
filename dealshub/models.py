@@ -926,7 +926,17 @@ class OrderRequest(models.Model):
     payment_mode = models.CharField(max_length=50, default="COD")
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
+    to_pay = models.FloatField(default=0)
+    delivery_fee = models.FloatField(default=0)
+    cod_charge = models.FloatField(default=0)
     additional_note = models.TextField(default="", blank=True)
+    ORDER_STATUS = (
+        ('Approved','Approved'),
+        ('Rejected','Rejected'),
+        ('Pending','Pending')
+        )
+    order_status = models.CharField(max_length=50, choices=ORDER_STATUS, default="Pending")
+    is_placed = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -952,10 +962,19 @@ class UnitOrderRequest(models.Model):
 
     order_request = models.ForeignKey(OrderRequest, on_delete=models.CASCADE)
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=0)
-    user_price = models.IntegerField(default=0)
+    initial_quantity = models.IntegerField(default=0)
+    initial_price = models.IntegerField(default=0)
+    final_quantity = models.IntegerField(default=0)
+    final_price = models.IntegerField(default=0)
     date_created = models.DateTimeField(auto_now_add=True)
     order_req_id = models.CharField(max_length=100,default="")
+
+    REQUEST_STATUS = (
+        ('Approved','Approved'),
+        ('Rejected','Rejected'),
+        ('Pending','Pending')
+        )
+    request_status = models.CharField(max_length=50,choices=REQUEST_STATUS, default="Pending")
 
     def save(self, *args, **kwargs):
         if self.pk == None:
