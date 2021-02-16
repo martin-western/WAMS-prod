@@ -197,7 +197,7 @@ class FetchNestoProductDetailsAPI(APIView):
             response["barcode"] = nesto_product_obj.barcode
             response["uom"] = nesto_product_obj.uom
             response["language_key"] = nesto_product_obj.language_key
-            response["brand"] = nesto_product_obj.brand_obj.name
+            response["brand"] = nesto_product_obj.brand.name
             response["weight_volume"] = nesto_product_obj.weight_volume
             response["country_of_origin"] = nesto_product_obj.country_of_origin
             response["highlights"] = nesto_product_obj.highlights
