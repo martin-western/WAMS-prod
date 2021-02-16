@@ -5963,7 +5963,7 @@ class FetchOCSalesPersonsAPI(APIView):
                 for custom_permission_obj in custom_permission_objs:
                     misc = json.loads(custom_permission_obj.misc)
                     if "sales-analytics" in misc:
-                        sales_custom_permission_objs = sales_custom_permission_objs | custom_permission_obj
+                        sales_custom_permission_objs = sales_custom_permission_objs | CustomPermission.objects.filter(pk=custom_permission_obj.pk)
                 custom_permission_objs = sales_custom_permission_objs
 
             sales_person_list=[]
