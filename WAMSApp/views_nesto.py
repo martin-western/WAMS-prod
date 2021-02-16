@@ -308,6 +308,7 @@ class FetchNestoProductListAPI(APIView):
 
             for nesto_product_obj in nesto_product_objs:
                 try:
+                    temp_dict = {}
                     temp_dict["article_number"] = nesto_product_obj.article_number
                     temp_dict["product_name"] = nesto_product_obj.product_name
                     temp_dict["product_name_ecommerce"] = nesto_product_obj.product_name_ecommerce
