@@ -3390,6 +3390,15 @@ class SignUpCompletionAPI(APIView):
             data = request.data
             logger.info("SignUpCompletionAPI: %s", str(data))
 
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                if Cart.objects.get(owner=dealshub_user_obj,location_group=location_group_obj).exists() == True:
+                    response["message"] = "SignUp is already completed for this account"
+                    return Response(data=response)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
             contact_number = data["contactNumber"]
             name = data["fullName"]
             company_name = data["companyName"]
