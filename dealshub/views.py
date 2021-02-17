@@ -316,11 +316,16 @@ class FetchOnSaleProductsAPI(APIView):
             
             dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_on_sale=True).exclude(now_price=0).exclude(stock=0).order_by('-is_promotional').prefetch_related('promotion')
 
+            is_user_authenticated = True
             dealshub_user_obj = None
             if location_group_obj.is_b2b==True:
+                is_user_authenticated = False
+                b2b_user_obj = None
                 if request.user != None and str(request.user)!="AnonymousUser":
                     logger.info("FetchOnSaleProductsAPI REQUEST USER: %s", str(request.user))
                     dealshub_user_obj = DealsHubUser.objects.get(username = request.user.username)
+                    b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                is_user_authenticated = check_account_status(b2b_user_obj)
 
             page = int(data.get("page",1))
             paginator = Paginator(dealshub_product_objs, 50)
@@ -389,11 +394,16 @@ class FetchNewArrivalProductsAPI(APIView):
             
             dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_new_arrival=True).exclude(now_price=0).exclude(stock=0).order_by('-product__created_date').prefetch_related('promotion')
 
+            is_user_authenticated = True
             dealshub_user_obj = None
             if location_group_obj.is_b2b==True:
+                is_user_authenticated = False
+                b2b_user_obj = None
                 if request.user != None and str(request.user)!="AnonymousUser":
                     logger.info("FetchNewArrivalProductsAPI REQUEST USER: %s", str(request.user))
                     dealshub_user_obj = DealsHubUser.objects.get(username = request.user.username)
+                    b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                is_user_authenticated = check_account_status(b2b_user_obj)
 
             page = int(data.get("page",1))
             paginator = Paginator(dealshub_product_objs, 50)
