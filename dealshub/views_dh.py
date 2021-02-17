@@ -1541,7 +1541,7 @@ class PlaceOrderRequestAPI(APIView):
 
             # Trigger Email
             try:
-                p1 = threading.Thread(target=send_order_request_placed_mail, args=(order_obj,))
+                p1 = threading.Thread(target=send_order_request_placed_mail, args=(order_request_obj,))
                 p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1567,7 +1567,7 @@ class ProcessOrderRequestAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            location_group_uuid = request["locationGroupUuid"]
+            location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             b2b_user_obj = B2BUser.objects.get(username = request.user.username)
             dealshub_products = data["DealsHubProducts"]
@@ -1579,10 +1579,10 @@ class ProcessOrderRequestAPI(APIView):
                 unit_order_request_obj = UnitOrderRequest.objects.get(product=dealshub_product_obj, order_request=order_request_obj)
                 unit_order_request_obj.final_quantity = dealshub_product["quantity"]
                 unit_order_request_obj.final_price = dealshub_product["price"]
-                unit_order_request_obj.request_status = "Approved"
+                unit_order_request_obj.request_status = data["status"]
                 unit_order_request_obj.save()
 
-            order_request_obj.order_status = "Approved"
+            order_request_obj.order_status = data["orderStatus"]
             order_request_obj.save()
 
             if order_request_obj.payment_mode == "COD":
@@ -1642,6 +1642,99 @@ class ProcessOrderRequestAPI(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("ProcessOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
+
+
+class PlaceB2BOnlineOrderAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PlaceB2BOnlineOrderAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            merchant_reference = data["merchant_reference"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+            dealshub_products = data["DealsHubProducts"]
+
+            order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
+
+            if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("PlaceB2BOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            try:
+                voucher_obj = order_request_obj.voucher
+                if voucher_obj!=None:
+                    if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                        voucher_obj.total_usage += 1
+                        voucher_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("PlaceB2BOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+
+            payment_info = "NA"
+            payment_mode = "NA"
+            try:
+                payment_info = data["paymentMethod"]
+                payment_mode = data["paymentMethod"]["name"]
+            except Exception as e:
+                pass
+
+            order_obj = Order.objects.create(owner = order_request_obj.owner,
+                                             shipping_address=order_request_obj.shipping_address,
+                                             to_pay=order_request_obj.to_pay,
+                                             real_to_pay=order_request_obj.to_pay,
+                                             order_placed_date=timezone.now(),
+                                             voucher=order_request_obj.voucher,
+                                             location_group=order_request_obj.location_group,
+                                             delivery_fee=order_request_obj.get_delivery_fee(),
+                                             payment_status="paid",
+                                             payment_info=payment_info,
+                                             payment_mode=payment_mode,
+                                             merchant_reference=merchant_reference,
+                                             bundleid=cart_obj.merchant_reference,
+                                             additional_note=order_request_obj.additional_note,
+                                             cod_charge=0)
+
+            unit_order_request_objs = UnitOrderRequest.objects.filter(cart=cart_obj)
+
+            for unit_order_request_obj in unit_order_request_objs:
+                unit_order_obj = UnitOrder.objects.create(order=order_obj,
+                                                          product=unit_order_request_obj.product,
+                                                          quantity=unit_order_request_obj.final_quantity,
+                                                          price=unit_order_request_obj.final_price)
+                UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
+
+            order_request_obj.is_placed = True
+            order_request_obj.save()
+
+            # Trigger Email
+            try:
+                p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                p1.start()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("PlaceB2BOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            # Refresh Stock
+            refresh_stock(order_obj)
+
+            response["purchase"] = calculate_gtm(order_obj)
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PlaceB2BOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        return Response(data=response)
+
 
 
 class PlaceOrderAPI(APIView):
@@ -2856,15 +2949,20 @@ class FetchTokenRequestParametersAPI(APIView):
             language = "en"
             PASS = payment_credentials["PASS"]
 
-            is_fast_cart = data.get("is_fast_cart", False)
-            if is_fast_cart==False:
-                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-                cart_obj.merchant_reference = merchant_reference
-                cart_obj.save()
+            if location_group_obj.is_b2b == True:
+                order_request_obj = OrderRequest.objects.get(uuid=data.get("uuid",""))
+                order_request_obj.merchant_reference = merchant_reference
+                order_request_obj.save()
             else:
-                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-                fast_cart_obj.merchant_reference = merchant_reference
-                fast_cart_obj.save()
+                is_fast_cart = data.get("is_fast_cart", False)
+                if is_fast_cart==False:
+                    cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                    cart_obj.merchant_reference = merchant_reference
+                    cart_obj.save()
+                else:
+                    fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                    fast_cart_obj.merchant_reference = merchant_reference
+                    fast_cart_obj.save()
 
             request_data = {
                 "service_command": service_command,
@@ -7838,6 +7936,8 @@ SelectPaymentMode = SelectPaymentModeAPI.as_view()
 FetchActiveOrderDetails = FetchActiveOrderDetailsAPI.as_view()
 
 PlaceOrderRequest = PlaceOrderRequestAPI.as_view()
+
+PlaceB2BOnlineOrder = PlaceB2BOnlineOrderAPI.as_view()
 
 ProcessOrderRequest = ProcessOrderRequestAPI.as_view()
 
