@@ -523,9 +523,9 @@ class FetchLinkedNestoProductsAPI(APIView):
             response["linked_nesto_products"] = linked_nesto_products
             response['status'] = 200
 
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchLinkedNestoProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchLinkedNestoProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
