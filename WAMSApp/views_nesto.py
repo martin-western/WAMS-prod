@@ -153,7 +153,7 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.preparation_and_usage=preparation_and_usage
             nesto_product_obj.allergic_information=allergic_information
             nesto_product_obj.product_description=product_description
-            nesto_product_obj.dimensions=dimensions
+            nesto_product_obj.dimensions=json.dumps(dimensions)
             nesto_product_obj.nutrition_facts=nutrition_facts
             nesto_product_obj.ingredients=ingredients
             nesto_product_obj.return_days=return_days
