@@ -369,7 +369,7 @@ class AddNestoProductImagesAPI(APIView):
             nesto_product_obj = NestoProduct.objects.get(uuid=product_uuid)
 
             image_type = data["image_type"]
-            image_count = data["image_count"]
+            image_count = int(data["image_count"])
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
 
