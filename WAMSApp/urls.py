@@ -174,6 +174,8 @@ urlpatterns = [
     url(r'^fetch-nesto-product-list/$',views.FetchNestoProductList),
     url(r'^add-nesto-product-images/$',views.AddNestoProductImages),
     url(r'^remove-nesto-product-image/$',views.RemoveNestoProductImage),
+    url(r'^search-nesto-product-autocomplete/$',views.SearchNestoProductAutoComplete),
+    url(r'^fetch-linked-nesto-products/$',views.FetchLinkedNestoProducts),
     url(r'^link-nesto-product/$',views.LinkNestoProduct),
     url(r'^unlink-nesto-product/$',views.UnLinkNestoProduct),
     

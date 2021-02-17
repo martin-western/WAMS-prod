@@ -421,6 +421,115 @@ class RemoveNestoProductImageAPI(APIView):
         return Response(data=response)
 
 
+class SearchNestoProductAutoCompleteAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("SearchNestoProductAutoCompleteAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            search_string = data["searchString"]
+            product_uuid = data["product_uuid"]
+            link_type = data["link_type"]
+
+            search_nesto_product_objs = NestoProduct.objects.filter(Q(article_number__icontains=search_string) | Q(product_name__icontains=search_string) | Q(barcode__icontains=search_string))
+            
+
+            nesto_product_obj = NestoProduct.objects.get(uuid=product_uuid)
+            linked_product_uuid_list = []
+            if link_type=="substitute":
+                linked_product_uuid_list = list(nesto_product_obj.substitute_products.all().values_list("uuid").distinct())
+            elif link_type=="cross_selling":
+                linked_product_uuid_list = list(nesto_product_obj.cross_selling_products.all().values_list("uuid").distinct())
+            elif link_type=="upselling_products":
+                linked_product_uuid_list = list(nesto_product_obj.upselling_products.all().values_list("uuid").distinct())
+
+            search_nesto_product_objs = search_nesto_product_objs.exclude(uuid__in=linked_product_uuid_list)[:10]
+
+            nesto_product_list = []
+            for search_nesto_product_obj in search_nesto_product_objs:
+                temp_dict = {}
+                temp_dict["name"] = search_nesto_product_obj.product_name
+                temp_dict["uuid"] = search_nesto_product_obj.uuid
+                nesto_product_list.append(temp_dict)
+
+            response['nesto_product_list'] = nesto_product_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchNestoProductAutoCompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+            
+
+class FetchLinkedNestoProductsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("FetchLinkedNestoProductsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_uuid = data["product_uuid"]
+
+            nesto_product_obj = NestoProduct.objects.get(uuid=product_uuid)
+
+            linked_nesto_products = {}
+
+            substitute_products = []
+            substitute_product_objs = nesto_product_obj.substitute_products.all()
+            for substitute_product_obj in substitute_product_objs:
+                temp_dict = {}
+                temp_dict["name"] = substitute_product_obj.product_name
+                temp_dict["article_number"] = substitute_product_obj.article_number
+                temp_dict["barcode"] = substitute_product_obj.barcode
+                substitute_products.append(temp_dict)
+            linked_nesto_products["substitute_products"] = substitute_products
+
+            upselling_products = []
+            upselling_product_objs = nesto_product_obj.upselling_products.all()
+            for upselling_product_obj in upselling_product_objs:
+                temp_dict = {}
+                temp_dict["name"] = upselling_product_obj.product_name
+                temp_dict["article_number"] = upselling_product_obj.article_number
+                temp_dict["barcode"] = upselling_product_obj.barcode
+                upselling_products.append(temp_dict)
+            linked_nesto_products["upselling_products"] = upselling_products
+
+            cross_selling_products = []
+            cross_selling_product_objs = nesto_product_obj.cross_selling_products.all()
+            for cross_selling_product_obj in cross_selling_product_objs:
+                temp_dict = {}
+                temp_dict["name"] = cross_selling_product_obj.product_name
+                temp_dict["article_number"] = cross_selling_product_obj.article_number
+                temp_dict["barcode"] = cross_selling_product_obj.barcode
+                cross_selling_products.append(temp_dict)
+            linked_nesto_products["cross_selling_products"] = cross_selling_products
+
+            response["linked_nesto_products"] = linked_nesto_products
+            response['status'] = 200
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchLinkedNestoProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class LinkNestoProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -508,6 +617,10 @@ FetchNestoProductList = FetchNestoProductListAPI.as_view()
 AddNestoProductImages = AddNestoProductImagesAPI.as_view()
 
 RemoveNestoProductImage = RemoveNestoProductImageAPI.as_view()
+
+SearchNestoProductAutoComplete = SearchNestoProductAutoCompleteAPI.as_view()
+
+FetchLinkedNestoProducts = FetchLinkedNestoProductsAPI.as_view()
 
 LinkNestoProduct = LinkNestoProductAPI.as_view()
 
