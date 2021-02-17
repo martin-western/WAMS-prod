@@ -1746,7 +1746,6 @@ class PlaceB2BOnlineOrderAPI(APIView):
         return Response(data=response)
 
 
-
 class PlaceOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
