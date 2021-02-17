@@ -1435,6 +1435,7 @@ class PlaceOrderRequestAPI(APIView):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
+            payment_mode = data["paymentMode"]
 
             is_fast_cart = data.get("is_fast_cart", False)
 
@@ -1472,6 +1473,7 @@ class PlaceOrderRequestAPI(APIView):
                                                  voucher=cart_obj.voucher,
                                                  location_group=cart_obj.location_group,
                                                  delivery_fee=cart_obj.get_delivery_fee(),
+                                                 payment_mode = payment_mode,
                                                  cod_charge=cart_obj.location_group.cod_charge,
                                                  additional_note=cart_obj.additional_note)
 
@@ -1612,6 +1614,13 @@ class ProcessOrderRequestAPI(APIView):
                                                  cod_charge=order_request_obj.location_group.cod_charge,
                                                  additional_note=order_request_obj.additional_note)
 
+                for unit_order_request_obj in unit_order_request_objs:
+                    unit_order_obj = UnitOrderRequest.objects.create(order=order_obj,
+                                                              product=unit_order_request_obj.product,
+                                                              quantity=unit_order_request_obj.final_quantity,
+                                                              price=unit_order_request_obj.final_price)
+                    UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+
                 order_request_obj.is_placed = True
                 order_request_obj.save()
 
@@ -1625,6 +1634,7 @@ class ProcessOrderRequestAPI(APIView):
 
                 # Refresh Stock
                 refresh_stock(order_obj)
+                response['message'] = "Order Placed"
 
             else:
                 update_request_status_bill(order_request_obj)
