@@ -96,7 +96,7 @@ class UpdateNestoProductAPI(APIView):
         
         try:
             data = request.data
-            logger.info("CreateNestoProductAPI: %s", str(data))
+            logger.info("UpdateNestoProductAPI: %s", str(data))
 
             # if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
             #     logger.warning("CreateNestoProductAPI Restricted Access!")
@@ -177,7 +177,7 @@ class FetchNestoProductDetailsAPI(APIView):
         
         try:
             data = request.data
-            logger.info("CreateNestoProductAPI: %s", str(data))
+            logger.info("FetchNestoProductDetailsAPI: %s", str(data))
 
             # if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
             #     logger.warning("FetchNestoProductDetailsAPI Restricted Access!")
@@ -346,7 +346,7 @@ class FetchNestoProductListAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchNestoProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchNestoProductListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -360,7 +360,7 @@ class AddNestoProductImagesAPI(APIView):
         
         try:
             data = request.data
-            logger.info("FetchNestoProductListAPI: %s", str(data))
+            logger.info("AddNestoProductImagesAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -389,7 +389,7 @@ class AddNestoProductImagesAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchNestoProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddNestoProductImagesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
