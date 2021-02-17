@@ -275,6 +275,15 @@ class FetchNestoProductDetailsAPI(APIView):
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchNestoProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
+            images = {
+                "front_images": front_images,
+                "back_images": back_images,
+                "side_images": side_images,
+                "nutrition_images": nutrition_images,
+                "product_content_images": product_content_images
+            }
+
+            response["images"] = images
             response['status'] = 200
 
         except Exception as e:
