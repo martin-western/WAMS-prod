@@ -1545,12 +1545,12 @@ class PlaceOrderRequestAPI(APIView):
                 p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("PlaceOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -1579,7 +1579,7 @@ class ProcessOrderRequestAPI(APIView):
                 unit_order_request_obj = UnitOrderRequest.objects.get(product=dealshub_product_obj, order_request=order_request_obj)
                 unit_order_request_obj.final_quantity = dealshub_product["quantity"]
                 unit_order_request_obj.final_price = dealshub_product["price"]
-                unit_order_request_obj.request_status = data["status"]
+                unit_order_request_obj.request_status = dealshub_product["status"]
                 unit_order_request_obj.save()
 
             order_request_obj.order_status = data["orderStatus"]
@@ -1672,7 +1672,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
             try:
                 voucher_obj = order_request_obj.voucher
                 if voucher_obj!=None:
-                    if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                    if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(order_request_obj.owner, voucher_obj)==False:
                         voucher_obj.total_usage += 1
                         voucher_obj.save()
             except Exception as e:
@@ -1703,7 +1703,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
                                              additional_note=order_request_obj.additional_note,
                                              cod_charge=0)
 
-            unit_order_request_objs = UnitOrderRequest.objects.filter(cart=cart_obj)
+            unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
 
             for unit_order_request_obj in unit_order_request_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -2950,7 +2950,7 @@ class FetchTokenRequestParametersAPI(APIView):
             PASS = payment_credentials["PASS"]
 
             if location_group_obj.is_b2b == True:
-                order_request_obj = OrderRequest.objects.get(uuid=data.get("uuid",""))
+                order_request_obj = OrderRequest.objects.get(uuid=data.get("OrderRequestUuid",""))
                 order_request_obj.merchant_reference = merchant_reference
                 order_request_obj.save()
             else:
