@@ -926,6 +926,7 @@ class OrderRequest(models.Model):
     payment_mode = models.CharField(max_length=50, default="COD")
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
+    merchant_reference = models.CharField(max_length=200, default="")
     to_pay = models.FloatField(default=0)
     delivery_fee = models.FloatField(default=0)
     cod_charge = models.FloatField(default=0)
@@ -952,6 +953,61 @@ class OrderRequest(models.Model):
                 self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
 
         super(OrderRequest, self).save(*args, **kwargs)
+
+    def get_customer_full_name(self):
+        return self.shipping_address.first_name + " " + self.shipping_address.last_name
+
+    def get_customer_first_name(self):
+        return self.shipping_address.first_name
+
+    def get_date_created(self):
+        return str(timezone.localtime(self.order_placed_date).strftime("%d %b, %Y"))
+
+    def get_email_website_logo(self):
+        if self.location_group.website_group.footer_logo!=None:
+            return self.location_group.website_group.footer_logo.image.url
+        if self.location_group.website_group.logo!=None:
+            return self.location_group.website_group.logo.image.url
+        return ""
+
+    def get_website_link(self):
+        return self.location_group.website_group.link
+
+    def get_subtotal(self):
+        unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=self)
+        subtotal = 0
+        for unit_order_request_obj in unit_order_request_objs:
+            subtotal += float(unit_order_request_obj.final_price)*float(unit_order_request_obj.final_quantity)
+        return subtotal
+
+    def get_delivery_fee(self, cod=False, calculate=True):
+        if calculate==False:
+            return self.offline_delivery_fee
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if (self.location_group.is_voucher_allowed_on_cod==True or cod==False) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            if self.voucher.voucher_type=="SD":
+                return 0
+            subtotal = self.voucher.get_discounted_price(subtotal)
+        if subtotal < self.location_group.free_delivery_threshold:
+            return self.location_group.delivery_fee
+        return 0
+
+    def get_total_amount(self, cod=False, delivery_fee_calculate=True):
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if (self.location_group.is_voucher_allowed_on_cod==True or cod==False) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            subtotal = self.voucher.get_discounted_price(subtotal)
+        delivery_fee = self.get_delivery_fee(cod=cod, calculate=delivery_fee_calculate)
+        cod_charge = self.get_cod_charge(cod=cod)
+        return round(subtotal+delivery_fee+cod_charge, 2)
+
+    def get_cod_charge(self, cod=False):
+        if cod==False:
+            return 0
+        return float(self.location_group.cod_charge)
 
     class Meta:
         verbose_name = "Order Request"
