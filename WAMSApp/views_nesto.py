@@ -1,5 +1,14 @@
 from WAMSApp.models import *
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
+from django.core.paginator import Paginator
+
+import logging
+import json
+logger = logging.getLogger(__name__)
+
 
 class CreateNestoProductAPI(APIView):
 
@@ -12,10 +21,10 @@ class CreateNestoProductAPI(APIView):
             data = request.data
             logger.info("CreateNestoProductAPI: %s", str(data))
 
-            if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
-                logger.warning("CreateNestoProductAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
+            #     logger.warning("CreateNestoProductAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -63,7 +72,7 @@ class CreateNestoProductAPI(APIView):
                                                             preparation_and_usage=preparation_and_usage,
                                                             allergic_information=allergic_information,
                                                             product_description=product_description,
-                                                            dimensions=dimensions,
+                                                            dimensions=json.dumps(dimensions),
                                                             nutrition_facts=nutrition_facts,
                                                             ingredients=ingredients,
                                                             return_days=return_days)
@@ -89,10 +98,10 @@ class UpdateNestoProductAPI(APIView):
             data = request.data
             logger.info("CreateNestoProductAPI: %s", str(data))
 
-            if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
-                logger.warning("CreateNestoProductAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
+            #     logger.warning("CreateNestoProductAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -170,10 +179,10 @@ class FetchNestoProductDetailsAPI(APIView):
             data = request.data
             logger.info("CreateNestoProductAPI: %s", str(data))
 
-            if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
-                logger.warning("FetchNestoProductDetailsAPI Restricted Access!")
-                response['status'] = 403
-                return Response(data=response)
+            # if request.user.has_perm('WAMSApp.add_mestoproduct') == False:
+            #     logger.warning("FetchNestoProductDetailsAPI Restricted Access!")
+            #     response['status'] = 403
+            #     return Response(data=response)
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -188,7 +197,7 @@ class FetchNestoProductDetailsAPI(APIView):
             response["barcode"] = nesto_product_obj.barcode
             response["uom"] = nesto_product_obj.uom
             response["language_key"] = nesto_product_obj.language_key
-            response["brand"] = nesto_product_obj.brand_obj.name
+            response["brand"] = nesto_product_obj.brand.name
             response["weight_volume"] = nesto_product_obj.weight_volume
             response["country_of_origin"] = nesto_product_obj.country_of_origin
             response["highlights"] = nesto_product_obj.highlights
@@ -305,13 +314,14 @@ class FetchNestoProductListAPI(APIView):
 
             for nesto_product_obj in nesto_product_objs:
                 try:
+                    temp_dict = {}
                     temp_dict["article_number"] = nesto_product_obj.article_number
                     temp_dict["product_name"] = nesto_product_obj.product_name
                     temp_dict["product_name_ecommerce"] = nesto_product_obj.product_name_ecommerce
                     temp_dict["barcode"] = nesto_product_obj.barcode
                     temp_dict["uom"] = nesto_product_obj.uom
                     temp_dict["language_key"] = nesto_product_obj.language_key
-                    temp_dict["brand"] = nesto_product_obj.brand_obj.name
+                    temp_dict["brand"] = nesto_product_obj.brand.name
                     temp_dict["weight_volume"] = nesto_product_obj.weight_volume
                     temp_dict["country_of_origin"] = nesto_product_obj.country_of_origin
                     temp_dict["highlights"] = nesto_product_obj.highlights

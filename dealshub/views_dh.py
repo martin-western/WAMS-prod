@@ -3390,6 +3390,15 @@ class SignUpCompletionAPI(APIView):
             data = request.data
             logger.info("SignUpCompletionAPI: %s", str(data))
 
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                if Cart.objects.get(owner=dealshub_user_obj,location_group=location_group_obj).exists() == True:
+                    response["message"] = "SignUp is already completed for this account"
+                    return Response(data=response)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
             contact_number = data["contactNumber"]
             name = data["fullName"]
             company_name = data["companyName"]
@@ -5953,9 +5962,18 @@ class FetchOCSalesPersonsAPI(APIView):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
+            is_sales_executive = data.get("is_sales_executive",False)
             
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             custom_permission_objs = location_group_obj.custompermission_set.all()
+            
+            if is_sales_executive==True:
+                sales_custom_permission_objs = CustomPermission.objects.none()
+                for custom_permission_obj in custom_permission_objs:
+                    misc = json.loads(custom_permission_obj.misc)
+                    if "sales-analytics" in misc:
+                        sales_custom_permission_objs = sales_custom_permission_objs | CustomPermission.objects.filter(pk=custom_permission_obj.pk)
+                custom_permission_objs = sales_custom_permission_objs
 
             sales_person_list=[]
             for custom_permission_obj in custom_permission_objs:
