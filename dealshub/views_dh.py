@@ -3399,6 +3399,11 @@ class SignUpCompletionAPI(APIView):
             trade_license = data["trade-license"]
             passport_copy = data["passport-copy"]
 
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name.lower()
+
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number + "-" + website_group_name)
                 logger.warning(objects.filter(owner=dealshub_user_obj,location_group=location_group_obj).exists())
@@ -3408,11 +3413,6 @@ class SignUpCompletionAPI(APIView):
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            website_group_obj = location_group_obj.website_group
-            website_group_name = website_group_obj.name.lower()
 
             b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
 
