@@ -308,6 +308,7 @@ class FetchNestoProductListAPI(APIView):
                 data = json.loads(data)
 
             nesto_product_objs = NestoProduct.objects.all()
+            total_products = nesto_product_objs.count()
 
             page = int(data.get('page', 1))
             paginator = Paginator(nesto_product_objs, 20)
@@ -340,8 +341,15 @@ class FetchNestoProductListAPI(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchNestoProductListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
 
-            response["product_list"] = product_list
+            response["is_available"] = is_available
+            response["total_products"] = int(total_products)
+            response["products"] = product_list
+            response["price_type"] = False 
             response['status'] = 200
 
         except Exception as e:
