@@ -6968,9 +6968,6 @@ class LogoutOCUserAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
-            user_obj = User.objects.get(username=request.user.username)
-            user_obj.auth_token.delete()
-
             logout(request)
 
             response["status"] = 200
