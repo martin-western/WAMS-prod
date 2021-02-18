@@ -919,7 +919,7 @@ class UnitCart(models.Model):
 class OrderRequest(models.Model):
 
     bundleid = models.CharField(max_length=100,default="")
-    owner = models.ForeignKey('B2BUser',on_delete = models.CASCADE)
+    owner = models.ForeignKey('DealsHubUser',on_delete = models.CASCADE)
     uuid = models.CharField(max_length = 200,default="")
     date_created = models.DateTimeField(auto_now_add=True)
     shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
@@ -931,12 +931,12 @@ class OrderRequest(models.Model):
     delivery_fee = models.FloatField(default=0)
     cod_charge = models.FloatField(default=0)
     additional_note = models.TextField(default="", blank=True)
-    ORDER_STATUS = (
+    REQUEST_STATUS = (
         ('Approved','Approved'),
         ('Rejected','Rejected'),
         ('Pending','Pending')
         )
-    order_status = models.CharField(max_length=50, choices=ORDER_STATUS, default="Pending")
+    request_status = models.CharField(max_length=50, choices=REQUEST_STATUS, default="Pending")
     is_placed = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -1015,6 +1015,7 @@ class OrderRequest(models.Model):
 class UnitOrderRequest(models.Model):
 
     order_request = models.ForeignKey(OrderRequest, on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200,default="")
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     initial_quantity = models.IntegerField(default=0)
     initial_price = models.IntegerField(default=0)
@@ -1036,10 +1037,10 @@ class UnitOrderRequest(models.Model):
             self.uuid = str(uuid.uuid4())
             order_prefix = ""
             try:
-                order_prefix = json.loads(self.order_request.location_group.website_group.conf)["order_prefix"]
+                order_req_prefix = json.loads(self.order_request.location_group.website_group.conf)["order_req_prefix"]
             except Exception as e:
                 pass
-            self.order_req_id = order_prefix + str(uuid.uuid4())[:5]
+            self.order_req_id = order_req_prefix + str(uuid.uuid4())[:5]
 
         super(UnitOrderRequest, self).save(*args, **kwargs)
 
