@@ -4826,7 +4826,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 temp_dict["first_name"] = sales_target_obj.user.first_name
                 sales_target_list.append(temp_dict)
 
-            sorted(sales_target_list, key = lambda i: i["todays"]["sales"], reverse=True)
+            sales_target_list = sorted(sales_target_list, key = lambda i: i["todays"]["sales"], reverse=True)
             response["sales_target_list"] = sales_target_list
             response['status'] = 200
         except Exception as e:
