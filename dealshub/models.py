@@ -963,6 +963,9 @@ class OrderRequest(models.Model):
     def get_date_created(self):
         return str(timezone.localtime(self.order_placed_date).strftime("%d %b, %Y"))
 
+    def get_time_created(self):
+        return str(timezone.localtime(self.order_placed_date).strftime("%I:%M %p"))
+
     def get_email_website_logo(self):
         if self.location_group.website_group.footer_logo!=None:
             return self.location_group.website_group.footer_logo.image.url
@@ -974,7 +977,7 @@ class OrderRequest(models.Model):
         return self.location_group.website_group.link
 
     def get_subtotal(self):
-        unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=self)
+        unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=self).exclude(request_status="Rejected")
         subtotal = 0
         for unit_order_request_obj in unit_order_request_objs:
             subtotal += float(unit_order_request_obj.final_price)*float(unit_order_request_obj.final_quantity)

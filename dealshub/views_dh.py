@@ -1670,9 +1670,14 @@ class PlaceB2BOnlineOrderAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             b2b_user_obj = B2BUser.objects.get(username = request.user.username)
-            dealshub_products = data["DealsHubProducts"]
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
+
+            if order_request_obj.request_status != "Approved":
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("PlaceB2BOnlineOrderAPI: Order Request Not Approved %s at %s", e, str(exc_tb.tb_lineno))
+                response["message"] = "Order request not approved"
+                return Response(data=response)
 
             if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1713,7 +1718,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
                                              additional_note=order_request_obj.additional_note,
                                              cod_charge=0)
 
-            unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
+            unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj).exclude(request_status="Rejected")
 
             for unit_order_request_obj in unit_order_request_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -5587,9 +5592,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     temp_dict = {}
                     temp_dict["dateCreated"] = order_request_obj.get_date_created()
                     temp_dict["orderRequestStatus"] = order_request_obj.request_status
-                    temp_dict["time"] = order_request_obj.get_time_created()
+                    temp_dict["timeCreated"] = order_request_obj.get_time_created()
                     temp_dict["paymentMode"] = order_request_obj.payment_mode
-                    temp_dict["merchant_reference"] = order_request_obj.merchant_reference
                     unit_order_request_count = UnitOrderRequest.objects.filter(order_request=order_request).count()
                     temp_dict["itemsCount"] = unit_order_request_count
 
