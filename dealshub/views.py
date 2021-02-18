@@ -2796,7 +2796,7 @@ class PublishDealsHubProductAPI(APIView):
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
             
             if dealshub_product_obj.product.no_of_images_for_filter==0:
-                response['status'] = 403
+                response['status'] = 407
                 response['message'] = 'product without images cannot be published'
                 return Response(data=response)
 
