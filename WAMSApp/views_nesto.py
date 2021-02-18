@@ -320,6 +320,7 @@ class FetchNestoProductListAPI(APIView):
             for nesto_product_obj in nesto_product_objs:
                 try:
                     temp_dict = {}
+                    temp_dict["product_uuid"] = nesto_product_obj.uuid
                     temp_dict["article_number"] = nesto_product_obj.article_number
                     temp_dict["product_name"] = nesto_product_obj.product_name
                     temp_dict["product_name_ecommerce"] = nesto_product_obj.product_name_ecommerce
@@ -338,6 +339,19 @@ class FetchNestoProductListAPI(APIView):
                     temp_dict["nutrition_facts"] = nesto_product_obj.nutrition_facts
                     temp_dict["ingredients"] = nesto_product_obj.ingredients
                     temp_dict["return_days"] = nesto_product_obj.return_days
+                    front_images = []
+                    for image_obj in nesto_product_obj.front_images.all():
+                        try:
+                            temp_dict2 = {}
+                            temp_dict2["original_image"] = image_obj.image.url
+                            temp_dict2["mid_image"] = image_obj.mid_image.url
+                            temp_dict2["thumbnail_image"] = image_obj.thumbnail.url
+                            temp_dict2["pk"] = image_obj.pk
+                            front_images.append(temp_dict2)
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.error("FetchNestoProductListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    temp_dict["front_images"] = front_images
                     product_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -506,6 +520,8 @@ class FetchLinkedNestoProductsAPI(APIView):
                 temp_dict["name"] = substitute_product_obj.product_name
                 temp_dict["article_number"] = substitute_product_obj.article_number
                 temp_dict["barcode"] = substitute_product_obj.barcode
+                temp_dict["image"] = substitute_product_obj.front_images.all()[0].image.url if substitute_product_obj.front_images.all().exists() else ""
+                temp_dict["uuid"] = substitute_product_obj.uuid
                 substitute_products.append(temp_dict)
             linked_nesto_products["substitute_products"] = substitute_products
 
@@ -516,6 +532,8 @@ class FetchLinkedNestoProductsAPI(APIView):
                 temp_dict["name"] = upselling_product_obj.product_name
                 temp_dict["article_number"] = upselling_product_obj.article_number
                 temp_dict["barcode"] = upselling_product_obj.barcode
+                temp_dict["image"] = upselling_product_obj.front_images.all()[0].image.url if upselling_product_obj.front_images.all().exists() else ""
+                temp_dict["uuid"] = upselling_product_obj.uuid
                 upselling_products.append(temp_dict)
             linked_nesto_products["upselling_products"] = upselling_products
 
@@ -526,6 +544,8 @@ class FetchLinkedNestoProductsAPI(APIView):
                 temp_dict["name"] = cross_selling_product_obj.product_name
                 temp_dict["article_number"] = cross_selling_product_obj.article_number
                 temp_dict["barcode"] = cross_selling_product_obj.barcode
+                temp_dict["image"] = cross_selling_product_obj.front_images.all()[0].image.url if cross_selling_product_obj.front_images.all().exists() else ""
+                temp_dict["uuid"] = cross_selling_product_obj.uuid
                 cross_selling_products.append(temp_dict)
             linked_nesto_products["cross_selling_products"] = cross_selling_products
 
