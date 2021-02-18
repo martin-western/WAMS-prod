@@ -344,7 +344,7 @@ class FetchNestoProductListAPI(APIView):
                         try:
                             temp_dict2 = {}
                             temp_dict2["original_image"] = image_obj.image.url
-                            temp_dict2["mid_image"] = image_obj.mid_image.url
+                            temp_dict2["mid_image"] = image_obj.mid_image.url if image_obj.mid_image!=None else ""
                             temp_dict2["thumbnail_image"] = image_obj.thumbnail.url
                             temp_dict2["pk"] = image_obj.pk
                             front_images.append(temp_dict2)
