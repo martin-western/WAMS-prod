@@ -3401,7 +3401,8 @@ class SignUpCompletionAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number + "-" + website_group_name)
-                if Cart.objects.get(owner=dealshub_user_obj,location_group=location_group_obj).exists() == True:
+                logger.warning(objects.filter(owner=dealshub_user_obj,location_group=location_group_obj).exists())
+                if Cart.objects.filter(owner=dealshub_user_obj,location_group=location_group_obj).exists() == True:
                     response["message"] = "SignUp is already completed for this account"
                     return Response(data=response)
             except Exception as e:
