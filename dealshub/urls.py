@@ -115,6 +115,7 @@ urlpatterns = [
     url(r'^checkout/place-online-order/$',views.PlaceOnlineOrder),
     url(r'^checkout/cancel-order/$', views.CancelOrder),
     url(r'^checkout/place-order-request/$',views.PlaceOrderRequest),
+    url(r'^order/fetch-order-request-list/$', views.FetchOrderRequestList),
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^order/fetch-order-details/$', views.FetchOrderDetails),
@@ -146,6 +147,7 @@ urlpatterns = [
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
 
     url(r'^fetch-order-sales-analytics/$', views.FetchOrderSalesAnalytics),
+    url(r'^fetch-order-requests-for-warehouse-manager/$', views.FetchOrderRequestsForWarehouseManager),
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
     url(r'^resend-sap-order/$', views.ResendSAPOrder),

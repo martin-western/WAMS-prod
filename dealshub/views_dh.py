@@ -8171,6 +8171,8 @@ PlaceOfflineOrder = PlaceOfflineOrderAPI.as_view()
 
 CancelOrder = CancelOrderAPI.as_view()
 
+FetchOrderRequestList = FetchOrderRequestListAPI.as_view()
+
 FetchOrderList = FetchOrderListAPI.as_view()
 
 FetchOrderListAdmin = FetchOrderListAdminAPI.as_view()
@@ -8274,6 +8276,8 @@ HideReviewAdmin = HideReviewAdminAPI.as_view()
 UpdateReviewPublishStatus = UpdateReviewPublishStatusAPI.as_view()
 
 FetchOrderSalesAnalytics = FetchOrderSalesAnalyticsAPI.as_view()
+
+FetchOrderRequestsForWarehouseManager = FetchOrderRequestsForWarehouseManagerAPI.as_view()
 
 FetchOrdersForWarehouseManager = FetchOrdersForWarehouseManagerAPI.as_view()
 
