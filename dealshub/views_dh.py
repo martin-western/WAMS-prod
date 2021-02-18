@@ -4826,6 +4826,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 temp_dict["first_name"] = sales_target_obj.user.first_name
                 sales_target_list.append(temp_dict)
 
+            sorted(sales_target_list, key = lambda i: i["todays"]["sales"], reverse=True)
             response["sales_target_list"] = sales_target_list
             response['status'] = 200
         except Exception as e:
@@ -4927,13 +4928,13 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             
             if ("sales-analytics" in misc) and ("analytics" not in misc):
                 oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-                sales_target_obj = SalesTarget.objects.get(user=oc_user_obj, location_group=location_group_obj)
-                if sales_target_obj!=None:
+                sales_target_objs = SalesTarget.objects.filter(user=oc_user_obj, location_group=location_group_obj)
+                if sales_target_objs.exists():
                     response["targets"] = {
-                        "today_sales" : sales_target_obj.today_sales_target,
-                        "today_orders" : sales_target_obj.today_orders_target,
-                        "monthly_sales" : sales_target_obj.monthly_sales_target,
-                        "monthly_orders" : sales_target_obj.monthly_orders_target
+                        "today_sales" : sales_target_objs[0].today_sales_target,
+                        "today_orders" : sales_target_objs[0].today_orders_target,
+                        "monthly_sales" : sales_target_objs[0].monthly_sales_target,
+                        "monthly_orders" : sales_target_objs[0].monthly_orders_target
                     }
                 else:
                     response["targets"] = { "today_sales" : 0, "today_orders" : 0, "monthly_sales" : 0, "monthly_orders" : 0 }
