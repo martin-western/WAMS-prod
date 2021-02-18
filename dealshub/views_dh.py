@@ -1584,7 +1584,7 @@ class ProcessOrderRequestAPI(APIView):
                 unit_order_request_obj.request_status = dealshub_product["status"]
                 unit_order_request_obj.save()
 
-            order_request_obj.order_status = data["orderStatus"]
+            order_request_obj.request_status = data["requestStatus"]
             order_request_obj.save()
 
             if order_request_obj.payment_mode == "COD":
@@ -2076,6 +2076,74 @@ class FetchOrderListAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class FetchOrderRequestListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOrderRequestListAPI: %s", str(data))
+            language_code = data.get("language","en")
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+
+            order_request_list = []
+            order_request_objs = OrderRequest.objects.filter(owner=dealshub_user_obj).filter(is_placed=False).order_by('-pk')
+            for order_request_obj in order_request_objs:
+                try:
+                    voucher_obj = order_request_obj.voucher
+                    is_voucher_applied = voucher_obj is not None
+                    temp_dict = {}
+                    temp_dict["dateCreated"] = order_request_obj.get_date_created()
+                    temp_dict["paymentMode"] = order_request_obj.payment_mode
+                    temp_dict["request_status"] = order_request_obj.request_status
+                    temp_dict["customerName"] = order_request_obj.owner.first_name
+                    temp_dict["bundleId"] = order_request_obj.bundleid
+                    temp_dict["uuid"] = order_request_obj.uuid
+                    temp_dict["isVoucherApplied"] = is_voucher_applied
+                    if is_voucher_applied:
+                        temp_dict["voucherCode"] = voucher_obj.voucher_code
+                    temp_dict["shippingAddress"] = order_request_obj.shipping_address.get_shipping_address()
+
+                    unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
+                    unit_order_request_list = []
+                    for unit_order_request_obj in unit_order_request_objs:
+                        temp_dict2 = {}
+                        temp_dict2["orderReqId"] = unit_order_request_obj.order_req_id
+                        temp_dict2["uuid"] = unit_order_request_obj.uuid
+                        temp_dict2["currentStatus"] = unit_order_request_obj.request_status
+                        temp_dict2["initialQuantity"] = unit_order_request_obj.initial_quantity
+                        temp_dict2["initialPrice"] = unit_order_request_obj.initial_price
+                        temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
+                        temp_dict2["finalPrice"] = unit_order_request_obj.final_price
+                        temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
+                        temp_dict2["productName"] = unit_order_obj.product.get_name(language_code)
+                        temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
+                        unit_order_list.append(temp_dict2)
+                    temp_dict["unitOrderRequestList"] = unit_order_request_list
+                    order_request_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchOrderRequestListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response["orderRequestList"] = order_request_list
+            if len(order_list)==0:
+                response["isOrderRequestListEmpty"] = True
+            else:
+                response["isOrderRequestListEmpty"] = False
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrderRequestListAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -5470,6 +5538,153 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchOrderRequestsForWarehouseManagerAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchOrderRequestsForWarehouseManagerAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            request_status = data.get("requestStatus","")
+
+            page = data.get("page", 1)
+
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            order_request_objs = OrderRequest.objects.filter(location_group__uuid=location_group_uuid).distinct().order_by("-date_created")
+
+            if request_status != "":
+                order_request_objs = order_request_objs.filter(request_status=request_status)
+
+            currency = location_group_obj.location.currency
+
+            paginator = Paginator(order_request_objs, 20)
+            total_orders = order_objs.count()
+            order_objs = paginator.page(page)
+
+            shipping_charge = location_group_obj.delivery_fee
+            free_delivery_threshold = location_group_obj.free_delivery_threshold
+            website_group_name = location_group_obj.website_group.name.lower()
+            footer_text = json.loads(location_group_obj.website_group.conf).get("footer_text", "NA")
+
+            order_request_list = []
+            for order_request_obj in order_request_objs:
+                try:
+                    voucher_obj = order_request_obj.voucher
+                    is_voucher_applied = voucher_obj is not None
+
+                    temp_dict = {}
+                    temp_dict["dateCreated"] = order_request_obj.get_date_created()
+                    temp_dict["orderRequestStatus"] = order_request_obj.request_status
+                    temp_dict["time"] = order_request_obj.get_time_created()
+                    temp_dict["paymentMode"] = order_request_obj.payment_mode
+                    temp_dict["merchant_reference"] = order_request_obj.merchant_reference
+                    unit_order_request_count = UnitOrderRequest.objects.filter(order_request=order_request).count()
+                    temp_dict["itemsCount"] = unit_order_request_count
+
+                    address_obj = order_request_obj.shipping_address
+                    shipping_address = {
+                        "firstName": address_obj.first_name,
+                        "lastName": address_obj.last_name,
+                        "line1": json.loads(address_obj.address_lines)[0],
+                        "line2": json.loads(address_obj.address_lines)[1],
+                        "line3": json.loads(address_obj.address_lines)[2],
+                        "line4": json.loads(address_obj.address_lines)[3],
+                        "state": address_obj.state,
+                        "emirates": address_obj.emirates
+                    }
+
+                    customer_name = address_obj.first_name
+                    if location_group_obj.is_b2b==True:
+                        try:
+                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username)
+                            temp_dict["companyName"] = b2b_user_obj.company_name
+                        except Exception as e:
+                            temp_dict["companyName"] = "NA"
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.error("b2b user company name: %s at %s", e, str(exc_tb.tb_lineno))
+
+                    temp_dict["customerName"] = customer_name
+                    temp_dict["emailId"] = order_request_obj.owner.email
+                    temp_dict["contactNumer"] = order_request_obj.owner.contact_number
+                    temp_dict["shippingAddress"] = shipping_address
+
+                    temp_dict["bundleId"] = order_request_obj.bundleid
+                    temp_dict["uuid"] = order_request_obj.uuid
+                    temp_dict["isVoucherApplied"] = is_voucher_applied
+
+                    if is_voucher_applied:
+                        temp_dict["voucherCode"] = voucher_obj.voucher_code
+                        voucher_discount = voucher_obj.get_voucher_discount(order_request_obj.get_subtotal())
+                        temp_dict["voucherDiscount"] = voucher_discount
+
+                    unit_order_request_list = []
+                    subtotal = 0
+                    for unit_order_request_obj in UnitOrderRequest.objects.filter(order_request=order_request_obj):
+                        temp_dict2 = {}
+                        temp_dict2["orderId"] = unit_order_request_obj.orderid
+                        temp_dict2["requestStatus"] = unit_order_request_obj.request_status
+                        temp_dict2["uuid"] = unit_order_request_obj.uuid
+                        temp_dict2["initialQuantity"] = unit_order_request_obj.initial_quantity
+                        temp_dict2["initialPrice"] = unit_order_request_obj.initial_price
+                        temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
+                        temp_dict2["finalPrice"] = unit_order_request_obj.final_price
+                        temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
+                        temp_dict2["productName"] = unit_order_request_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
+                        temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_main_image_url()
+
+                        unit_order_request_list.append(temp_dict2)
+
+                    subtotal = order_request_obj.get_subtotal()
+                    delivery_fee = order_request_obj.get_delivery_fee()
+                    cod_fee = order_request_obj.get_cod_charge()
+
+                    to_pay = order_request_obj.get_total_amount()
+
+                    temp_dict["subtotal"] = str(subtotal)
+
+                    temp_dict["deliveryFee"] = str(delivery_fee)
+                    temp_dict["codFee"] = str(cod_fee)
+                    temp_dict["toPay"] = str(to_pay)
+                    temp_dict["currency"] = currency
+
+                    temp_dict["unitOrderRequestList"] = unit_order_request_list
+
+                    temp_dict["shipping_charge"] = shipping_charge
+                    temp_dict["free_delivery_threshold"] = free_delivery_threshold
+                    temp_dict["website_group_name"] = website_group_name
+                    temp_dict["footer_text"] = footer_text
+
+                    order_request_list.append(temp_dict)
+
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchOrderRequestsForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["isAvailable"] = is_available
+            response["totalOrders"] = total_orders
+            response["orderList"] = order_list
+            response["currency"] = currency
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOrderRequestsForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
