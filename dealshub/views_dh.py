@@ -5453,7 +5453,16 @@ class SetShippingMethodAPI(APIView):
                             result = fetch_prices_and_stock(seller_sku, company_code)
                             result["uuid"] = unit_order_obj.uuid
                             result["seller_sku"] = seller_sku
-                            
+                            result["disable_atp_holding"] = False
+                            result["disable_atp"] = False
+                            result["disable_holding"] = False
+                            if result["total_holding"] < unit_order_obj.quantity and result["total_atp"] < unit_order_obj.quantity:
+                                result["disable_atp_holding"] = True
+                            elif result["total_atp"] <  unit_order_obj.quantity:
+                                result["disable_atp"] = True
+                            elif result["total_holding"] < unit_order_obj.quantity:
+                                result["disable_holding"] = True
+
                             modal_info_list.append(result)
                     
                     if len(modal_info_list)>0:
