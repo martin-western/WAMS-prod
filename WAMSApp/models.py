@@ -1261,7 +1261,7 @@ class NestoProduct(models.Model):
     preparation_and_usage = models.TextField(default="", blank=True)
     allergic_information = models.TextField(default="", blank=True)
     product_description = models.TextField(default="", blank=True)
-    dimensions = models.TextField(default=nesto_dimensions_json)
+    dimensions = models.TextField(default=json.dumps(nesto_dimensions_json))
     nutrition_facts = models.TextField(default="", blank=True)
     ingredients = models.TextField(default="", blank=True)
     return_days = models.CharField(default="", blank=True, max_length=100)
