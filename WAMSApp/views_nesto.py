@@ -74,7 +74,7 @@ class CreateNestoProductAPI(APIView):
                                                             allergic_information=allergic_information,
                                                             product_description=product_description,
                                                             dimensions=json.dumps(dimensions),
-                                                            nutrition_facts=nutrition_facts,
+                                                            nutrition_facts=json.dumps(nutrition_facts),
                                                             ingredients=ingredients,
                                                             return_days=return_days)
 
@@ -155,7 +155,7 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.allergic_information=allergic_information
             nesto_product_obj.product_description=product_description
             nesto_product_obj.dimensions=json.dumps(dimensions)
-            nesto_product_obj.nutrition_facts=nutrition_facts
+            nesto_product_obj.nutrition_facts=json.dumps(nutrition_facts)
             nesto_product_obj.ingredients=ingredients
             nesto_product_obj.return_days=return_days
             nesto_product_obj.save()
@@ -430,7 +430,8 @@ class AddNestoProductImagesAPI(APIView):
                     nesto_product_obj.nutrition_images.add(image_obj)
                 elif image_type=="product_content":
                     nesto_product_obj.product_content_images.add(image_obj) 
-                nesto_product_obj.no_of_images_for_filter += 1
+            
+            nesto_product_obj.no_of_images_for_filter  = nesto_product_obj.front_images.all().count() + nesto_product_obj.back_images.all().count() + nesto_product_obj.side_images.all().count() + nesto_product_obj.nutrition_images.all().count() + nesto_product_obj.product_content_images.all().count()
 
             nesto_product_obj.save()
             response['status'] = 200
@@ -463,7 +464,7 @@ class RemoveNestoProductImageAPI(APIView):
             image_obj.delete()
 
             nesto_product_obj = NestoProduct.objects.get(uuid=product_uuid)
-            nesto_product_obj.no_of_images_for_filter -= 1
+            nesto_product_obj.no_of_images_for_filter  = nesto_product_obj.front_images.all().count() + nesto_product_obj.back_images.all().count() + nesto_product_obj.side_images.all().count() + nesto_product_obj.nutrition_images.all().count() + nesto_product_obj.product_content_images.all().count()
             nesto_product_obj.save()
 
             response['status'] = 200
@@ -681,9 +682,17 @@ class FetchNestoBrandsAPI(APIView):
                 data = json.loads(data)
 
             organization_obj = Organization.objects.get(name="Nesto Group")
+            brand_objs = Brand.objects.filter(organization=organization_obj)
 
-            brand_objs_name_list = list(Brand.objects.filter(organization=organization_obj).values_list("name").distinct())
-            response['brand_list'] = brand_objs_name_list
+            brand_name_list = []
+            for brand_obj in brand_objs:
+                temp_dict = {}
+                temp_dict["name"] = brand_obj.name
+                temp_dict["name_ar"] = brand_obj.name_ar
+                temp_dict["pk"] = brand_obj.pk
+                brand_name_list.append(temp_dict)
+
+            response['brand_list'] = brand_name_list
             response['status'] = 200
 
         except Exception as e:
