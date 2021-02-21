@@ -318,11 +318,12 @@ class DealsHubProduct(models.Model):
 
     def get_moq(self,dealshub_user_obj=None):
         if self.location_group.is_b2b == True:
-            logger.warning("get_moq: ", cohort,dealshub_user_obj)
+            logger.warning("get_moq: ",dealshub_user_obj)
             if dealshub_user_obj == None:
                 return self.moq
             b2b_user_obj = B2BUser.objects.get(username=dealshub_user_obj.username)
             cohort = b2b_user_obj.cohort
+            logger.warning("get_moq: ",dealshub_user_obj)
             if cohort == "1":
                 return self.moq_cohort1
             elif cohort == "2":
