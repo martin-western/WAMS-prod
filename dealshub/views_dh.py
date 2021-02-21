@@ -2119,6 +2119,9 @@ class FetchOrderRequestListAPI(APIView):
                     temp_dict["shippingAddress"] = order_request_obj.shipping_address.get_shipping_address()
 
                     unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
+                    if order_request_obj.request_status == "Approved" and unit_order_request_objs.exclude(request_status="Rejected").count() != unit_order_request_objs.count():
+                        temp_dict["request_status"] = "Partially Approved"
+                    unit_order_request_objs = unit_order_request_objs.exclude(request_status="Rejected")
                     unit_order_request_list = []
                     for unit_order_request_obj in unit_order_request_objs:
                         temp_dict2 = {}
@@ -2132,7 +2135,8 @@ class FetchOrderRequestListAPI(APIView):
                         temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_name(language_code)
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
-                        unit_order_list.append(temp_dict2)
+                        unit_order_request_list.append(temp_dict2)
+                    temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected")
                     temp_dict["unitOrderRequestList"] = unit_order_request_list
                     order_request_list.append(temp_dict)
                 except Exception as e:
@@ -5682,7 +5686,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
 
             response["isAvailable"] = is_available
             response["totalOrders"] = total_orders
-            response["orderList"] = order_list
+            response["orderRequestList"] = order_list
             response["currency"] = currency
             response["status"] = 200
 
