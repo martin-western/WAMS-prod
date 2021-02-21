@@ -430,7 +430,8 @@ class AddNestoProductImagesAPI(APIView):
                     nesto_product_obj.nutrition_images.add(image_obj)
                 elif image_type=="product_content":
                     nesto_product_obj.product_content_images.add(image_obj) 
-                nesto_product_obj.no_of_images_for_filter += 1
+            
+            nesto_product_obj.no_of_images_for_filter  = nesto_product_obj.front_images.all().count() + nesto_product_obj.back_images.all().count() + nesto_product_obj.side_images.all().count() + nesto_product_obj.nutrition_images.all().count() + nesto_product_obj.product_content_images.all().count()
 
             nesto_product_obj.save()
             response['status'] = 200
@@ -463,7 +464,7 @@ class RemoveNestoProductImageAPI(APIView):
             image_obj.delete()
 
             nesto_product_obj = NestoProduct.objects.get(uuid=product_uuid)
-            nesto_product_obj.no_of_images_for_filter -= 1
+            nesto_product_obj.no_of_images_for_filter  = nesto_product_obj.front_images.all().count() + nesto_product_obj.back_images.all().count() + nesto_product_obj.side_images.all().count() + nesto_product_obj.nutrition_images.all().count() + nesto_product_obj.product_content_images.all().count()
             nesto_product_obj.save()
 
             response['status'] = 200
