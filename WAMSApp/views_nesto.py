@@ -315,7 +315,8 @@ class FetchNestoProductListAPI(APIView):
             nesto_product_objs = NestoProduct.objects.all()
 
             if "brand_name" in filter_parameters:
-                nesto_product_objs = nesto_product_objs.filter(brand__name=filter_parameters["brand_name"])
+                if filter_parameters["brand_name"]!="":
+                    nesto_product_objs = nesto_product_objs.filter(brand__name=filter_parameters["brand_name"])
             
             if len(search_list)>0:
                 temp_nesto_product_objs = NestoProduct.objects.none()
@@ -325,10 +326,11 @@ class FetchNestoProductListAPI(APIView):
                 nesto_product_objs = temp_nesto_product_objs.distinct()
 
             if "has_image" in filter_parameters:
-                if filter_parameters["has_image"]=="1":
-                    nesto_product_objs = nesto_product_objs.exclude(no_of_images_for_filter=0)
-                elif filter_parameters["has_image"]=="0":
-                    nesto_product_objs = nesto_product_objs.filter(no_of_images_for_filter=0)
+                if filter_parameters["has_image"]!="":
+                    if filter_parameters["has_image"]=="1":
+                        nesto_product_objs = nesto_product_objs.exclude(no_of_images_for_filter=0)
+                    elif filter_parameters["has_image"]=="0":
+                        nesto_product_objs = nesto_product_objs.filter(no_of_images_for_filter=0)
             
             total_products = nesto_product_objs.count()
 
