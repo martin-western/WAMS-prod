@@ -194,17 +194,17 @@ class DealsHubProduct(models.Model):
     moq_cohort4 = models.IntegerField(default=5)
     moq_cohort5 = models.IntegerField(default=5)
 
-    now_price_cohort1 = models.IntegerField(default=0)
-    now_price_cohort2 = models.IntegerField(default=0)
-    now_price_cohort3 = models.IntegerField(default=0)
-    now_price_cohort4 = models.IntegerField(default=0)
-    now_price_cohort5 = models.IntegerField(default=0)
+    now_price_cohort1 = models.FloatField(default=0)
+    now_price_cohort2 = models.FloatField(default=0)
+    now_price_cohort3 = models.FloatField(default=0)
+    now_price_cohort4 = models.FloatField(default=0)
+    now_price_cohort5 = models.FloatField(default=0)
 
-    promotional_price_cohort1 = models.IntegerField(default=0)
-    promotional_price_cohort2 = models.IntegerField(default=0)
-    promotional_price_cohort3 = models.IntegerField(default=0)
-    promotional_price_cohort4 = models.IntegerField(default=0)
-    promotional_price_cohort5 = models.IntegerField(default=0)
+    promotional_price_cohort1 = models.FloatField(default=0)
+    promotional_price_cohort2 = models.FloatField(default=0)
+    promotional_price_cohort3 = models.FloatField(default=0)
+    promotional_price_cohort4 = models.FloatField(default=0)
+    promotional_price_cohort5 = models.FloatField(default=0)
 
     class Meta:
         verbose_name = "DealsHub Product"
@@ -1395,7 +1395,7 @@ class B2BUser(DealsHubUser):
     passport_copy_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
     is_profile_approved = models.BooleanField(default=False)
 
-    cohort = models.TextField(default="",blank=True)
+    cohort = models.CharField(max_length=50, default="",blank=True)
     conf = models.TextField(default = "{}")
 
     class Meta:
