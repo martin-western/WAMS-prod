@@ -318,12 +318,10 @@ class DealsHubProduct(models.Model):
 
     def get_moq(self,dealshub_user_obj=None):
         if self.location_group.is_b2b == True:
-            logger.warning("get_moq: ",dealshub_user_obj)
             if dealshub_user_obj == None:
                 return self.moq
             b2b_user_obj = B2BUser.objects.get(username=dealshub_user_obj.username)
             cohort = b2b_user_obj.cohort
-            logger.warning("get_moq: ",dealshub_user_obj)
             if cohort == "1":
                 return self.moq_cohort1
             elif cohort == "2":
@@ -337,7 +335,6 @@ class DealsHubProduct(models.Model):
         return self.moq
 
     def get_b2b_price(self,cohort):
-        logger.warning("get_b2b_price cohort:   ",cohort)
         if cohort == "1":
             return self.now_price_cohort1
         elif cohort == "2":
@@ -355,15 +352,12 @@ class DealsHubProduct(models.Model):
             if dealshub_user_obj == None:
                 return 0
             b2b_user_obj = B2BUser.objects.get(username=dealshub_user_obj.username)
-            logger.warning("check_account_status: ",check_account_status(b2b_user_obj))
-            logger.warning(b2b_user_obj.cohort)
             if check_account_status(b2b_user_obj)==True:
                 return  self.get_b2b_price(b2b_user_obj.cohort)
             return 0
         return self.now_price
 
     def get_was_price(self,dealshub_user_obj):
-        logger.warning("get_was_price")
         if self.location_group.is_b2b==True:
             if dealshub_user_obj == None:
                 return 0
