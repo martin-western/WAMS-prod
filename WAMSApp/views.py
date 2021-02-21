@@ -34,6 +34,7 @@ from WAMSApp.oc_reports import *
 from WAMSApp.views_category_manager import *
 from WAMSApp.views_SAP_Integration import *
 from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.views_nesto import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
@@ -6073,7 +6074,9 @@ class CreateOCReportAPI(APIView):
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 p1 = threading.Thread(target=create_stock_report, args=(filename,oc_report_obj.uuid,brand_list,location_group_obj,))
                 p1.start()
-
+            elif report_type.lower()=="nesto product":
+                p1 = threading.Thread(target=bulk_download_nesto_product_details_report, args=(filename,oc_report_obj.uuid,))
+                p1.start()
             response["approved"] = True
             response['status'] = 200
         
@@ -6583,6 +6586,12 @@ class FetchDealshubProductDetailsAPI(APIView):
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
 
+            is_b2b = False
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid != "":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                is_b2b = location_group_obj.is_b2b
+
             response["product_name"] = dealshub_product_obj.get_name()
             response["product_name_ar"] = dealshub_product_obj.get_name("ar")
             response["product_description"] = dealshub_product_obj.get_description()
@@ -6605,6 +6614,25 @@ class FetchDealshubProductDetailsAPI(APIView):
                 response["promo_tag_name"] = dealshub_product_obj.promotion.promotion_tag
                 response["promo_start_time"] = dealshub_product_obj.promotion.start_time
                 response["promo_end_time"] = dealshub_product_obj.promotion.end_time
+
+            if is_b2b == True:
+                response["now_price_cohort1"] = dealshub_product_obj.now_price_cohort1
+                response["now_price_cohort2"] = dealshub_product_obj.now_price_cohort2
+                response["now_price_cohort3"] = dealshub_product_obj.now_price_cohort3
+                response["now_price_cohort4"] = dealshub_product_obj.now_price_cohort4
+                response["now_price_cohort5"] = dealshub_product_obj.now_price_cohort5
+
+                response["promotional_price_cohort1"] = dealshub_product_obj.promotional_price_cohort1
+                response["promotional_price_cohort2"] = dealshub_product_obj.promotional_price_cohort2
+                response["promotional_price_cohort3"] = dealshub_product_obj.promotional_price_cohort3
+                response["promotional_price_cohort4"] = dealshub_product_obj.promotional_price_cohort4
+                response["promotional_price_cohort5"] = dealshub_product_obj.promotional_price_cohort5
+
+                response["moq_cohort1"] = dealshub_product_obj.moq_cohort1
+                response["moq_cohort2"] = dealshub_product_obj.moq_cohort2
+                response["moq_cohort3"] = dealshub_product_obj.moq_cohort3
+                response["moq_cohort4"] = dealshub_product_obj.moq_cohort4
+                response["moq_cohort5"] = dealshub_product_obj.moq_cohort5
 
             response["search_keywords"] = dealshub_product_obj.get_search_keywords()
 
@@ -6649,7 +6677,13 @@ class SaveDealshubProductDetailsAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            
+
+            is_b2b = False
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid != "":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                is_b2b = location_group_obj.is_b2b
+
             was_price = data["was_price"]
             now_price = data["now_price"]
             promotional_price = data["promotional_price"]
@@ -6690,6 +6724,25 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.product_description_ar = product_description_ar
             dealshub_product_obj.url = url
             dealshub_product_obj.moq = moq
+
+            if is_b2b == True:
+                dealshub_product_obj.now_price_cohort1 = data["now_price_cohort1"]
+                dealshub_product_obj.now_price_cohort2 = data["now_price_cohort2"]
+                dealshub_product_obj.now_price_cohort3 = data["now_price_cohort3"]
+                dealshub_product_obj.now_price_cohort4 = data["now_price_cohort4"]
+                dealshub_product_obj.now_price_cohort5 = data["now_price_cohort5"]
+
+                dealshub_product_obj.promotional_price_cohort1 = data["promotional_price_cohort1"]
+                dealshub_product_obj.promotional_price_cohort2 = data["promotional_price_cohort2"]
+                dealshub_product_obj.promotional_price_cohort3 = data["promotional_price_cohort3"]
+                dealshub_product_obj.promotional_price_cohort4 = data["promotional_price_cohort4"]
+                dealshub_product_obj.promotional_price_cohort5 = data["promotional_price_cohort5"]
+
+                dealshub_product_obj.moq_cohort1 = data["moq_cohort1"]
+                dealshub_product_obj.moq_cohort2 = data["moq_cohort2"]
+                dealshub_product_obj.moq_cohort3 = data["moq_cohort3"]
+                dealshub_product_obj.moq_cohort4 = data["moq_cohort4"]
+                dealshub_product_obj.moq_cohort5 = data["moq_cohort5"]
 
             dealshub_product_obj.set_search_keywords(search_keywords)
 
@@ -6902,6 +6955,34 @@ class SecureDeleteProductAPI(APIView):
 
         return Response(data=response)
 
+
+class LogoutOCUserAPI(APIView):
+    
+    def logout(self, request):
+        request.user.auth_token.delete()
+
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("LogoutUserAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            self.logout(request)
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("LogoutUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
 
 BulkUploadDynamicExcel = BulkUploadDynamicExcelAPI.as_view()
@@ -7086,3 +7167,5 @@ CreateExportTemplate = CreateExportTemplateAPI.as_view()
 DeleteExportTemplate = DeleteExportTemplateAPI.as_view()
 
 SecureDeleteProduct = SecureDeleteProductAPI.as_view()
+
+LogoutOCUser = LogoutOCUserAPI.as_view()

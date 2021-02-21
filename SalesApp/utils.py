@@ -57,7 +57,7 @@ def send_firebase_notifications(fcm_ids,notification_info):
 		                            },
 		          'registration_ids':
 		              fcm_ids,
-		          'priority': 'high',
+		          'priority': 'high'
 		        #   'data': dataPayLoad,
 		        }
 		response = requests.post("https://fcm.googleapis.com/fcm/send",headers = headers, data=json.dumps(body))

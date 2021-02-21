@@ -424,7 +424,32 @@ class OmnyCommUser(User):
     class Meta:
         verbose_name = "OmnyCommUser"
         verbose_name_plural = "OmnyCommUser"
-        
+
+
+class SalesTarget(models.Model):
+
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    user = models.ForeignKey("OmnyCommUser", null=True, blank=True, on_delete=models.CASCADE)
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.CASCADE)
+
+    today_sales_target = models.FloatField(default=0)
+    monthly_sales_target = models.FloatField(default=0)
+    today_orders_target = models.IntegerField(default=0)
+    monthly_orders_target = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Sales Target"
+        verbose_name_plural = "Sales Targets"
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+
+        if self.pk == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        super(SalesTarget, self).save(*args, **kwargs)
+
 
 class ImageBucket(models.Model):
 
@@ -762,6 +787,7 @@ class Brand(models.Model):
     name_ar = models.CharField(max_length=100,default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     organization = models.ForeignKey(Organization, null=True, blank=True)
+    description = models.TextField(default="")
 
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
@@ -1206,6 +1232,61 @@ auditlog.register(Product.aplus_content_images.through)
 auditlog.register(Product.ads_images.through)
 auditlog.register(Product.pfl_generated_images.through)
 auditlog.register(Product.transparent_images.through)
+
+
+nesto_dimensions_json = {
+    "product_length": "",
+    "product_length_metric": "",
+    "product_width": "",
+    "product_width_metric": "",
+    "product_height": "",
+    "product_height_metric": "",
+}
+
+class NestoProduct(models.Model):
+
+    article_number = models.CharField(default="", blank=True, max_length=100)
+    product_name = models.CharField(default="", blank=True, max_length=250)
+    product_name_ecommerce = models.CharField(default="", blank=True, max_length=250)
+    barcode = models.CharField(unique=True, default="", blank=True, max_length=100)
+    uom = models.CharField(default="", blank=True, max_length=100)
+    language_key = models.CharField(default="", blank=True, max_length=100)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
+    weight_volume = models.CharField(default="", blank=True, max_length=100)
+    country_of_origin = models.CharField(default="", blank=True, max_length=100)
+    highlights = models.TextField(default="", blank=True)
+    storage_condition = models.TextField(default="", blank=True)
+    preparation_and_usage = models.TextField(default="", blank=True)
+    allergic_information = models.TextField(default="", blank=True)
+    product_description = models.TextField(default="", blank=True)
+    dimensions = models.TextField(default=json.dumps(nesto_dimensions_json))
+    nutrition_facts = models.TextField(default="[]", blank=True)
+    ingredients = models.TextField(default="", blank=True)
+    return_days = models.CharField(default="", blank=True, max_length=100)
+    substitute_products = models.ManyToManyField('self', related_name="substitute_products", blank=True)
+    cross_selling_products = models.ManyToManyField('self', related_name="cross_selling_products", blank=True)
+    upselling_products = models.ManyToManyField('self', related_name="upselling_products", blank=True)
+    front_images = models.ManyToManyField(Image, related_name="front_images", blank=True)
+    back_images = models.ManyToManyField(Image, related_name="back_images", blank=True)
+    side_images = models.ManyToManyField(Image, related_name="side_images", blank=True)
+    nutrition_images = models.ManyToManyField(Image, related_name="nutrition_images", blank=True)
+    product_content_images = models.ManyToManyField(Image, related_name="product_content_images", blank=True)
+    no_of_images_for_filter = models.IntegerField(default=0)
+
+    created_date = models.DateTimeField(null=True, blank=True)
+    modified_date = models.DateTimeField(null=True, blank=True)
+    uuid = models.CharField(default="", max_length=200, unique=True)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.modified_date = timezone.now()
+            self.uuid = str(uuid.uuid4())
+        else:
+            self.modified_date = timezone.now()
+        
+        super(NestoProduct, self).save(*args, **kwargs)
 
 
 class ProductImage(models.Model):

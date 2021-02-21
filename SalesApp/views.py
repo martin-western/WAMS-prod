@@ -92,6 +92,8 @@ class SalesAppLoginSubmitAPI(APIView):
                 token = json.loads(r.content)["token"]
                 response["token"] = token
                 sales_user_obj = SalesAppUser.objects.get(username=email)
+                sales_user_obj.fcm_id = fcm_id
+                sales_user_obj.save()
                 response["customer_id"] = sales_user_obj.customer_id
                 response["contact_number"] = sales_user_obj.contact_number
                 response["country"] = sales_user_obj.country
@@ -819,7 +821,7 @@ class SendNotificationAPI(APIView):
                 logger.warning("SendNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
 
-            fcm_ids = SalesAppUser.objects.values_list('fcm_id',flat=True)
+            fcm_ids = list(SalesAppUser.objects.values_list('fcm_id',flat=True))
 
             notification_info = {}
             notification_info["title"] = notification_obj.title

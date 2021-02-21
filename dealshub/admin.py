@@ -33,6 +33,10 @@ class FastCartAdmin(admin.ModelAdmin):
     list_display = ('owner', 'merchant_reference')
 
 
+class WishListAdmin(admin.ModelAdmin):
+	list_display = ('owner',)
+
+
 admin.site.register(DealsHubProduct, DealsHubProductAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(BannerType, BannerTypeAdmin)
@@ -48,6 +52,6 @@ admin.site.register(Order)
 admin.site.register(Location)
 admin.site.register(LocationGroup)
 admin.site.register(Voucher)
-admin.site.register(WishList)
+admin.site.register(WishList,WishListAdmin)
 admin.site.register(UnitWishList)
 admin.site.register(B2BUser)

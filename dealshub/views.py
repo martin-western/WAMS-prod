@@ -70,6 +70,11 @@ class FetchProductDetailsAPI(APIView):
             product_obj = dealshub_product_obj.product
             base_product_obj = product_obj.base_product
 
+            dealshub_user_obj = None
+            if request.user != None and str(request.user)!="AnonymousUser":
+                logger.info("FetchProductDetailsAPI REQUEST USER: %s", str(request.user))
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+
             response["brand"] = dealshub_product_obj.get_brand(language_code)
             response["superCategory"] = dealshub_product_obj.get_super_category(language_code)
             response["category"] = dealshub_product_obj.get_category(language_code)
@@ -77,10 +82,10 @@ class FetchProductDetailsAPI(APIView):
             response["uuid"] = data["uuid"]
             response["name"] = dealshub_product_obj.get_name(language_code)
             response["stock"] = dealshub_product_obj.stock
-            response["moq"] = dealshub_product_obj.moq
+            response["moq"] = dealshub_product_obj.get_moq(dealshub_user_obj)
             response["allowedQty"] = dealshub_product_obj.get_allowed_qty()
-            response["price"] = dealshub_product_obj.get_actual_price()
-            response["wasPrice"] = dealshub_product_obj.was_price
+            response["price"] = dealshub_product_obj.get_actual_price(dealshub_user_obj)
+            response["wasPrice"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
             response["currency"] = dealshub_product_obj.get_currency()
             response["warranty"] = dealshub_product_obj.get_warranty()
 
@@ -312,10 +317,13 @@ class FetchOnSaleProductsAPI(APIView):
             dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_on_sale=True).exclude(now_price=0).exclude(stock=0).order_by('-is_promotional').prefetch_related('promotion')
 
             is_user_authenticated = True
+            dealshub_user_obj = None
             if location_group_obj.is_b2b==True:
+                is_user_authenticated = False
                 b2b_user_obj = None
                 if request.user != None and str(request.user)!="AnonymousUser":
-                    logger.info("REQUEST USER: %s", str(request.user))
+                    logger.info("FetchOnSaleProductsAPI REQUEST USER: %s", str(request.user))
+                    dealshub_user_obj = DealsHubUser.objects.get(username = request.user.username)
                     b2b_user_obj = B2BUser.objects.get(username = request.user.username)
                 is_user_authenticated = check_account_status(b2b_user_obj)
 
@@ -331,10 +339,10 @@ class FetchOnSaleProductsAPI(APIView):
                 temp_dict2 = {}
                 temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
                 temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
-                temp_dict2["now_price"] = dealshub_product_obj.now_price
-                temp_dict2["was_price"] = dealshub_product_obj.was_price
-                temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
-                temp_dict2["moq"] = dealshub_product_obj.moq
+                temp_dict2["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
+                temp_dict2["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
+                temp_dict2["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
+                temp_dict2["moq"] = dealshub_product_obj.get_moq(dealshub_user_obj)
                 temp_dict2["stock"] = dealshub_product_obj.stock
                 temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
@@ -387,10 +395,13 @@ class FetchNewArrivalProductsAPI(APIView):
             dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True, is_new_arrival=True).exclude(now_price=0).exclude(stock=0).order_by('-product__created_date').prefetch_related('promotion')
 
             is_user_authenticated = True
+            dealshub_user_obj = None
             if location_group_obj.is_b2b==True:
+                is_user_authenticated = False
                 b2b_user_obj = None
                 if request.user != None and str(request.user)!="AnonymousUser":
-                    logger.info("REQUEST USER: %s", str(request.user))
+                    logger.info("FetchNewArrivalProductsAPI REQUEST USER: %s", str(request.user))
+                    dealshub_user_obj = DealsHubUser.objects.get(username = request.user.username)
                     b2b_user_obj = B2BUser.objects.get(username = request.user.username)
                 is_user_authenticated = check_account_status(b2b_user_obj)
 
@@ -406,10 +417,10 @@ class FetchNewArrivalProductsAPI(APIView):
                 temp_dict2 = {}
                 temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
                 temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
-                temp_dict2["now_price"] = dealshub_product_obj.now_price
-                temp_dict2["was_price"] = dealshub_product_obj.was_price
-                temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
-                temp_dict2["moq"] = dealshub_product_obj.moq
+                temp_dict2["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
+                temp_dict2["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
+                temp_dict2["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
+                temp_dict2["moq"] = dealshub_product_obj.get_moq(dealshub_user_obj)
                 temp_dict2["stock"] = dealshub_product_obj.stock
                 temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
                 temp_dict2["isStockAvailable"] = dealshub_product_obj.stock>0
@@ -1057,6 +1068,11 @@ class SearchWIGAPI(APIView):
             brand_name = data.get("brand", "").strip()
             page_type = data.get("page_type", "").strip()
 
+            dealshub_user_obj = None
+            if request.user != None and str(request.user)!="AnonymousUser":
+                logger.info("SearchWIGAPI REQUEST USER: %s", str(request.user))
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+
             page_description = ""
             seo_title = ""
             seo_keywords = ""
@@ -1234,9 +1250,9 @@ class SearchWIGAPI(APIView):
                     temp_dict["name"] = dealshub_product_obj.get_name(language_code)
                     temp_dict["brand"] = dealshub_product_obj.get_brand(language_code)
                     temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
-                    temp_dict["now_price"] = dealshub_product_obj.now_price
-                    temp_dict["was_price"] = dealshub_product_obj.was_price
-                    temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+                    temp_dict["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
+                    temp_dict["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
+                    temp_dict["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
                     temp_dict["stock"] = dealshub_product_obj.stock
                     temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                     temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
@@ -1294,6 +1310,7 @@ class SearchWIG2API(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
+            dealshub_user_obj = None
             is_user_authenticated = True
             if location_group_obj.is_b2b==True:
                 b2b_user_obj = None
@@ -1301,6 +1318,7 @@ class SearchWIG2API(APIView):
                 if request.user != None and str(request.user)!="AnonymousUser":
                     logger.info("REQUEST USER: %s", str(request.user))
                     b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                    dealshub_user_obj = DealsHubUser.objects.get(username = request.user.username)
                 is_user_authenticated = check_account_status(b2b_user_obj)
 
             page_description = ""
@@ -1478,10 +1496,10 @@ class SearchWIG2API(APIView):
                     temp_dict["name"] = dealshub_product_obj.get_name()
                     temp_dict["brand"] = dealshub_product_obj.get_brand()
                     temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
-                    temp_dict["now_price"] = dealshub_product_obj.now_price
-                    temp_dict["was_price"] = dealshub_product_obj.was_price
-                    temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
-                    temp_dict["moq"] = dealshub_product_obj.moq
+                    temp_dict["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
+                    temp_dict["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
+                    temp_dict["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
+                    temp_dict["moq"] = dealshub_product_obj.get_moq(dealshub_user_obj)
                     temp_dict["stock"] = dealshub_product_obj.stock
                     temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                     temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
@@ -2776,6 +2794,12 @@ class PublishDealsHubProductAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
+            
+            if dealshub_product_obj.product.no_of_images_for_filter==0:
+                response['status'] = 407
+                response['message'] = 'product without images cannot be published'
+                return Response(data=response)
+
             dealshub_product_obj.is_published = True
             dealshub_product_obj.save()
 
@@ -2958,9 +2982,11 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             b2b_user_obj = None
+            dealshub_user_obj = None
             if request.user != None and str(request.user)!="AnonymousUser":
                 logger.info("REQUEST USER: %s", str(request.user))
                 b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             is_user_authenticated = check_account_status(b2b_user_obj)
 
             resolution = data.get("resolution", "low")
@@ -3081,16 +3107,11 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
                         temp_dict2["currency"] = dealshub_product_obj.get_currency()
 
                     promotion_obj = dealshub_product_obj.promotion
-                    
-                    if is_user_authenticated == True:
-                        temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
-                        temp_dict2["now_price"] = dealshub_product_obj.now_price
-                        temp_dict2["was_price"] = dealshub_product_obj.was_price
-                        temp_dict2["moq"] = dealshub_product_obj.moq
-                    else:
-                        temp_dict2["promotional_price"] = 0 
-                        temp_dict2["now_price"] = 0
-                        temp_dict2["was_price"] = 0
+
+                    temp_dict2["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
+                    temp_dict2["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
+                    temp_dict2["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
+                    temp_dict2["moq"] = dealshub_product_obj.get_moq(dealshub_user_obj)
                     temp_dict2["stock"] = dealshub_product_obj.stock
                     temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                     temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
@@ -4215,13 +4236,11 @@ class FetchUnitBannerProductsAPI(APIView):
             
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
 
-            is_user_authenticated = True
+            dealshub_user_obj = None
             if unit_banner_image_obj.banner.location_group.is_b2b==True:
-                b2b_user_obj = None
                 if request.user != None and str(request.user)!="AnonymousUser":
                     logger.info("REQUEST USER: %s", str(request.user))
-                    b2b_user_obj = B2BUser.objects.get(username = request.user.username)
-                is_user_authenticated = check_account_status(b2b_user_obj)
+                    dealshub_user_obj = DealsHubUser.objects.get(username = request.user.username)
 
             custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj, product__is_published=True)
             custom_product_unit_banner_objs = custom_product_unit_banner_objs.exclude(product__now_price=0).exclude(product__stock=0)
@@ -4276,10 +4295,10 @@ class FetchUnitBannerProductsAPI(APIView):
                 temp_dict["name"] = dealshub_product_obj.get_name(language_code)
                 temp_dict["brand"] = dealshub_product_obj.get_brand(language_code)
                 temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
-                temp_dict["now_price"] = dealshub_product_obj.now_price
-                temp_dict["was_price"] = dealshub_product_obj.was_price
-                temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
-                temp_dict["moq"] = dealshub_product_obj.moq
+                temp_dict["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
+                temp_dict["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
+                temp_dict["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
+                temp_dict["moq"] = dealshub_product_obj.get_moq(dealshub_user_obj)
                 temp_dict["stock"] = dealshub_product_obj.stock
                 temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                 temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
@@ -5423,6 +5442,112 @@ class UpdateLocationGroupSettingsAPI(APIView):
         return Response(data=response)
 
 
+class FetchSalesTargetsListAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSalesExecutiveTargetsListAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            sales_target_objs = SalesTarget.objects.filter(location_group=location_group_obj)
+
+            sales_target_list = []
+            for sales_target_obj in sales_target_objs:
+                temp_dict = {}
+                temp_dict["user_first_name"] = sales_target_obj.user.first_name
+                temp_dict["user_username"] = sales_target_obj.user.username
+                temp_dict["uuid"] = sales_target_obj.uuid
+                temp_dict["today_sales_target"] = sales_target_obj.today_sales_target
+                temp_dict["monthly_sales_target"] = sales_target_obj.monthly_sales_target
+                temp_dict["today_orders_target"] = sales_target_obj.today_orders_target
+                temp_dict["monthly_orders_target"] = sales_target_obj.monthly_orders_target
+                sales_target_list.append(temp_dict)
+            
+            response["sales_target_list"] = sales_target_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSalesExecutiveTargetsListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class UpdateSalesTargetAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateSalesTargetAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            sales_target_uuid = data["sales_target_uuid"]
+            sales_target_obj = SalesTarget.objects.get(uuid=sales_target_uuid, location_group=location_group_obj)
+            
+            today_sales_target = float(data["today_sales_target"])
+            monthly_sales_target = float(data["monthly_sales_target"])
+            today_orders_target = float(data["today_orders_target"])
+            monthly_orders_target = float(data["monthly_orders_target"])
+            
+            sales_target_obj.today_sales_target = today_sales_target
+            sales_target_obj.monthly_sales_target = monthly_sales_target
+            sales_target_obj.today_orders_target = today_orders_target
+            sales_target_obj.monthly_orders_target = monthly_orders_target
+            sales_target_obj.save()
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateSalesTargetAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class AddSalesTargetAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+            
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddSalesTargetAPI: %s", str(data))
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            sales_person_obj = OmnyCommUser.objects.get(username=data["sales_person_username"])
+
+            if SalesTarget.objects.filter(location_group=location_group_obj, user=sales_person_obj).exists():
+                response['status'] = 409
+                response['message'] = "Target already set for this user"
+                return Response(data=response)
+
+            sales_target_obj = SalesTarget.objects.create(location_group=location_group_obj,
+                                                          user=sales_person_obj,
+                                                          today_sales_target=data["today_sales_target"],
+                                                          monthly_sales_target=data["monthly_sales_target"],
+                                                          today_orders_target=data["today_orders_target"],
+                                                          monthly_orders_target=data["monthly_orders_target"])
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddSalesTargetAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class AddProductToOrderAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -5809,6 +5934,12 @@ SaveSEOAdminDetails = SaveSEOAdminDetailsAPI.as_view()
 FetchLocationGroupSettings = FetchLocationGroupSettingsAPI.as_view()
 
 UpdateLocationGroupSettings = UpdateLocationGroupSettingsAPI.as_view()
+
+FetchSalesTargetsList = FetchSalesTargetsListAPI.as_view()
+
+UpdateSalesTarget = UpdateSalesTargetAPI.as_view()
+
+AddSalesTarget = AddSalesTargetAPI.as_view()
 
 AddProductToOrder = AddProductToOrderAPI.as_view()
 
