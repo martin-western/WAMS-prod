@@ -315,7 +315,7 @@ class FetchNestoProductListAPI(APIView):
             nesto_product_objs = NestoProduct.objects.all()
 
             if "brand_name" in filter_parameters:
-                nesto_product_objs = nesto_product_objs.filter(brand__name__in=filter_parameters["brand_name"])
+                nesto_product_objs = nesto_product_objs.filter(brand__name=filter_parameters["brand_name"])
             
             if len(search_list)>0:
                 temp_nesto_product_objs = NestoProduct.objects.none()
