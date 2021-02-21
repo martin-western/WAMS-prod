@@ -309,14 +309,13 @@ class FetchNestoProductListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            brand_list = data.get("brandList",[])
-            search_list = data.get("searchList",[])
-            has_image = data.get("has_image",None)
+            filter_parameters = data.get("filter_parameters", {})
+            search_list = data.get("tags",[])
 
             nesto_product_objs = NestoProduct.objects.all()
 
-            if len(brand_list)>0:
-                nesto_product_objs = nesto_product_objs.filter(brand__name__in=brand_list)
+            if "brand_name" in filter_parameters:
+                nesto_product_objs = nesto_product_objs.filter(brand__name__in=filter_parameters["brand_name"])
             
             if len(search_list)>0:
                 temp_nesto_product_objs = NestoProduct.objects.none()
@@ -325,10 +324,10 @@ class FetchNestoProductListAPI(APIView):
                     temp_nesto_product_objs |= nesto_product_objs.filter(Q(article_number__icontains=search_string) | Q(product_name__icontains=search_string) | Q(barcode__icontains=search_string) | Q(uuid__icontains=search_string) | Q(product_name_ecommerce__icontains=search_string))
                 nesto_product_objs = temp_nesto_product_objs.distinct()
 
-            if has_image!=None:
-                if has_image==True:
-                  nesto_product_objs = nesto_product_objs.exclude(no_of_images_for_filter=0)
-                elif has_image==False:
+            if "has_image" in filter_parameters:
+                if filter_parameters["has_image"]=="1":
+                    nesto_product_objs = nesto_product_objs.exclude(no_of_images_for_filter=0)
+                elif filter_parameters["has_image"]=="0":
                     nesto_product_objs = nesto_product_objs.filter(no_of_images_for_filter=0)
             
             total_products = nesto_product_objs.count()
