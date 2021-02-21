@@ -2062,6 +2062,9 @@ class CreateOfflineCustomerAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
+            if contact_number[0]=="0":
+                contact_number = contact_number[1:]
+
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             website_group_obj = location_group_obj.website_group
@@ -2107,6 +2110,9 @@ class UpdateOfflineUserProfileAPI(APIView):
             first_name = data["firstName"]
             last_name = data.get("lastName", "")
             contact_number = data["contactNumber"]
+
+            if contact_number[0]=="0":
+                contact_number = contact_number[1:]
 
             if DealsHubUser.objects.filter(username=username).exists():
                 dealshub_user_obj = DealsHubUser.objects.get(username=username)
