@@ -681,9 +681,13 @@ class FetchNestoBrandsAPI(APIView):
                 data = json.loads(data)
 
             organization_obj = Organization.objects.get(name="Nesto Group")
+            brand_objs = Brand.objects.filter(organization=organization_obj)
 
-            brand_objs_name_list = list(Brand.objects.filter(organization=organization_obj).values_list("name").distinct())
-            response['brand_list'] = brand_objs_name_list
+            brand_name_list = []
+            for brand_obj in brand_objs:
+                brand_name_list.append(brand_obj.name)
+
+            response['brand_list'] = brand_name_list
             response['status'] = 200
 
         except Exception as e:
