@@ -2139,6 +2139,7 @@ class FetchOrderRequestListAPI(APIView):
                         unit_order_request_list.append(temp_dict2)
                     temp_dict["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").cpunt()
                     temp_dict["totalQuantity"] = unit_order_status_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
+                    temp_dict["totalAmount"] =order_request_obj.get_total_amount()
                     temp_dict["unitOrderRequestList"] = unit_order_request_list
                     order_request_list.append(temp_dict)
                 except Exception as e:
@@ -5620,6 +5621,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                         try:
                             b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username)
                             temp_dict["companyName"] = b2b_user_obj.company_name
+                            temp_dict["contactNumber"] = b2b_user_obj.contact_number
+                            temp_dict["emailId"] = b2b_user_obj.email
                         except Exception as e:
                             temp_dict["companyName"] = "NA"
                             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -5650,7 +5653,6 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                         temp_dict2["initialPrice"] = unit_order_request_obj.initial_price
                         temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
                         temp_dict2["finalPrice"] = unit_order_request_obj.final_price
-                        temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_request_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_main_image_url()
 
