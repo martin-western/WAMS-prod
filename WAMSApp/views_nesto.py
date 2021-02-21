@@ -208,7 +208,7 @@ class FetchNestoProductDetailsAPI(APIView):
             response["allergic_information"] = nesto_product_obj.allergic_information
             response["product_description"] = nesto_product_obj.product_description
             response["dimensions"] = json.loads(nesto_product_obj.dimensions)
-            response["nutrition_facts"] = nesto_product_obj.nutrition_facts
+            response["nutrition_facts"] = json.loads(nesto_product_obj.nutrition_facts)
             response["ingredients"] = nesto_product_obj.ingredients
             response["return_days"] = nesto_product_obj.return_days
 
