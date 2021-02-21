@@ -1021,9 +1021,9 @@ class UnitOrderRequest(models.Model):
     uuid = models.CharField(max_length=200,default="")
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     initial_quantity = models.IntegerField(default=0)
-    initial_price = models.IntegerField(default=0)
+    initial_price = models.FloatField(default=0)
     final_quantity = models.IntegerField(default=0)
-    final_price = models.IntegerField(default=0)
+    final_price = models.FloatField(default=0)
     date_created = models.DateTimeField(auto_now_add=True)
     order_req_id = models.CharField(max_length=100,default="")
 
