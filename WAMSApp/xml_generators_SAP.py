@@ -395,14 +395,14 @@ def xml_generator_for_product_holding_details(company_code,seller_sku):
                               <IM_MATNR>
                                  <!--Zero or more repetitions:-->
                                  <item>
-                                    <MATNR>"""str(seller_sku)"""</MATNR>
+                                    <MATNR>""" + str(seller_sku) + """</MATNR>
                                  </item>
                               </IM_MATNR>
                               <!--Optional:-->
                               <IM_VKORG>
                                  <!--Zero or more repetitions:-->
                                  <item>
-                                    <VKORG>"""str(company_code)"""</VKORG>
+                                    <VKORG>""" + str(company_code) + """</VKORG>
                                  </item>
                               </IM_VKORG>
                               <!--Optional:-->
