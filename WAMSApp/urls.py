@@ -178,5 +178,6 @@ urlpatterns = [
     url(r'^fetch-linked-nesto-products/$',views.FetchLinkedNestoProducts),
     url(r'^link-nesto-product/$',views.LinkNestoProduct),
     url(r'^unlink-nesto-product/$',views.UnLinkNestoProduct),
+    url(r'^fetch-nesto-brands/$', views.FetchNestoBrands)
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

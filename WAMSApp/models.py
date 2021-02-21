@@ -1262,7 +1262,7 @@ class NestoProduct(models.Model):
     allergic_information = models.TextField(default="", blank=True)
     product_description = models.TextField(default="", blank=True)
     dimensions = models.TextField(default=json.dumps(nesto_dimensions_json))
-    nutrition_facts = models.TextField(default="", blank=True)
+    nutrition_facts = models.TextField(default="[]", blank=True)
     ingredients = models.TextField(default="", blank=True)
     return_days = models.CharField(default="", blank=True, max_length=100)
     substitute_products = models.ManyToManyField('self', related_name="substitute_products", blank=True)
@@ -1273,6 +1273,7 @@ class NestoProduct(models.Model):
     side_images = models.ManyToManyField(Image, related_name="side_images", blank=True)
     nutrition_images = models.ManyToManyField(Image, related_name="nutrition_images", blank=True)
     product_content_images = models.ManyToManyField(Image, related_name="product_content_images", blank=True)
+    no_of_images_for_filter = models.IntegerField(default=0)
 
     created_date = models.DateTimeField(null=True, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
