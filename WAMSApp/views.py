@@ -6074,7 +6074,9 @@ class CreateOCReportAPI(APIView):
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 p1 = threading.Thread(target=create_stock_report, args=(filename,oc_report_obj.uuid,brand_list,location_group_obj,))
                 p1.start()
-
+            elif report_type.lower()=="nesto product":
+                p1 = threading.Thread(target=bulk_download_nesto_product_details_report, args=(filename,oc_report_obj.uuid,))
+                p1.start()
             response["approved"] = True
             response['status'] = 200
         

@@ -2467,7 +2467,8 @@ def create_stock_report(filename, uuid, brand_list, location_group_obj):
 
         for dh_product_obj in dh_product_objs:
             try:
-                
+                cnt += 1
+
                 common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
                 common_row[1] = dh_product_obj.get_product_id()
@@ -2497,3 +2498,139 @@ def create_stock_report(filename, uuid, brand_list, location_group_obj):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_stock_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_download_nesto_product_details_report(filename, uuid):
+    try:
+        logger.info('Nesto Product details download report start...')
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = [ "No.",
+                "Article Number",
+                "barcode",
+                "Language Key",
+                "Product Type",
+                "Category",
+                "Product Name",
+                "Product Long Description",
+                "Weight/Volume",
+                "Image Front",
+                "Image Back",
+                "Image Nutrition",
+                "Image Product Content",
+                "Image Side",
+                "Country Of Origin",
+                "brand",
+                "Merchandise Category",
+                "Storage Conditions",
+                "Preparation and Usage",
+                "Allergic Infromation",
+                "Nutrient Facts",
+                "Ingredients",
+                "About Brand",
+                "Related Article Nos",
+                "UpSell Article Nos",
+                "CrossSell Article Nos"]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+
+        cnt=0
+            
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        nesto_product_objs = NestoProduct.objects.all()
+
+        for nesto_product_obj in nesto_product_objs:
+            try:           
+                cnt += 1
+        
+                front_images = ""
+                for front_image in nesto_product_obj.front_images.all():
+                    front_images += str(front_image.image.url) + ", " 
+                back_images = ""
+                for back_image in nesto_product_obj.back_images.all():
+                    back_images += str(back_image.image.url) + ", " 
+                nutrition_images = ""
+                for nutrition_image in nesto_product_obj.nutrition_images.all():
+                    nutrition_images += str(nutrition_image.image.url) + ", " 
+                product_content_images = ""
+                for product_content_image in nesto_product_obj.product_content_images.all():
+                    product_content_images += str(product_content_image.image.url) + ", " 
+                side_images = ""
+                for side_image in nesto_product_obj.side_images.all():
+                    side_images += str(side_image.image.url) + ", " 
+
+                related_article_nos = ""
+                for substitute_product in nesto_product_obj.substitute_products.all():
+                    related_article_nos += str(substitute_product.article_number) + ", "
+                upsell_article_nos = ""
+                for upsell_product in nesto_product_obj.upselling_products.all():
+                    upsell_article_nos += str(upsell_product.article_number) + ", "
+                crosssell_article_nos = ""
+                for crosssell_product in nesto_product_obj.cross_selling_products.all():
+                    crosssell_article_nos += str(crosssell_product.article_number) + ", "
+                
+                nutrition_facts = json.loads(nesto_product_obj.nutrition_facts)
+                nutrition_facts_string = ""
+                for nutrition_fact in nutrition_facts:
+                    for nutrition_fact_key in nutrition_fact.keys():
+                        nutrition_facts_string += str(nutrition_fact_key) + "=" + str(nutrition_fact[nutrition_fact_key]) + ", "
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = str(nesto_product_obj.article_number)
+                common_row[2] = str(nesto_product_obj.barcode)
+                common_row[3] = nesto_product_obj.language_key
+                common_row[4] = "simple"
+                common_row[5] = ""
+                common_row[6] = nesto_product_obj.product_name
+                common_row[7] = nesto_product_obj.product_description
+                common_row[8] = nesto_product_obj.weight_volume
+                common_row[9] = front_images[:-2]
+                common_row[10] = back_images[:-2]
+                common_row[11] = nutrition_images[:-2]
+                common_row[12] = product_content_images[:-2]
+                common_row[13] = side_images[:-2]
+                common_row[14] = nesto_product_obj.country_of_origin
+                common_row[15] = nesto_product_obj.brand.name if nesto_product_obj.brand!=None else ""
+                common_row[16] = ""
+                common_row[17] = nesto_product_obj.storage_condition
+                common_row[18] = nesto_product_obj.preparation_and_usage
+                common_row[19] = nesto_product_obj.allergic_information
+                common_row[20] = nutrition_facts_string
+                common_row[21] = nesto_product_obj.ingredients
+                common_row[22] = nesto_product_obj.brand.description if nesto_product_obj.brand!=None else ""
+                common_row[23] = related_article_nos[:-2]
+                common_row[24] = upsell_article_nos[:-2]
+                common_row[25] = crosssell_article_nos[:-2]
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error bulk_download_nesto_product_details_report %s %s", e, str(exc_tb.tb_lineno))
+        
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_download_nesto_product_details_report %s %s", e, str(exc_tb.tb_lineno))
