@@ -466,20 +466,20 @@ class AddNestoProductImagesAPI(APIView):
                     nesto_product_obj.product_content_images.add(image_obj) 
                     nesto_product_obj.product_content_images_count = nesto_product_obj.product_content_images.all().count()
                 elif image_type=="supplier_images":
-                    nesto_product_obj.supplier_images_images.add(image_obj) 
-                    nesto_product_obj.supplier_images_images_count = nesto_product_obj.supplier_images_images.all().count()
+                    nesto_product_obj.supplier_images.add(image_obj) 
+                    nesto_product_obj.supplier_images_count = nesto_product_obj.supplier_images.all().count()
                 elif image_type=="lifestyle_images":
-                    nesto_product_obj.lifestyle_images_images.add(image_obj) 
-                    nesto_product_obj.lifestyle_images_images_count = nesto_product_obj.lifestyle_images_images.all().count()
+                    nesto_product_obj.lifestyle_images.add(image_obj) 
+                    nesto_product_obj.lifestyle_images_count = nesto_product_obj.lifestyle_images.all().count()
                 elif image_type=="ads_images":
-                    nesto_product_obj.ads_images_images.add(image_obj) 
-                    nesto_product_obj.ads_images_images_count = nesto_product_obj.ads_images_images.all().count()
+                    nesto_product_obj.ads_images.add(image_obj) 
+                    nesto_product_obj.ads_images_count = nesto_product_obj.ads_images.all().count()
                 elif image_type=="box_images":
-                    nesto_product_obj.box_images_images.add(image_obj) 
-                    nesto_product_obj.box_images_images_count = nesto_product_obj.box_images_images.all().count()
+                    nesto_product_obj.box_images.add(image_obj) 
+                    nesto_product_obj.box_images_count = nesto_product_obj.box_images.all().count()
                 elif image_type=="highlight_images":
-                    nesto_product_obj.highlight_images_images.add(image_obj) 
-                    nesto_product_obj.highlight_images_images_count = nesto_product_obj.highlight_images_images.all().count()
+                    nesto_product_obj.highlight_images.add(image_obj) 
+                    nesto_product_obj.highlight_images_count = nesto_product_obj.highlight_images.all().count()
                 
             nesto_product_obj.save()
             response['status'] = 200
