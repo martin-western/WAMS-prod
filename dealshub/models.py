@@ -964,10 +964,10 @@ class OrderRequest(models.Model):
         return self.shipping_address.first_name
 
     def get_date_created(self):
-        return str(timezone.localtime(self.order_placed_date).strftime("%d %b, %Y"))
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
 
     def get_time_created(self):
-        return str(timezone.localtime(self.order_placed_date).strftime("%I:%M %p"))
+        return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
 
     def get_email_website_logo(self):
         if self.location_group.website_group.footer_logo!=None:
