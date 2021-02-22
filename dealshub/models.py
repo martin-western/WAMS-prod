@@ -1039,7 +1039,6 @@ class UnitOrderRequest(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk == None:
-            self.user_price = product.get_now_price(order_request.owner.cohort)
             self.uuid = str(uuid.uuid4())
             order_prefix = ""
             try:
