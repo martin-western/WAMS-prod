@@ -222,6 +222,18 @@ def update_order_bill(order_obj):
     order_obj.save()
 
 
+def update_order_request_bill(order_request_obj,cod=False,offline=False, delivery_fee_calculate=True):
+
+    order_request_obj.to_pay = order_request_obj.get_total_amount(cod=cod,offline=offline, delivery_fee_calculate=delivery_fee_calculate)
+    order_request_obj.offline_delivery_fee = order_request_obj.get_delivery_fee(cod=cod,offline=offline, calculate=delivery_fee_calculate)
+
+    if order_request_obj.voucher!=None:
+        voucher_obj = order_request_obj.voucher
+        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(order_request_obj.get_subtotal(offline=offline))==False or is_voucher_limt_exceeded_for_customer(order_request_obj.owner, voucher_obj):
+            order_request_obj.voucher = None
+    order_request_obj.save()
+
+
 def send_wigme_order_status_sms(unit_order_obj,message):
     try:
         dealshub_user_obj = unit_order_obj.order.owner
@@ -294,6 +306,108 @@ def send_parajohn_order_status_sms(unit_order_obj,message):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_parajohn_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def send_order_request_placed_mail(order_request_obj):
+    try:
+        logger.info("send_order_request_placed_mail started!")
+        if order_request_obj.owner.email_verified==False:
+            return
+
+        unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
+
+        custom_unit_order_list = []
+        for unit_order_request_obj in unit_order_request_objs:
+            temp_dict = {
+                "order_id": unit_order_request_obj.bundleid,
+                "product_name": unit_order_request_obj.product.get_name(),
+                "productImageUrl": unit_order_request_obj.product.get_display_image_url(),
+                "quantity": unit_order_request_obj.initial_quantity,
+                "price": unit_order_request_obj.initial_price,
+                "currency": unit_order_request_obj.product.get_currency()
+            }
+            custom_unit_order_list.append(temp_dict)
+
+        order_placed_date = order_request_obj.get_date_created()
+        customer_name = order_request_obj.get_customer_first_name()
+        full_name = order_request_obj.get_customer_full_name()
+        website_logo = order_request_obj.get_email_website_logo()
+        email_content = order_request_obj.location_group.get_email_content()
+
+        html_message = loader.render_to_string(
+            os.getcwd()+'/dealshub/templates/order-confirmation.html',
+            {
+                "website_logo": website_logo,
+                "customer_name": customer_name,
+                "custom_unit_order_list":  custom_unit_order_list,
+                "order_placed_date": order_placed_date,
+                "full_name": full_name,
+                "address_lines": address_lines,
+                "website_order_link": order_request_obj.get_website_link()+"/orders/"+order_obj.uuid,
+                "email_content": email_content
+            }
+        )
+
+        location_group_obj = order_request_obj.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(),
+            username=location_group_obj.get_order_from_email_id(),
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Request Placed',
+                        body='Order Request Placed',
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[order_obj.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_request_placed_mail")
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_request_placed_mail: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def send_order_request_approval_mail(order_request_obj):
+    try:
+        logger.info("send_order_request_approval_mail started!")
+        if order_request_obj.owner.email_verified==False:
+            return
+
+        location_group_obj = order_request_obj.location_group
+
+        subject = 'Your Order Request dated ' + order_request_obj.get_date_created() + ' has been approved.'
+        body = 'Dear ' + order_request_obj.get_customer_full_name() + '\n' + 'Your Order has been approved.'
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(),
+            username=location_group_obj.get_order_from_email_id(),
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject=subject,
+                        body=body,
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[order_obj.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.send(fail_silently=False)
+            logger.info("send_order_request_approval_mail")
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_request_approval_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def send_order_confirmation_mail(order_obj):

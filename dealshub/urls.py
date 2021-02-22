@@ -113,7 +113,10 @@ urlpatterns = [
     url(r'^checkout/place-daycart-online-order/$', views.PlaceDaycartOnlineOrder),
     url(r'^checkout/place-offline-order/$',views.PlaceOfflineOrder),
     url(r'^checkout/place-online-order/$',views.PlaceOnlineOrder),
+    url(r'^checkout/place-b2b-online-order/$',views.PlaceB2BOnlineOrder),
     url(r'^checkout/cancel-order/$', views.CancelOrder),
+    url(r'^checkout/place-order-request/$',views.PlaceOrderRequest),
+    url(r'^order/fetch-order-request-list/$', views.FetchOrderRequestList),
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^order/fetch-order-details/$', views.FetchOrderDetails),
@@ -146,6 +149,7 @@ urlpatterns = [
 
     url(r'^fetch-sales-executive-analysis/$', views.FetchSalesExecutiveAnalysis),
     url(r'^fetch-order-sales-analytics/$', views.FetchOrderSalesAnalytics),
+    url(r'^fetch-order-requests-for-warehouse-manager/$', views.FetchOrderRequestsForWarehouseManager),
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
     url(r'^resend-sap-order/$', views.ResendSAPOrder),
@@ -254,4 +258,5 @@ urlpatterns = [
     url(r'^fetch-b2b-user-profile/$',views.FetchB2BUserProfile),
     url(r'^upload-b2b-document/$',views.UploadB2BDocument),
     url(r'^update-b2b-customer-details/$',views.UpdateB2BCustomerDetails),
+    url(r'^process-order-request/$',views.ProcessOrderRequest),
 ]
