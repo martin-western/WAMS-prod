@@ -396,6 +396,7 @@ class FetchNestoProductListAPI(APIView):
                     temp_dict["nutrition_facts"] = json.loads(nesto_product_obj.nutrition_facts)
                     temp_dict["ingredients"] = nesto_product_obj.ingredients
                     temp_dict["return_days"] = nesto_product_obj.return_days
+                    temp_dict["product_status"] = nesto_product_obj.product_status
                     front_images = []
                     for image_obj in nesto_product_obj.front_images.all():
                         try:
