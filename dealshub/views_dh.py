@@ -2132,12 +2132,12 @@ class FetchOrderRequestListAPI(APIView):
                         temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
                         temp_dict2["finalPrice"] = unit_order_request_obj.final_price
                         temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
-                        temp_dict2["productName"] = unit_order_obj.product.get_name(language_code)
+                        temp_dict2["productName"] = unit_order_request_obj.product.get_name(language_code)
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                         if temp_dict2["initialQuantity"] != temp_dict2["finalQuantity"]:
                             temp_dict["requestStatus"] = "Partially Approved"
                         unit_order_request_list.append(temp_dict2)
-                    temp_dict["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").cpunt()
+                    temp_dict["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").count()
                     temp_dict["totalQuantity"] = unit_order_status_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
                     temp_dict["totalAmount"] =order_request_obj.get_subtotal()
                     temp_dict["unitOrderRequestList"] = unit_order_request_list
@@ -2147,7 +2147,7 @@ class FetchOrderRequestListAPI(APIView):
                     logger.error("FetchOrderRequestListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["orderRequestList"] = order_request_list
-            if len(order_list)==0:
+            if len(order_request_list)==0:
                 response["isOrderRequestListEmpty"] = True
             else:
                 response["isOrderRequestListEmpty"] = False
