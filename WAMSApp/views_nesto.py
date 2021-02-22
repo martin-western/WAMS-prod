@@ -553,6 +553,7 @@ class SearchNestoProductAutoCompleteAPI(APIView):
             for search_nesto_product_obj in search_nesto_product_objs:
                 temp_dict = {}
                 temp_dict["name"] = search_nesto_product_obj.product_name
+                temp_dict["barcode"] = search_nesto_product_obj.barcode
                 temp_dict["uuid"] = search_nesto_product_obj.uuid
                 nesto_product_list.append(temp_dict)
 
