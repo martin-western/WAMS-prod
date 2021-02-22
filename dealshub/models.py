@@ -930,6 +930,7 @@ class OrderRequest(models.Model):
     voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
     merchant_reference = models.CharField(max_length=200, default="")
     to_pay = models.FloatField(default=0)
+    real_to_pay = models.FloatField(default=0)
     delivery_fee = models.FloatField(default=0)
     cod_charge = models.FloatField(default=0)
     additional_note = models.TextField(default="", blank=True)
