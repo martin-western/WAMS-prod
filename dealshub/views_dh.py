@@ -5794,7 +5794,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     customer_name = address_obj.first_name
                     if location_group_obj.is_b2b==True:
                         try:
-                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username)
+                            b2b_user_obj = B2BUser.objects.get(username=order_request_obj.owner.username)
                             temp_dict["companyName"] = b2b_user_obj.company_name
                         except Exception as e:
                             temp_dict["companyName"] = "NA"
