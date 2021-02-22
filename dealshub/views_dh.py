@@ -5826,7 +5826,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                         temp_dict2["initialPrice"] = unit_order_request_obj.initial_price
                         temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
                         temp_dict2["finalPrice"] = unit_order_request_obj.final_price
-                        temp_dict2["productName"] = unit_order_request_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
+                        temp_dict2["productName"] = unit_order_request_obj.product.get_seller_sku() + " - " + unit_order_request_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_main_image_url()
 
                         unit_order_request_list.append(temp_dict2)
