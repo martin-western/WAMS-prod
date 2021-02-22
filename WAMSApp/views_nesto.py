@@ -75,7 +75,7 @@ class CreateNestoProductAPI(APIView):
                                                             allergic_information=allergic_information,
                                                             product_description=product_description,
                                                             dimensions=json.dumps(dimensions),
-                                                            nutrition_facts=json.dumps(nutrition_facts),
+                                                            nutrition_facts=nutrition_facts,
                                                             ingredients=ingredients,
                                                             return_days=return_days,
                                                             product_status=product_status)
@@ -158,7 +158,7 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.allergic_information=allergic_information
             nesto_product_obj.product_description=product_description
             nesto_product_obj.dimensions=json.dumps(dimensions)
-            nesto_product_obj.nutrition_facts=json.dumps(nutrition_facts)
+            nesto_product_obj.nutrition_facts=nutrition_facts
             nesto_product_obj.ingredients=ingredients
             nesto_product_obj.return_days=return_days
             nesto_product_obj.product_status = product_status
@@ -212,7 +212,7 @@ class FetchNestoProductDetailsAPI(APIView):
             response["allergic_information"] = nesto_product_obj.allergic_information
             response["product_description"] = nesto_product_obj.product_description
             response["dimensions"] = json.loads(nesto_product_obj.dimensions)
-            response["nutrition_facts"] = json.loads(nesto_product_obj.nutrition_facts)
+            response["nutrition_facts"] = nesto_product_obj.nutrition_facts
             response["ingredients"] = nesto_product_obj.ingredients
             response["return_days"] = nesto_product_obj.return_days
 
@@ -328,6 +328,11 @@ class FetchNestoProductListAPI(APIView):
                     search_string = search_string.strip()
                     temp_nesto_product_objs |= nesto_product_objs.filter(Q(article_number__icontains=search_string) | Q(product_name__icontains=search_string) | Q(barcode__icontains=search_string) | Q(uuid__icontains=search_string) | Q(product_name_ecommerce__icontains=search_string))
                 nesto_product_objs = temp_nesto_product_objs.distinct()
+            
+            if "product_status" in filter_parameters:
+                product_status = filter_parameters["product_status"]
+                if product_status!="all":
+                    nesto_product_objs = nesto_product_objs.filter(product_status=product_status)
 
             if "has_image" in filter_parameters:
                 has_image = filter_parameters["has_image"]
@@ -393,7 +398,7 @@ class FetchNestoProductListAPI(APIView):
                     temp_dict["allergic_information"] = nesto_product_obj.allergic_information
                     temp_dict["product_description"] = nesto_product_obj.product_description
                     temp_dict["dimensions"] = json.loads(nesto_product_obj.dimensions)
-                    temp_dict["nutrition_facts"] = json.loads(nesto_product_obj.nutrition_facts)
+                    temp_dict["nutrition_facts"] = nesto_product_obj.nutrition_facts
                     temp_dict["ingredients"] = nesto_product_obj.ingredients
                     temp_dict["return_days"] = nesto_product_obj.return_days
                     temp_dict["product_status"] = nesto_product_obj.product_status
