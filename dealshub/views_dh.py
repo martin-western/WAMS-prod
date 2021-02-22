@@ -5776,7 +5776,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     temp_dict["orderRequestStatus"] = order_request_obj.request_status
                     temp_dict["timeCreated"] = order_request_obj.get_time_created()
                     temp_dict["paymentMode"] = order_request_obj.payment_mode
-                    unit_order_request_count = UnitOrderRequest.objects.filter(order_request=order_request).count()
+                    unit_order_request_count = UnitOrderRequest.objects.filter(order_request=order_request_obj).count()
                     temp_dict["itemsCount"] = unit_order_request_count
 
                     address_obj = order_request_obj.shipping_address
