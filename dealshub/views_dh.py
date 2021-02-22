@@ -5757,8 +5757,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
             currency = location_group_obj.location.currency
 
             paginator = Paginator(order_request_objs, 20)
-            total_orders = order_objs.count()
-            order_objs = paginator.page(page)
+            total_orders = order_request_objs.count()
+            order_request_objs = paginator.page(page)
 
             shipping_charge = location_group_obj.delivery_fee
             free_delivery_threshold = location_group_obj.free_delivery_threshold
