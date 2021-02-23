@@ -247,7 +247,9 @@ class FetchNestoProductDetailsAPI(APIView):
 
             if nesto_product_obj.sub_category!=None:
                 response["sub_category"] = nesto_product_obj.sub_category.name
+                response["sub_category_uuid"] = nesto_product_obj.sub_category.uuid
                 response["category"] = nesto_product_obj.sub_category.category.name
+                response["category_uuid"] = nesto_product_obj.sub_category.category.uuid
                 response["super_category"] = nesto_product_obj.sub_category.category.super_category.name
 
             front_images = self.get_images_list(nesto_product_obj.front_images.all())
