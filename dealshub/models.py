@@ -1040,7 +1040,7 @@ class UnitOrderRequest(models.Model):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
-            order_prefix = ""
+            order_req_prefix = ""
             try:
                 order_req_prefix = json.loads(self.order_request.location_group.website_group.conf)["order_req_prefix"]
             except Exception as e:

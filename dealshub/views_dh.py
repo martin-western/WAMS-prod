@@ -1616,7 +1616,7 @@ class ProcessOrderRequestAPI(APIView):
                                                  additional_note=order_request_obj.additional_note)
 
                 for unit_order_request_obj in unit_order_request_objs:
-                    unit_order_obj = UnitOrderRequest.objects.create(order=order_obj,
+                    unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                               product=unit_order_request_obj.product,
                                                               quantity=unit_order_request_obj.final_quantity,
                                                               price=unit_order_request_obj.final_price)
