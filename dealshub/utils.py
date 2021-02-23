@@ -319,7 +319,7 @@ def send_order_request_placed_mail(order_request_obj):
         custom_unit_order_list = []
         for unit_order_request_obj in unit_order_request_objs:
             temp_dict = {
-                "order_id": unit_order_request_obj.bundleid,
+                "order_id": unit_order_request_obj.order_req_id,
                 "product_name": unit_order_request_obj.product.get_name(),
                 "productImageUrl": unit_order_request_obj.product.get_display_image_url(),
                 "quantity": unit_order_request_obj.initial_quantity,

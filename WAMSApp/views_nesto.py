@@ -175,6 +175,21 @@ class UpdateNestoProductAPI(APIView):
 
 class FetchNestoProductDetailsAPI(APIView):
 
+    def get_images_list(self, image_objs):
+        images_list = []
+        for image_obj in image_objs:
+            try:
+                temp_dict = {}
+                temp_dict["original_image"] = image_obj.image.url
+                temp_dict["mid_image"] = image_obj.mid_image.url
+                temp_dict["thumbnail_image"] = image_obj.thumbnail.url
+                temp_dict["pk"] = image_obj.pk
+                images_list.append(temp_dict)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchNestoProductDetailsAPI get_images_list: %s at %s", e, str(exc_tb.tb_lineno))
+        return images_list
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -216,77 +231,28 @@ class FetchNestoProductDetailsAPI(APIView):
             response["ingredients"] = nesto_product_obj.ingredients
             response["return_days"] = nesto_product_obj.return_days
 
-            front_images = []
-            for image_obj in nesto_product_obj.front_images.all():
-                try:
-                    temp_dict = {}
-                    temp_dict["original_image"] = image_obj.image.url
-                    temp_dict["mid_image"] = image_obj.mid_image.url
-                    temp_dict["thumbnail_image"] = image_obj.thumbnail.url
-                    temp_dict["pk"] = image_obj.pk
-                    front_images.append(temp_dict)
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchNestoProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            back_images = []
-            for image_obj in nesto_product_obj.back_images.all():
-                try:
-                    temp_dict = {}
-                    temp_dict["original_image"] = image_obj.image.url
-                    temp_dict["mid_image"] = image_obj.mid_image.url
-                    temp_dict["thumbnail_image"] = image_obj.thumbnail.url
-                    temp_dict["pk"] = image_obj.pk
-                    back_images.append(temp_dict)
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchNestoProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            side_images = []
-            for image_obj in nesto_product_obj.side_images.all():
-                try:
-                    temp_dict = {}
-                    temp_dict["original_image"] = image_obj.image.url
-                    temp_dict["mid_image"] = image_obj.mid_image.url
-                    temp_dict["thumbnail_image"] = image_obj.thumbnail.url
-                    temp_dict["pk"] = image_obj.pk
-                    side_images.append(temp_dict)
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchNestoProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            nutrition_images = []
-            for image_obj in nesto_product_obj.nutrition_images.all():
-                try:
-                    temp_dict = {}
-                    temp_dict["original_image"] = image_obj.image.url
-                    temp_dict["mid_image"] = image_obj.mid_image.url
-                    temp_dict["thumbnail_image"] = image_obj.thumbnail.url
-                    temp_dict["pk"] = image_obj.pk
-                    nutrition_images.append(temp_dict)
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchNestoProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            product_content_images = []
-            for image_obj in nesto_product_obj.product_content_images.all():
-                try:
-                    temp_dict = {}
-                    temp_dict["original_image"] = image_obj.image.url
-                    temp_dict["mid_image"] = image_obj.mid_image.url
-                    temp_dict["thumbnail_image"] = image_obj.thumbnail.url
-                    temp_dict["pk"] = image_obj.pk
-                    product_content_images.append(temp_dict)
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchNestoProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            front_images = self.get_images_list(nesto_product_obj.front_images.all())
+            back_images = self.get_images_list(nesto_product_obj.back_images.all())
+            side_images = self.get_images_list(nesto_product_obj.side_images.all())
+            nutrition_images = self.get_images_list(nesto_product_obj.nutrition_images.all())
+            product_content_images = self.get_images_list(nesto_product_obj.product_content_images.all())
+            supplier_images = self.get_images_list(nesto_product_obj.supplier_images.all())
+            lifestyle_images = self.get_images_list(nesto_product_obj.lifestyle_images.all())
+            ads_images = self.get_images_list(nesto_product_obj.ads_images.all())
+            box_images = self.get_images_list(nesto_product_obj.box_images.all())
+            highlight_images = self.get_images_list(nesto_product_obj.highlight_images.all())
 
             images = {
                 "front_images": front_images,
                 "back_images": back_images,
                 "side_images": side_images,
                 "nutrition_images": nutrition_images,
-                "product_content_images": product_content_images
+                "product_content_images": product_content_images,
+                "highlight_images": highlight_images,
+                "box_images": box_images,
+                "ads_images": ads_images,
+                "lifestyle_images": lifestyle_images,
+                "supplier_images": supplier_images
             }
 
             response["images"] = images
@@ -369,6 +335,31 @@ class FetchNestoProductListAPI(APIView):
                                 nesto_product_objs = nesto_product_objs.exclude(product_content_images_count=0)
                             elif has_image=="0":
                                 nesto_product_objs = nesto_product_objs.filter(product_content_images_count=0)
+                        elif image_type=="supplier":
+                            if has_image=="1":
+                                nesto_product_objs = nesto_product_objs.exclude(supplier_images_count=0)
+                            elif has_image=="0":
+                                nesto_product_objs = nesto_product_objs.filter(supplier_images_count=0)
+                        elif image_type=="lifestyle":
+                            if has_image=="1":
+                                nesto_product_objs = nesto_product_objs.exclude(lifestyle_images_count=0)
+                            elif has_image=="0":
+                                nesto_product_objs = nesto_product_objs.filter(lifestyle_images_count=0)
+                        elif image_type=="ads":
+                            if has_image=="1":
+                                nesto_product_objs = nesto_product_objs.exclude(ads_images_count=0)
+                            elif has_image=="0":
+                                nesto_product_objs = nesto_product_objs.filter(ads_images_count=0)
+                        elif image_type=="box":
+                            if has_image=="1":
+                                nesto_product_objs = nesto_product_objs.exclude(box_images_count=0)
+                            elif has_image=="0":
+                                nesto_product_objs = nesto_product_objs.filter(box_images_count=0)
+                        elif image_type=="highlight":
+                            if has_image=="1":
+                                nesto_product_objs = nesto_product_objs.exclude(highlight_images_count=0)
+                            elif has_image=="0":
+                                nesto_product_objs = nesto_product_objs.filter(highlight_images_count=0)
                         
             total_products = nesto_product_objs.count()
 
@@ -474,7 +465,22 @@ class AddNestoProductImagesAPI(APIView):
                 elif image_type=="product_content":
                     nesto_product_obj.product_content_images.add(image_obj) 
                     nesto_product_obj.product_content_images_count = nesto_product_obj.product_content_images.all().count()
-
+                elif image_type=="supplier":
+                    nesto_product_obj.supplier_images.add(image_obj) 
+                    nesto_product_obj.supplier_images_count = nesto_product_obj.supplier_images.all().count()
+                elif image_type=="lifestyle":
+                    nesto_product_obj.lifestyle_images.add(image_obj) 
+                    nesto_product_obj.lifestyle_images_count = nesto_product_obj.lifestyle_images.all().count()
+                elif image_type=="ads":
+                    nesto_product_obj.ads_images.add(image_obj) 
+                    nesto_product_obj.ads_images_count = nesto_product_obj.ads_images.all().count()
+                elif image_type=="box":
+                    nesto_product_obj.box_images.add(image_obj) 
+                    nesto_product_obj.box_images_count = nesto_product_obj.box_images.all().count()
+                elif image_type=="highlight":
+                    nesto_product_obj.highlight_images.add(image_obj) 
+                    nesto_product_obj.highlight_images_count = nesto_product_obj.highlight_images.all().count()
+                
             nesto_product_obj.save()
             response['status'] = 200
 
@@ -510,7 +516,12 @@ class RemoveNestoProductImageAPI(APIView):
             nesto_product_obj.back_images_count = nesto_product_obj.back_images.all().count()
             nesto_product_obj.side_images_count = nesto_product_obj.side_images.all().count()
             nesto_product_obj.nutrition_images_count = nesto_product_obj.nutrition_images.all().count()
-            nesto_product_obj.product_content_images_count = nesto_product_obj.front_images.all().count()
+            nesto_product_obj.product_content_images_count = nesto_product_obj.product_content_images.all().count()
+            nesto_product_obj.supplier_images_count = nesto_product_obj.supplier_images.all().count()
+            nesto_product_obj.lifestyle_images_count = nesto_product_obj.lifestyle_images.all().count()
+            nesto_product_obj.ads_images_count = nesto_product_obj.ads_images.all().count()
+            nesto_product_obj.box_images_count = nesto_product_obj.box_images.all().count()
+            nesto_product_obj.highlight_images_count = nesto_product_obj.highlight_images.all().count()
             nesto_product_obj.save()
 
             response['status'] = 200

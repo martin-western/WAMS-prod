@@ -2132,13 +2132,13 @@ class FetchOrderRequestListAPI(APIView):
                         temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
                         temp_dict2["finalPrice"] = unit_order_request_obj.final_price
                         temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
-                        temp_dict2["productName"] = unit_order_obj.product.get_name(language_code)
-                        temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
+                        temp_dict2["productName"] = unit_order_request_obj.product.get_name(language_code)
+                        temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_display_image_url()
                         if temp_dict2["initialQuantity"] != temp_dict2["finalQuantity"]:
                             temp_dict["requestStatus"] = "Partially Approved"
                         unit_order_request_list.append(temp_dict2)
-                    temp_dict["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").cpunt()
-                    temp_dict["totalQuantity"] = unit_order_status_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
+                    temp_dict["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").count()
+                    temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
                     temp_dict["totalAmount"] =order_request_obj.get_subtotal()
                     temp_dict["unitOrderRequestList"] = unit_order_request_list
                     order_request_list.append(temp_dict)
@@ -2147,7 +2147,7 @@ class FetchOrderRequestListAPI(APIView):
                     logger.error("FetchOrderRequestListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["orderRequestList"] = order_request_list
-            if len(order_list)==0:
+            if len(order_request_list)==0:
                 response["isOrderRequestListEmpty"] = True
             else:
                 response["isOrderRequestListEmpty"] = False
@@ -5757,8 +5757,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
             currency = location_group_obj.location.currency
 
             paginator = Paginator(order_request_objs, 20)
-            total_orders = order_objs.count()
-            order_objs = paginator.page(page)
+            total_orders = order_request_objs.count()
+            order_request_objs = paginator.page(page)
 
             shipping_charge = location_group_obj.delivery_fee
             free_delivery_threshold = location_group_obj.free_delivery_threshold
@@ -5776,7 +5776,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     temp_dict["orderRequestStatus"] = order_request_obj.request_status
                     temp_dict["timeCreated"] = order_request_obj.get_time_created()
                     temp_dict["paymentMode"] = order_request_obj.payment_mode
-                    unit_order_request_count = UnitOrderRequest.objects.filter(order_request=order_request).count()
+                    unit_order_request_count = UnitOrderRequest.objects.filter(order_request=order_request_obj).count()
                     temp_dict["itemsCount"] = unit_order_request_count
 
                     address_obj = order_request_obj.shipping_address
@@ -5794,7 +5794,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     customer_name = address_obj.first_name
                     if location_group_obj.is_b2b==True:
                         try:
-                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username)
+                            b2b_user_obj = B2BUser.objects.get(username=order_request_obj.owner.username)
                             temp_dict["companyName"] = b2b_user_obj.company_name
                         except Exception as e:
                             temp_dict["companyName"] = "NA"
@@ -5819,14 +5819,14 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     subtotal = 0
                     for unit_order_request_obj in UnitOrderRequest.objects.filter(order_request=order_request_obj):
                         temp_dict2 = {}
-                        temp_dict2["orderId"] = unit_order_request_obj.orderid
+                        temp_dict2["orderRequestId"] = unit_order_request_obj.order_req_id
                         temp_dict2["requestStatus"] = unit_order_request_obj.request_status
                         temp_dict2["uuid"] = unit_order_request_obj.uuid
                         temp_dict2["initialQuantity"] = unit_order_request_obj.initial_quantity
                         temp_dict2["initialPrice"] = unit_order_request_obj.initial_price
                         temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
                         temp_dict2["finalPrice"] = unit_order_request_obj.final_price
-                        temp_dict2["productName"] = unit_order_request_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
+                        temp_dict2["productName"] = unit_order_request_obj.product.get_seller_sku() + " - " + unit_order_request_obj.product.get_name()
                         temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_main_image_url()
 
                         unit_order_request_list.append(temp_dict2)

@@ -964,10 +964,10 @@ class OrderRequest(models.Model):
         return self.shipping_address.first_name
 
     def get_date_created(self):
-        return str(timezone.localtime(self.order_placed_date).strftime("%d %b, %Y"))
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
 
     def get_time_created(self):
-        return str(timezone.localtime(self.order_placed_date).strftime("%I:%M %p"))
+        return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
 
     def get_email_website_logo(self):
         if self.location_group.website_group.footer_logo!=None:
@@ -1039,7 +1039,6 @@ class UnitOrderRequest(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk == None:
-            self.user_price = product.get_now_price(order_request.owner.cohort)
             self.uuid = str(uuid.uuid4())
             order_prefix = ""
             try:
