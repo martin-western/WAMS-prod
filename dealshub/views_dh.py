@@ -3634,6 +3634,16 @@ class FetchAccountStatusB2BUserAPI(APIView):
             b2b_user_obj = B2BUser.objects.get(username = request.user.username)
             if check_account_status(b2b_user_obj) == True:
                 is_verified = True
+
+                conf = json.loads(b2b_user_obj.conf)
+                is_verified_shown = conf["isVerifiedShown"]
+                response["IsVerifiedShown"] = is_verified_shown
+
+                if is_verified_shown == False:
+                    conf["isVerifiedShown"] = True
+                    b2b_user_obj.conf = json.dumps(conf)
+                    b2b_user_obj.save()
+                response["status"] = 200
             
             response["IsVerified"] = is_verified
             response["status"] = 200
@@ -3852,6 +3862,10 @@ class SignUpCompletionAPI(APIView):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                conf = json.loads(b2b_user_obj.conf)
+                conf["isVerifiedShown"] =False
+                b2b_user_obj.conf = json.dumps(conf)
 
                 b2b_user_obj.save()
 
