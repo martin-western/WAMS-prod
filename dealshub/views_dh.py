@@ -1574,12 +1574,6 @@ class ProcessOrderRequestAPI(APIView):
             unit_order_requests = data["UnitOrderRequests"]
             request_status = data["requestStatus"]
 
-            if len(unit_order_requests) == 0 and request_status=="Approved":
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("ProcessOrderRequest: Empty UnitOrderRequest list passed %s at %s", e, str(exc_tb.tb_lineno))
-                response["message"] = "invalid empty list for approval"
-                return Response(data=response)
-
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
 
             unit_order_request_objs = UnitOrderRequest.objects.filter(order_request = order_request_obj)
