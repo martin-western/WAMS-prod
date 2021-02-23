@@ -918,6 +918,142 @@ class UnitCart(models.Model):
         verbose_name_plural = "Unit Carts"
 
 
+class OrderRequest(models.Model):
+
+    bundleid = models.CharField(max_length=100,default="")
+    owner = models.ForeignKey('DealsHubUser',on_delete = models.CASCADE)
+    uuid = models.CharField(max_length = 200,default="")
+    date_created = models.DateTimeField(auto_now_add=True)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    payment_mode = models.CharField(max_length=50, default="COD")
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
+    merchant_reference = models.CharField(max_length=200, default="")
+    to_pay = models.FloatField(default=0)
+    real_to_pay = models.FloatField(default=0)
+    delivery_fee = models.FloatField(default=0)
+    cod_charge = models.FloatField(default=0)
+    additional_note = models.TextField(default="", blank=True)
+    REQUEST_STATUS = (
+        ('Approved','Approved'),
+        ('Rejected','Rejected'),
+        ('Pending','Pending')
+        )
+    request_status = models.CharField(max_length=50, choices=REQUEST_STATUS, default="Pending")
+    is_placed = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+            if self.bundleid=="":
+                order_prefix = ""
+                order_cnt = 1
+                try:
+                    order_prefix = json.loads(self.location_group.website_group.conf)["order_req_prefix"]
+                    order_req_cnt = OrderRequest.objects.filter(location_group=self.location_group).count()+1
+                except Exception as e:
+                    pass
+                self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+
+        super(OrderRequest, self).save(*args, **kwargs)
+
+    def get_customer_full_name(self):
+        return self.shipping_address.first_name + " " + self.shipping_address.last_name
+
+    def get_customer_first_name(self):
+        return self.shipping_address.first_name
+
+    def get_date_created(self):
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
+
+    def get_time_created(self):
+        return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
+
+    def get_email_website_logo(self):
+        if self.location_group.website_group.footer_logo!=None:
+            return self.location_group.website_group.footer_logo.image.url
+        if self.location_group.website_group.logo!=None:
+            return self.location_group.website_group.logo.image.url
+        return ""
+
+    def get_website_link(self):
+        return self.location_group.website_group.link
+
+    def get_subtotal(self):
+        unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=self).exclude(request_status="Rejected")
+        subtotal = 0
+        for unit_order_request_obj in unit_order_request_objs:
+            subtotal += float(unit_order_request_obj.final_price)*float(unit_order_request_obj.final_quantity)
+        return subtotal
+
+    def get_delivery_fee(self, cod=False):
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if (self.location_group.is_voucher_allowed_on_cod==True or cod==False) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            if self.voucher.voucher_type=="SD":
+                return 0
+            subtotal = self.voucher.get_discounted_price(subtotal)
+        if subtotal < self.location_group.free_delivery_threshold:
+            return self.location_group.delivery_fee
+        return 0
+
+    def get_total_amount(self, cod=False):
+        subtotal = self.get_subtotal()
+        if subtotal==0:
+            return 0
+        if (self.location_group.is_voucher_allowed_on_cod==True or cod==False) and self.voucher!=None and self.voucher.is_expired()==False and is_voucher_limt_exceeded_for_customer(self.owner, self.voucher)==False:
+            subtotal = self.voucher.get_discounted_price(subtotal)
+        delivery_fee = self.get_delivery_fee(cod=cod)
+        cod_charge = self.get_cod_charge(cod=cod)
+        return round(subtotal+delivery_fee+cod_charge, 2)
+
+    def get_cod_charge(self, cod=False):
+        if cod==False:
+            return 0
+        return float(self.location_group.cod_charge)
+
+    class Meta:
+        verbose_name = "Order Request"
+        verbose_name_plural = "Order Requests"
+
+
+class UnitOrderRequest(models.Model):
+
+    order_request = models.ForeignKey(OrderRequest, on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=200,default="")
+    product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
+    initial_quantity = models.IntegerField(default=0)
+    initial_price = models.FloatField(default=0)
+    final_quantity = models.IntegerField(default=0)
+    final_price = models.FloatField(default=0)
+    date_created = models.DateTimeField(auto_now_add=True)
+    order_req_id = models.CharField(max_length=100,default="")
+
+    REQUEST_STATUS = (
+        ('Approved','Approved'),
+        ('Rejected','Rejected'),
+        ('Pending','Pending')
+        )
+    request_status = models.CharField(max_length=50,choices=REQUEST_STATUS, default="Pending")
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+            order_prefix = ""
+            try:
+                order_req_prefix = json.loads(self.order_request.location_group.website_group.conf)["order_req_prefix"]
+            except Exception as e:
+                pass
+            self.order_req_id = order_req_prefix + str(uuid.uuid4())[:5]
+
+        super(UnitOrderRequest, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Unit Order Request"
+        verbose_name_plural = "Unit Order Requests"        
+
+
 class Order(models.Model):
 
     bundleid = models.CharField(max_length=100, default="")
