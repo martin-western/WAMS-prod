@@ -1581,7 +1581,7 @@ class ProcessOrderRequestAPI(APIView):
             for unit_order_request in unit_order_requests:
                 unit_order_request_obj = UnitOrderRequest.objects.get(order_request=order_request_obj, uuid = unit_order_request["uuid"])
                 unit_order_request_obj.final_quantity = int(unit_order_request["quantity"])
-                unit_order_request_obj.final_price = int(unit_order_request["price"])
+                unit_order_request_obj.final_price = float(unit_order_request["price"])
                 unit_order_request_obj.request_status = unit_order_request["status"]
                 unit_order_request_obj.save()
 
