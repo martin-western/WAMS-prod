@@ -1571,7 +1571,6 @@ class ProcessOrderRequestAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
             unit_order_requests = data["UnitOrderRequests"]
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
