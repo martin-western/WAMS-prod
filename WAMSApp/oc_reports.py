@@ -2511,7 +2511,9 @@ def bulk_download_nesto_product_details_report(filename, uuid):
                 "barcode",
                 "Language Key",
                 "Product Type",
+                "Super Category",
                 "Category",
+                "Sub Category",
                 "Product Name",
                 "Product Long Description",
                 "Weight/Volume",
@@ -2520,9 +2522,13 @@ def bulk_download_nesto_product_details_report(filename, uuid):
                 "Image Nutrition",
                 "Image Product Content",
                 "Image Side",
+                "Image Supplier",
+                "Image Lifestyle",
+                "Image Ads",
+                "Image Box",
+                "Image HighLight",
                 "Country Of Origin",
                 "brand",
-                "Merchandise Category",
                 "Storage Conditions",
                 "Preparation and Usage",
                 "Allergic Infromation",
@@ -2568,6 +2574,21 @@ def bulk_download_nesto_product_details_report(filename, uuid):
                 side_images = ""
                 for side_image in nesto_product_obj.side_images.all():
                     side_images += str(side_image.image.url) + ", " 
+                supplier_images = ""
+                for supplier_image in nesto_product_obj.supplier_images.all():
+                    supplier_images += str(supplier_image.image.url) + ", " 
+                lifestyle_images = ""
+                for lifestyle_image in nesto_product_obj.lifestyle_images.all():
+                    lifestyle_images += str(lifestyle_image.image.url) + ", " 
+                ads_images = ""
+                for ads_image in nesto_product_obj.ads_images.all():
+                    ads_images += str(ads_image.image.url) + ", " 
+                box_images = ""
+                for box_image in nesto_product_obj.box_images.all():
+                    box_images += str(box_image.image.url) + ", " 
+                highlight_images = ""
+                for highlight_image in nesto_product_obj.highlight_images.all():
+                    highlight_images += str(highlight_image.image.url) + ", " 
 
                 related_article_nos = ""
                 for substitute_product in nesto_product_obj.substitute_products.all():
@@ -2579,11 +2600,11 @@ def bulk_download_nesto_product_details_report(filename, uuid):
                 for crosssell_product in nesto_product_obj.cross_selling_products.all():
                     crosssell_article_nos += str(crosssell_product.article_number) + ", "
                 
-                nutrition_facts = json.loads(nesto_product_obj.nutrition_facts)
-                nutrition_facts_string = ""
-                for nutrition_fact in nutrition_facts:
-                    for nutrition_fact_key in nutrition_fact.keys():
-                        nutrition_facts_string += str(nutrition_fact_key) + "=" + str(nutrition_fact[nutrition_fact_key]) + ", "
+                # nutrition_facts = json.loads(nesto_product_obj.nutrition_facts)
+                # nutrition_facts_string = ""
+                # for nutrition_fact in nutrition_facts:
+                #     for nutrition_fact_key in nutrition_fact.keys():
+                #         nutrition_facts_string += str(nutrition_fact_key) + "=" + str(nutrition_fact[nutrition_fact_key]) + ", "
 
                 common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
@@ -2591,27 +2612,33 @@ def bulk_download_nesto_product_details_report(filename, uuid):
                 common_row[2] = str(nesto_product_obj.barcode)
                 common_row[3] = nesto_product_obj.language_key
                 common_row[4] = "simple"
-                common_row[5] = ""
-                common_row[6] = nesto_product_obj.product_name
-                common_row[7] = nesto_product_obj.product_description
-                common_row[8] = nesto_product_obj.weight_volume
-                common_row[9] = front_images[:-2]
-                common_row[10] = back_images[:-2]
-                common_row[11] = nutrition_images[:-2]
-                common_row[12] = product_content_images[:-2]
-                common_row[13] = side_images[:-2]
-                common_row[14] = nesto_product_obj.country_of_origin
-                common_row[15] = nesto_product_obj.brand.name if nesto_product_obj.brand!=None else ""
-                common_row[16] = ""
-                common_row[17] = nesto_product_obj.storage_condition
-                common_row[18] = nesto_product_obj.preparation_and_usage
-                common_row[19] = nesto_product_obj.allergic_information
-                common_row[20] = nutrition_facts_string
-                common_row[21] = nesto_product_obj.ingredients
-                common_row[22] = nesto_product_obj.brand.description if nesto_product_obj.brand!=None else ""
-                common_row[23] = related_article_nos[:-2]
-                common_row[24] = upsell_article_nos[:-2]
-                common_row[25] = crosssell_article_nos[:-2]
+                common_row[5] = nesto_product_obj.sub_category.category.super_category.name if nesto_product_obj.sub_category!=None else ""
+                common_row[6] = nesto_product_obj.sub_category.category.name if nesto_product_obj.sub_category!=None else ""
+                common_row[7] = nesto_product_obj.sub_category.name if nesto_product_obj.sub_category!=None else ""
+                common_row[8] = nesto_product_obj.product_name
+                common_row[9] = nesto_product_obj.product_description
+                common_row[10] = nesto_product_obj.weight_volume
+                common_row[11] = front_images[:-2]
+                common_row[12] = back_images[:-2]
+                common_row[13] = nutrition_images[:-2]
+                common_row[14] = product_content_images[:-2]
+                common_row[15] = side_images[:-2]
+                common_row[16] = supplier_images[:-2]
+                common_row[17] = lifestyle_images[:-2]
+                common_row[18] = ads_images[:-2]
+                common_row[19] = box_images[:-2]
+                common_row[20] = highlight_images[:-2]
+                common_row[21] = nesto_product_obj.country_of_origin
+                common_row[22] = nesto_product_obj.brand.name if nesto_product_obj.brand!=None else ""
+                common_row[23] = nesto_product_obj.storage_condition
+                common_row[24] = nesto_product_obj.preparation_and_usage
+                common_row[25] = nesto_product_obj.allergic_information
+                common_row[26] = nesto_product_obj.nutrition_facts
+                common_row[27] = nesto_product_obj.ingredients
+                common_row[28] = nesto_product_obj.brand.description if nesto_product_obj.brand!=None else ""
+                common_row[29] = related_article_nos[:-2]
+                common_row[30] = upsell_article_nos[:-2]
+                common_row[31] = crosssell_article_nos[:-2]
 
                 colnum = 0
                 for k in common_row:
