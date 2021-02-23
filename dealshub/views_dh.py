@@ -5818,7 +5818,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
 
                     unit_order_request_list = []
                     subtotal = 0
-                    for unit_order_request_obj in UnitOrderRequest.objects.filter(order_request=order_request_obj):
+                    unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
+                    for unit_order_request_obj in unit_order_request_objs:
                         temp_dict2 = {}
                         temp_dict2["orderRequestId"] = unit_order_request_obj.order_req_id
                         temp_dict2["requestStatus"] = unit_order_request_obj.request_status
