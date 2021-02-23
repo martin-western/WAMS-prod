@@ -417,9 +417,9 @@ class FetchNestoProductListAPI(APIView):
                     temp_dict["return_days"] = nesto_product_obj.return_days
                     temp_dict["product_status"] = nesto_product_obj.product_status
                     if nesto_product_obj.sub_category!=None:
-                        response["sub_category"] = nesto_product_obj.sub_category.name
-                        response["category"] = nesto_product_obj.sub_category.category.name
-                        response["super_category"] = nesto_product_obj.sub_category.category.super_category.name
+                        temp_dict["sub_category"] = nesto_product_obj.sub_category.name
+                        temp_dict["category"] = nesto_product_obj.sub_category.category.name
+                        temp_dict["super_category"] = nesto_product_obj.sub_category.category.super_category.name
                     front_images = []
                     for image_obj in nesto_product_obj.front_images.all():
                         try:
