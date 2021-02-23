@@ -490,6 +490,7 @@ class SuperCategory(models.Model):
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
 
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
