@@ -231,6 +231,9 @@ def update_order_request_bill(order_request_obj,cod=False,offline=False, deliver
         voucher_obj = order_request_obj.voucher
         if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(order_request_obj.get_subtotal(offline=offline))==False or is_voucher_limt_exceeded_for_customer(order_request_obj.owner, voucher_obj):
             order_request_obj.voucher = None
+            
+    order_request_obj.to_pay = order_request_obj.get_total_amount(cod=cod,offline=offline, delivery_fee_calculate=delivery_fee_calculate)
+    order_request_obj.offline_delivery_fee = order_request_obj.get_delivery_fee(cod=cod,offline=offline, calculate=delivery_fee_calculate)
     order_request_obj.save()
 
 
