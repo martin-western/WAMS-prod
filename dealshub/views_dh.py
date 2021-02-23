@@ -5825,6 +5825,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     temp_dict["emailId"] = order_request_obj.owner.email
                     temp_dict["contactNumber"] = order_request_obj.owner.contact_number
                     temp_dict["shippingAddress"] = shipping_address
+                    temp_dict["additionalNote"] = order_request_obj.additional_note
 
                     temp_dict["bundleId"] = order_request_obj.bundleid
                     temp_dict["uuid"] = order_request_obj.uuid
