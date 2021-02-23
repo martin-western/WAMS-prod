@@ -1289,6 +1289,7 @@ class NestoProduct(models.Model):
     side_images_count = models.IntegerField(default=0)
     nutrition_images_count = models.IntegerField(default=0)
     product_content_images_count = models.IntegerField(default=0)
+    sub_category = models.ForeignKey(SubCategory, null=True, blank=True, on_delete=models.SET_NULL)
 
     created_date = models.DateTimeField(null=True, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
