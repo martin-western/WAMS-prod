@@ -1516,11 +1516,12 @@ class DealsHubUser(User):
 
 
 class B2BUser(DealsHubUser):
-    company_name = models.CharField(default="",max_length=50)
+    company_name = models.CharField(default="",max_length=250)
     interested_categories = models.ManyToManyField(Category,blank = True)
     vat_certificate = models.FileField(upload_to = 'vat_certificate',null=True, blank=True)
     trade_license = models.FileField(upload_to = 'trade_license',null=True,blank=True)
     passport_copy = models.FileField(upload_to = 'passport_copy',null=True,blank=True)
+    vat_certificate_id = models.CharField(default="",max_length=400)
 
     STATUS_OPTIONS = (
         ('Pending','Pending'),
