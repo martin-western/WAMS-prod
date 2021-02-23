@@ -2827,6 +2827,7 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict["vatCertificateStatus"] = b2b_user_obj.vat_certificate_status
                 temp_dict["tradeLicenseStatus"] = b2b_user_obj.trade_license_status
                 temp_dict["passportCopyStatus"] = b2b_user_obj.passport_copy_status
+                temp_dict["vatCertificateId"] = b2b_user_obj.vat_certificate_id
             temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
             try:
                 if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date!=None:
@@ -3633,6 +3634,16 @@ class FetchAccountStatusB2BUserAPI(APIView):
             b2b_user_obj = B2BUser.objects.get(username = request.user.username)
             if check_account_status(b2b_user_obj) == True:
                 is_verified = True
+
+                conf = json.loads(b2b_user_obj.conf)
+                is_verified_shown = conf["isVerifiedShown"]
+                response["IsVerifiedShown"] = is_verified_shown
+
+                if is_verified_shown == False:
+                    conf["isVerifiedShown"] = True
+                    b2b_user_obj.conf = json.dumps(conf)
+                    b2b_user_obj.save()
+                response["status"] = 200
             
             response["IsVerified"] = is_verified
             response["status"] = 200
@@ -3814,6 +3825,7 @@ class SignUpCompletionAPI(APIView):
             vat_certificate = data["vat-certificate"]
             trade_license = data["trade-license"]
             passport_copy = data["passport-copy"]
+            vat_certificate_id = data["vat-certificate-id"]
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -3840,8 +3852,9 @@ class SignUpCompletionAPI(APIView):
                 b2b_user_obj.date_created = timezone.now()
                 b2b_user_obj.company_name = company_name
                 b2b_user_obj.vat_certificate = vat_certificate
-                b2b_user_obj.trade_license = trade_license   
+                b2b_user_obj.trade_license = trade_license 
                 b2b_user_obj.passport_copy = passport_copy
+                b2b_user_obj.vat_certificate_id = vat_certificate_id
                 is_new_user_created = True
 
                 dealshub_user_obj = DealsHubUser.objects.get(username = b2b_user_obj.username)
@@ -3849,6 +3862,10 @@ class SignUpCompletionAPI(APIView):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                conf = json.loads(b2b_user_obj.conf)
+                conf["isVerifiedShown"] =False
+                b2b_user_obj.conf = json.dumps(conf)
 
                 b2b_user_obj.save()
 
@@ -8265,6 +8282,7 @@ class FetchB2BUserProfileAPI(APIView):
             response["vat_certificate_status"] = b2b_user_obj.vat_certificate_status
             response["passport_copy_status"] = b2b_user_obj.passport_copy_status
             response["trade_license_status"] = b2b_user_obj.trade_license_status
+            response["vat_certificate_id"] = b2b_user_obj.vat_certificate_id
 
             response["status"] = 200
 
