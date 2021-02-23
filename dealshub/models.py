@@ -969,6 +969,9 @@ class OrderRequest(models.Model):
     def get_time_created(self):
         return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
 
+    def get_currency(self):
+        return str(self.location_group.location.currency)
+
     def get_email_website_logo(self):
         if self.location_group.website_group.footer_logo!=None:
             return self.location_group.website_group.footer_logo.image.url
