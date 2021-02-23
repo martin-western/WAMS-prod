@@ -1602,7 +1602,7 @@ class ProcessOrderRequestAPI(APIView):
                     order_request_obj.voucher = None
                     order_request_obj.save()
 
-                update_request_status_bill(order_request_obj)
+                update_order_request_bill(order_request_obj,cod=True)
 
                 order_obj = Order.objects.create(owner = order_request_obj.owner,
                                                  shipping_address=order_request_obj.shipping_address,
@@ -1639,7 +1639,7 @@ class ProcessOrderRequestAPI(APIView):
                 response['message'] = "Order Placed"
 
             else:
-                update_request_status_bill(order_request_obj)
+                update_order_request_bill(order_request_obj)
 
                 # Trigger Email
                 try:
