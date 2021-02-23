@@ -1572,7 +1572,7 @@ class ProcessOrderRequestAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             b2b_user_obj = B2BUser.objects.get(username = request.user.username)
-            dealshub_products = data["DealsHubProducts"]
+            unit_order_requests = data["UnitOrderRequests"]
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
 
@@ -1580,7 +1580,7 @@ class ProcessOrderRequestAPI(APIView):
             unit_order_request_objs.update(request_status="Rejected")
 
             for unit_order_request in unit_order_requests:
-                unit_order_request_obj = UnitOrderRequest.objects.get(uuid = unit_order_request["uuid"])
+                unit_order_request_obj = UnitOrderRequest.objects.get(order_request=order_request_obj, uuid = unit_order_request["uuid"])
                 unit_order_request_obj.final_quantity = unit_order_request["quantity"]
                 unit_order_request_obj.final_price = unit_order_request["price"]
                 unit_order_request_obj.request_status = unit_order_request["status"]
