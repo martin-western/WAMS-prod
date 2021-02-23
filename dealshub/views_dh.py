@@ -1576,8 +1576,8 @@ class ProcessOrderRequestAPI(APIView):
 
             if len(unit_order_requests) == 0 and request_status=="Approved":
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("ProcessOrderRequest: empty UnitOrderRequest list %s at %s", e, str(exc_tb.tb_lineno))
-                response["message"] = "Empty unit list for approval"
+                logger.warning("ProcessOrderRequest: Empty UnitOrderRequest list passed %s at %s", e, str(exc_tb.tb_lineno))
+                response["message"] = "invalid empty list for approval"
                 return Response(data=response)
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
@@ -1592,7 +1592,7 @@ class ProcessOrderRequestAPI(APIView):
                 unit_order_request_obj.request_status = unit_order_request["status"]
                 unit_order_request_obj.save()
 
-            order_request_obj.request_status = data["requestStatus"]
+            order_request_obj.request_status = request_status
             order_request_obj.save()
 
             if order_request_obj.payment_mode == "COD" or order_request_obj.payment_mode == "CHEQUE":
