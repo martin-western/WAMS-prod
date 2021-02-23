@@ -37,6 +37,10 @@ class WishListAdmin(admin.ModelAdmin):
 	list_display = ('owner',)
 
 
+class OrderRequestAdmin(admin.ModelAdmin):
+	list_display = ('bundleid','owner','date_created')
+
+
 admin.site.register(DealsHubProduct, DealsHubProductAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(BannerType, BannerTypeAdmin)
@@ -47,7 +51,7 @@ admin.site.register(UnitCart)
 admin.site.register(Cart, CartAdmin)
 admin.site.register(FastCart, FastCartAdmin)
 admin.site.register(DealsHubUser, DealsHubUserAdmin)
-admin.site.register(OrderRequest)
+admin.site.register(OrderRequest,OrderRequestAdmin)
 admin.site.register(UnitOrderRequest)
 admin.site.register(UnitOrder)
 admin.site.register(Order)
