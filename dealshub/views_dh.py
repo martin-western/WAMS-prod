@@ -1576,18 +1576,20 @@ class ProcessOrderRequestAPI(APIView):
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
 
-            for dealshub_product in dealshub_products:
-                dealshub_product_obj = DealsHubProduct.objects.get(uuid=dealshub_product["uuid"],location_group=location_group_obj)
-                unit_order_request_obj = UnitOrderRequest.objects.get(product=dealshub_product_obj, order_request=order_request_obj)
-                unit_order_request_obj.final_quantity = dealshub_product["quantity"]
-                unit_order_request_obj.final_price = dealshub_product["price"]
-                unit_order_request_obj.request_status = dealshub_product["status"]
+            unit_order_request_objs = UnitOrderRequest.objects.filter(order_request = order_request_obj)
+            unit_order_request_objs.update(request_status="Rejected")
+
+            for unit_order_request in unit_order_requests:
+                unit_order_request_obj = UnitOrderRequest.objects.get(uuid = unit_order_request["uuid"])
+                unit_order_request_obj.final_quantity = unit_order_request["quantity"]
+                unit_order_request_obj.final_price = unit_order_request["price"]
+                unit_order_request_obj.request_status = unit_order_request["status"]
                 unit_order_request_obj.save()
 
             order_request_obj.request_status = data["requestStatus"]
             order_request_obj.save()
 
-            if order_request_obj.payment_mode == "COD":
+            if order_request_obj.payment_mode == "COD" or order_request_obj.payment_mode == "CHEQUE":
                 try:
                     if order_request_obj.shipping_address==None:
                         address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
