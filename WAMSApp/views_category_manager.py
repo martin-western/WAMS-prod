@@ -143,7 +143,10 @@ class FetchAdminSuperCategoriesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            super_category_objs = SuperCategory.objects.all().order_by('-pk')
+            organization_name = data["organization"]
+            organization_obj = Organization.objects.get(name=organization_name)
+
+            super_category_objs = SuperCategory.objects.filter(organization=organization_obj).order_by('-pk')
             super_category_list = []
 
             for super_category_obj in super_category_objs:
