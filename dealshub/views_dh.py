@@ -1572,6 +1572,13 @@ class ProcessOrderRequestAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             unit_order_requests = data["UnitOrderRequests"]
+            request_status = data["requestStatus"]
+
+            if len(unit_order_requests) == 0 and request_status=="Approved":
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.warning("ProcessOrderRequest: Empty UnitOrderRequest list passed %s at %s", e, str(exc_tb.tb_lineno))
+                response["message"] = "invalid empty list for approval"
+                return Response(data=response)
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
 
@@ -1585,7 +1592,7 @@ class ProcessOrderRequestAPI(APIView):
                 unit_order_request_obj.request_status = unit_order_request["status"]
                 unit_order_request_obj.save()
 
-            order_request_obj.request_status = data["requestStatus"]
+            order_request_obj.request_status = request_status
             order_request_obj.save()
 
             if order_request_obj.payment_mode == "COD" or order_request_obj.payment_mode == "CHEQUE":
@@ -2132,12 +2139,12 @@ class FetchOrderRequestListAPI(APIView):
                         temp_dict2["initialPrice"] = unit_order_request_obj.initial_price
                         temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
                         temp_dict2["finalPrice"] = unit_order_request_obj.final_price
-                        temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_request_obj.product.get_name(language_code)
                         temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_display_image_url()
                         if temp_dict2["initialQuantity"] != temp_dict2["finalQuantity"]:
                             temp_dict["requestStatus"] = "Partially Approved"
                         unit_order_request_list.append(temp_dict2)
+                    temp_dict["currency"] = unit_order_request_objs[0].product.get_currency()
                     temp_dict["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").count()
                     temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
                     temp_dict["totalAmount"] =order_request_obj.get_subtotal()
@@ -5857,7 +5864,10 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     to_pay = order_request_obj.get_total_amount()
 
                     temp_dict["subtotal"] = str(subtotal)
-                    temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
+                    if order_request_obj.request_status == "Approved":
+                        temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
+                    else:
+                        temp_dict["totalQuantity"] = unit_order_request_objs.aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
                     temp_dict["deliveryFee"] = str(delivery_fee)
                     temp_dict["codFee"] = str(cod_fee)
                     temp_dict["toPay"] = str(to_pay)
