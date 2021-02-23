@@ -984,7 +984,7 @@ class OrderRequest(models.Model):
         subtotal = 0
         for unit_order_request_obj in unit_order_request_objs:
             subtotal += float(unit_order_request_obj.final_price)*float(unit_order_request_obj.final_quantity)
-        return subtotal
+        return round(subtotal,2)
 
     def get_delivery_fee(self, cod=False):
         subtotal = self.get_subtotal()
