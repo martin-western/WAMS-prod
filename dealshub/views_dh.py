@@ -5839,7 +5839,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     to_pay = order_request_obj.get_total_amount()
 
                     temp_dict["subtotal"] = str(subtotal)
-
+                    temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
                     temp_dict["deliveryFee"] = str(delivery_fee)
                     temp_dict["codFee"] = str(cod_fee)
                     temp_dict["toPay"] = str(to_pay)
