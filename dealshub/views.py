@@ -4323,7 +4323,7 @@ class FetchUnitBannerProductsAPI(APIView):
             response["totalPages"] = paginator.num_pages
             response["brand_list"] = brand_list
             response["productList"] = product_list
-            response["is_user_authenticated"] = is_user_authenticated
+            #response["is_user_authenticated"] = is_user_authenticated
             response['status'] = 200
 
         except Exception as e:
