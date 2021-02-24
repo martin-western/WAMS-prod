@@ -4799,10 +4799,47 @@ class FetchUserProfileAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchUserProfileAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
+class EditUserProfileAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("FetchAuditLogsByUserAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            first_name = data["first_name"]
+            last_name = data["last_name"]
+            contact_number = data["contact_number"]
+            email = data["email"]
+            designation = data["designation"]
+
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)
+
+            omnycomm_user.first_name = first_name
+            omnycomm_user.last_name = last_name
+            omnycomm_user.contact_number = contact_number
+            omnycomm_user.email = email
+            omnycomm_user.designation = designation
+            omnycomm_user.save()
+        
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class FetchAuditLogsByUserAPI(APIView):
 
@@ -6994,6 +7031,8 @@ GithubWebhook = GithubWebhookAPI.as_view()
 SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
+
+EditUserProfile = EditUserProfileAPI.as_view()
 
 CreateNewProduct = CreateNewProductAPI.as_view()
 

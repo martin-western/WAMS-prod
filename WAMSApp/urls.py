@@ -88,6 +88,7 @@ urlpatterns = [
     
     url(r'^sap-integration/$',views.SapIntegration),
     url(r'^fetch-user-profile/$',views.FetchUserProfile),
+    url(r'^edit-user-profile/$',views.EditUserProfile),
 
     url(r'^fetch-dealshub-products/$',views.FetchDealsHubProducts),
     url(r'^update-dealshub-product/$',views.UpdateDealshubProduct),
