@@ -2929,6 +2929,14 @@ class UpdateB2BCustomerStatusAPI(APIView):
             customer_name = data["customerName"]
             email_id = data["emailId"]
             cohort = data["cohort"]
+            vat_certificate_id = data["vatCertificateId"]
+
+            if data.get("vat-certificate","") != "":
+                b2b_user_obj.vat_certificate = data["vat-certificate"]
+            if data.get("trade-license","") != "":
+                b2b_user_obj.trade_license = data["trade-license"]
+            if data.get("passport-copy","") != "":
+                b2b_user_obj.passport_copy = data["passport-copy"]
 
             b2b_user_obj.company_name = company_name
             b2b_user_obj.first_name = customer_name
@@ -2937,6 +2945,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.trade_license_status = trade_license_status
             b2b_user_obj.passport_copy_status = passport_copy_status
             b2b_user_obj.cohort = cohort
+            b2b_user_obj.vat_certificate_id = vat_certificate_id
             b2b_user_obj.save()
 
             response["status"] = 200
@@ -8273,6 +8282,7 @@ class FetchB2BUserProfileAPI(APIView):
             response["contact_number"] = b2b_user_obj.contact_number
             response["emailId"] = b2b_user_obj.email
             response["companyName"] = b2b_user_obj.company_name
+            response["vatCertificateId"] = b2b_user_obj.vat_certificate_id
 
             response["vat_certificate"] = ""
             if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
