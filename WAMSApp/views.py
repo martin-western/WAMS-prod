@@ -4813,7 +4813,7 @@ class EditUserProfileAPI(APIView):
         
         try:
             data = request.data
-            logger.info("FetchAuditLogsByUserAPI: %s", str(data))
+            logger.info("EditUserProfileAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -4836,7 +4836,7 @@ class EditUserProfileAPI(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("EditUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
