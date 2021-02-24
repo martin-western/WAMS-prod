@@ -132,6 +132,18 @@ def custom_permission_price(user,permission):
         logger.warning("custom_permission_price: %s at %s", e, str(exc_tb.tb_lineno))
         return False
 
+def custom_permission_cohort(user,permission):
+
+    try:
+        permission_obj = CustomPermission.objects.get(user__username=user.username)
+        cohort = json.loads(permission_obj.cohort)
+        return cohort[permission]
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.warning("custom_permission_cohort: %s at %s", e, str(exc_tb.tb_lineno))
+        return False
+
 def custom_permission_stock(user,permission):
 
     try:
