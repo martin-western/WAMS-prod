@@ -1233,15 +1233,24 @@ class FetchCategoriesForSalesAPI(APIView):
                 data = json.loads(data)
 
             page = int(data.get('page', 1))
-
             has_image = data.get("has_image", None)
+            search_list = data.get("tags",[])
             
             category_objs = Category.objects.all()
+
+            if len(search_list)>0:
+                temp_category_objs = Category.objects.none()
+                for search_string in search_list:
+                    search_string = search_string.strip()
+                    temp_category_objs |= category_objs.filter(Q(name__icontains=search_string) | Q(super_category__name__icontains=search_string) | Q(uuid__icontains=search_string))
+                category_objs = temp_category_objs.distinct()
 
             if has_image==True:
                 category_objs = category_objs.exclude(mobile_app_image=None)
             elif has_image==False:
                 category_objs = category_objs.filter(mobile_app_image=None)
+
+            total_category = category_objs.count()
 
             paginator = Paginator(category_objs, 20)
             category_objs = paginator.page(page)
@@ -1275,6 +1284,7 @@ class FetchCategoriesForSalesAPI(APIView):
             response["category_list"] = category_list
             response["is_available"] = is_available
             response["total_pages"] = total_pages
+            response["total_category"] = total_category
             response['status'] = 200
         
         except Exception as e:
