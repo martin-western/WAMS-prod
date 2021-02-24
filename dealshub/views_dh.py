@@ -8282,6 +8282,7 @@ class FetchB2BUserProfileAPI(APIView):
             response["contact_number"] = b2b_user_obj.contact_number
             response["emailId"] = b2b_user_obj.email
             response["companyName"] = b2b_user_obj.company_name
+            response["vatCertificateId"] = b2b_user_obj.vat_certificate_id
 
             response["vat_certificate"] = ""
             if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
