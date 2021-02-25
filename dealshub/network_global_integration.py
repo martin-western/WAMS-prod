@@ -163,7 +163,7 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
             location_group_uuid = data["location_group_uuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
-            order_request_obj = OrderRequest.objects.filter(uuid = data["OrderRequestUuid"])
+            order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
 
             try:
                 if location_group_obj.is_b2b == False:
