@@ -2500,9 +2500,9 @@ def create_stock_report(filename, uuid, brand_list, location_group_obj):
         logger.error("Error create_stock_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def bulk_download_nesto_product_details_report(filename, uuid):
+def bulk_download_nesto_ecommerce_report(filename, uuid):
     try:
-        logger.info('Nesto Product details download report start...')
+        logger.info('Nesto Ecommerce report start...')
         workbook = xlsxwriter.Workbook('./'+filename)
         worksheet = workbook.add_worksheet()
 
@@ -2647,7 +2647,7 @@ def bulk_download_nesto_product_details_report(filename, uuid):
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("Error bulk_download_nesto_product_details_report %s %s", e, str(exc_tb.tb_lineno))
+                logger.error("Error bulk_download_nesto_ecommerce_report %s %s", e, str(exc_tb.tb_lineno))
         
         workbook.close()
 
@@ -2660,7 +2660,7 @@ def bulk_download_nesto_product_details_report(filename, uuid):
     
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("Error bulk_download_nesto_product_details_report %s %s", e, str(exc_tb.tb_lineno))
+        logger.error("Error bulk_download_nesto_ecommerce_report %s %s", e, str(exc_tb.tb_lineno))
 
 
 def bulk_download_nesto_detailed_product_report(filename, uuid):
