@@ -185,7 +185,7 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
             order_cnt = Order.objects.filter(location_group=location_group_obj).count()+1
             merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
 
-            if order_request_obj == "Approved":
+            if order_request_obj.request_status == "Approved":
                 amount = order_request_obj.to_pay
                 shipping_address = order_request_obj.shipping_address
                 order_request_obj.merchant_reference = merchant_reference
