@@ -344,6 +344,118 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         logger.error("transfer_from_atp_to_holding: %s at %s", str(e), str(exc_tb.tb_lineno))
         return result
 
+def holding_atp_transfer(seller_sku,company_code,final_holding):
+    try:
+
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        # credentials = ("WIABAP", "pradeepabap456")
+
+        transfer_information = []
+
+        result ={
+            "total_holding_before" : "",
+            "total_atp_before" : "",
+            "total_holding_after" : "",
+            "total_atp_after" : "",
+            "SAP_message" : ""
+        }
+
+        prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
+
+        total_holding = float(prices_and_stock_information["total_holding"])
+        total_atp = float(prices_and_stock_information["total_atp"])
+
+        result["total_holding_before"] = total_holding
+        result["total_atp_before"] = total_atp
+
+        if prices_and_stock_information["message"] !="Success":
+            result["SAP_message"] = prices_and_stock_information["message"]
+            return result
+        
+        if final_holding <= total_atp:
+
+            total_holding_transfer = final_holding
+
+            while total_holding_transfer > 0:
+    
+                for item in prices_and_stock_information["stock_list"]:
+
+                    if item["atp_qty"] >= total_holding_transfer:
+
+                        transfer_here = min(total_holding_transfer,item["atp_qty"])
+                        
+                        temp_dict = {}
+                        temp_dict["seller_sku"] = seller_sku
+                        temp_dict["qty"] = transfer_here
+                        temp_dict["uom"] = item["uom"]
+                        temp_dict["batch"] = item["batch"]
+                        transfer_information.append(temp_dict)
+
+                        total_holding_transfer = total_holding_transfer-transfer_here
+
+                    if total_holding_transfer == 0:
+                        break
+        
+        if len(transfer_information) > 0:
+    
+            body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
+            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers)
+            content = response.content
+            xml_content = xmltodict.parse(content)
+            response_dict = json.loads(json.dumps(xml_content))
+
+            response_dict = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
+            items = response_dict["T_ITEM"]["item"]
+
+            try :
+                if isinstance(items,list):
+                    for item in items:
+                        if item["INDICATOR1"] != None:
+                            indicator = item["INDICATOR1"]
+                            if indicator == "X":
+                                result["SAP_message"] = "PRICES NOT MAINTAINED"
+                else:
+                    if items["MESSAGE"] != None:
+                        indicator = items["INDICATOR1"]
+                        if indicator == "X":
+                            result["SAP_message"] = "PRICES NOT MAINTAINED"
+            except Exception as e:
+                pass
+
+            items = response_dict["T_MESSAGE"]["item"]
+            try :
+                if isinstance(items,list):
+                    for item in items:
+                        if item["MESSAGE"] != None:
+                            SAP_message = item["MESSAGE"]
+                            result["SAP_message"] = SAP_message
+                else:
+                    if items["MESSAGE"] != None:
+                        SAP_message = items["MESSAGE"]
+                        result["SAP_message"] = SAP_message
+            except Exception as e:
+                pass
+
+            time.sleep(2)
+            prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
+            total_holding = float(prices_and_stock_information["total_holding"])
+            total_atp = float(prices_and_stock_information["total_atp"])
+
+            result["total_holding_after"] = total_holding
+            result["total_atp_after"] = total_atp
+            return result
+
+        else :
+            result["SAP_message"] = "NO HOLDING TRANSFER"
+            logger.info("holding_atp_transfer : Nothing to transfer to Holding in this call",seller_sku)
+            return result
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("holding_atp_transfer: %s at %s", str(e), str(exc_tb.tb_lineno))
+        return result
+
 def create_intercompany_sales_order(company_code,order_information):
     
     try:
@@ -702,3 +814,60 @@ def create_holding_transfer_report(dealshub_product_objs):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("create_holding_transfer_report: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+
+def fetch_product_holding_details(dealshub_product_obj):
+
+    try:
+        seller_sku = dealshub_product_obj.get_seller_sku()
+        brand_name = dealshub_product_obj.get_brand()
+        status = "FAILED"
+        
+        try:
+            company_code = BRAND_COMPANY_DICT[brand_name.lower()]
+        except Exception as e:
+            company_code = "BRAND NOT RECOGNIZED"
+        
+        product_holding_details = {}
+
+        if company_code != "BRAND NOT RECOGNIZED":
+            headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            
+            body = xml_generator_for_product_holding_details(company_code,seller_sku)
+
+            response = requests.post(url=PRODUCT_HOLDING_URL, auth=credentials, data=body, headers=headers)
+
+            content = response.content
+            xml_content = xmltodict.parse(content)
+            response_dict = json.loads(json.dumps(xml_content))
+
+            items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ARTICLE_HOLDING_RPTResponse"]["T_DATA"]["item"]
+
+            temp_list = []
+            for item in items:
+                flag = 0
+                for temp_item in temp_list:
+                    if temp_item["channel"] == item["VORNA"]:
+                        temp_item["qty"] += float(item["OMENG"])
+                        flag=1
+                        break
+                if flag==0:
+                    temp_dict = {}
+                    temp_dict["channel"] = item["VORNA"]
+                    temp_dict["qty"] = float(item["OMENG"])
+                    temp_list.append(temp_dict)
+            
+            prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
+
+            total_holding = float(prices_and_stock_information["total_holding"])
+            total_atp = float(prices_and_stock_information["total_atp"])
+
+            product_holding_details["channel_holding_qty_list"] = temp_list
+            product_holding_details["ATP"] = total_atp
+            product_holding_details["holding"] = total_holding
+           
+        return product_holding_details
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_product_holding_details: %s at %s", str(e), str(exc_tb.tb_lineno))
