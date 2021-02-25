@@ -2661,3 +2661,113 @@ def bulk_download_nesto_product_details_report(filename, uuid):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error bulk_download_nesto_product_details_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_download_nesto_detailed_product_report(filename, uuid):
+    try:
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["Sr. No.",
+               "Article ID",
+               "Barcode",
+               "Product Name",
+               "Product Name Ecommerce",
+               "UOM",
+               "Language Key",
+               "Brand",
+               "Weight/Volume",
+               "Country of Origin",
+               "Highlights",
+               "Storage Condition",
+               "Preparation and Usage",
+               "Allergic Information",
+               "Product Description",
+               "SubCategory Code",
+               "Product Length",
+               "Product Length_metric",
+               "Product Width",
+               "Product Width Metric",
+               "Product Height",
+               "Product Height Metric",
+               "Nutrition Facts",
+               "Ingredients",
+               "Return Days",
+               "Front Images",
+               "Back Images",
+               "Side Images",
+               "Nutrition Images",
+               "Product Content Images",
+               "Supplier Images",
+               "Lifestyle Images",
+               "Ads Images",
+               "Box Images",
+               "Highlight Images"]
+
+        cnt = 0
+        colnum = 0
+        for k in row:
+            worksheet.write(cnt, colnum, k)
+            colnum += 1
+
+        pp = NestoProduct.objects.all()
+        for p in pp:
+            try:
+                cnt += 1
+                print("Cnt=", cnt)
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = str(p.article_number)
+                common_row[2] = str(p.barcode)
+                common_row[3] = str(p.product_name)
+                common_row[4] = str(p.product_name_ecommerce)
+                common_row[5] = str(p.uom)
+                common_row[6] = str(p.language_key)
+                common_row[7] = str(p.brand.name)
+                common_row[8] = str(p.weight_volume)
+                common_row[9] = str(p.country_of_origin)
+                common_row[10] = str(p.highlights)
+                common_row[11] = str(p.storage_condition)
+                common_row[12] = str(p.preparation_and_usage)
+                common_row[13] = str(p.allergic_information)
+                common_row[14] = str(p.product_description)
+                common_row[15] = "NA" if p.sub_category==None else str(p.sub_category.erp_id)
+                dimensions = json.loads(p.dimensions)
+                common_row[16] = str(dimensions["product_length"])
+                common_row[17] = str(dimensions["product_length_metric"])
+                common_row[18] = str(dimensions["product_width"])
+                common_row[19] = str(dimensions["product_width_metric"])
+                common_row[20] = str(dimensions["product_height"])
+                common_row[21] = str(dimensions["product_height_metric"])
+                common_row[22] = str(p.nutrition_facts)
+                common_row[23] = str(p.ingredients)
+                common_row[24] = str(p.return_days)
+                common_row[25] = str(p.front_images.count())
+                common_row[26] = str(p.back_images.count())
+                common_row[27] = str(p.side_images.count())
+                common_row[28] = str(p.nutrition_images.count())
+                common_row[29] = str(p.product_content_images.count())
+                common_row[30] = str(p.supplier_images.count())
+                common_row[31] = str(p.lifestyle_images.count())
+                common_row[32] = str(p.ads_images.count())
+                common_row[33] = str(p.box_images.count())
+                common_row[34] = str(p.highlight_images.count())
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+            except Exception as e:
+                print("Error", str(e))
+
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error bulk_download_nesto_detailed_product_report %s %s", e, str(exc_tb.tb_lineno))
