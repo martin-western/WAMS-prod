@@ -153,9 +153,9 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
         response = {}
         response["status"] = 500
         response["error"] = ""
-        
+
         try:
-            
+
             data = request.data
             logger.info("MakeB2BPaymentNetworkGlobalAPI: %s", str(data))
 
@@ -169,7 +169,7 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
                 if location_group_obj.is_b2b == False:
                     response["message"] = "!b2b"
                     logger.warning("MakeB2BPaymentNetworkGlobalAPI: Not a B2B LocationGroup %s at %s", e, str(exc_tb.tb_lineno))
-                    return Response(data=response)             
+                    return Response(data=response)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("MakeB2BPaymentNetworkGlobalAPI: location group not handled properly%s at %s", e, str(exc_tb.tb_lineno))
@@ -205,15 +205,15 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
 
             payfort_multiplier = int(location_group_obj.location.payfort_multiplier)
             amount = str(int(float(amount)*payfort_multiplier))
-            
+
             API_KEY = payment_credentials["network_global"]["API_KEY"] # "NDVlNzFjOTAtYjk1ZS00YmE4LWJlZGMtOWI2YjlhMTBhYmE1OmMwODc2OTBjLTM4ZmQtNGZlMS04YjFiLWUzOWQ1ODdiMDhjYg=="
             OUTLET_REF = payment_credentials["network_global"]["OUTLET_REF"] #"e209b88c-9fb6-4be8-ab4b-e4b977ad0e0d"
-            
+
             headers = {
-                "Content-Type": "application/vnd.ni-identity.v1+json", 
+                "Content-Type": "application/vnd.ni-identity.v1+json",
                 "Authorization": "Basic "+API_KEY
             }
-            
+
             network_global_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
 
             network_global_response_dict = json.loads(network_global_response.content)
@@ -221,14 +221,14 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
 
             headers = {
                 "Authorization": "Bearer " + access_token ,
-                "Content-Type": "application/vnd.ni-payment.v2+json", 
-                "Accept": "application/vnd.ni-payment.v2+json" 
+                "Content-Type": "application/vnd.ni-payment.v2+json",
+                "Accept": "application/vnd.ni-payment.v2+json"
             }
 
             body = {
                 "action": "SALE",
-                "amount": { 
-                    "currencyCode": currency, 
+                "amount": {
+                    "currencyCode": currency,
                     "value": amount
                 },
                 "merchantOrderReference": merchant_reference,
@@ -249,9 +249,9 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
             country_code = ""
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
-            
+
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
-            
+
             response["payment_response"] = json.loads(payment_response.content)
             response["error"] = "Payment Success"
             response["status"] = 200
