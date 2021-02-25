@@ -300,6 +300,7 @@ class UpdateProductHoldingDetailsAPI(APIView):
                     if SAP_message != "NO HOLDING TRANSFER" and SAP_message != "Successfully Updated.":
                         response["seller_sku"] = data_seller_sku
                         response['error_message'] = SAP_message
+                        response['status'] = 503
                         return Response(data=response)
                 except Exception as e:
                     response["message"] = "INTERNAL ERROR"
