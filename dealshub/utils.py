@@ -346,7 +346,7 @@ def send_order_request_placed_mail(order_request_obj):
                 "order_placed_date": order_placed_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": order_request_obj.get_website_link()+"/orders/"+order_req_obj.uuid,
+                "website_order_link": order_request_obj.get_website_link()+"/orders/"+order_request_obj.uuid,
                 "email_content": email_content
             }
         )
