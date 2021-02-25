@@ -1716,7 +1716,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
                                              payment_info=payment_info,
                                              payment_mode=payment_mode,
                                              merchant_reference=merchant_reference,
-                                             bundleid=cart_obj.merchant_reference,
+                                             bundleid=order_request_obj.merchant_reference,
                                              additional_note=order_request_obj.additional_note,
                                              cod_charge=0)
 
