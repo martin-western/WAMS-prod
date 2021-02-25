@@ -1041,6 +1041,8 @@ class UnitOrderRequest(models.Model):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
+            self.final_quantity = self.initial_quantity
+            self.final_price = self.initial_price
             order_req_prefix = ""
             try:
                 order_req_prefix = json.loads(self.order_request.location_group.website_group.conf)["order_req_prefix"]
