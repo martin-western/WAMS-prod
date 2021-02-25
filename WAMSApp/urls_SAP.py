@@ -10,6 +10,8 @@ urlpatterns = [
 
     url(r'^fetch-price-and-stock/$',views.FetchPriceAndStock),
     url(r'^transfer-stock-to-holding/$',views.HoldingTransfer),
-    url(r'^bulk-transfer-to-holding/$',views.BulkHoldingTransfer)
+    url(r'^bulk-transfer-to-holding/$',views.BulkHoldingTransfer),
+    url(r'^fetch-product-holding-details/$',views.FetchProductHoldingDetails),
+    url(r'^update-product-holding-details/$',views.UpdateProductHoldingDetails),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -240,8 +240,87 @@ class BulkHoldingTransferAPI(APIView):
         return Response(data=response)
 
 
+class FetchProductHoldingDetailsAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("FetchProductHoldingDetailsAPI: %s", str(data))
+
+            product_uuid = data["product_uuid"]
+
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)  
+
+            result = fetch_product_holding_details(dealshub_product_obj)
+            
+            response['holding_details'] = result
+            response['seller_sku'] = dealshub_product_obj.get_seller_sku()
+            response['product_id'] = dealshub_product_obj.get_product_id()
+            response['product_name'] = dealshub_product_obj.get_name()
+            response['product_image'] = dealshub_product_obj.get_main_image_url()
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchProductHoldingDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UpdateProductHoldingDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("UpdateProductHoldingDetailsAPI: %s", str(data))
+
+            product_uuid = data["product_uuid"]
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+            
+            final_holding = data.get("holding",0)
+            brand_name = dealshub_product_obj.get_brand().lower()
+            data_seller_sku = str(dealshub_product_obj.get_seller_sku())
+            try:
+                company_code = BRAND_COMPANY_DICT[brand_name]
+            except Exception as e:
+                company_code = "BRAND NOT RECOGNIZED"
+
+            if company_code != "BRAND NOT RECOGNIZED":
+                try :
+                    transfer_result = holding_atp_transfer(data_seller_sku,company_code,final_holding)
+                    SAP_message = transfer_result["SAP_message"]
+                    
+                    if SAP_message != "NO HOLDING TRANSFER" and SAP_message != "Successfully Updated.":
+                        response["seller_sku"] = data_seller_sku
+                        response['error_message'] = SAP_message
+                        response['status'] = 503
+                        return Response(data=response)
+                except Exception as e:
+                    response["message"] = "INTERNAL ERROR"
+                    response['status'] = 501
+                    return Response(data=response)
+    
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateProductHoldingDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 BulkHoldingTransfer = BulkHoldingTransferAPI.as_view()
 
 FetchPriceAndStock = FetchPriceAndStockAPI.as_view()
 
 HoldingTransfer = HoldingTransferAPI.as_view()
+
+FetchProductHoldingDetails = FetchProductHoldingDetailsAPI.as_view()
+
+UpdateProductHoldingDetails = UpdateProductHoldingDetailsAPI.as_view()
