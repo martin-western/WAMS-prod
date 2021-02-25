@@ -400,6 +400,7 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
         
         if len(transfer_information) > 0:
             body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
+            logger.info("holind_atp_transfer BODY FOR API: %s",str(body))
             response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers)
             content = response.content
             xml_content = xmltodict.parse(content)
