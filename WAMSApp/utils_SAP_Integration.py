@@ -346,7 +346,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
 
 def holding_atp_transfer(seller_sku,company_code,final_holding):
     try:
-
+        logger.info("holind_atp_transfer start: %s", str(final_holding))
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         # credentials = ("WIABAP", "pradeepabap456")
@@ -362,6 +362,7 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
         }
 
         prices_and_stock_information = fetch_prices_and_stock(seller_sku,company_code)
+        logger.info("holind_atp_transfer price&stock info : %s", str(prices_and_stock_information))
 
         total_holding = float(prices_and_stock_information["total_holding"])
         total_atp = float(prices_and_stock_information["total_atp"])
@@ -398,8 +399,8 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
                         break
         
         if len(transfer_information) > 0:
-    
             body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
+            logger.info("holind_atp_transfer BODY FOR API: %s",str(body))
             response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers)
             content = response.content
             xml_content = xmltodict.parse(content)
@@ -407,6 +408,8 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
 
             response_dict = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_HOLDING_SOResponse"]
             items = response_dict["T_ITEM"]["item"]
+
+            logger.info("holind_atp_transfer GOT SAP RESPONSE : %s", str(response_dict))
 
             try :
                 if isinstance(items,list):
