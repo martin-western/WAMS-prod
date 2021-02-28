@@ -141,6 +141,7 @@ class UpdateNestoProductAPI(APIView):
             ingredients = data["ingredients"]
             return_days = data["return_days"]
             product_status = data["product_status"]
+            about_brand = data["about_brand"]
 
             sub_category_uuid = data.get("sub_category_uuid","")
             sub_category_obj = None
@@ -152,6 +153,8 @@ class UpdateNestoProductAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
 
             brand_obj, created = Brand.objects.get_or_create(name=brand, organization=organization_obj)
+            brand_obj.description = about_brand
+            brand_obj.save()
             if created==True:
                 custom_permission_obj.brands.add(brand_obj)
                 custom_permission_obj.save()
