@@ -1244,6 +1244,176 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
         return Response(data=response)
 
 
+class BulkUpdateB2BDealshubProductPriceAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            data = request.data
+            logger.info("BulkUpdateB2BDealshubProductPriceAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+
+            cohort_permission = custom_permission_cohort(request.user, "dealshub")
+            if not cohort_permission:
+                response['status'] = 407
+                logger.error("BulkUpdateB2BDealshubProductPriceAPI: Permission not granted")
+                return Response(data=response)
+
+            path = default_storage.save('tmp/bulk-upload-b2b-price.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
+
+            for i in range(rows):
+                try:
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_id = product_id.split(".")[0]
+
+                    dealshub_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
+
+                    if str(dfs.iloc[i][1]) != "nan" and str(dfs.iloc[i][1]) != "":
+                        now_price = int(dfs.iloc[i][1])
+                        dealshub_product_obj.now_price = now_price
+
+                    if str(dfs.iloc[i][2]) != "nan" and str(dfs.iloc[i][2]) != "":
+                        now_price_cohort1 = int(dfs.iloc[i][2])
+                        dealshub_product_obj.now_price_cohort1 = now_price_cohort1
+
+                    if str(dfs.iloc[i][3]) != "nan" and str(dfs.iloc[i][3]) != "":
+                        now_price_cohort2 = int(dfs.iloc[i][3])
+                        dealshub_product_obj.now_price_cohort2 = now_price_cohort2
+
+                    if str(dfs.iloc[i][4]) != "nan" and str(dfs.iloc[i][4]) != "":
+                        now_price_cohort3 = int(dfs.iloc[i][4])
+                        dealshub_product_obj.now_price_cohort3 = now_price_cohort3
+
+                    if str(dfs.iloc[i][5]) != "nan" and str(dfs.iloc[i][5]) != "":
+                        now_price_cohort4 = int(dfs.iloc[i][5])
+                        dealshub_product_obj.now_price_cohort4 = now_price_cohort4
+
+                    if str(dfs.iloc[i][6]) != "nan" and str(dfs.iloc[i][6]) != "":
+                        now_price_cohort5 = int(dfs.iloc[i][6])
+                        dealshub_product_obj.now_price_cohort5 = now_price_cohort5
+
+                    if str(dfs.iloc[i][7]) != "nan" and str(dfs.iloc[i][7]) != "":
+                        promotional_price = int(dfs.iloc[i][7])
+                        dealshub_product_obj.promotional_price = promotional_price
+
+                    if str(dfs.iloc[i][8]) != "nan" and str(dfs.iloc[i][8]) != "":
+                        promotional_price_cohort1 = int(dfs.iloc[i][8])
+                        dealshub_product_obj.promotional_price_cohort1 = promotional_price_cohort1
+
+                    if str(dfs.iloc[i][9]) != "nan" and str(dfs.iloc[i][9]) != "":
+                        promotional_price_cohort2 = int(dfs.iloc[i][9])
+                        dealshub_product_obj.promotional_price_cohort2 = promotional_price_cohort2
+
+                    if str(dfs.iloc[i][10]) != "nan" and str(dfs.iloc[i][10]) != "":
+                        promotional_price_cohort3 = int(dfs.iloc[i][10])
+                        dealshub_product_obj.promotional_price_cohort3 = promotional_price_cohort3
+
+                    if str(dfs.iloc[i][11]) != "nan" and str(dfs.iloc[i][11]) != "":
+                        promotional_price_cohort4 = int(dfs.iloc[i][11])
+                        dealshub_product_obj.promotional_price_cohort4 = promotional_price_cohort4
+
+                    if str(dfs.iloc[i][12]) != "nan" and str(dfs.iloc[i][12]) != "":
+                        promotional_price_cohort5 = int(dfs.iloc[i][12])
+                        dealshub_product_obj.promotional_price_cohort5 = promotional_price_cohort5
+
+                    dealshub_product_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("BulkUpdateB2BDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateB2BDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class BulkUpdateB2BDealshubProductMOQAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+
+            data = request.data
+            logger.info("BulkUpdateB2BDealshubProductMOQAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+
+            cohort_permission = custom_permission_cohort(request.user, "dealshub")
+            if not cohort_permission:
+                response['status'] = 407
+                logger.error("BulkUpdateB2BDealshubProductMOQAPI: Permission not granted")
+                return Response(data=response)
+
+            path = default_storage.save('tmp/bulk-upload-b2b-moq.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+            rows = len(dfs.iloc[:])
+
+            for i in range(rows):
+                try:
+                    product_id = str(dfs.iloc[i][0]).strip()
+                    product_id = product_id.split(".")[0]
+
+                    dealshub_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
+
+                    if str(dfs.iloc[i][1]) != "nan" and str(dfs.iloc[i][1]) != "":
+                        moq = int(dfs.iloc[i][1])
+                        dealshub_product_obj.moq = moq
+
+                    if str(dfs.iloc[i][2]) != "nan" and str(dfs.iloc[i][2]) != "":
+                        moq_cohort1 = int(dfs.iloc[i][2])
+                        dealshub_product_obj.moq_cohort1 = moq_cohort1
+
+                    if str(dfs.iloc[i][3]) != "nan" and str(dfs.iloc[i][3]) != "":
+                        moq_cohort2 = int(dfs.iloc[i][3])
+                        dealshub_product_obj.moq_cohort2 = moq_cohort2
+
+                    if str(dfs.iloc[i][4]) != "nan" and str(dfs.iloc[i][4]) != "":
+                        moq_cohort3 = int(dfs.iloc[i][4])
+                        dealshub_product_obj.moq_cohort3 = moq_cohort3
+
+                    if str(dfs.iloc[i][5]) != "nan" and str(dfs.iloc[i][5]) != "":
+                        moq_cohort4 = int(dfs.iloc[i][5])
+                        dealshub_product_obj.moq_cohort4 = moq_cohort4
+
+                    if str(dfs.iloc[i][6]) != "nan" and str(dfs.iloc[i][6]) != "":
+                        moq_cohort5 = int(dfs.iloc[i][6])
+                        dealshub_product_obj.moq_cohort5 = moq_cohort5
+
+                    dealshub_product_obj.save()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("BulkUpdateB2BDealshubProductMOQAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateB2BDealshubProductMOQAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class BulkUpdateDealshubProductStockAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4799,10 +4969,47 @@ class FetchUserProfileAPI(APIView):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchUserProfileAPI: %s at %s",
-                         e, str(exc_tb.tb_lineno))
+            logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
+class EditUserProfileAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("EditUserProfileAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            first_name = data["first_name"]
+            last_name = data["last_name"]
+            contact_number = data["contact_number"]
+            email = data["email"]
+            designation = data["designation"]
+
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)
+
+            omnycomm_user.first_name = first_name
+            omnycomm_user.last_name = last_name
+            omnycomm_user.contact_number = contact_number
+            omnycomm_user.email = email
+            omnycomm_user.designation = designation
+            omnycomm_user.save()
+        
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("EditUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class FetchAuditLogsByUserAPI(APIView):
 
@@ -6074,8 +6281,11 @@ class CreateOCReportAPI(APIView):
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 p1 = threading.Thread(target=create_stock_report, args=(filename,oc_report_obj.uuid,brand_list,location_group_obj,))
                 p1.start()
-            elif report_type.lower()=="nesto product":
-                p1 = threading.Thread(target=bulk_download_nesto_product_details_report, args=(filename,oc_report_obj.uuid,))
+            elif report_type.lower()=="nesto ecommerce product":
+                p1 = threading.Thread(target=bulk_download_nesto_ecommerce_report, args=(filename,oc_report_obj.uuid,))
+                p1.start()
+            elif report_type.lower()=="nesto detailed product":
+                p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
                 p1.start()
             response["approved"] = True
             response['status'] = 200
@@ -6995,6 +7205,8 @@ SapIntegration = SapIntegrationAPI.as_view()
 
 FetchUserProfile = FetchUserProfileAPI.as_view()
 
+EditUserProfile = EditUserProfileAPI.as_view()
+
 CreateNewProduct = CreateNewProductAPI.as_view()
 
 CreateNewBaseProduct = CreateNewBaseProductAPI.as_view()
@@ -7100,6 +7312,10 @@ FetchDealsHubProducts = FetchDealsHubProductsAPI.as_view()
 UpdateDealshubProduct = UpdateDealshubProductAPI.as_view()
 
 BulkUpdateDealshubProductPrice = BulkUpdateDealshubProductPriceAPI.as_view()
+
+BulkUpdateB2BDealshubProductPrice = BulkUpdateB2BDealshubProductPriceAPI.as_view()
+
+BulkUpdateB2BDealshubProductMOQ = BulkUpdateB2BDealshubProductMOQAPI.as_view()
 
 BulkUpdateDealshubProductStock = BulkUpdateDealshubProductStockAPI.as_view()
 

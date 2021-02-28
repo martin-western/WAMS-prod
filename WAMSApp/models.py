@@ -490,6 +490,7 @@ class SuperCategory(models.Model):
     description = models.CharField(max_length=256, blank=True, default='')
     uuid = models.CharField(max_length=256, blank=True, default='')
     image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
 
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
@@ -1481,6 +1482,7 @@ class CustomPermission(models.Model):
     page_list = models.TextField(default="[]")
     location_groups = models.ManyToManyField(LocationGroup, blank=True)
     organization = models.ForeignKey(Organization,blank=True,null=True,on_delete=models.SET_NULL)
+    cohort = models.TextField(default="{}")
     misc = models.TextField(default="[]")
 
     class Meta:

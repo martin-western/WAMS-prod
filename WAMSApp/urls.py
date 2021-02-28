@@ -88,10 +88,13 @@ urlpatterns = [
     
     url(r'^sap-integration/$',views.SapIntegration),
     url(r'^fetch-user-profile/$',views.FetchUserProfile),
+    url(r'^edit-user-profile/$',views.EditUserProfile),
 
     url(r'^fetch-dealshub-products/$',views.FetchDealsHubProducts),
     url(r'^update-dealshub-product/$',views.UpdateDealshubProduct),
     url(r'^bulk-update-dealshub-product-price/$',views.BulkUpdateDealshubProductPrice),
+    url(r'^bulk-update-b2b-dealshub-product-price/$',views.BulkUpdateB2BDealshubProductPrice),
+    url(r'^bulk-update-b2b-dealshub-product-moq/$',views.BulkUpdateB2BDealshubProductMOQ),
     url(r'^bulk-update-dealshub-product-stock/$',views.BulkUpdateDealshubProductStock),
     url(r'^bulk-update-dealshub-product-publish-status/$', views.BulkUpdateDealshubProductPublishStatus),
     url(r'^fetch-dealshub-product-details/$',views.FetchDealshubProductDetails),

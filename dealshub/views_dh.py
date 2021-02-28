@@ -1571,23 +1571,25 @@ class ProcessOrderRequestAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
-            dealshub_products = data["DealsHubProducts"]
+            unit_order_requests = data["UnitOrderRequests"]
+            request_status = data["requestStatus"]
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
 
-            for dealshub_product in dealshub_products:
-                dealshub_product_obj = DealsHubProduct.objects.get(uuid=dealshub_product["uuid"],location_group=location_group_obj)
-                unit_order_request_obj = UnitOrderRequest.objects.get(product=dealshub_product_obj, order_request=order_request_obj)
-                unit_order_request_obj.final_quantity = dealshub_product["quantity"]
-                unit_order_request_obj.final_price = dealshub_product["price"]
-                unit_order_request_obj.request_status = dealshub_product["status"]
+            unit_order_request_objs = UnitOrderRequest.objects.filter(order_request = order_request_obj)
+            unit_order_request_objs.update(request_status="Rejected")
+
+            for unit_order_request in unit_order_requests:
+                unit_order_request_obj = UnitOrderRequest.objects.get(order_request=order_request_obj, uuid = unit_order_request["uuid"])
+                unit_order_request_obj.final_quantity = int(unit_order_request["quantity"])
+                unit_order_request_obj.final_price = float(unit_order_request["price"])
+                unit_order_request_obj.request_status = unit_order_request["status"]
                 unit_order_request_obj.save()
 
-            order_request_obj.request_status = data["requestStatus"]
+            order_request_obj.request_status = request_status
             order_request_obj.save()
 
-            if order_request_obj.payment_mode == "COD":
+            if order_request_obj.payment_mode == "COD" or order_request_obj.payment_mode == "CHEQUE":
                 try:
                     if order_request_obj.shipping_address==None:
                         address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
@@ -1600,7 +1602,7 @@ class ProcessOrderRequestAPI(APIView):
                     order_request_obj.voucher = None
                     order_request_obj.save()
 
-                update_request_status_bill(order_request_obj)
+                update_order_request_bill(order_request_obj,cod=True)
 
                 order_obj = Order.objects.create(owner = order_request_obj.owner,
                                                  shipping_address=order_request_obj.shipping_address,
@@ -1615,7 +1617,7 @@ class ProcessOrderRequestAPI(APIView):
                                                  additional_note=order_request_obj.additional_note)
 
                 for unit_order_request_obj in unit_order_request_objs:
-                    unit_order_obj = UnitOrderRequest.objects.create(order=order_obj,
+                    unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                               product=unit_order_request_obj.product,
                                                               quantity=unit_order_request_obj.final_quantity,
                                                               price=unit_order_request_obj.final_price)
@@ -1637,7 +1639,7 @@ class ProcessOrderRequestAPI(APIView):
                 response['message'] = "Order Placed"
 
             else:
-                update_request_status_bill(order_request_obj)
+                update_order_request_bill(order_request_obj)
 
                 # Trigger Email
                 try:
@@ -1714,7 +1716,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
                                              payment_info=payment_info,
                                              payment_mode=payment_mode,
                                              merchant_reference=merchant_reference,
-                                             bundleid=cart_obj.merchant_reference,
+                                             bundleid=order_request_obj.merchant_reference,
                                              additional_note=order_request_obj.additional_note,
                                              cod_charge=0)
 
@@ -2114,6 +2116,7 @@ class FetchOrderRequestListAPI(APIView):
                     temp_dict["bundleId"] = order_request_obj.bundleid
                     temp_dict["uuid"] = order_request_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
+                    temp_dict["additionalNote"] = order_request_obj.additional_note
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                     temp_dict["shippingAddress"] = order_request_obj.shipping_address.get_shipping_address()
@@ -2134,9 +2137,10 @@ class FetchOrderRequestListAPI(APIView):
                         temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_request_obj.product.get_name(language_code)
                         temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_display_image_url()
-                        if temp_dict2["initialQuantity"] != temp_dict2["finalQuantity"]:
+                        if unit_order_request_obj.request_status == "Approved" and temp_dict2["initialQuantity"] != temp_dict2["finalQuantity"]:
                             temp_dict["requestStatus"] = "Partially Approved"
                         unit_order_request_list.append(temp_dict2)
+                    temp_dict["currency"] = order_request_obj.get_currency()
                     temp_dict["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").count()
                     temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
                     temp_dict["totalAmount"] =order_request_obj.get_subtotal()
@@ -2826,6 +2830,7 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict["vatCertificateStatus"] = b2b_user_obj.vat_certificate_status
                 temp_dict["tradeLicenseStatus"] = b2b_user_obj.trade_license_status
                 temp_dict["passportCopyStatus"] = b2b_user_obj.passport_copy_status
+                temp_dict["vatCertificateId"] = b2b_user_obj.vat_certificate_id
             temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
             try:
                 if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date!=None:
@@ -2924,6 +2929,14 @@ class UpdateB2BCustomerStatusAPI(APIView):
             customer_name = data["customerName"]
             email_id = data["emailId"]
             cohort = data["cohort"]
+            vat_certificate_id = data["vatCertificateId"]
+
+            if data.get("vat-certificate","") != "":
+                b2b_user_obj.vat_certificate = data["vat-certificate"]
+            if data.get("trade-license","") != "":
+                b2b_user_obj.trade_license = data["trade-license"]
+            if data.get("passport-copy","") != "":
+                b2b_user_obj.passport_copy = data["passport-copy"]
 
             b2b_user_obj.company_name = company_name
             b2b_user_obj.first_name = customer_name
@@ -2932,6 +2945,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.trade_license_status = trade_license_status
             b2b_user_obj.passport_copy_status = passport_copy_status
             b2b_user_obj.cohort = cohort
+            b2b_user_obj.vat_certificate_id = vat_certificate_id
             b2b_user_obj.save()
 
             response["status"] = 200
@@ -3632,6 +3646,16 @@ class FetchAccountStatusB2BUserAPI(APIView):
             b2b_user_obj = B2BUser.objects.get(username = request.user.username)
             if check_account_status(b2b_user_obj) == True:
                 is_verified = True
+
+                conf = json.loads(b2b_user_obj.conf)
+                is_verified_shown = conf["isVerifiedShown"]
+                response["IsVerifiedShown"] = is_verified_shown
+
+                if is_verified_shown == False:
+                    conf["isVerifiedShown"] = True
+                    b2b_user_obj.conf = json.dumps(conf)
+                    b2b_user_obj.save()
+                response["status"] = 200
             
             response["IsVerified"] = is_verified
             response["status"] = 200
@@ -3813,6 +3837,7 @@ class SignUpCompletionAPI(APIView):
             vat_certificate = data["vat-certificate"]
             trade_license = data["trade-license"]
             passport_copy = data["passport-copy"]
+            vat_certificate_id = data["vat-certificate-id"]
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -3839,8 +3864,9 @@ class SignUpCompletionAPI(APIView):
                 b2b_user_obj.date_created = timezone.now()
                 b2b_user_obj.company_name = company_name
                 b2b_user_obj.vat_certificate = vat_certificate
-                b2b_user_obj.trade_license = trade_license   
+                b2b_user_obj.trade_license = trade_license 
                 b2b_user_obj.passport_copy = passport_copy
+                b2b_user_obj.vat_certificate_id = vat_certificate_id
                 is_new_user_created = True
 
                 dealshub_user_obj = DealsHubUser.objects.get(username = b2b_user_obj.username)
@@ -3848,6 +3874,10 @@ class SignUpCompletionAPI(APIView):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
                     FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+
+                conf = json.loads(b2b_user_obj.conf)
+                conf["isVerifiedShown"] =False
+                b2b_user_obj.conf = json.dumps(conf)
 
                 b2b_user_obj.save()
 
@@ -5805,6 +5835,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     temp_dict["emailId"] = order_request_obj.owner.email
                     temp_dict["contactNumber"] = order_request_obj.owner.contact_number
                     temp_dict["shippingAddress"] = shipping_address
+                    temp_dict["additionalNote"] = order_request_obj.additional_note
 
                     temp_dict["bundleId"] = order_request_obj.bundleid
                     temp_dict["uuid"] = order_request_obj.uuid
@@ -5817,7 +5848,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
 
                     unit_order_request_list = []
                     subtotal = 0
-                    for unit_order_request_obj in UnitOrderRequest.objects.filter(order_request=order_request_obj):
+                    unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
+                    for unit_order_request_obj in unit_order_request_objs:
                         temp_dict2 = {}
                         temp_dict2["orderRequestId"] = unit_order_request_obj.order_req_id
                         temp_dict2["requestStatus"] = unit_order_request_obj.request_status
@@ -5838,7 +5870,10 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     to_pay = order_request_obj.get_total_amount()
 
                     temp_dict["subtotal"] = str(subtotal)
-
+                    if order_request_obj.request_status == "Approved":
+                        temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
+                    else:
+                        temp_dict["totalQuantity"] = unit_order_request_objs.aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
                     temp_dict["deliveryFee"] = str(delivery_fee)
                     temp_dict["codFee"] = str(cod_fee)
                     temp_dict["toPay"] = str(to_pay)
@@ -8247,6 +8282,7 @@ class FetchB2BUserProfileAPI(APIView):
             response["contact_number"] = b2b_user_obj.contact_number
             response["emailId"] = b2b_user_obj.email
             response["companyName"] = b2b_user_obj.company_name
+            response["vatCertificateId"] = b2b_user_obj.vat_certificate_id
 
             response["vat_certificate"] = ""
             if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
@@ -8263,6 +8299,7 @@ class FetchB2BUserProfileAPI(APIView):
             response["vat_certificate_status"] = b2b_user_obj.vat_certificate_status
             response["passport_copy_status"] = b2b_user_obj.passport_copy_status
             response["trade_license_status"] = b2b_user_obj.trade_license_status
+            response["vat_certificate_id"] = b2b_user_obj.vat_certificate_id
 
             response["status"] = 200
 

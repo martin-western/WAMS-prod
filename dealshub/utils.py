@@ -222,15 +222,18 @@ def update_order_bill(order_obj):
     order_obj.save()
 
 
-def update_order_request_bill(order_request_obj,cod=False,offline=False, delivery_fee_calculate=True):
+def update_order_request_bill(order_request_obj,cod=False):
 
-    order_request_obj.to_pay = order_request_obj.get_total_amount(cod=cod,offline=offline, delivery_fee_calculate=delivery_fee_calculate)
-    order_request_obj.offline_delivery_fee = order_request_obj.get_delivery_fee(cod=cod,offline=offline, calculate=delivery_fee_calculate)
+    order_request_obj.to_pay = order_request_obj.get_total_amount(cod=cod)
+    order_request_obj.offline_delivery_fee = order_request_obj.get_delivery_fee(cod=cod)
 
     if order_request_obj.voucher!=None:
         voucher_obj = order_request_obj.voucher
-        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(order_request_obj.get_subtotal(offline=offline))==False or is_voucher_limt_exceeded_for_customer(order_request_obj.owner, voucher_obj):
+        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(order_request_obj.get_subtotal())==False or is_voucher_limt_exceeded_for_customer(order_request_obj.owner, voucher_obj):
             order_request_obj.voucher = None
+
+    order_request_obj.to_pay = order_request_obj.get_total_amount(cod=cod)
+    order_request_obj.offline_delivery_fee = order_request_obj.get_delivery_fee(cod=cod)
     order_request_obj.save()
 
 
@@ -343,7 +346,7 @@ def send_order_request_placed_mail(order_request_obj):
                 "order_placed_date": order_placed_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": order_request_obj.get_website_link()+"/orders/"+order_obj.uuid,
+                "website_order_link": order_request_obj.get_website_link()+"/orders/"+order_request_obj.uuid,
                 "email_content": email_content
             }
         )

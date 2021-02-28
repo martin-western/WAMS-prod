@@ -362,8 +362,6 @@ class DealsHubProduct(models.Model):
             if dealshub_user_obj == None:
                 return 0
             b2b_user_obj = B2BUser.objects.get(username=dealshub_user_obj.username)
-            logger.warning("check_account_status: ",check_account_status(b2b_user_obj))
-            logger.warning(b2b_user_obj.cohort)
             if check_account_status(b2b_user_obj)==True:
                 return self.was_price
             return 0
@@ -969,6 +967,9 @@ class OrderRequest(models.Model):
     def get_time_created(self):
         return str(timezone.localtime(self.date_created).strftime("%I:%M %p"))
 
+    def get_currency(self):
+        return str(self.location_group.location.currency)
+
     def get_email_website_logo(self):
         if self.location_group.website_group.footer_logo!=None:
             return self.location_group.website_group.footer_logo.image.url
@@ -984,7 +985,7 @@ class OrderRequest(models.Model):
         subtotal = 0
         for unit_order_request_obj in unit_order_request_objs:
             subtotal += float(unit_order_request_obj.final_price)*float(unit_order_request_obj.final_quantity)
-        return subtotal
+        return round(subtotal,2)
 
     def get_delivery_fee(self, cod=False):
         subtotal = self.get_subtotal()
@@ -1040,7 +1041,9 @@ class UnitOrderRequest(models.Model):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
-            order_prefix = ""
+            self.final_quantity = self.initial_quantity
+            self.final_price = self.initial_price
+            order_req_prefix = ""
             try:
                 order_req_prefix = json.loads(self.order_request.location_group.website_group.conf)["order_req_prefix"]
             except Exception as e:
@@ -1516,11 +1519,12 @@ class DealsHubUser(User):
 
 
 class B2BUser(DealsHubUser):
-    company_name = models.CharField(default="",max_length=50)
+    company_name = models.CharField(default="",max_length=250)
     interested_categories = models.ManyToManyField(Category,blank = True)
     vat_certificate = models.FileField(upload_to = 'vat_certificate',null=True, blank=True)
     trade_license = models.FileField(upload_to = 'trade_license',null=True,blank=True)
     passport_copy = models.FileField(upload_to = 'passport_copy',null=True,blank=True)
+    vat_certificate_id = models.CharField(default="",max_length=250)
 
     STATUS_OPTIONS = (
         ('Pending','Pending'),

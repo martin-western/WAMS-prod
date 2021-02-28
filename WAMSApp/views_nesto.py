@@ -51,6 +51,8 @@ class CreateNestoProductAPI(APIView):
             return_days = data["return_days"]
             product_status = data["product_status"]
 
+            sub_category_uuid = data.get("sub_category_uuid","")
+
             organization_obj = Organization.objects.get(name="Nesto Group")
 
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
@@ -59,6 +61,10 @@ class CreateNestoProductAPI(APIView):
             if created==True:
                 custom_permission_obj.brands.add(brand_obj)
                 custom_permission_obj.save()
+            
+            sub_category_obj = None
+            if sub_category_uuid!="":
+                sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
 
             nesto_product_obj = NestoProduct.objects.create(article_number=article_number,
                                                             product_name=product_name,
@@ -78,7 +84,9 @@ class CreateNestoProductAPI(APIView):
                                                             nutrition_facts=nutrition_facts,
                                                             ingredients=ingredients,
                                                             return_days=return_days,
-                                                            product_status=product_status)
+                                                            product_status=product_status,
+                                                            sub_category=sub_category_obj)
+
 
             response["product_uuid"] = nesto_product_obj.uuid
             response['status'] = 200
@@ -133,12 +141,20 @@ class UpdateNestoProductAPI(APIView):
             ingredients = data["ingredients"]
             return_days = data["return_days"]
             product_status = data["product_status"]
+            about_brand = data["about_brand"]
+
+            sub_category_uuid = data.get("sub_category_uuid","")
+            sub_category_obj = None
+            if sub_category_uuid!="":
+                sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
 
             organization_obj = Organization.objects.get(name="Nesto Group")
 
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
 
             brand_obj, created = Brand.objects.get_or_create(name=brand, organization=organization_obj)
+            brand_obj.description = about_brand
+            brand_obj.save()
             if created==True:
                 custom_permission_obj.brands.add(brand_obj)
                 custom_permission_obj.save()
@@ -162,6 +178,7 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.ingredients=ingredients
             nesto_product_obj.return_days=return_days
             nesto_product_obj.product_status = product_status
+            nesto_product_obj.sub_category = sub_category_obj
             nesto_product_obj.save()
 
             response['status'] = 200
@@ -230,6 +247,15 @@ class FetchNestoProductDetailsAPI(APIView):
             response["nutrition_facts"] = nesto_product_obj.nutrition_facts
             response["ingredients"] = nesto_product_obj.ingredients
             response["return_days"] = nesto_product_obj.return_days
+
+            if nesto_product_obj.sub_category!=None:
+                response["sub_category"] = nesto_product_obj.sub_category.name
+                response["sub_category_uuid"] = nesto_product_obj.sub_category.uuid
+                response["category"] = nesto_product_obj.sub_category.category.name
+                response["category_uuid"] = nesto_product_obj.sub_category.category.uuid
+                response["super_category"] = nesto_product_obj.sub_category.category.super_category.name
+                response["super_category_uuid"] = nesto_product_obj.sub_category.category.super_category.uuid
+
 
             front_images = self.get_images_list(nesto_product_obj.front_images.all())
             back_images = self.get_images_list(nesto_product_obj.back_images.all())
@@ -393,6 +419,10 @@ class FetchNestoProductListAPI(APIView):
                     temp_dict["ingredients"] = nesto_product_obj.ingredients
                     temp_dict["return_days"] = nesto_product_obj.return_days
                     temp_dict["product_status"] = nesto_product_obj.product_status
+                    if nesto_product_obj.sub_category!=None:
+                        temp_dict["sub_category"] = nesto_product_obj.sub_category.name
+                        temp_dict["category"] = nesto_product_obj.sub_category.category.name
+                        temp_dict["super_category"] = nesto_product_obj.sub_category.category.super_category.name
                     front_images = []
                     for image_obj in nesto_product_obj.front_images.all():
                         try:
