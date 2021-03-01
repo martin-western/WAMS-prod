@@ -9,6 +9,7 @@ from django.core.files.storage import default_storage
 
 import logging
 import json
+import pandas as pd
 logger = logging.getLogger(__name__)
 
 
