@@ -829,8 +829,10 @@ class BulkUploadNestoProductsAPI(APIView):
                 response["message"] = "the sheet has more number of colomns then expected"
                 return Response(data=response)
             
+            logger.info("check %s and len: %s", dfs.iloc[0][0], len(dfs.columns))
+
             flag = 0
-            for i in range(len(dfs.columns)):
+            for i in range(len(static_headers)):
                 if str(dfs.iloc[0][i]).strip() != static_headers[i]:
                     flag=1
                     break
