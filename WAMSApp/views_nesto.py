@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.core.files.storage import default_storage
 
 import logging
 import json
@@ -794,6 +795,145 @@ class FetchNestoBrandsAPI(APIView):
         return Response(data=response)
 
 
+class BulkUploadNestoProductsAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+    
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUploadNestoProductsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            path = default_storage.save('tmp/bulk-upload-nesto-products.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            try:
+                dfs = pd.read_excel(path, sheet_name=None, header=None)["Sheet1"]
+                dfs = dfs.fillna("")
+            except Exception as e:
+                response['status'] = 1
+                response['message'] = "the sheet_file or sheet_name is not proper"
+                return Response(data=response)
+            
+            static_headers = ["Article No *","Barcode","UOM","Article Name *","Language Key *","Brand *","Weight/Volume","Country of Origin *","Storage Condition","Warning","Preparation and Usage","Allergic Information","About Brand *","Highlights *(Rich Text)","Product Description (Details) *","Nutrition facts *(Rich Text)","Ingredients *"]
+
+            if len(dfs.columns) != len(static_headers):
+                response["status"] = 2
+                response["message"] = "the sheet has more number of colomns then expected"
+                return Response(data=response)
+            
+            flag = 0
+            for i in range(len(dfs.columns)):
+                if str(dfs.iloc[0][i]).strip() != static_headers[i]:
+                    flag=1
+                    break
+            
+            if flag==1:
+                response["status"] = 3
+                response["message"] = "the order or naming of the headers not according to the sample template"
+                return Response(data=response)
+            
+            organization_obj = Organization.objects.get(name="Nesto Group")
+            rows = len(dfs.iloc[:])
+            cnt = 0
+            excel_errors = []
+            for i in range(1,rows):
+                try:
+                    cnt += 1
+                    article_no = "" if str(dfs.iloc[i][0]).strip()=="nan" else str(dfs.iloc[i][0]).strip()
+                    barcode = "" if str(dfs.iloc[i][1]).strip()=="nan" else str(dfs.iloc[i][1]).strip()
+                    uom = "" if str(dfs.iloc[i][2]).strip()=="nan" else str(dfs.iloc[i][2]).strip()
+                    article_name = "" if str(dfs.iloc[i][3]).strip()=="nan" else str(dfs.iloc[i][3]).strip()
+                    language_key = "" if str(dfs.iloc[i][4]).strip()=="nan" else str(dfs.iloc[i][4]).strip()
+                    brand_name = "" if str(dfs.iloc[i][5]).strip()=="nan" else str(dfs.iloc[i][5]).strip()
+                    weight_volume = "" if str(dfs.iloc[i][6]).strip()=="nan" else str(dfs.iloc[i][6]).strip()
+                    country_of_origin = "" if str(dfs.iloc[i][7]).strip()=="nan" else str(dfs.iloc[i][7]).strip()
+                    storage_condition = "" if str(dfs.iloc[i][8]).strip()=="nan" else str(dfs.iloc[i][8]).strip()
+                    warning = "" if str(dfs.iloc[i][9]).strip()=="nan" else str(dfs.iloc[i][9]).strip()
+                    prep_and_usage = "" if str(dfs.iloc[i][10]).strip()=="nan" else str(dfs.iloc[i][10]).strip()
+                    allergic_info = "" if str(dfs.iloc[i][11]).strip()=="nan" else str(dfs.iloc[i][11]).strip()
+                    about_brand = "" if str(dfs.iloc[i][12]).strip()=="nan" else str(dfs.iloc[i][12]).strip()
+                    highlights = "" if str(dfs.iloc[i][13]).strip()=="nan" else str(dfs.iloc[i][13]).strip()
+                    prod_description = "" if str(dfs.iloc[i][14]).strip()=="nan" else str(dfs.iloc[i][14]).strip()
+                    nutrition_facts = "" if str(dfs.iloc[i][15]).strip()=="nan" else str(dfs.iloc[i][15]).strip()
+                    ingredients = "" if str(dfs.iloc[i][16]).strip()=="nan" else str(dfs.iloc[i][16]).strip()
+                    product_status = ""
+                    if article_no!="" and barcode!="" and article_name!="":
+                        product_status = "not ecommerce"
+                    if product_status=="not ecommerce" and brand_name!="" and language_key!="" and weight_volume!="" and country_of_origin!="" and storage_condition!="" and allergic_info!="" and  nutrition_facts!="" and  ingredients!="":
+                        product_status = "ecommerce"
+                    if product_status=="ecommerce" and uom!="" and about_brand!="" and prod_description!="":
+                        product_status = "rich"
+                    return_days = "7"
+                    nesto_product_objs = NestoProduct.objects.filter(barcode=barcode)
+                    if nesto_product_objs.count()==0:
+                        brand_obj, created = Brand.objects.get_or_create(name=brand_name, organization=organization_obj)
+                        brand_obj.description = about_brand
+                        brand_obj.save()
+                        nesto_product_obj = NestoProduct.objects.create(article_number=article_no,
+                                                                        barcode=barcode,
+                                                                        uom=uom,
+                                                                        language_key=language_key,
+                                                                        product_name=article_name,
+                                                                        product_name_ecommerce=article_name,
+                                                                        brand=brand_obj,
+                                                                        weight_volume=weight_volume,
+                                                                        country_of_origin=country_of_origin,
+                                                                        storage_condition=storage_condition,
+                                                                        preparation_and_usage=prep_and_usage,
+                                                                        allergic_information=allergic_info,
+                                                                        highlights=highlights,
+                                                                        product_description=prod_description,
+                                                                        nutrition_facts=nutrition_facts,
+                                                                        ingredients=ingredients,
+                                                                        product_status=product_status,
+                                                                        return_days=return_days
+                                                                        )
+                    elif nesto_product_objs.count()==1:
+                        nesto_product_obj = nesto_product_objs[0]
+                        nesto_product_obj.article_number = article_no
+                        nesto_product_obj.uom = uom
+                        nesto_product_obj.language_key = language_key
+                        nesto_product_obj.product_name = article_name
+                        nesto_product_obj.product_name_ecommerce = article_name
+                        brand_obj , created = Brand.objects.get_or_create(name=brand_name, organization=organization_obj)
+                        brand_obj.description = about_brand
+                        brand_obj.save()
+                        nesto_product_obj.brand = brand_obj
+                        nesto_product_obj.weight_volume=weight_volume
+                        nesto_product_obj.country_of_origin=country_of_origin
+                        nesto_product_obj.storage_condition=storage_condition
+                        nesto_product_obj.preparation_and_usage=prep_and_usage
+                        nesto_product_obj.allergic_information=allergic_info
+                        nesto_product_obj.highlights=highlights
+                        nesto_product_obj.product_description=prod_description
+                        nesto_product_obj.nutrition_facts=nutrition_facts
+                        nesto_product_obj.ingredients=ingredients
+                        nesto_product_obj.product_status=product_status
+                        nesto_product_obj.return_days=return_days
+                        nesto_product_obj.save()
+                    else:
+                        excel_errors.append({
+                            "article_no":barcode,
+                            "message":"barcode is not unique"
+                        })
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("BulkUploadNestoProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+           
+            response['excel_errors'] = excel_errors
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUploadNestoProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 CreateNestoProduct = CreateNestoProductAPI.as_view()
 
 UpdateNestoProduct = UpdateNestoProductAPI.as_view()
@@ -815,3 +955,5 @@ LinkNestoProduct = LinkNestoProductAPI.as_view()
 UnLinkNestoProduct = UnLinkNestoProductAPI.as_view()
 
 FetchNestoBrands = FetchNestoBrandsAPI.as_view()
+
+BulkUploadNestoProducts = BulkUploadNestoProductsAPI.as_view()
