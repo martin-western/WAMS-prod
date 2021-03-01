@@ -815,6 +815,8 @@ class BulkUploadNestoProductsAPI(APIView):
                 dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
                 dfs = dfs.fillna("")
             except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("BulkUploadNestoProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 response['status'] = 1
                 response['message'] = "the sheet_file or sheet_name is not proper"
                 return Response(data=response)
