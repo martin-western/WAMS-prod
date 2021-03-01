@@ -837,6 +837,7 @@ class BulkUploadNestoProductsAPI(APIView):
                 response["message"] = "the order or naming of the headers not according to the sample template"
                 return Response(data=response)
             
+            organization_obj = Organization.objects.get(name="Nesto Group")
             rows = len(dfs.iloc[:])
             cnt = 0
             excel_errors = []
@@ -870,7 +871,7 @@ class BulkUploadNestoProductsAPI(APIView):
                     return_days = "7"
                     nesto_product_objs = NestoProduct.objects.filter(barcode=barcode)
                     if nesto_product_objs.count()==0:
-                        brand_obj, created = Brand.objects.get_or_create(name=brand_name, organization=o)
+                        brand_obj, created = Brand.objects.get_or_create(name=brand_name, organization=organization_obj)
                         brand_obj.description = about_brand
                         brand_obj.save()
                         nesto_product_obj = NestoProduct.objects.create(article_number=article_no,
@@ -899,7 +900,7 @@ class BulkUploadNestoProductsAPI(APIView):
                         nesto_product_obj.language_key = language_key
                         nesto_product_obj.product_name = article_name
                         nesto_product_obj.product_name_ecommerce = article_name
-                        brand_obj , created = Brand.objects.get_or_create(name=brand_name, organization=o)
+                        brand_obj , created = Brand.objects.get_or_create(name=brand_name, organization=organization_obj)
                         brand_obj.description = about_brand
                         brand_obj.save()
                         nesto_product_obj.brand = brand_obj
