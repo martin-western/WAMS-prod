@@ -812,7 +812,7 @@ class BulkUploadNestoProductsAPI(APIView):
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
 
             try:
-                dfs = pd.read_excel(path, sheet_name=None, header=None)["Sheet1"]
+                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
                 dfs = dfs.fillna("")
             except Exception as e:
                 response['status'] = 1
