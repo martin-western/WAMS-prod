@@ -779,6 +779,7 @@ class FetchNestoBrandsAPI(APIView):
             for brand_obj in brand_objs:
                 temp_dict = {}
                 temp_dict["name"] = brand_obj.name
+                temp_dict["about_brand"] = brand_obj.description
                 temp_dict["name_ar"] = brand_obj.name_ar
                 temp_dict["pk"] = brand_obj.pk
                 brand_name_list.append(temp_dict)
