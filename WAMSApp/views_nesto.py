@@ -832,10 +832,12 @@ class BulkUploadNestoProductsAPI(APIView):
             logger.info("check %s", len(dfs.columns))
 
             flag = 0
+            i = 0
             for col in list(dfs.columns.values):
                 if col != static_headers[i]:
                     flag=1
                     break
+                i += 1
             
             if flag==1:
                 response["status"] = 3
