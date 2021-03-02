@@ -6016,8 +6016,7 @@ class SetShippingMethodAPI(APIView):
 
             sap_info_render = []
             
-            wigme_website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-            if order_obj.location_group.website_group==wigme_website_group_obj and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
+            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
 
                 user_input_requirement = {}
                 
@@ -6228,8 +6227,7 @@ class ResendSAPOrderAPI(APIView):
 
             sap_info_render = []
             
-            wigme_website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-            if order_obj.location_group.website_group==wigme_website_group_obj:
+            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"]:
 
                 user_input_requirement = {}
                 
