@@ -848,7 +848,7 @@ class BulkUploadNestoProductsAPI(APIView):
             rows = len(dfs.iloc[:])
             cnt = 0
             excel_errors = []
-            for i in range(1,rows):
+            for i in range(rows):
                 try:
                     cnt += 1
                     article_no = "" if str(dfs.iloc[i][0]).strip()=="nan" else str(dfs.iloc[i][0]).strip()
