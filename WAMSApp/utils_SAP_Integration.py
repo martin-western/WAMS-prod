@@ -451,6 +451,7 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
 
         else :
             result["SAP_message"] = "NO HOLDING TRANSFER"
+            result["total_holding_after"] = result["total_holding_before"]
             logger.info("holding_atp_transfer : Nothing to transfer to Holding in this call",seller_sku)
             return result
 
