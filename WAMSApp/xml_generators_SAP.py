@@ -175,7 +175,7 @@ def xml_generator_for_intercompany_tansfer(company_code,customer_id,order_inform
                                  <IM_REGION>""" + str(order_information["region"])+ """</IM_REGION>
                                  <IM_TELEPHONE>""" + str(order_information["telephone"])+ """</IM_TELEPHONE>
                                  <IM_EMAIL>""" + str(order_information["email"])+ """</IM_EMAIL>
-                                 <IM_STCEG>""" + str(order_information["vat"])+ """</IM_STCEG>"""
+                                 <IM_STCEG>""" + str(order_information["trn"])+ """</IM_STCEG>"""
                              
         xml_feed +=         """<T_CONDITION>
                                   <item>
