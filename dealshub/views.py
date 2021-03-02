@@ -5469,6 +5469,7 @@ class FetchSalesTargetsListAPI(APIView):
                 temp_dict["monthly_orders_target"] = sales_target_obj.monthly_orders_target
                 sales_target_list.append(temp_dict)
             
+            response["currency"] = location_group_obj.location.currency
             response["sales_target_list"] = sales_target_list
             response['status'] = 200
         except Exception as e:
