@@ -5950,7 +5950,6 @@ class SetShippingMethodAPI(APIView):
 
             shipping_method = data["shippingMethod"]
             unit_order_uuid_list = data["unitOrderUuidList"]
-            location_group_uuid = data["locationGroupUuid"]
 
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
 
@@ -6096,8 +6095,7 @@ class SetShippingMethodAPI(APIView):
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
-                        location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-                        is_b2b = location_group_obj.is_b2b
+                        is_b2b = order_obj.location_group.is_b2b
                         order_information["is_b2b"] = is_b2b
                         if is_b2b==True:
                             order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
@@ -6308,8 +6306,7 @@ class ResendSAPOrderAPI(APIView):
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
-                        location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-                        is_b2b = location_group_obj.is_b2b
+                        is_b2b = order_obj.location_group.is_b2b
                         order_information["is_b2b"] = is_b2b
                         if is_b2b==True:
                             order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
