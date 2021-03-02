@@ -6105,6 +6105,15 @@ class SetShippingMethodAPI(APIView):
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
+                        is_b2b = order_obj.location_group.is_b2b
+                        order_information["is_b2b"] = is_b2b
+                        if is_b2b==True:
+                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                            order_information["region"] = order_obj.shipping_address.state
+                            order_information["telephone"] = order_obj.shipping_address.contact_number
+                            order_information["email"] = order_obj.owner.email
+                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            order_information["trn"] = b2b_user_obj.vat_certificate_id
                         order_information["items"] = []
                         
                         for unit_order_obj in grouped_unit_orders[brand_name]:
@@ -6307,6 +6316,15 @@ class ResendSAPOrderAPI(APIView):
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
+                        is_b2b = order_obj.location_group.is_b2b
+                        order_information["is_b2b"] = is_b2b
+                        if is_b2b==True:
+                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                            order_information["region"] = order_obj.shipping_address.state
+                            order_information["telephone"] = order_obj.shipping_address.contact_number
+                            order_information["email"] = order_obj.owner.email
+                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            order_information["trn"] = b2b_user_obj.vat_certificate_id
                         order_information["items"] = []
                         
                         for unit_order_obj in grouped_unit_orders[brand_name]:
