@@ -2824,9 +2824,19 @@ class FetchCustomerDetailsAPI(APIView):
                 b2b_user_obj = B2BUser.objects.get(username = dealshub_user_obj.username)
                 temp_dict["cohort"] = b2b_user_obj.cohort
                 temp_dict["companyName"] = b2b_user_obj.company_name
-                temp_dict["vatCertification"] = b2b_user_obj.vat_certificate.url
-                temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
-                temp_dict["passportCopy"] = b2b_user_obj.passport_copy.url
+
+                temp_dict["vatCertificate"]=""
+                if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
+                    temp_dict["vatCertificate"] = b2b_user_obj.vat_certificate.url
+                
+                temp_dict["passportCopy"] = ""
+                if b2b_user_obj.passport_copy!=None and b2b_user_obj.passport_copy!="":
+                    temp_dict["passportCopy"] = b2b_user_obj.passport_copy.url
+
+                temp_dict["tradeLicense"] = ""
+                if b2b_user_obj.trade_license!=None and b2b_user_obj.trade_license!="":
+                    temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
+
                 temp_dict["vatCertificateStatus"] = b2b_user_obj.vat_certificate_status
                 temp_dict["tradeLicenseStatus"] = b2b_user_obj.trade_license_status
                 temp_dict["passportCopyStatus"] = b2b_user_obj.passport_copy_status
