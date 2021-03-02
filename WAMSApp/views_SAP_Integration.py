@@ -296,12 +296,13 @@ class UpdateProductHoldingDetailsAPI(APIView):
                 try :
                     transfer_result = holding_atp_transfer(data_seller_sku,company_code,final_holding)
                     SAP_message = transfer_result["SAP_message"]
-                    
                     if SAP_message != "NO HOLDING TRANSFER" and SAP_message != "Successfully Updated.":
                         response["seller_sku"] = data_seller_sku
                         response['error_message'] = SAP_message
                         response['status'] = 503
                         return Response(data=response)
+                    dealshub_product_obj.stock = transfer_result["total_holding_after"]
+                    dealshub_product_obj.save()
                 except Exception as e:
                     response["message"] = "INTERNAL ERROR"
                     response['status'] = 501
