@@ -169,8 +169,15 @@ def xml_generator_for_intercompany_tansfer(company_code,customer_id,order_inform
                                <IM_PO_NUMBER>"""+ str(order_information["refrence_id"]) +"""</IM_PO_NUMBER>
                                <IM_SPART></IM_SPART>
                                <IM_VKORG>""" + str(company_code) + """</IM_VKORG>
-                               <IM_VTWEG></IM_VTWEG>
-                               <T_CONDITION>
+                               <IM_VTWEG></IM_VTWEG>"""
+        if order_information["is_b2b"]==True:
+           xml_feed +="""        <IM_STREET>""" + str(order_information["street"])+ """</IM_STREET>
+                                 <IM_REGION>""" + str(order_information["region"])+ """</IM_REGION>
+                                 <IM_TELEPHONE>""" + str(order_information["telephone"])+ """</IM_TELEPHONE>
+                                 <IM_EMAIL>""" + str(order_information["email"])+ """</IM_EMAIL>
+                                 <IM_STCEG>""" + str(order_information["vat"])+ """</IM_STCEG>"""
+                             
+        xml_feed +=         """<T_CONDITION>
                                   <item>
                                      <KPOSN></KPOSN>
                                      <KSCHL></KSCHL>

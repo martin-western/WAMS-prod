@@ -2831,6 +2831,8 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict["tradeLicenseStatus"] = b2b_user_obj.trade_license_status
                 temp_dict["passportCopyStatus"] = b2b_user_obj.passport_copy_status
                 temp_dict["vatCertificateId"] = b2b_user_obj.vat_certificate_id
+                temp_dict["passportCopyId"] = b2b_user_obj.passport_copy_id
+                temp_dict["tradeLicenseId"] = b2b_user_obj.trade_license_id
             temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
             try:
                 if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date!=None:
@@ -2930,6 +2932,8 @@ class UpdateB2BCustomerStatusAPI(APIView):
             email_id = data["emailId"]
             cohort = data["cohort"]
             vat_certificate_id = data["vatCertificateId"]
+            trade_license_id = data["tradeLicenseId"]
+            passport_copy_id = data["passportCopyId"]
 
             if data.get("vat-certificate","") != "":
                 b2b_user_obj.vat_certificate = data["vat-certificate"]
@@ -2946,6 +2950,8 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.passport_copy_status = passport_copy_status
             b2b_user_obj.cohort = cohort
             b2b_user_obj.vat_certificate_id = vat_certificate_id
+            b2b_user_obj.trade_license_id = trade_license_id
+            b2b_user_obj.passport_copy_id = passport_copy_id
             b2b_user_obj.save()
 
             response["status"] = 200
@@ -3837,7 +3843,9 @@ class SignUpCompletionAPI(APIView):
             vat_certificate = data["vat-certificate"]
             trade_license = data["trade-license"]
             passport_copy = data["passport-copy"]
-            vat_certificate_id = data["vat-certificate-id"]
+            vat_certificate_id = data.get("vat-certificate-id","")
+            passport_copy_id = data.get("passport-copy-id","")
+            trade_license_id = data.get("trade-license-id","")
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -3867,6 +3875,8 @@ class SignUpCompletionAPI(APIView):
                 b2b_user_obj.trade_license = trade_license 
                 b2b_user_obj.passport_copy = passport_copy
                 b2b_user_obj.vat_certificate_id = vat_certificate_id
+                b2b_user_obj.trade_license_id = trade_license_id
+                b2b_user_obj.passport_copy_id = passport_copy_id
                 is_new_user_created = True
 
                 dealshub_user_obj = DealsHubUser.objects.get(username = b2b_user_obj.username)
@@ -6094,6 +6104,15 @@ class SetShippingMethodAPI(APIView):
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
+                        is_b2b = order_obj.location_group.is_b2b
+                        order_information["is_b2b"] = is_b2b
+                        if is_b2b==True:
+                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                            order_information["region"] = order_obj.shipping_address.state
+                            order_information["telephone"] = order_obj.shipping_address.contact_number
+                            order_information["email"] = order_obj.owner.email
+                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            order_information["trn"] = b2b_user_obj.vat_certificate_id
                         order_information["items"] = []
                         
                         for unit_order_obj in grouped_unit_orders[brand_name]:
@@ -6295,6 +6314,15 @@ class ResendSAPOrderAPI(APIView):
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
+                        is_b2b = order_obj.location_group.is_b2b
+                        order_information["is_b2b"] = is_b2b
+                        if is_b2b==True:
+                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                            order_information["region"] = order_obj.shipping_address.state
+                            order_information["telephone"] = order_obj.shipping_address.contact_number
+                            order_information["email"] = order_obj.owner.email
+                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            order_information["trn"] = b2b_user_obj.vat_certificate_id
                         order_information["items"] = []
                         
                         for unit_order_obj in grouped_unit_orders[brand_name]:
@@ -8281,6 +8309,8 @@ class FetchB2BUserProfileAPI(APIView):
             response["emailId"] = b2b_user_obj.email
             response["companyName"] = b2b_user_obj.company_name
             response["vatCertificateId"] = b2b_user_obj.vat_certificate_id
+            response["passportCopyId"] = b2b_user_obj.passport_copy_id
+            response["tradeLicenseId"] = b2b_user_obj.trade_license_id
 
             response["vat_certificate"] = ""
             if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":

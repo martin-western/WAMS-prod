@@ -1525,6 +1525,8 @@ class B2BUser(DealsHubUser):
     trade_license = models.FileField(upload_to = 'trade_license',null=True,blank=True)
     passport_copy = models.FileField(upload_to = 'passport_copy',null=True,blank=True)
     vat_certificate_id = models.CharField(default="",max_length=250)
+    trade_license_id = models.CharField(default="",max_length=250)
+    passport_copy_id = models.CharField(default="",max_length=250)
 
     STATUS_OPTIONS = (
         ('Pending','Pending'),
