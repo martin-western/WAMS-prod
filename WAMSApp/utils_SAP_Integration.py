@@ -375,28 +375,44 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
             return result
         
         if final_holding <= total_atp:
+ 
+            if final_holding < total_holding:
 
-            total_holding_transfer = final_holding
+                change_in_holding = total_holding - final_holding
+                while change_in_holding > 0:
 
-            while total_holding_transfer > 0:
-    
-                for item in prices_and_stock_information["stock_list"]:
+                    for item in prices_and_stock_information["stock_list"]:
+                        transfer_here = min(change_in_holding,item["holding_qty"])
+                        temp_dict = {}
+                        temp_dict["seller_sku"] = seller_sku
+                        temp_dict["qty"] = item["holding_qty"] - transfer_here 
+                        temp_dict["uom"] = item["uom"]
+                        temp_dict["batch"] = item["batch"]
+                        transfer_information.append(temp_dict)
 
-                    if item["atp_qty"] >= total_holding_transfer:
+                        change_in_holding = change_in_holding - transfer_here
+
+                        if change_in_holding == 0:
+                            break 
+            else:
+                total_holding_transfer = final_holding - total_holding
+                while total_holding_transfer > 0:
+        
+                    for item in prices_and_stock_information["stock_list"]:
 
                         transfer_here = min(total_holding_transfer,item["atp_qty"])
                         
                         temp_dict = {}
                         temp_dict["seller_sku"] = seller_sku
-                        temp_dict["qty"] = transfer_here
+                        temp_dict["qty"] = item["holding_qty"] + transfer_here
                         temp_dict["uom"] = item["uom"]
                         temp_dict["batch"] = item["batch"]
                         transfer_information.append(temp_dict)
 
                         total_holding_transfer = total_holding_transfer-transfer_here
 
-                    if total_holding_transfer == 0:
-                        break
+                        if total_holding_transfer == 0:
+                            break
         
         if len(transfer_information) > 0:
             body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
