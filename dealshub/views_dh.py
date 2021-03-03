@@ -142,7 +142,7 @@ class FetchWishListAPI(APIView):
                 temp_dict["uuid"] = unit_wish_list_obj.uuid
                 temp_dict["price"] = unit_wish_list_obj.product.get_actual_price_for_customer(dealshub_user_obj)
                 temp_dict["currency"] = unit_wish_list_obj.product.get_currency()
-                temp_dict["moq"] = unit_wish_list.product.get_moq(dealshub_user_obj)
+                temp_dict["moq"] = unit_wish_list_obj.product.get_moq(dealshub_user_obj)
                 temp_dict["dateCreated"] = unit_wish_list_obj.get_date_created()
                 temp_dict["productName"] = unit_wish_list_obj.product.get_name(language_code)
                 temp_dict["productImageUrl"] = unit_wish_list_obj.product.get_display_image_url()
