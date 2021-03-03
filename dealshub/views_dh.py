@@ -6586,8 +6586,22 @@ class SetCallStatusAPI(APIView):
             order_uuid  = data["orderUuid"]
 
             order_obj = Order.objects.get(uuid=order_uuid)
+            old_call_status = order_obj.call_status
             order_obj.call_status = updated_call_status
             order_obj.save()
+
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            call_status_change_information = {
+                "event": "call_status",
+                "information": {
+                    "old_status": old_call_status,
+                    "new_status": updated_call_status
+                }
+            }
+
+            VersionOrder.objects.create(order=order_obj,
+                                        user= omnycomm_user,
+                                        change_information=json.dumps(call_status_change_information))
 
             response['status'] = 200
         except Exception as e:
