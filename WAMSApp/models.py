@@ -1296,6 +1296,18 @@ class NestoProduct(models.Model):
     modified_date = models.DateTimeField(null=True, blank=True)
     uuid = models.CharField(default="", max_length=200, unique=True)
 
+    VENDORS_TYPE = (
+        ("Market", "Market"),
+        ("Own Brand", "Own Brand"),
+        ("Four Digit", "Four Digit"),
+        ("Extras", "Extras"),
+        ("Vendor", "Vendor"),
+    )
+
+    vendor_category = models.CharField(default="", choices=VENDORS_TYPE, blank=True, max_length=50)
+    is_online = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
+
     def save(self, *args, **kwargs):
         
         if self.pk == None:

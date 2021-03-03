@@ -53,6 +53,9 @@ class CreateNestoProductAPI(APIView):
             return_days = data["return_days"]
             product_status = data["product_status"]
             about_brand = data["about_brand"]
+            is_verified = data["is_verified"]
+            is_online = data["is_online"]
+            vendor_category = data["vendor_category"]
 
             sub_category_uuid = data.get("sub_category_uuid","")
 
@@ -90,6 +93,9 @@ class CreateNestoProductAPI(APIView):
                                                             ingredients=ingredients,
                                                             return_days=return_days,
                                                             product_status=product_status,
+                                                            is_verified=is_verified,
+                                                            is_online=is_online,
+                                                            vendor_category=vendor_category,
                                                             sub_category=sub_category_obj)
 
 
@@ -147,6 +153,9 @@ class UpdateNestoProductAPI(APIView):
             return_days = data["return_days"]
             product_status = data["product_status"]
             about_brand = data["about_brand"]
+            is_verified = data["is_verified"]
+            is_online = data["is_online"]
+            vendor_category = data["vendor_category"]
 
             sub_category_uuid = data.get("sub_category_uuid","")
             sub_category_obj = None
@@ -183,6 +192,9 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.ingredients=ingredients
             nesto_product_obj.return_days=return_days
             nesto_product_obj.product_status = product_status
+            nesto_product_obj.vendor_category = vendor_category
+            nesto_product_obj.is_online = is_online
+            nesto_product_obj.is_verified = is_verified
             nesto_product_obj.sub_category = sub_category_obj
             nesto_product_obj.save()
 
@@ -252,6 +264,9 @@ class FetchNestoProductDetailsAPI(APIView):
             response["nutrition_facts"] = nesto_product_obj.nutrition_facts
             response["ingredients"] = nesto_product_obj.ingredients
             response["return_days"] = nesto_product_obj.return_days
+            response["is_verified"] = nesto_product_obj.is_verified
+            response["is_online"] = nesto_product_obj.is_online
+            response["vendor_category"] = nesto_product_obj.vendor_category
 
             if nesto_product_obj.sub_category!=None:
                 response["sub_category"] = nesto_product_obj.sub_category.name
@@ -330,6 +345,21 @@ class FetchNestoProductListAPI(APIView):
                 product_status = filter_parameters["product_status"]
                 if product_status!="all":
                     nesto_product_objs = nesto_product_objs.filter(product_status=product_status)
+
+            if "is_online" in filter_parameters:
+                is_online = filter_parameters["is_online"]
+                if is_online!=None and is_online!="":
+                    nesto_product_objs = nesto_product_objs.filter(is_online=is_online)
+
+            if "is_verified" in filter_parameters:
+                is_verified = filter_parameters["is_verified"]
+                if is_verified!=None and is_verified!="":
+                    nesto_product_objs = nesto_product_objs.filter(is_verified=is_verified)
+
+            if "vendor_category" in filter_parameters:
+                vendor_category = filter_parameters["vendor_category"]
+                if vendor_category!=None and vendor_category!="all":
+                    nesto_product_objs = nesto_product_objs.filter(vendor_category=vendor_category)
 
             if "has_image" in filter_parameters:
                 has_image = filter_parameters["has_image"]
@@ -424,6 +454,9 @@ class FetchNestoProductListAPI(APIView):
                     temp_dict["ingredients"] = nesto_product_obj.ingredients
                     temp_dict["return_days"] = nesto_product_obj.return_days
                     temp_dict["product_status"] = nesto_product_obj.product_status
+                    temp_dict["is_verified"] = nesto_product_obj.is_verified
+                    temp_dict["is_online"] = nesto_product_obj.is_online
+                    temp_dict["vendor_category"] = nesto_product_obj.vendor_category
                     if nesto_product_obj.sub_category!=None:
                         temp_dict["sub_category"] = nesto_product_obj.sub_category.name
                         temp_dict["category"] = nesto_product_obj.sub_category.category.name
