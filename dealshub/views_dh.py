@@ -1573,6 +1573,7 @@ class ProcessOrderRequestAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             unit_order_requests = data["UnitOrderRequests"]
             request_status = data["requestStatus"]
+            admin_note = data.get("adminNote","")
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
 
@@ -1587,6 +1588,7 @@ class ProcessOrderRequestAPI(APIView):
                 unit_order_request_obj.save()
 
             order_request_obj.request_status = request_status
+            order_request_obj.admin_note = admin_note
             order_request_obj.save()
 
             if order_request_obj.payment_mode == "COD" or order_request_obj.payment_mode == "CHEQUE":
@@ -1614,7 +1616,8 @@ class ProcessOrderRequestAPI(APIView):
                                                  location_group=order_request_obj.location_group,
                                                  delivery_fee=order_request_obj.get_delivery_fee(),
                                                  cod_charge=order_request_obj.location_group.cod_charge,
-                                                 additional_note=order_request_obj.additional_note)
+                                                 additional_note=order_request_obj.additional_note,
+                                                 admin_note = order_request_obj.admin_note)
 
                 for unit_order_request_obj in unit_order_request_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -1718,6 +1721,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
                                              merchant_reference=merchant_reference,
                                              bundleid=order_request_obj.merchant_reference,
                                              additional_note=order_request_obj.additional_note,
+                                             admin_note = order_request_obj.admin_note,
                                              cod_charge=0)
 
             unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj).exclude(request_status="Rejected")
@@ -1728,7 +1732,6 @@ class PlaceB2BOnlineOrderAPI(APIView):
                                                           quantity=unit_order_request_obj.final_quantity,
                                                           price=unit_order_request_obj.final_price)
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
-
 
             order_request_obj.is_placed = True
             order_request_obj.save()
