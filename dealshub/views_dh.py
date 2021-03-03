@@ -2121,7 +2121,6 @@ class FetchOrderRequestListAPI(APIView):
                     temp_dict["uuid"] = order_request_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     temp_dict["additionalNote"] = order_request_obj.additional_note
-                    temp_dict["adminNote"] = order_request_obj.admin_note
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                     temp_dict["shippingAddress"] = order_request_obj.shipping_address.get_shipping_address()
@@ -5863,6 +5862,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     temp_dict["contactNumber"] = order_request_obj.owner.contact_number
                     temp_dict["shippingAddress"] = shipping_address
                     temp_dict["additionalNote"] = order_request_obj.additional_note
+                    temp_dict["adminNote"] = order_request_obj.admin_note
 
                     temp_dict["bundleId"] = order_request_obj.bundleid
                     temp_dict["uuid"] = order_request_obj.uuid
