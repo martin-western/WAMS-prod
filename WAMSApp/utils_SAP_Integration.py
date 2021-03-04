@@ -388,7 +388,8 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
                         temp_dict["qty"] = item["holding_qty"] - transfer_here # final value of holding for this batch.
                         temp_dict["uom"] = item["uom"]
                         temp_dict["batch"] = item["batch"]
-                        transfer_information.append(temp_dict)
+                        if temp_dict["qty"] > 0:
+                            transfer_information.append(temp_dict)
 
                         change_in_holding = change_in_holding - transfer_here
 
@@ -397,7 +398,7 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
             else:  # if inc the holding
                 total_holding_transfer = final_holding - total_holding
                 while total_holding_transfer > 0:
-        
+
                     for item in prices_and_stock_information["stock_list"]:
 
                         transfer_here = min(total_holding_transfer,item["atp_qty"])
@@ -407,7 +408,8 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
                         temp_dict["qty"] = item["holding_qty"] + transfer_here
                         temp_dict["uom"] = item["uom"]
                         temp_dict["batch"] = item["batch"]
-                        transfer_information.append(temp_dict)
+                        if temp_dict["qty"] > 0:
+                            transfer_information.append(temp_dict)
 
                         total_holding_transfer = total_holding_transfer-transfer_here
 
