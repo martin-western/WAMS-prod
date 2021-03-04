@@ -902,6 +902,7 @@ class BulkUploadNestoProductsAPI(APIView):
                     nutrition_facts = "" if str(dfs.iloc[i][15]).strip()=="nan" else str(dfs.iloc[i][15]).strip()
                     ingredients = "" if str(dfs.iloc[i][16]).strip()=="nan" else str(dfs.iloc[i][16]).strip()
                     product_status = ""
+                    barcode = barcode.split(".")[0]
                     if article_no!="" and barcode!="" and article_name!="":
                         product_status = "not ecommerce"
                     if product_status=="not ecommerce" and brand_name!="" and language_key!="" and weight_volume!="" and country_of_origin!="" and storage_condition!="" and allergic_info!="" and  nutrition_facts!="" and  ingredients!="":
