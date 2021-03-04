@@ -6301,6 +6301,9 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="nesto detailed product":
                 p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
                 p1.start()
+            elif report_type.lower()=="nesto product summary":
+                p1 = threading.Thread(target=nesto_products_summary_report, args=(filename,oc_report_obj.uuid,))
+                p1.start()
             response["approved"] = True
             response['status'] = 200
         
