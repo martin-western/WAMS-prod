@@ -2771,3 +2771,107 @@ def bulk_download_nesto_detailed_product_report(filename, uuid):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error bulk_download_nesto_detailed_product_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def nesto_products_summary_report(filename, uuid):
+    try:
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["Products",
+           "Front Images",
+           "Back Images",
+           "Side Images",
+           "Nutrition Images",
+           "Product Content Images",
+           "Supplier Images",
+           "Lifestyle Images",
+           "Ads Images",
+           "Box Images",
+           "Highlight Images",
+           "Article Number",
+           "Product Name",
+           "Barcode",
+           "UOM",
+           "Language Key",
+           "Brand",
+           "Weight Volume",
+           "Country Of Origin",
+           "Highlights",
+           "Storage Condition",
+           "Preparation and Usage",
+           "Allergic Information",
+           "Product Description",
+           "Nutrition Facts",
+           "Ingredients",
+           "Return Days"]
+        
+        total_products = NestoProduct.objects.count()
+        front_images = NestoProduct.objects.annotate(num_images=Count('front_images')).filter(num_images__gt=0).count()
+        back_images = NestoProduct.objects.annotate(num_images=Count('back_images')).filter(num_images__gt=0).count()
+        side_images = NestoProduct.objects.annotate(num_images=Count('side_images')).filter(num_images__gt=0).count()
+        nutrition_images = NestoProduct.objects.annotate(num_images=Count('nutrition_images')).filter(num_images__gt=0).count()
+        product_content_images = NestoProduct.objects.annotate(num_images=Count('product_content_images')).filter(num_images__gt=0).count()
+        supplier_images = NestoProduct.objects.annotate(num_images=Count('supplier_images')).filter(num_images__gt=0).count()
+        lifestyle_images = NestoProduct.objects.annotate(num_images=Count('lifestyle_images')).filter(num_images__gt=0).count()
+        ads_images = NestoProduct.objects.annotate(num_images=Count('ads_images')).filter(num_images__gt=0).count()
+        box_images = NestoProduct.objects.annotate(num_images=Count('box_images')).filter(num_images__gt=0).count()
+        highlight_images = NestoProduct.objects.annotate(num_images=Count('highlight_images')).filter(num_images__gt=0).count()
+        article_number = NestoProduct.objects.exclude(article_number="").count()
+        product_name = NestoProduct.objects.exclude(product_name="").count()
+        barcode = NestoProduct.objects.exclude(barcode="").count()
+        uom = NestoProduct.objects.exclude(uom="").count()
+        language_key = NestoProduct.objects.exclude(language_key="").count()
+        brand = NestoProduct.objects.exclude(brand=None).count()
+        weight_volume = NestoProduct.objects.exclude(weight_volume="").count()
+        country_of_origin = NestoProduct.objects.exclude(country_of_origin="").count()
+        highlights = NestoProduct.objects.exclude(highlights="").count()
+        storage_condition = NestoProduct.objects.exclude(storage_condition="").count()
+        preparation_and_usage = NestoProduct.objects.exclude(preparation_and_usage="").count()
+        allergic_information = NestoProduct.objects.exclude(allergic_information="").count()
+        product_description = NestoProduct.objects.exclude(product_description="").count()
+        nutrition_facts = NestoProduct.objects.exclude(nutrition_facts="").count()
+        ingredients = NestoProduct.objects.exclude(ingredients="").count()
+        return_days = NestoProduct.objects.exclude(return_days="").count()
+        rod = [total_products,
+           front_images,
+           back_images,
+           side_images,
+           nutrition_images,
+           product_content_images,
+           supplier_images,
+           lifestyle_images,
+           ads_images,
+           box_images,
+           highlight_images,
+           article_number,
+           product_name,
+           barcode,
+           uom,
+           language_key,
+           brand,
+           weight_volume,
+           country_of_origin,
+           highlights,
+           storage_condition,
+           preparation_and_usage,
+           allergic_information,
+           product_description,
+           nutrition_facts,
+           ingredients,
+           return_days]
+        colnum = 0
+        for i in range(len(row)):
+            worksheet.write(i, 0, row[i])
+            worksheet.write(i, 1, rod[i])
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error nesto_products_summary_report %s %s", e, str(exc_tb.tb_lineno))

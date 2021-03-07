@@ -1172,7 +1172,7 @@ class UpdateDealshubProductAPI(APIView):
                     if dh_product_obj.promotional_price==0:
                         dh_product_obj.promotional_price = now_price
                 if "promotional_price" in data:
-                    promotional_price = float(data["promotional_price"])        
+                    promotional_price = float(data["promotional_price"])
                     dh_product_obj.promotional_price = promotional_price
 
             if stock_permission:
@@ -6286,6 +6286,9 @@ class CreateOCReportAPI(APIView):
                 p1.start()
             elif report_type.lower()=="nesto detailed product":
                 p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
+                p1.start()
+            elif report_type.lower()=="nesto product summary":
+                p1 = threading.Thread(target=nesto_products_summary_report, args=(filename,oc_report_obj.uuid,))
                 p1.start()
             response["approved"] = True
             response['status'] = 200

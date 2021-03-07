@@ -932,6 +932,7 @@ class OrderRequest(models.Model):
     delivery_fee = models.FloatField(default=0)
     cod_charge = models.FloatField(default=0)
     additional_note = models.TextField(default="", blank=True)
+    admin_note = models.TextField(default="", blank=True)
     REQUEST_STATUS = (
         ('Approved','Approved'),
         ('Rejected','Rejected'),
@@ -1094,6 +1095,7 @@ class Order(models.Model):
     is_postaplus = models.BooleanField(default=False)
 
     additional_note = models.TextField(default="", blank=True)
+    admin_note = models.TextField(default="",blank=True)
     reference_medium = models.CharField(max_length=200, default="")
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
@@ -1525,6 +1527,8 @@ class B2BUser(DealsHubUser):
     trade_license = models.FileField(upload_to = 'trade_license',null=True,blank=True)
     passport_copy = models.FileField(upload_to = 'passport_copy',null=True,blank=True)
     vat_certificate_id = models.CharField(default="",max_length=250)
+    trade_license_id = models.CharField(default="",max_length=250)
+    passport_copy_id = models.CharField(default="",max_length=250)
 
     STATUS_OPTIONS = (
         ('Pending','Pending'),

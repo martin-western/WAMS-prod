@@ -142,6 +142,7 @@ class FetchWishListAPI(APIView):
                 temp_dict["uuid"] = unit_wish_list_obj.uuid
                 temp_dict["price"] = unit_wish_list_obj.product.get_actual_price_for_customer(dealshub_user_obj)
                 temp_dict["currency"] = unit_wish_list_obj.product.get_currency()
+                temp_dict["moq"] = unit_wish_list_obj.product.get_moq(dealshub_user_obj)
                 temp_dict["dateCreated"] = unit_wish_list_obj.get_date_created()
                 temp_dict["productName"] = unit_wish_list_obj.product.get_name(language_code)
                 temp_dict["productImageUrl"] = unit_wish_list_obj.product.get_display_image_url()
@@ -1573,6 +1574,7 @@ class ProcessOrderRequestAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             unit_order_requests = data["UnitOrderRequests"]
             request_status = data["requestStatus"]
+            admin_note = data.get("adminNote","")
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
 
@@ -1587,6 +1589,7 @@ class ProcessOrderRequestAPI(APIView):
                 unit_order_request_obj.save()
 
             order_request_obj.request_status = request_status
+            order_request_obj.admin_note = admin_note
             order_request_obj.save()
 
             if order_request_obj.payment_mode == "COD" or order_request_obj.payment_mode == "CHEQUE":
@@ -1614,7 +1617,8 @@ class ProcessOrderRequestAPI(APIView):
                                                  location_group=order_request_obj.location_group,
                                                  delivery_fee=order_request_obj.get_delivery_fee(),
                                                  cod_charge=order_request_obj.location_group.cod_charge,
-                                                 additional_note=order_request_obj.additional_note)
+                                                 additional_note=order_request_obj.additional_note,
+                                                 admin_note = order_request_obj.admin_note)
 
                 for unit_order_request_obj in unit_order_request_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -1718,6 +1722,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
                                              merchant_reference=merchant_reference,
                                              bundleid=order_request_obj.merchant_reference,
                                              additional_note=order_request_obj.additional_note,
+                                             admin_note = order_request_obj.admin_note,
                                              cod_charge=0)
 
             unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj).exclude(request_status="Rejected")
@@ -1728,7 +1733,6 @@ class PlaceB2BOnlineOrderAPI(APIView):
                                                           quantity=unit_order_request_obj.final_quantity,
                                                           price=unit_order_request_obj.final_price)
                 UnitOrderStatus.objects.create(unit_order=unit_order_obj)
-
 
             order_request_obj.is_placed = True
             order_request_obj.save()
@@ -2824,13 +2828,25 @@ class FetchCustomerDetailsAPI(APIView):
                 b2b_user_obj = B2BUser.objects.get(username = dealshub_user_obj.username)
                 temp_dict["cohort"] = b2b_user_obj.cohort
                 temp_dict["companyName"] = b2b_user_obj.company_name
-                temp_dict["vatCertification"] = b2b_user_obj.vat_certificate.url
-                temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
-                temp_dict["passportCopy"] = b2b_user_obj.passport_copy.url
+
+                temp_dict["vatCertificate"]=""
+                if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
+                    temp_dict["vatCertificate"] = b2b_user_obj.vat_certificate.url
+                
+                temp_dict["passportCopy"] = ""
+                if b2b_user_obj.passport_copy!=None and b2b_user_obj.passport_copy!="":
+                    temp_dict["passportCopy"] = b2b_user_obj.passport_copy.url
+
+                temp_dict["tradeLicense"] = ""
+                if b2b_user_obj.trade_license!=None and b2b_user_obj.trade_license!="":
+                    temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
+
                 temp_dict["vatCertificateStatus"] = b2b_user_obj.vat_certificate_status
                 temp_dict["tradeLicenseStatus"] = b2b_user_obj.trade_license_status
                 temp_dict["passportCopyStatus"] = b2b_user_obj.passport_copy_status
                 temp_dict["vatCertificateId"] = b2b_user_obj.vat_certificate_id
+                temp_dict["passportCopyId"] = b2b_user_obj.passport_copy_id
+                temp_dict["tradeLicenseId"] = b2b_user_obj.trade_license_id
             temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
             try:
                 if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date!=None:
@@ -2930,6 +2946,8 @@ class UpdateB2BCustomerStatusAPI(APIView):
             email_id = data["emailId"]
             cohort = data["cohort"]
             vat_certificate_id = data["vatCertificateId"]
+            trade_license_id = data["tradeLicenseId"]
+            passport_copy_id = data["passportCopyId"]
 
             if data.get("vat-certificate","") != "":
                 b2b_user_obj.vat_certificate = data["vat-certificate"]
@@ -2946,6 +2964,8 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.passport_copy_status = passport_copy_status
             b2b_user_obj.cohort = cohort
             b2b_user_obj.vat_certificate_id = vat_certificate_id
+            b2b_user_obj.trade_license_id = trade_license_id
+            b2b_user_obj.passport_copy_id = passport_copy_id
             b2b_user_obj.save()
 
             response["status"] = 200
@@ -3837,7 +3857,9 @@ class SignUpCompletionAPI(APIView):
             vat_certificate = data["vat-certificate"]
             trade_license = data["trade-license"]
             passport_copy = data["passport-copy"]
-            vat_certificate_id = data["vat-certificate-id"]
+            vat_certificate_id = data.get("vat-certificate-id","")
+            passport_copy_id = data.get("passport-copy-id","")
+            trade_license_id = data.get("trade-license-id","")
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -3867,6 +3889,8 @@ class SignUpCompletionAPI(APIView):
                 b2b_user_obj.trade_license = trade_license 
                 b2b_user_obj.passport_copy = passport_copy
                 b2b_user_obj.vat_certificate_id = vat_certificate_id
+                b2b_user_obj.trade_license_id = trade_license_id
+                b2b_user_obj.passport_copy_id = passport_copy_id
                 is_new_user_created = True
 
                 dealshub_user_obj = DealsHubUser.objects.get(username = b2b_user_obj.username)
@@ -5613,6 +5637,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["emailId"] = order_obj.owner.email
                     temp_dict["contactNumer"] = order_obj.owner.contact_number
                     temp_dict["shippingAddress"] = shipping_address
+                    temp_dict["adminNote"] = order_obj.admin_note
+                    temp_dict["additionalNote"] = order_obj.additional_note
 
                     temp_dict["bundleId"] = order_obj.bundleid
                     temp_dict["uuid"] = order_obj.uuid
@@ -5836,6 +5862,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     temp_dict["contactNumber"] = order_request_obj.owner.contact_number
                     temp_dict["shippingAddress"] = shipping_address
                     temp_dict["additionalNote"] = order_request_obj.additional_note
+                    temp_dict["adminNote"] = order_request_obj.admin_note
 
                     temp_dict["bundleId"] = order_request_obj.bundleid
                     temp_dict["uuid"] = order_request_obj.uuid
@@ -6016,8 +6043,7 @@ class SetShippingMethodAPI(APIView):
 
             sap_info_render = []
             
-            wigme_website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-            if order_obj.location_group.website_group==wigme_website_group_obj and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
+            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
 
                 user_input_requirement = {}
                 
@@ -6095,6 +6121,15 @@ class SetShippingMethodAPI(APIView):
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
+                        is_b2b = order_obj.location_group.is_b2b
+                        order_information["is_b2b"] = is_b2b
+                        if is_b2b==True:
+                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                            order_information["region"] = order_obj.shipping_address.state
+                            order_information["telephone"] = order_obj.shipping_address.contact_number
+                            order_information["email"] = order_obj.owner.email
+                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            order_information["trn"] = b2b_user_obj.vat_certificate_id
                         order_information["items"] = []
                         
                         for unit_order_obj in grouped_unit_orders[brand_name]:
@@ -6228,8 +6263,7 @@ class ResendSAPOrderAPI(APIView):
 
             sap_info_render = []
             
-            wigme_website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-            if order_obj.location_group.website_group==wigme_website_group_obj:
+            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"]:
 
                 user_input_requirement = {}
                 
@@ -6297,6 +6331,15 @@ class ResendSAPOrderAPI(APIView):
                         company_code = brand_company_dict[brand_name.lower()]
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
+                        is_b2b = order_obj.location_group.is_b2b
+                        order_information["is_b2b"] = is_b2b
+                        if is_b2b==True:
+                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                            order_information["region"] = order_obj.shipping_address.state
+                            order_information["telephone"] = order_obj.shipping_address.contact_number
+                            order_information["email"] = order_obj.owner.email
+                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            order_information["trn"] = b2b_user_obj.vat_certificate_id
                         order_information["items"] = []
                         
                         for unit_order_obj in grouped_unit_orders[brand_name]:
@@ -6544,8 +6587,22 @@ class SetCallStatusAPI(APIView):
             order_uuid  = data["orderUuid"]
 
             order_obj = Order.objects.get(uuid=order_uuid)
+            old_call_status = order_obj.call_status
             order_obj.call_status = updated_call_status
             order_obj.save()
+
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            call_status_change_information = {
+                "event": "call_status",
+                "information": {
+                    "old_status": old_call_status,
+                    "new_status": updated_call_status
+                }
+            }
+
+            VersionOrder.objects.create(order=order_obj,
+                                        user= omnycomm_user,
+                                        change_information=json.dumps(call_status_change_information))
 
             response['status'] = 200
         except Exception as e:
@@ -8283,6 +8340,8 @@ class FetchB2BUserProfileAPI(APIView):
             response["emailId"] = b2b_user_obj.email
             response["companyName"] = b2b_user_obj.company_name
             response["vatCertificateId"] = b2b_user_obj.vat_certificate_id
+            response["passportCopyId"] = b2b_user_obj.passport_copy_id
+            response["tradeLicenseId"] = b2b_user_obj.trade_license_id
 
             response["vat_certificate"] = ""
             if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":

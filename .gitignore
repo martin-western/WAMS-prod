@@ -10,3 +10,4 @@ SalesApp/migrations/*
 WAMS/settings.py
 *.sql
 *.DS_store
+.vscode
