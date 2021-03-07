@@ -4061,11 +4061,6 @@ class AddProductToSectionAPI(APIView):
             section_uuid = data["sectionUuid"]
             product_uuid = data["productUuid"]
 
-            is_b2b = False
-            location_group_uuid = data.get("locationGroupUuid","")
-            if location_group_uuid != "":
-                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-                is_b2b = location_group_obj.is_b2b
 
             section_obj = Section.objects.get(uuid=section_uuid)
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
@@ -4078,19 +4073,7 @@ class AddProductToSectionAPI(APIView):
 
             response["now_price"] = str(dealshub_product_obj.now_price)
             response["was_price"] = str(dealshub_product_obj.was_price)
-
-            if is_b2b == True:
-                temp_list = []
-                temp_list.append(str(dealshub_product_obj.promotional_price))
-                temp_list.append(str(dealshub_product_obj.promotional_price_cohort1))
-                temp_list.append(str(dealshub_product_obj.promotional_price_cohort2))
-                temp_list.append(str(dealshub_product_obj.promotional_price_cohort3))
-                temp_list.append(str(dealshub_product_obj.promotional_price_cohort4))
-                temp_list.append(str(dealshub_product_obj.promotional_price_cohort5))
-
-                response["promotional_price"] = temp_list
-            else:
-                response["promotional_price"] = str(dealshub_product_obj.promotional_price)
+            response["promotional_price"] = str(dealshub_product_obj.promotional_price)
             response["stock"] = str(dealshub_product_obj.stock)
             response["allowedQty"] = str(dealshub_product_obj.get_allowed_qty())
             response["is_product_promotional"] = dealshub_product_obj.is_promotional
