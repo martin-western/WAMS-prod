@@ -1490,7 +1490,7 @@ class SearchWIG2API(APIView):
             currency = location_group_obj.location.currency
             for dealshub_product_obj in dealshub_product_objs:
                 try:
-                    if dealshub_product_obj.get_actual_price()==0:
+                    if dealshub_product_obj.now_price==0:
                         continue
                     temp_dict = {}
                     temp_dict["name"] = dealshub_product_obj.get_name()
