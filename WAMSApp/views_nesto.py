@@ -251,8 +251,8 @@ class FetchNestoProductDetailsAPI(APIView):
             response["barcode"] = nesto_product_obj.barcode
             response["uom"] = nesto_product_obj.uom
             response["language_key"] = nesto_product_obj.language_key
-            response["brand"] = nesto_product_obj.brand.name
-            response["about_brand"] = nesto_product_obj.brand.description
+            response["brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.name
+            response["about_brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.description
             response["weight_volume"] = nesto_product_obj.weight_volume
             response["country_of_origin"] = nesto_product_obj.country_of_origin
             response["highlights"] = nesto_product_obj.highlights
@@ -440,8 +440,8 @@ class FetchNestoProductListAPI(APIView):
                     temp_dict["barcode"] = nesto_product_obj.barcode
                     temp_dict["uom"] = nesto_product_obj.uom
                     temp_dict["language_key"] = nesto_product_obj.language_key
-                    temp_dict["brand"] = nesto_product_obj.brand.name
-                    temp_dict["about_brand"] = nesto_product_obj.brand.description
+                    temp_dict["brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.name
+                    temp_dict["about_brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.description
                     temp_dict["weight_volume"] = nesto_product_obj.weight_volume
                     temp_dict["country_of_origin"] = nesto_product_obj.country_of_origin
                     temp_dict["highlights"] = nesto_product_obj.highlights
@@ -903,6 +903,7 @@ class BulkUploadNestoProductsAPI(APIView):
                     ingredients = "" if str(dfs.iloc[i][16]).strip()=="nan" else str(dfs.iloc[i][16]).strip()
                     product_status = ""
                     barcode = barcode.split(".")[0]
+                    article_no = article_no.split(".")[0]
                     if article_no!="" and barcode!="" and article_name!="":
                         product_status = "not ecommerce"
                     if product_status=="not ecommerce" and brand_name!="" and language_key!="" and weight_volume!="" and country_of_origin!="" and storage_condition!="" and allergic_info!="" and  nutrition_facts!="" and  ingredients!="":
