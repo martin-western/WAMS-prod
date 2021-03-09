@@ -4348,7 +4348,7 @@ class VerifyOTPSMSLoginAPI(APIView):
                     dealshub_user_obj.verification_code = OTP
                     dealshub_user_obj.save()
 
-                    message = "Login OTP is " + OTP
+                    message = "New Login OTP is " + OTP
 
                     # Trigger SMS
                     try:
@@ -4379,7 +4379,7 @@ class VerifyOTPSMSLoginAPI(APIView):
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         logger.error("VerifyOTPSMSLogin: %s at %s", e, str(exc_tb.tb_lineno))
-                        
+
                 dealshub_user_obj.otp_attempts = otp_attempt
                 dealshub_user_obj.save()
 
