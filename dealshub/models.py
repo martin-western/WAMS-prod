@@ -1507,6 +1507,7 @@ class DealsHubUser(User):
     verification_code = models.CharField(default="", max_length=50)
     is_pin_set = models.BooleanField(default=False)
     website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    otp_attempts = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = "DealsHubUser"
