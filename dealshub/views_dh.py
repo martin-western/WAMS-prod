@@ -4325,6 +4325,7 @@ class VerifyOTPSMSLoginAPI(APIView):
                 r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
                 token = json.loads(r.content)["token"]
                 response["token"] = token
+                response["message"] = "Login Successful!"
                 verified = True
                 dealshub_user_obj.contact_verified = True
                 dealshub_user_obj.otp_attempts = 0
@@ -4332,8 +4333,9 @@ class VerifyOTPSMSLoginAPI(APIView):
             else:
                 otp_attempts = dealshub_user_obj.otp_attempts
                 otp_attempts += 1
-
+                response["message"] = "Invalid OTP!"
                 if otp_attempts >= 5:
+                    response["message"] = "Too many attempts! New OTP Sent"
                     otp_attempts = otp_attempts%5
 
                     digits = "0123456789"
