@@ -3106,8 +3106,6 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
                         temp_dict2["category"] = dealshub_product_obj.get_category(language_code)
                         temp_dict2["currency"] = dealshub_product_obj.get_currency()
 
-                    promotion_obj = dealshub_product_obj.promotion
-
                     temp_dict2["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
                     temp_dict2["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
                     temp_dict2["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
