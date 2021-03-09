@@ -8478,8 +8478,8 @@ class UploadB2BDocumentAPI(APIView):
                         for image_obj in image_objs:
                             image_obj.delete()
 
-            if document_subtype=="PASSPORT":
-                if passport_copy_type == "IMG":
+            if document_type=="PASSPORT":
+                if document_subtype == "IMG":
                     image_count = int(data["passport-copy"].get("image_count",0))
                     for i in image_count:
                         image_obj = Image.objects.create(image = data["passport-copy"]["image_" + str(i+1)])
@@ -8493,8 +8493,8 @@ class UploadB2BDocumentAPI(APIView):
                         for image_obj in image_objs:
                             image_obj.delete()
 
-            if document_subtype=="TRADE":
-                if trade_license_type == "IMG":
+            if document_type=="TRADE":
+                if document_subtype == "IMG":
                     image_count = int(data["trade-license"].get("image_count",0))
                     for i in image_count:
                         image_obj = Image.objects.create(image = data["trade-license"]["image_" + str(i+1)])
@@ -8506,7 +8506,7 @@ class UploadB2BDocumentAPI(APIView):
                     if b2b_user_obj.trade_license_image.exists() == True:
                         image_objs = b2b_user_obj.trade_license_image
                         for image_obj in image_objs:
-                            image_obj.delete()                        
+                            image_obj.delete()
 
             b2b_user_obj.save()
             response["status"] = 200
