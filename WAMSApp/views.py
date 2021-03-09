@@ -1152,6 +1152,12 @@ class UpdateDealshubProductAPI(APIView):
             data = request.data
             logger.info("UpdateDealshubProductAPI: %s", str(data))
 
+            is_b2b = False
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid != "":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                is_b2b = location_group_obj.is_b2b
+
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -1174,6 +1180,14 @@ class UpdateDealshubProductAPI(APIView):
                 if "promotional_price" in data:
                     promotional_price = float(data["promotional_price"])
                     dh_product_obj.promotional_price = promotional_price
+
+                    if is_b2b == True:
+                        dh_product_obj.promotional_price_cohort1 = float(data["promotional_price_cohort1"])
+                        dh_product_obj.promotional_price_cohort2 = float(data["promotional_price_cohort2"])
+                        dh_product_obj.promotional_price_cohort3 = float(data["promotional_price_cohort3"])
+                        dh_product_obj.promotional_price_cohort4 = float(data["promotional_price_cohort4"])
+                        dh_product_obj.promotional_price_cohort5 = float(data["promotional_price_cohort5"])
+
 
             if stock_permission:
                 if "stock" in data:
