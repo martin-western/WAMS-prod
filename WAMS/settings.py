@@ -44,6 +44,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'WAMSApp.middleware.JWTAuthenticationMiddleware',
+    'WAMSApp.middleware.JWTBlackListTokenCheck',
     'auditlog.middleware.AuditlogMiddleware',
 ]
 
@@ -138,18 +139,29 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # MEDIA_URL = '/files/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
 
-
 AWS_ACCESS_KEY_ID = 'AKIA5NL25NAZB4FJDK65'
 AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'wig-wams-s3-bucket'
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_STORAGE_BUCKET_NAME = 'cdn.omnycomm.com'
+#AWS_S3_CUSTOM_DOMAIN = '%s.omnycomm.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_CUSTOM_DOMAIN = AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
 #AWS_DEFAULT_ACL = None
-
 DEFAULT_FILE_STORAGE = 'WAMSApp.storage_backends.MediaStorage'
 MEDIA_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+
+# AWS_ACCESS_KEY_ID = 'AKIA5NL25NAZB4FJDK65'
+# AWS_SECRET_ACCESS_KEY = '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'
+# AWS_STORAGE_BUCKET_NAME = 'wig-wams-s3-bucket'
+# AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+# AWS_S3_OBJECT_PARAMETERS = {
+#     'CacheControl': 'max-age=86400',
+# }
+# #AWS_DEFAULT_ACL = None
+
+# DEFAULT_FILE_STORAGE = 'WAMSApp.storage_backends.MediaStorage'
+# MEDIA_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
 
 # Userid: tikenisarg@gmail.com
 # Acces Key ID: AKIA5NL25NAZB4FJDK65

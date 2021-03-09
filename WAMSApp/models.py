@@ -1960,3 +1960,23 @@ class CategoryMapping(models.Model):
 
     def __str__(self):
         return str(self.recommended_browse_node)
+
+
+class BlackListToken(models.Model):
+
+    token = models.TextField(default="")
+    created_date = models.DateTimeField()
+
+    class Meta:
+        verbose_name = "BlackListToken"
+        verbose_name_plural = "BlackListTokens"
+
+    def __str__(self):
+        return str(self.token)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.created_date = timezone.now()
+        
+        super(BlackListToken, self).save(*args, **kwargs)
