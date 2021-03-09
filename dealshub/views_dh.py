@@ -4380,7 +4380,7 @@ class VerifyOTPSMSLoginAPI(APIView):
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         logger.error("VerifyOTPSMSLogin: %s at %s", e, str(exc_tb.tb_lineno))
 
-                dealshub_user_obj.otp_attempts = otp_attempt
+                dealshub_user_obj.otp_attempts = otp_attempts
                 dealshub_user_obj.save()
 
             response["verified"] = verified
