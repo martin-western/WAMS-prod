@@ -2829,17 +2829,44 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict["cohort"] = b2b_user_obj.cohort
                 temp_dict["companyName"] = b2b_user_obj.company_name
 
-                temp_dict["vatCertificate"]=""
+                temp_dict["vatCertificate"] = ""
+                temp_dict["vatCertificateType"] = "EMPTY"
                 if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
+                    temp_dict["vatCertificateType"] == "PDF"
                     temp_dict["vatCertificate"] = b2b_user_obj.vat_certificate.url
-                
+                elif b2b_user_obj.vat_certificate_images.exists() > 0:
+                    temp_dict["vatCertificateType"] = "IMG"
+                    temp_dict2 = []
+                    vat_certificate_image_objs = b2b_user_obj.vat_certificate_images.all()
+                    for vat_certificate_image_obj in vat_certificate_image_objs:
+                        temp_dict2.append(vat_certificate_image_obj.image.url)
+                    temp_dict["vatCertificate"] = temp_dict2
+
                 temp_dict["passportCopy"] = ""
+                temp_dict["passportCopyType"] = "EMPTY"
                 if b2b_user_obj.passport_copy!=None and b2b_user_obj.passport_copy!="":
+                    temp_dict["passportCopyType"] == "PDF"
                     temp_dict["passportCopy"] = b2b_user_obj.passport_copy.url
+                elif b2b_user_obj.passport_copy_images.exists() > 0:
+                    temp_dict["passportCopyType"] = "IMG"
+                    temp_dict2 = []
+                    passport_copy_image_objs = b2b_user_obj.passport_copy_images.all()
+                    for passport_copy_image_obj in passport_copy_image_objs:
+                        temp_dict2.append(passport_copy_image_obj.image.url)
+                    temp_dict["passportCopy"] = temp_dict2
 
                 temp_dict["tradeLicense"] = ""
+                temp_dict["tradeLicenseType"] = "EMPTY"
                 if b2b_user_obj.trade_license!=None and b2b_user_obj.trade_license!="":
+                    temp_dict["tradeLicenseType"] == "PDF"
                     temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
+                elif b2b_user_obj.trade_license_images.exists() > 0:
+                    temp_dict["tradeLicenseType"] = "IMG"
+                    temp_dict2 = []
+                    trade_license_image_objs = b2b_user_obj.trade_license_images.all()
+                    for trade_license_image_obj in trade_license_image_objs:
+                        temp_dict2.append(trade_license_image_obj.image.url)
+                    temp_dict["tradeLicense"] = temp_dict2
 
                 temp_dict["vatCertificateStatus"] = b2b_user_obj.vat_certificate_status
                 temp_dict["tradeLicenseStatus"] = b2b_user_obj.trade_license_status
@@ -2948,13 +2975,48 @@ class UpdateB2BCustomerStatusAPI(APIView):
             vat_certificate_id = data["vatCertificateId"]
             trade_license_id = data["tradeLicenseId"]
             passport_copy_id = data["passportCopyId"]
+            vat_certificate_type = data["vatCertificateType"]
+            trade_license_type = data["tradeLicenseType"]
+            passport_copy_type = data["passportCopyType"]
 
-            if data.get("vat-certificate","") != "":
-                b2b_user_obj.vat_certificate = data["vat-certificate"]
-            if data.get("trade-license","") != "":
-                b2b_user_obj.trade_license = data["trade-license"]
-            if data.get("passport-copy","") != "":
-                b2b_user_obj.passport_copy = data["passport-copy"]
+            if vat_certificate_type == "IMG":
+                image_count = int(data["vat-certificate"].get("image_count",0))
+                for i in range(image_count):
+                    image_obj = Image.objects.create(image = data["vat-certificate"]["image_" + str(i+1)])
+                    b2b_user_obj.vat_certificate_images.add(image_obj)
+                b2b_user_obj.vat_certificate = None
+            else:
+                if data["vat-certificate"].get("document","") != "":
+                    b2b_user_obj.vat_certificate = data["vat-certificate"]["document"]
+                image_objs = b2b_user_obj.vat_certificate_images.all()
+                for image_obj in image_objs:
+                    image_obj.delete()
+
+            if trade_license_type == "IMG":
+                image_count = int(data["trade-license"].get("image_count",0))
+                for i in range(image_count):
+                    image_obj = Image.objects.create(image = data["trade-license"]["image_" + str(i+1)])
+                    b2b_user_obj.trade_license_images.add(image_obj)
+                b2b_user_obj.trade_license = None
+            else:
+                if data["trade-license"].get("document","") != "":
+                    b2b_user_obj.trade_license = data["trade-license"]["document"]
+                image_objs = b2b_user_obj.trade_license_images.all()
+                for image_obj in image_objs:
+                    image_obj.delete()
+
+            if passport_copy_type == "IMG":
+                image_count = int(data["passport-copy"].get("image_count",0))
+                for i in range(image_count):
+                    image_obj = Image.objects.create(image = data["passport-copy"]["image_" + str(i+1)])
+                    b2b_user_obj.passport_copy_images.add(image_obj)
+                b2b_user_obj.passport_copy = None
+            else:
+                if data["passport-copy"].get("document","") != "":
+                    b2b_user_obj.passport_copy = data["passport-copy"]["document"]
+                image_objs = b2b_user_obj.passport_copy_images.all()
+                for image_obj in image_objs:
+                    image_obj.delete()
 
             b2b_user_obj.company_name = company_name
             b2b_user_obj.first_name = customer_name
@@ -3854,12 +3916,12 @@ class SignUpCompletionAPI(APIView):
             company_name = data["companyName"]
             email = data["email"]
             otp = data["otp"]
-            vat_certificate = data["vat-certificate"]
-            trade_license = data["trade-license"]
-            passport_copy = data["passport-copy"]
             vat_certificate_id = data.get("vat-certificate-id","")
             passport_copy_id = data.get("passport-copy-id","")
             trade_license_id = data.get("trade-license-id","")
+            vat_certificate_type = data["vatCertificateType"]
+            trade_license_type = data["tradeLicenseType"]
+            passport_copy_type = data["passportCopyType"]
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -3877,6 +3939,33 @@ class SignUpCompletionAPI(APIView):
                 logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+
+            if vat_certificate_type == "IMG":
+                image_count = int(data["vat-certificate"].get("image_count",0))
+                for i in range(image_count):
+                    image_obj = Image.objects.create(image = data["vat-certificate"]["image_" + str(i+1)])
+                    b2b_user_obj.vat_certificate_images.add(image_obj)
+            else:
+                if data["vat-certificate"].get("document","") != "":
+                    b2b_user_obj.vat_certificate = data["vat-certificate"]["document"]
+
+            if trade_license_type == "IMG":
+                image_count = int(data["trade-license"].get("image_count",0))
+                for i in range(image_count):
+                    image_obj = Image.objects.create(image = data["trade-license"]["image_" + str(i+1)])
+                    b2b_user_obj.trade_license_images.add(image_obj)
+            else:
+                if data["trade-license"].get("document","") != "":
+                    b2b_user_obj.trade_license = data["trade-license"]["document"]
+
+            if passport_copy_type == "IMG":
+                image_count = int(data["passport-copy"].get("image_count",0))
+                for i in range(image_count):
+                    image_obj = Image.objects.create(image = data["passport-copy"]["image_" + str(i+1)])
+                    b2b_user_obj.passport_copy_images.add(image_obj)
+            else:
+                if data["passport-copy"].get("document","") != "":
+                    b2b_user_obj.passport_copy = data["passport-copy"]["document"]
 
             is_new_user_created =False
             if b2b_user_obj.verification_code==otp:  
@@ -8393,7 +8482,7 @@ class FetchB2BUserProfileAPI(APIView):
                 data = json.loads(data)
 
             b2b_user_obj = B2BUser.objects.get(username=request.user.username)
-            
+
             response["fullName"] = b2b_user_obj.first_name
             response["contact_number"] = b2b_user_obj.contact_number
             response["emailId"] = b2b_user_obj.email
@@ -8403,16 +8492,43 @@ class FetchB2BUserProfileAPI(APIView):
             response["tradeLicenseId"] = b2b_user_obj.trade_license_id
 
             response["vat_certificate"] = ""
+            response["vat_certificate_type"] = "EMPTY"
             if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
+                response["vat_certificate_type"] == "PDF"
                 response["vat_certificate"] = b2b_user_obj.vat_certificate.url
-            
+            elif b2b_user_obj.vat_certificate_images.exists() > 0:
+                response["vat_certificate_type"] = "IMG"
+                temp_dict = []
+                vat_certificate_image_objs = b2b_user_obj.vat_certificate_images.all()
+                for vat_certificate_image_obj in vat_certificate_image_objs:
+                    temp_dict.append(vat_certificate_image_obj.image.url)
+                response["vat_certificate"] = temp_dict
+
             response["passport_copy"] = ""
+            response["passport_copy_type"] = "EMPTY"
             if b2b_user_obj.passport_copy!=None and b2b_user_obj.passport_copy!="":
+                response["passport_copy_type"] == "PDF"
                 response["passport_copy"] = b2b_user_obj.passport_copy.url
+            elif b2b_user_obj.passport_copy_images.exists() > 0 :
+                response["passport_copy_type"] = "IMG"
+                temp_dict = []
+                passport_copy_image_objs = b2b_user_obj.passport_copy_images.all()
+                for passport_copy_image_obj in passport_copy_image_objs:
+                    temp_dict.append(passport_copy_image_obj.image.url)
+                response["passport_copy"] = temp_dict
 
             response["trade_license"] = ""
+            response["trade_license_type"] = "EMPTY"
             if b2b_user_obj.trade_license!=None and b2b_user_obj.trade_license!="":
+                response["trade_license_type"] == "PDF"
                 response["trade_license"] = b2b_user_obj.trade_license.url
+            elif b2b_user_obj.trade_license_images.exists() > 0:
+                response["trade_license_type"] = "IMG"
+                temp_dict = []
+                trade_license_image_objs = b2b_user_obj.trade_license_images.all()
+                for trade_license_image_obj in trade_license_image_objs:
+                    temp_dict.append(trade_license_image_obj.image.url)
+                response["trade_license"] = temp_dict
 
             response["vat_certificate_status"] = b2b_user_obj.vat_certificate_status
             response["passport_copy_status"] = b2b_user_obj.passport_copy_status
@@ -8440,17 +8556,57 @@ class UploadB2BDocumentAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            document_type = data["document_type"]
+            vat_certificate_type = data["vat-certificate-type"]
+            trade_license_type = data["trade-license-type"]
+            passport_copy_type = data["passport-copy-type"]
+            vat_certificate_id = data["vat-certificate-id"]
+            trade_license_id = data["trade-license-id"]
+            passport_copy_id = data["passport-copy-id"]
 
             b2b_user_obj = B2BUser.objects.get(username=request.user.username)
 
-            if document_type=="VAT":
-                b2b_user_obj.vat_certificate = data["vat_certificate"]
-            if document_type=="PASSPORT":
-                b2b_user_obj.passport_copy = data["passport_copy"]
-            if document_type=="TRADE":
-                b2b_user_obj.trade_license = data["trade_license"]
+            if vat_certificate_type == "IMG":
+                image_count = int(data["vat-certificate"].get("image_count",0))
+                for i in range(image_count):
+                    image_obj = Image.objects.create(image = data["vat-certificate"]["image_" + str(i+1)])
+                    b2b_user_obj.vat_certificate_images.add(image_obj)
+                b2b_user_obj.vat_certificate = None
+            else:
+                if data["vat-certificate"].get("document","") != "":
+                    b2b_user_obj.vat_certificate = data["vat-certificate"]["document"]
+                image_objs = b2b_user_obj.vat_certificate_images.all()
+                for image_obj in image_objs:
+                    image_obj.delete()
 
+            if passport_copy_type == "IMG":
+                image_count = int(data["passport-copy"].get("image_count",0))
+                for i in range(image_count):
+                    image_obj = Image.objects.create(image = data["passport-copy"]["image_" + str(i+1)])
+                    b2b_user_obj.passport_copy_images.add(image_obj)
+                b2b_user_obj.passport_copy = None
+            else:
+                if data["passport-copy"].get("document","") != "":
+                    b2b_user_obj.passport_copy = data["passport-copy"]["document"]
+                image_objs = b2b_user_obj.passport_copy_images.all()
+                for image_obj in image_objs:
+                    image_obj.delete()
+
+            if trade_license_type == "IMG":
+                image_count = int(data["trade-license"].get("image_count",0))
+                for i in range(image_count):
+                    image_obj = Image.objects.create(image = data["trade-license"]["image_" + str(i+1)])
+                    b2b_user_obj.trade_license_images.add(image_obj)
+                b2b_user_obj.trade_license = None
+            else:
+                if data["trade-license"].get("document","") != "":
+                    b2b_user_obj.trade_license = data["trade-license"]["document"]
+                image_objs = b2b_user_obj.trade_license_images.all()
+                for image_obj in image_objs:
+                    image_obj.delete()
+
+            b2b_user_obj.vat_certificate_id = vat_certificate_id
+            b2b_user_obj.trade_license_id = trade_license_id
+            b2b_user_obj.passport_copy_id = passport_copy_id
             b2b_user_obj.save()
             response["status"] = 200
 
