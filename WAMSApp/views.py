@@ -7184,9 +7184,6 @@ class SecureDeleteProductAPI(APIView):
 
 class LogoutOCUserAPI(APIView):
     
-    def logout(self, request):
-        request.user.auth_token.delete()
-
     def post(self, request, *args, **kwargs):
     
         response = {}
@@ -7199,7 +7196,8 @@ class LogoutOCUserAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
-            self.logout(request)
+            token = request.META["HTTP_AUTHORIZATION"].split(" ")[1]
+            blacklist_token_obj, created = BlackListToken.objects.get_or_create(token=token)
 
             response["status"] = 200
         except Exception as e:

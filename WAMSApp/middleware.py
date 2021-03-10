@@ -1,7 +1,9 @@
 from django.contrib.auth.middleware import get_user
 from django.utils.functional import SimpleLazyObject
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-
+from django.utils.deprecation import MiddlewareMixin
+from django.http import HttpResponseForbidden, HttpResponse
+from WAMSApp.models import *
 
 class JWTAuthenticationMiddleware(object):
     def __init__(self, get_response):
@@ -20,3 +22,19 @@ class JWTAuthenticationMiddleware(object):
         if jwt_authentication.get_jwt_value(request):
             user, jwt = jwt_authentication.authenticate(request)
         return user
+
+
+class JWTBlackListTokenCheck(MiddlewareMixin):
+    def __init__(self, get_response):
+        self.get_response = get_response
+    
+    def __call__(self, request):
+        return self.process_request(request)
+    
+    def process_request(self,request):
+        if request.user.is_authenticated:
+            token = request.META["HTTP_AUTHORIZATION"].split(" ")[1]
+            if BlackListToken.objects.filter(token=token).exists()==False:
+                return self.get_response(request)
+            return HttpResponseForbidden("token not valid")
+        return self.get_response(request)
