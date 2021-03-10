@@ -44,6 +44,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'WAMSApp.middleware.JWTAuthenticationMiddleware',
+    'WAMSApp.middleware.JWTBlackListTokenCheck',
     'auditlog.middleware.AuditlogMiddleware',
 ]
 
