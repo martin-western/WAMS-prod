@@ -3105,21 +3105,23 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
                     if is_dealshub==True:
                         temp_dict2["category"] = dealshub_product_obj.get_category(language_code)
                         temp_dict2["currency"] = dealshub_product_obj.get_currency()
+                        temp_dict2["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
+                        temp_dict2["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
                     else:
+                        temp_dict2["now_price"] = dealshub_product_obj.now_price
                         temp_dict2["now_price_cohort1"] = dealshub_product_obj.now_price_cohort1
                         temp_dict2["now_price_cohort2"] = dealshub_product_obj.now_price_cohort2
                         temp_dict2["now_price_cohort3"] = dealshub_product_obj.now_price_cohort3
                         temp_dict2["now_price_cohort4"] = dealshub_product_obj.now_price_cohort4
                         temp_dict2["now_price_cohort5"] = dealshub_product_obj.now_price_cohort5
 
+                        temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
                         temp_dict2["promotional_price_cohort1"] = dealshub_product_obj.promotional_price_cohort1
                         temp_dict2["promotional_price_cohort2"] = dealshub_product_obj.promotional_price_cohort2
                         temp_dict2["promotional_price_cohort3"] = dealshub_product_obj.promotional_price_cohort3
                         temp_dict2["promotional_price_cohort4"] = dealshub_product_obj.promotional_price_cohort4
                         temp_dict2["promotional_price_cohort5"] = dealshub_product_obj.promotional_price_cohort5
 
-                    temp_dict2["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
-                    temp_dict2["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
                     temp_dict2["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
                     temp_dict2["moq"] = dealshub_product_obj.get_moq(dealshub_user_obj)
                     temp_dict2["stock"] = dealshub_product_obj.stock

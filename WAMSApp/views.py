@@ -1188,7 +1188,6 @@ class UpdateDealshubProductAPI(APIView):
                         dh_product_obj.promotional_price_cohort4 = float(data["promotional_price_cohort4"])
                         dh_product_obj.promotional_price_cohort5 = float(data["promotional_price_cohort5"])
 
-
             if stock_permission:
                 if "stock" in data:
                     stock = float(data["stock"])
