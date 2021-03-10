@@ -13,6 +13,11 @@ SECRET_KEY = 'h4hjbt-$4vx3%yvk3t+i)s0)%v$thnnyk4+i&w=lpfiyvi$e-l'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_PATH = '/;HttpOnly'
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
+
 ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -277,3 +282,11 @@ CACHES = {
         }
     }
 }
+
+"""
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
+"""
