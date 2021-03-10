@@ -1188,7 +1188,6 @@ class UpdateDealshubProductAPI(APIView):
                         dh_product_obj.promotional_price_cohort4 = float(data["promotional_price_cohort4"])
                         dh_product_obj.promotional_price_cohort5 = float(data["promotional_price_cohort5"])
 
-
             if stock_permission:
                 if "stock" in data:
                     stock = float(data["stock"])
@@ -7185,9 +7184,6 @@ class SecureDeleteProductAPI(APIView):
 
 class LogoutOCUserAPI(APIView):
     
-    def logout(self, request):
-        request.user.auth_token.delete()
-
     def post(self, request, *args, **kwargs):
     
         response = {}
@@ -7200,7 +7196,8 @@ class LogoutOCUserAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
-            self.logout(request)
+            token = request.META["HTTP_AUTHORIZATION"].split(" ")[1]
+            blacklist_token_obj, created = BlackListToken.objects.get_or_create(token=token)
 
             response["status"] = 200
         except Exception as e:
