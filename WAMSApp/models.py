@@ -1982,10 +1982,3 @@ class BlackListToken(models.Model):
 
     def __str__(self):
         return str(self.token)
-
-    def save(self, *args, **kwargs):
-        
-        if self.pk == None:
-            self.created_date = timezone.now()
-        
-        super(BlackListToken, self).save(*args, **kwargs)
