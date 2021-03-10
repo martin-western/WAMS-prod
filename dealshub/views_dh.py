@@ -2863,7 +2863,7 @@ class FetchCustomerDetailsAPI(APIView):
                 elif b2b_user_obj.trade_license_images.count() > 0:
                     temp_dict["tradeLicenseType"] = "IMG"
                     temp_dict2 = []
-                    trade_license_image_objs = b2b_user_obj.trade_license_imagess
+                    trade_license_image_objs = b2b_user_obj.trade_license_images
                     for trade_license_image_obj in trade_license_image_objs:
                         temp_dict2.append(trade_license_image_obj.image.url)
                     temp_dict["tradeLicense"] = temp_dict2
@@ -8440,7 +8440,7 @@ class FetchB2BUserProfileAPI(APIView):
             if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
                 response["vat_certificate_type"] == "PDF"
                 response["vat_certificate"] = b2b_user_obj.vat_certificate.url
-            elif b2b_user_obj.vat_certificate_imagess.count() > 0:
+            elif b2b_user_obj.vat_certificate_images.count() > 0:
                 response["vat_certificate_type"] = "IMG"
                 temp_dict = []
                 vat_certificate_image_objs = b2b_user_obj.vat_certificate_images
