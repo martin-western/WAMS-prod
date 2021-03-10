@@ -13,7 +13,7 @@ from PIL import ExifTags
 from io import BytesIO
 from bs4 import BeautifulSoup
 
-
+import datetime
 import logging
 import sys
 import json
@@ -1961,11 +1961,20 @@ class CategoryMapping(models.Model):
     def __str__(self):
         return str(self.recommended_browse_node)
 
+class BlackListTokenManager(models.Manager):
+    def get_queryset(self):
+        now = datetime.datetime.now()
+        min_created_at = now - datetime.timedelta(seconds=2592000)
+        super(BlackListTokenManager, self).get_queryset().filter(created_at__lt=min_created_at).delete()
+        return super(BlackListTokenManager, self).get_queryset().filter(created_at__gt=min_created_at)
+
 
 class BlackListToken(models.Model):
 
     token = models.TextField(default="")
-    created_date = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = BlackListTokenManager()
 
     class Meta:
         verbose_name = "BlackListToken"

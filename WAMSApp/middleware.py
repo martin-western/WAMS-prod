@@ -26,20 +26,15 @@ class JWTAuthenticationMiddleware(object):
 
 class JWTBlackListTokenCheck(MiddlewareMixin):
     def __init__(self, get_response):
-        print("init")
         self.get_response = get_response
     
     def __call__(self, request):
-        print("call")
         return self.process_request(request)
     
     def process_request(self,request):
-        print('proceesedd')
         if request.user.is_authenticated:
             token = request.META["HTTP_AUTHORIZATION"].split(" ")[1]
             if BlackListToken.objects.filter(token=token).exists()==False:
-                print("sucess")
                 return self.get_response(request)
-            print("fail")
             return HttpResponseForbidden("token not valid")
         return self.get_response(request)
