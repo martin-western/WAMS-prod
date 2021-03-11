@@ -1293,51 +1293,51 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
 
                     if str(dfs.iloc[i][1]) != "nan" and str(dfs.iloc[i][1]) != "":
-                        now_price = int(dfs.iloc[i][1])
+                        now_price = float(dfs.iloc[i][1])
                         dealshub_product_obj.now_price = now_price
 
                     if str(dfs.iloc[i][2]) != "nan" and str(dfs.iloc[i][2]) != "":
-                        now_price_cohort1 = int(dfs.iloc[i][2])
+                        now_price_cohort1 = float(dfs.iloc[i][2])
                         dealshub_product_obj.now_price_cohort1 = now_price_cohort1
 
                     if str(dfs.iloc[i][3]) != "nan" and str(dfs.iloc[i][3]) != "":
-                        now_price_cohort2 = int(dfs.iloc[i][3])
+                        now_price_cohort2 = float(dfs.iloc[i][3])
                         dealshub_product_obj.now_price_cohort2 = now_price_cohort2
 
                     if str(dfs.iloc[i][4]) != "nan" and str(dfs.iloc[i][4]) != "":
-                        now_price_cohort3 = int(dfs.iloc[i][4])
+                        now_price_cohort3 = float(dfs.iloc[i][4])
                         dealshub_product_obj.now_price_cohort3 = now_price_cohort3
 
                     if str(dfs.iloc[i][5]) != "nan" and str(dfs.iloc[i][5]) != "":
-                        now_price_cohort4 = int(dfs.iloc[i][5])
+                        now_price_cohort4 = float(dfs.iloc[i][5])
                         dealshub_product_obj.now_price_cohort4 = now_price_cohort4
 
                     if str(dfs.iloc[i][6]) != "nan" and str(dfs.iloc[i][6]) != "":
-                        now_price_cohort5 = int(dfs.iloc[i][6])
+                        now_price_cohort5 = float(dfs.iloc[i][6])
                         dealshub_product_obj.now_price_cohort5 = now_price_cohort5
 
                     if str(dfs.iloc[i][7]) != "nan" and str(dfs.iloc[i][7]) != "":
-                        promotional_price = int(dfs.iloc[i][7])
+                        promotional_price = float(dfs.iloc[i][7])
                         dealshub_product_obj.promotional_price = promotional_price
 
                     if str(dfs.iloc[i][8]) != "nan" and str(dfs.iloc[i][8]) != "":
-                        promotional_price_cohort1 = int(dfs.iloc[i][8])
+                        promotional_price_cohort1 = float(dfs.iloc[i][8])
                         dealshub_product_obj.promotional_price_cohort1 = promotional_price_cohort1
 
                     if str(dfs.iloc[i][9]) != "nan" and str(dfs.iloc[i][9]) != "":
-                        promotional_price_cohort2 = int(dfs.iloc[i][9])
+                        promotional_price_cohort2 = float(dfs.iloc[i][9])
                         dealshub_product_obj.promotional_price_cohort2 = promotional_price_cohort2
 
                     if str(dfs.iloc[i][10]) != "nan" and str(dfs.iloc[i][10]) != "":
-                        promotional_price_cohort3 = int(dfs.iloc[i][10])
+                        promotional_price_cohort3 = float(dfs.iloc[i][10])
                         dealshub_product_obj.promotional_price_cohort3 = promotional_price_cohort3
 
                     if str(dfs.iloc[i][11]) != "nan" and str(dfs.iloc[i][11]) != "":
-                        promotional_price_cohort4 = int(dfs.iloc[i][11])
+                        promotional_price_cohort4 = float(dfs.iloc[i][11])
                         dealshub_product_obj.promotional_price_cohort4 = promotional_price_cohort4
 
                     if str(dfs.iloc[i][12]) != "nan" and str(dfs.iloc[i][12]) != "":
-                        promotional_price_cohort5 = int(dfs.iloc[i][12])
+                        promotional_price_cohort5 = float(dfs.iloc[i][12])
                         dealshub_product_obj.promotional_price_cohort5 = promotional_price_cohort5
 
                     dealshub_product_obj.save()
