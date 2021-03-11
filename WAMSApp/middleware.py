@@ -32,7 +32,7 @@ class JWTBlackListTokenCheck(MiddlewareMixin):
         return self.process_request(request)
     
     def process_request(self,request):
-        if request.user.is_authenticated and request.META["HTTP_AUTHORIZATION"]!= None:
+        if request.user.is_authenticated and request.META.get("HTTP_AUTHORIZATION", None)!= None:
             token = request.META["HTTP_AUTHORIZATION"].split(" ")[1]
             if BlackListToken.objects.filter(token=token).exists()==False:
                 return self.get_response(request)
