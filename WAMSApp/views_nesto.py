@@ -444,6 +444,8 @@ class FetchNestoProductListAPI(APIView):
 
                     p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,nesto_product_objs,))
                     p1.start()
+
+                    response["approved"] = True
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchNestoProductListAPI Report: %s at %s", e, str(exc_tb.tb_lineno))
