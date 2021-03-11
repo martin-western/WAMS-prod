@@ -2723,7 +2723,9 @@ def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_obj
             
         pp = NestoProduct.objects.all()
         if nesto_product_objs!=None:
-            pp = nesto_product_objs  
+            pp = nesto_product_objs
+            logger.info("inside %s",str(pp.count()))
+        logger.info("all %s",str(pp.count()))  
         for p in pp:
             try:
                 cnt += 1
