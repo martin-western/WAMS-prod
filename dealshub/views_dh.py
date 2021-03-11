@@ -2839,7 +2839,10 @@ class FetchCustomerDetailsAPI(APIView):
                     temp_dict2 = []
                     vat_certificate_image_objs = b2b_user_obj.vat_certificate_images.all()
                     for vat_certificate_image_obj in vat_certificate_image_objs:
-                        temp_dict2.append(vat_certificate_image_obj.image.url)
+                        temp_dict3 = {}
+                        temp_dict3["image_url"] = vat_certificate_image_obj.image.url
+                        temp_dict3["pk"] = vat_certificate_image_obj.image.pk
+                        temp_dict2.append(temp_dict3)
                     temp_dict["vatCertificate"] = temp_dict2
 
                 temp_dict["passportCopy"] = ""
@@ -2852,7 +2855,10 @@ class FetchCustomerDetailsAPI(APIView):
                     temp_dict2 = []
                     passport_copy_image_objs = b2b_user_obj.passport_copy_images.all()
                     for passport_copy_image_obj in passport_copy_image_objs:
-                        temp_dict2.append(passport_copy_image_obj.image.url)
+                        temp_dict3 = {}
+                        temp_dict3["image_url"] = passport_copy_image_obj.image.url
+                        temp_dict3["pk"] = passport_copy_image_obj.image.pk
+                        temp_dict2.append(temp_dict3)
                     temp_dict["passportCopy"] = temp_dict2
 
                 temp_dict["tradeLicense"] = ""
@@ -2865,7 +2871,10 @@ class FetchCustomerDetailsAPI(APIView):
                     temp_dict2 = []
                     trade_license_image_objs = b2b_user_obj.trade_license_images.all()
                     for trade_license_image_obj in trade_license_image_objs:
-                        temp_dict2.append(trade_license_image_obj.image.url)
+                        temp_dict3 = {}
+                        temp_dict3["image_url"] = trade_license_image_obj.image.url
+                        temp_dict3["pk"] = trade_license_image_obj.image.pk
+                        temp_dict2.append(temp_dict3)
                     temp_dict["tradeLicense"] = temp_dict2
 
                 temp_dict["vatCertificateStatus"] = b2b_user_obj.vat_certificate_status
@@ -3035,6 +3044,29 @@ class UpdateB2BCustomerStatusAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateB2BCustomerStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DeleteB2BDocumentImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("DeleteB2BDocumentImageAPI: %s", str(data))
+
+            pk = data["pk"]
+            image_obj = Image.objects.get(pk = pk)
+            image_obj.delete()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteB2BDocumentImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -8501,7 +8533,10 @@ class FetchB2BUserProfileAPI(APIView):
                 temp_dict = []
                 vat_certificate_image_objs = b2b_user_obj.vat_certificate_images.all()
                 for vat_certificate_image_obj in vat_certificate_image_objs:
-                    temp_dict.append(vat_certificate_image_obj.image.url)
+                    temp_dict2 = {}
+                    temp_dict2["image_url"] = vat_certificate_image_obj.image.url
+                    temp_dict2["pk"] = vat_certificate_image_obj.image.pk
+                    temp_dict.append(temp_dict2)
                 response["vat_certificate"] = temp_dict
 
             response["passport_copy"] = ""
@@ -8514,7 +8549,10 @@ class FetchB2BUserProfileAPI(APIView):
                 temp_dict = []
                 passport_copy_image_objs = b2b_user_obj.passport_copy_images.all()
                 for passport_copy_image_obj in passport_copy_image_objs:
-                    temp_dict.append(passport_copy_image_obj.image.url)
+                    temp_dict2 = {}
+                    temp_dict2["image_url"] = passport_copy_image_obj.image.url
+                    temp_dict2["pk"] = passport_copy_image_obj.image.pk
+                    temp_dict.append(temp_dict2)
                 response["passport_copy"] = temp_dict
 
             response["trade_license"] = ""
@@ -8527,7 +8565,10 @@ class FetchB2BUserProfileAPI(APIView):
                 temp_dict = []
                 trade_license_image_objs = b2b_user_obj.trade_license_images.all()
                 for trade_license_image_obj in trade_license_image_objs:
-                    temp_dict.append(trade_license_image_obj.image.url)
+                    temp_dict2 = {}
+                    temp_dict2["image_url"] = trade_license_image_obj.image.url
+                    temp_dict2["pk"] = trade_license_image_obj.image.pk
+                    temp_dict.append(temp_dict2)
                 response["trade_license"] = temp_dict
 
             response["vat_certificate_status"] = b2b_user_obj.vat_certificate_status
@@ -8726,6 +8767,8 @@ FetchCustomerList = FetchCustomerListAPI.as_view()
 FetchCustomerDetails = FetchCustomerDetailsAPI.as_view()
 
 UpdateB2BCustomerStatus = UpdateB2BCustomerStatusAPI.as_view()
+
+DeleteB2BDocumentImage = DeleteB2BDocumentImageAPI.as_view()
 
 FetchCustomerOrders = FetchCustomerOrdersAPI.as_view()
 
