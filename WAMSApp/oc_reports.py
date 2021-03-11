@@ -2724,8 +2724,6 @@ def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_obj
         pp = NestoProduct.objects.all()
         if nesto_product_objs!=None:
             pp = nesto_product_objs
-            logger.info("inside %s",str(pp.count()))
-        logger.info("all %s",str(pp.count()))  
         for p in pp:
             try:
                 cnt += 1
@@ -2740,9 +2738,9 @@ def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_obj
                 common_row[6] = str(p.language_key)
                 common_row[7] = str(p.brand.name)
                 common_row[8] = str(p.weight_volume)
-                common_row[9] = str(nesto_product_obj.is_online)
-                common_row[10] = str(nesto_product_obj.is_verified)
-                common_row[11] = nesto_product_obj.vendor_category
+                common_row[9] = str(p.is_online)
+                common_row[10] = str(p.is_verified)
+                common_row[11] = p.vendor_category
                 common_row[12] = str(p.country_of_origin)
                 common_row[13] = str(p.highlights)
                 common_row[14] = str(p.storage_condition)
