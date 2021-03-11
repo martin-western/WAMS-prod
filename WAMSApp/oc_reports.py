@@ -2515,6 +2515,10 @@ def bulk_download_nesto_ecommerce_report(filename, uuid):
                 "Category",
                 "Sub Category",
                 "Product Name",
+                "Product Ecommerce Name",
+                "Online",
+                "Verified",
+                "Vendor Category",
                 "Product Long Description",
                 "Weight/Volume",
                 "Image Front",
@@ -2616,29 +2620,33 @@ def bulk_download_nesto_ecommerce_report(filename, uuid):
                 common_row[6] = nesto_product_obj.sub_category.category.name if nesto_product_obj.sub_category!=None else ""
                 common_row[7] = nesto_product_obj.sub_category.name if nesto_product_obj.sub_category!=None else ""
                 common_row[8] = nesto_product_obj.product_name
-                common_row[9] = nesto_product_obj.product_description
-                common_row[10] = nesto_product_obj.weight_volume
-                common_row[11] = front_images[:-2]
-                common_row[12] = back_images[:-2]
-                common_row[13] = nutrition_images[:-2]
-                common_row[14] = product_content_images[:-2]
-                common_row[15] = side_images[:-2]
-                common_row[16] = supplier_images[:-2]
-                common_row[17] = lifestyle_images[:-2]
-                common_row[18] = ads_images[:-2]
-                common_row[19] = box_images[:-2]
-                common_row[20] = highlight_images[:-2]
-                common_row[21] = nesto_product_obj.country_of_origin
-                common_row[22] = nesto_product_obj.brand.name if nesto_product_obj.brand!=None else ""
-                common_row[23] = nesto_product_obj.storage_condition
-                common_row[24] = nesto_product_obj.preparation_and_usage
-                common_row[25] = nesto_product_obj.allergic_information
-                common_row[26] = nesto_product_obj.nutrition_facts
-                common_row[27] = nesto_product_obj.ingredients
-                common_row[28] = nesto_product_obj.brand.description if nesto_product_obj.brand!=None else ""
-                common_row[29] = related_article_nos[:-2]
-                common_row[30] = upsell_article_nos[:-2]
-                common_row[31] = crosssell_article_nos[:-2]
+                common_row[9] = nesto_product_obj.product_name_ecommerce
+                common_row[10] = str(nesto_product_obj.is_online)
+                common_row[11] = str(nesto_product_obj.is_verified)
+                common_row[12] = nesto_product_obj.vendor_category
+                common_row[13] = nesto_product_obj.product_description
+                common_row[14] = nesto_product_obj.weight_volume
+                common_row[15] = front_images[:-2]
+                common_row[16] = back_images[:-2]
+                common_row[17] = nutrition_images[:-2]
+                common_row[18] = product_content_images[:-2]
+                common_row[19] = side_images[:-2]
+                common_row[20] = supplier_images[:-2]
+                common_row[21] = lifestyle_images[:-2]
+                common_row[22] = ads_images[:-2]
+                common_row[23] = box_images[:-2]
+                common_row[24] = highlight_images[:-2]
+                common_row[25] = nesto_product_obj.country_of_origin
+                common_row[26] = nesto_product_obj.brand.name if nesto_product_obj.brand!=None else ""
+                common_row[27] = nesto_product_obj.storage_condition
+                common_row[28] = nesto_product_obj.preparation_and_usage
+                common_row[29] = nesto_product_obj.allergic_information
+                common_row[30] = nesto_product_obj.nutrition_facts
+                common_row[31] = nesto_product_obj.ingredients
+                common_row[32] = nesto_product_obj.brand.description if nesto_product_obj.brand!=None else ""
+                common_row[33] = related_article_nos[:-2]
+                common_row[34] = upsell_article_nos[:-2]
+                common_row[35] = crosssell_article_nos[:-2]
 
                 colnum = 0
                 for k in common_row:
@@ -2663,7 +2671,7 @@ def bulk_download_nesto_ecommerce_report(filename, uuid):
         logger.error("Error bulk_download_nesto_ecommerce_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def bulk_download_nesto_detailed_product_report(filename, uuid):
+def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_objs=None):
     try:
         workbook = xlsxwriter.Workbook('./'+filename)
         worksheet = workbook.add_worksheet()
@@ -2677,6 +2685,9 @@ def bulk_download_nesto_detailed_product_report(filename, uuid):
                "Language Key",
                "Brand",
                "Weight/Volume",
+               "Online",
+               "Verified",
+               "Vendor Category",
                "Country of Origin",
                "Highlights",
                "Storage Condition",
@@ -2709,8 +2720,10 @@ def bulk_download_nesto_detailed_product_report(filename, uuid):
         for k in row:
             worksheet.write(cnt, colnum, k)
             colnum += 1
-
+            
         pp = NestoProduct.objects.all()
+        if nesto_product_objs!=None:
+            pp = nesto_product_objs  
         for p in pp:
             try:
                 cnt += 1
@@ -2725,33 +2738,36 @@ def bulk_download_nesto_detailed_product_report(filename, uuid):
                 common_row[6] = str(p.language_key)
                 common_row[7] = str(p.brand.name)
                 common_row[8] = str(p.weight_volume)
-                common_row[9] = str(p.country_of_origin)
-                common_row[10] = str(p.highlights)
-                common_row[11] = str(p.storage_condition)
-                common_row[12] = str(p.preparation_and_usage)
-                common_row[13] = str(p.allergic_information)
-                common_row[14] = str(p.product_description)
-                common_row[15] = "NA" if p.sub_category==None else str(p.sub_category.erp_id)
+                common_row[9] = str(nesto_product_obj.is_online)
+                common_row[10] = str(nesto_product_obj.is_verified)
+                common_row[11] = nesto_product_obj.vendor_category
+                common_row[12] = str(p.country_of_origin)
+                common_row[13] = str(p.highlights)
+                common_row[14] = str(p.storage_condition)
+                common_row[15] = str(p.preparation_and_usage)
+                common_row[16] = str(p.allergic_information)
+                common_row[17] = str(p.product_description)
+                common_row[18] = "NA" if p.sub_category==None else str(p.sub_category.erp_id)
                 dimensions = json.loads(p.dimensions)
-                common_row[16] = str(dimensions["product_length"])
-                common_row[17] = str(dimensions["product_length_metric"])
-                common_row[18] = str(dimensions["product_width"])
-                common_row[19] = str(dimensions["product_width_metric"])
-                common_row[20] = str(dimensions["product_height"])
-                common_row[21] = str(dimensions["product_height_metric"])
-                common_row[22] = str(p.nutrition_facts)
-                common_row[23] = str(p.ingredients)
-                common_row[24] = str(p.return_days)
-                common_row[25] = str(p.front_images.count())
-                common_row[26] = str(p.back_images.count())
-                common_row[27] = str(p.side_images.count())
-                common_row[28] = str(p.nutrition_images.count())
-                common_row[29] = str(p.product_content_images.count())
-                common_row[30] = str(p.supplier_images.count())
-                common_row[31] = str(p.lifestyle_images.count())
-                common_row[32] = str(p.ads_images.count())
-                common_row[33] = str(p.box_images.count())
-                common_row[34] = str(p.highlight_images.count())
+                common_row[19] = str(dimensions["product_length"])
+                common_row[20] = str(dimensions["product_length_metric"])
+                common_row[21] = str(dimensions["product_width"])
+                common_row[22] = str(dimensions["product_width_metric"])
+                common_row[23] = str(dimensions["product_height"])
+                common_row[24] = str(dimensions["product_height_metric"])
+                common_row[25] = str(p.nutrition_facts)
+                common_row[26] = str(p.ingredients)
+                common_row[27] = str(p.return_days)
+                common_row[28] = str(p.front_images.count())
+                common_row[29] = str(p.back_images.count())
+                common_row[30] = str(p.side_images.count())
+                common_row[31] = str(p.nutrition_images.count())
+                common_row[32] = str(p.product_content_images.count())
+                common_row[33] = str(p.supplier_images.count())
+                common_row[34] = str(p.lifestyle_images.count())
+                common_row[35] = str(p.ads_images.count())
+                common_row[36] = str(p.box_images.count())
+                common_row[37] = str(p.highlight_images.count())
                 colnum = 0
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)

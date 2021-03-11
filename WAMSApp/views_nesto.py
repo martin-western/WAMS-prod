@@ -7,6 +7,8 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from django.core.files.storage import default_storage
 
+from WAMSApp.oc_reports import *
+
 import logging
 import json
 import pandas as pd
@@ -327,6 +329,7 @@ class FetchNestoProductListAPI(APIView):
 
             filter_parameters = data.get("filter_parameters", {})
             search_list = data.get("tags",[])
+            generate_report = data.get("generate_report",False)
 
             nesto_product_objs = NestoProduct.objects.all()
 
@@ -423,6 +426,33 @@ class FetchNestoProductListAPI(APIView):
                                 nesto_product_objs = nesto_product_objs.filter(highlight_images_count=0)
                         
             total_products = nesto_product_objs.count()
+
+            if generate_report==True:
+                try:
+                    if OCReport.objects.filter(is_processed=False).count()>6:
+                        response["approved"] = False
+                        response['status'] = 201
+                        return Response(data=response)
+                    note = data["note"]
+                    report_type = "filtered nesto products"
+                    filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+                    oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+                    
+                    custom_permission_obj = CustomPermission.objects.get(user=request.user)
+                    organization_obj = custom_permission_obj.organization
+                    oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=organization_obj)
+
+                    p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,nesto_product_objs,))
+                    p1.start()
+
+                    response["approved"] = True
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchNestoProductListAPI Report: %s at %s", e, str(exc_tb.tb_lineno))
+                response["status"] = 200
+                response["message"] = "report start"
+                response["total_products"] = int(total_products)
+                return Response(data=response)
 
             page = int(data.get('page', 1))
             paginator = Paginator(nesto_product_objs, 20)
