@@ -2832,7 +2832,7 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict["vatCertificate"] = ""
                 temp_dict["vatCertificateType"] = "EMPTY"
                 if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
-                    temp_dict["vatCertificateType"] == "PDF"
+                    temp_dict["vatCertificateType"] = "PDF"
                     temp_dict["vatCertificate"] = b2b_user_obj.vat_certificate.url
                 elif b2b_user_obj.vat_certificate_images.exists() > 0:
                     temp_dict["vatCertificateType"] = "IMG"
@@ -2848,7 +2848,7 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict["passportCopy"] = ""
                 temp_dict["passportCopyType"] = "EMPTY"
                 if b2b_user_obj.passport_copy!=None and b2b_user_obj.passport_copy!="":
-                    temp_dict["passportCopyType"] == "PDF"
+                    temp_dict["passportCopyType"] = "PDF"
                     temp_dict["passportCopy"] = b2b_user_obj.passport_copy.url
                 elif b2b_user_obj.passport_copy_images.exists() > 0:
                     temp_dict["passportCopyType"] = "IMG"
@@ -2864,7 +2864,7 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict["tradeLicense"] = ""
                 temp_dict["tradeLicenseType"] = "EMPTY"
                 if b2b_user_obj.trade_license!=None and b2b_user_obj.trade_license!="":
-                    temp_dict["tradeLicenseType"] == "PDF"
+                    temp_dict["tradeLicenseType"] = "PDF"
                     temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
                 elif b2b_user_obj.trade_license_images.exists() > 0:
                     temp_dict["tradeLicenseType"] = "IMG"
@@ -8526,7 +8526,7 @@ class FetchB2BUserProfileAPI(APIView):
             response["vat_certificate"] = ""
             response["vat_certificate_type"] = "EMPTY"
             if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
-                response["vat_certificate_type"] == "PDF"
+                response["vat_certificate_type"] = "PDF"
                 response["vat_certificate"] = b2b_user_obj.vat_certificate.url
             elif b2b_user_obj.vat_certificate_images.exists() > 0:
                 response["vat_certificate_type"] = "IMG"
@@ -8542,7 +8542,7 @@ class FetchB2BUserProfileAPI(APIView):
             response["passport_copy"] = ""
             response["passport_copy_type"] = "EMPTY"
             if b2b_user_obj.passport_copy!=None and b2b_user_obj.passport_copy!="":
-                response["passport_copy_type"] == "PDF"
+                response["passport_copy_type"] = "PDF"
                 response["passport_copy"] = b2b_user_obj.passport_copy.url
             elif b2b_user_obj.passport_copy_images.exists() > 0 :
                 response["passport_copy_type"] = "IMG"
@@ -8558,7 +8558,7 @@ class FetchB2BUserProfileAPI(APIView):
             response["trade_license"] = ""
             response["trade_license_type"] = "EMPTY"
             if b2b_user_obj.trade_license!=None and b2b_user_obj.trade_license!="":
-                response["trade_license_type"] == "PDF"
+                response["trade_license_type"] = "PDF"
                 response["trade_license"] = b2b_user_obj.trade_license.url
             elif b2b_user_obj.trade_license_images.exists() > 0:
                 response["trade_license_type"] = "IMG"
