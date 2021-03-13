@@ -4401,7 +4401,6 @@ class VerifyB2BOTPSMSAPI(APIView):
 
             response["verified"]=is_verified
             response["status"]=200
-            logger.info("FINAL DATA 1:  %s", str(response))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("VerifyB2BOTPSMSAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -8533,7 +8532,7 @@ class FetchB2BUserProfileAPI(APIView):
                 for vat_certificate_image_obj in vat_certificate_image_objs:
                     temp_dict2 = {}
                     temp_dict2["image_url"] = vat_certificate_image_obj.image.url
-                    temp_dict2["pk"] = vat_certificate_image_obj.image.pk
+                    temp_dict2["pk"] = vat_certificate_image_obj.image.id
                     temp_dict.append(temp_dict2)
                 response["vat_certificate"] = temp_dict
 
@@ -8549,7 +8548,7 @@ class FetchB2BUserProfileAPI(APIView):
                 for passport_copy_image_obj in passport_copy_image_objs:
                     temp_dict2 = {}
                     temp_dict2["image_url"] = passport_copy_image_obj.image.url
-                    temp_dict2["pk"] = passport_copy_image_obj.image.pk
+                    temp_dict2["pk"] = passport_copy_image_obj.image.id
                     temp_dict.append(temp_dict2)
                 response["passport_copy"] = temp_dict
 
@@ -8565,7 +8564,7 @@ class FetchB2BUserProfileAPI(APIView):
                 for trade_license_image_obj in trade_license_image_objs:
                     temp_dict2 = {}
                     temp_dict2["image_url"] = trade_license_image_obj.image.url
-                    temp_dict2["pk"] = trade_license_image_obj.image.pk
+                    temp_dict2["pk"] = trade_license_image_obj.image.id
                     temp_dict.append(temp_dict2)
                 response["trade_license"] = temp_dict
 
