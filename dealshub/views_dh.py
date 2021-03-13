@@ -3973,31 +3973,31 @@ class SignUpCompletionAPI(APIView):
             b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
 
             if vat_certificate_type == "IMG":
-                image_count = int(json.loads(data["vat-certificate"]).get("image_count",0))
+                image_count = int(data.get("vatCertificateImageCount",0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = json.loads(data["vat-certificate"])["image_" + str(i+1)])
+                    image_obj = Image.objects.create(image = data["vat-certificate-image-" + str(i+1)])
                     b2b_user_obj.vat_certificate_images.add(image_obj)
             elif vat_certificate_type == "PDF":
-                if data["vat-certificate"].get("document","") != "":
-                    b2b_user_obj.vat_certificate = data["vat-certificate"]["document"]
+                if data["vat-certificate-document"] != "":
+                    b2b_user_obj.vat_certificate = data["vat-certificate-document"]
 
             if trade_license_type == "IMG":
-                image_count = int(data["trade-license"].get("image_count",0))
+                image_count = int(data.get("tradeLicenseImageCount",0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["trade-license"]["image_" + str(i+1)])
+                    image_obj = Image.objects.create(image = data["trade-license-image-" + str(i+1)])
                     b2b_user_obj.trade_license_images.add(image_obj)
             elif trade_license_type == "PDF":
-                if data["trade-license"].get("document","") != "":
-                    b2b_user_obj.trade_license = data["trade-license"]["document"]
+                if data["trade-license-document"] != "":
+                    b2b_user_obj.trade_license = data["trade-license-document"]
 
             if passport_copy_type == "IMG":
-                image_count = int(data["passport-copy"].get("image_count",0))
+                image_count = int(data.get("passportCopyImageCount",0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["passport-copy"]["image_" + str(i+1)])
+                    image_obj = Image.objects.create(image = data["passport-copy-image-" + str(i+1)])
                     b2b_user_obj.passport_copy_images.add(image_obj)
             elif passport_copy_type == "PDF":
-                if data["passport-copy"].get("document","") != "":
-                    b2b_user_obj.passport_copy = data["passport-copy"]["document"]
+                if data["passport-copy-document",""] != "":
+                    b2b_user_obj.passport_copy = data["passport-copy-document"]
 
             is_new_user_created =False
             if b2b_user_obj.verification_code==otp:  
