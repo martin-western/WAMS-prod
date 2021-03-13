@@ -3942,6 +3942,8 @@ class SignUpCompletionAPI(APIView):
         try:
             data = request.data
             logger.info("SignUpCompletionAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             contact_number = data["contactNumber"]
             name = data["fullName"]
@@ -3962,7 +3964,6 @@ class SignUpCompletionAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number + "-" + website_group_name)
-                logger.warning(Cart.objects.filter(owner=dealshub_user_obj,location_group=location_group_obj).exists())
                 if Cart.objects.filter(owner=dealshub_user_obj,location_group=location_group_obj).exists() == True:
                     response["message"] = "SignUp is already completed for this account"
                     return Response(data=response)
