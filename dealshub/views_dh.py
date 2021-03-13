@@ -3973,7 +3973,7 @@ class SignUpCompletionAPI(APIView):
             b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
 
             if vat_certificate_type == "IMG":
-                image_count = int(data["vat-certificate"].get("image_count",0))
+                image_count = int(json.loads(data["vat-certificate"]).get("image_count",0))
                 for i in range(image_count):
                     image_obj = Image.objects.create(image = data["vat-certificate"]["image_" + str(i+1)])
                     b2b_user_obj.vat_certificate_images.add(image_obj)
