@@ -2841,7 +2841,7 @@ class FetchCustomerDetailsAPI(APIView):
                     for vat_certificate_image_obj in vat_certificate_image_objs:
                         temp_dict3 = {}
                         temp_dict3["image_url"] = vat_certificate_image_obj.image.url
-                        temp_dict3["pk"] = vat_certificate_image_obj.image.pk
+                        temp_dict3["pk"] = vat_certificate_image_obj.pk
                         temp_dict2.append(temp_dict3)
                     temp_dict["vatCertificate"] = temp_dict2
 
@@ -2857,7 +2857,7 @@ class FetchCustomerDetailsAPI(APIView):
                     for passport_copy_image_obj in passport_copy_image_objs:
                         temp_dict3 = {}
                         temp_dict3["image_url"] = passport_copy_image_obj.image.url
-                        temp_dict3["pk"] = passport_copy_image_obj.image.pk
+                        temp_dict3["pk"] = passport_copy_image_obj.pk
                         temp_dict2.append(temp_dict3)
                     temp_dict["passportCopy"] = temp_dict2
 
@@ -2873,7 +2873,7 @@ class FetchCustomerDetailsAPI(APIView):
                     for trade_license_image_obj in trade_license_image_objs:
                         temp_dict3 = {}
                         temp_dict3["image_url"] = trade_license_image_obj.image.url
-                        temp_dict3["pk"] = trade_license_image_obj.image.pk
+                        temp_dict3["pk"] = trade_license_image_obj.pk
                         temp_dict2.append(temp_dict3)
                     temp_dict["tradeLicense"] = temp_dict2
 
