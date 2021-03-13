@@ -4006,9 +4006,6 @@ class SignUpCompletionAPI(APIView):
                 b2b_user_obj.email = email
                 b2b_user_obj.date_created = timezone.now()
                 b2b_user_obj.company_name = company_name
-                b2b_user_obj.vat_certificate = vat_certificate
-                b2b_user_obj.trade_license = trade_license 
-                b2b_user_obj.passport_copy = passport_copy
                 b2b_user_obj.vat_certificate_id = vat_certificate_id
                 b2b_user_obj.trade_license_id = trade_license_id
                 b2b_user_obj.passport_copy_id = passport_copy_id
