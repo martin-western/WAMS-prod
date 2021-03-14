@@ -3063,6 +3063,37 @@ class DeleteB2BDocumentImageAPI(APIView):
         return Response(data=response)
 
 
+class DeleteB2BDocumentAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("DeleteB2BDocumentAPI: %s", str(data))
+
+            document_type = data["documentType"]
+
+            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+
+            if document_type=="VAT":
+                b2b_user_obj.vat_certificate = None
+            elif document_type=="PASSPORT":
+                b2b_user_obj.passport_copy = None
+            elif document_type=="TRADE":
+                b2b_user_obj.trade_license = None
+            b2b_user_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteB2BDocumentAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchCustomerOrdersAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -8758,6 +8789,8 @@ FetchCustomerDetails = FetchCustomerDetailsAPI.as_view()
 UpdateB2BCustomerStatus = UpdateB2BCustomerStatusAPI.as_view()
 
 DeleteB2BDocumentImage = DeleteB2BDocumentImageAPI.as_view()
+
+DeleteB2BDocument = DeleteB2BDocumentAPI.as_view()
 
 FetchCustomerOrders = FetchCustomerOrdersAPI.as_view()
 
