@@ -6337,6 +6337,10 @@ class SetShippingMethodAPI(APIView):
                             order_information["email"] = order_obj.owner.email
                             b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
                             order_information["trn"] = b2b_user_obj.vat_certificate_id
+                            if order_information["trn"] == "":
+                                response["message"] = "TRN number is empty"
+                                response["status"] = 406
+                                return Response(data=response)
                         order_information["items"] = []
                         
                         for unit_order_obj in grouped_unit_orders[brand_name]:
