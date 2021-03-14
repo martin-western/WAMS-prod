@@ -144,6 +144,7 @@ urlpatterns = [
     url(r'^fetch-customer-details/$', views.FetchCustomerDetails),
     url(r'^update-b2b-customer-status/$',views.UpdateB2BCustomerStatus),
     url(r'^delete-b2b-document-image/$',views.DeleteB2BDocumentImage),
+    url(r'^delete-b2b-document/$',views.DeleteB2BDocument),
     url(r'^fetch-customer-orders/$', views.FetchCustomerOrders),
 
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
