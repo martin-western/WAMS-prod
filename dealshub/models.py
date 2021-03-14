@@ -1507,6 +1507,7 @@ class DealsHubUser(User):
     verification_code = models.CharField(default="", max_length=50)
     is_pin_set = models.BooleanField(default=False)
     website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    otp_attempts = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = "DealsHubUser"
@@ -1526,6 +1527,9 @@ class B2BUser(DealsHubUser):
     vat_certificate = models.FileField(upload_to = 'vat_certificate',null=True, blank=True)
     trade_license = models.FileField(upload_to = 'trade_license',null=True,blank=True)
     passport_copy = models.FileField(upload_to = 'passport_copy',null=True,blank=True)
+    vat_certificate_images = models.ManyToManyField(Image, related_name="vat_certificate_images", blank=True)
+    trade_license_images = models.ManyToManyField(Image, related_name="trade_license_images", blank=True)
+    passport_copy_images = models.ManyToManyField(Image, related_name="passport_copy_images", blank=True)
     vat_certificate_id = models.CharField(default="",max_length=250)
     trade_license_id = models.CharField(default="",max_length=250)
     passport_copy_id = models.CharField(default="",max_length=250)

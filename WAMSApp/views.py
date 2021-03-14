@@ -1152,6 +1152,12 @@ class UpdateDealshubProductAPI(APIView):
             data = request.data
             logger.info("UpdateDealshubProductAPI: %s", str(data))
 
+            is_b2b = False
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid != "":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                is_b2b = location_group_obj.is_b2b
+
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -1174,6 +1180,13 @@ class UpdateDealshubProductAPI(APIView):
                 if "promotional_price" in data:
                     promotional_price = float(data["promotional_price"])
                     dh_product_obj.promotional_price = promotional_price
+
+                    if is_b2b == True:
+                        dh_product_obj.promotional_price_cohort1 = float(data["promotional_price_cohort1"])
+                        dh_product_obj.promotional_price_cohort2 = float(data["promotional_price_cohort2"])
+                        dh_product_obj.promotional_price_cohort3 = float(data["promotional_price_cohort3"])
+                        dh_product_obj.promotional_price_cohort4 = float(data["promotional_price_cohort4"])
+                        dh_product_obj.promotional_price_cohort5 = float(data["promotional_price_cohort5"])
 
             if stock_permission:
                 if "stock" in data:
@@ -1280,51 +1293,51 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
 
                     if str(dfs.iloc[i][1]) != "nan" and str(dfs.iloc[i][1]) != "":
-                        now_price = int(dfs.iloc[i][1])
+                        now_price = float(dfs.iloc[i][1])
                         dealshub_product_obj.now_price = now_price
 
                     if str(dfs.iloc[i][2]) != "nan" and str(dfs.iloc[i][2]) != "":
-                        now_price_cohort1 = int(dfs.iloc[i][2])
+                        now_price_cohort1 = float(dfs.iloc[i][2])
                         dealshub_product_obj.now_price_cohort1 = now_price_cohort1
 
                     if str(dfs.iloc[i][3]) != "nan" and str(dfs.iloc[i][3]) != "":
-                        now_price_cohort2 = int(dfs.iloc[i][3])
+                        now_price_cohort2 = float(dfs.iloc[i][3])
                         dealshub_product_obj.now_price_cohort2 = now_price_cohort2
 
                     if str(dfs.iloc[i][4]) != "nan" and str(dfs.iloc[i][4]) != "":
-                        now_price_cohort3 = int(dfs.iloc[i][4])
+                        now_price_cohort3 = float(dfs.iloc[i][4])
                         dealshub_product_obj.now_price_cohort3 = now_price_cohort3
 
                     if str(dfs.iloc[i][5]) != "nan" and str(dfs.iloc[i][5]) != "":
-                        now_price_cohort4 = int(dfs.iloc[i][5])
+                        now_price_cohort4 = float(dfs.iloc[i][5])
                         dealshub_product_obj.now_price_cohort4 = now_price_cohort4
 
                     if str(dfs.iloc[i][6]) != "nan" and str(dfs.iloc[i][6]) != "":
-                        now_price_cohort5 = int(dfs.iloc[i][6])
+                        now_price_cohort5 = float(dfs.iloc[i][6])
                         dealshub_product_obj.now_price_cohort5 = now_price_cohort5
 
                     if str(dfs.iloc[i][7]) != "nan" and str(dfs.iloc[i][7]) != "":
-                        promotional_price = int(dfs.iloc[i][7])
+                        promotional_price = float(dfs.iloc[i][7])
                         dealshub_product_obj.promotional_price = promotional_price
 
                     if str(dfs.iloc[i][8]) != "nan" and str(dfs.iloc[i][8]) != "":
-                        promotional_price_cohort1 = int(dfs.iloc[i][8])
+                        promotional_price_cohort1 = float(dfs.iloc[i][8])
                         dealshub_product_obj.promotional_price_cohort1 = promotional_price_cohort1
 
                     if str(dfs.iloc[i][9]) != "nan" and str(dfs.iloc[i][9]) != "":
-                        promotional_price_cohort2 = int(dfs.iloc[i][9])
+                        promotional_price_cohort2 = float(dfs.iloc[i][9])
                         dealshub_product_obj.promotional_price_cohort2 = promotional_price_cohort2
 
                     if str(dfs.iloc[i][10]) != "nan" and str(dfs.iloc[i][10]) != "":
-                        promotional_price_cohort3 = int(dfs.iloc[i][10])
+                        promotional_price_cohort3 = float(dfs.iloc[i][10])
                         dealshub_product_obj.promotional_price_cohort3 = promotional_price_cohort3
 
                     if str(dfs.iloc[i][11]) != "nan" and str(dfs.iloc[i][11]) != "":
-                        promotional_price_cohort4 = int(dfs.iloc[i][11])
+                        promotional_price_cohort4 = float(dfs.iloc[i][11])
                         dealshub_product_obj.promotional_price_cohort4 = promotional_price_cohort4
 
                     if str(dfs.iloc[i][12]) != "nan" and str(dfs.iloc[i][12]) != "":
-                        promotional_price_cohort5 = int(dfs.iloc[i][12])
+                        promotional_price_cohort5 = float(dfs.iloc[i][12])
                         dealshub_product_obj.promotional_price_cohort5 = promotional_price_cohort5
 
                     dealshub_product_obj.save()
@@ -7171,9 +7184,6 @@ class SecureDeleteProductAPI(APIView):
 
 class LogoutOCUserAPI(APIView):
     
-    def logout(self, request):
-        request.user.auth_token.delete()
-
     def post(self, request, *args, **kwargs):
     
         response = {}
@@ -7186,7 +7196,8 @@ class LogoutOCUserAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
-            self.logout(request)
+            token = request.META["HTTP_AUTHORIZATION"].split(" ")[1]
+            blacklist_token_obj, created = BlackListToken.objects.get_or_create(token=token)
 
             response["status"] = 200
         except Exception as e:

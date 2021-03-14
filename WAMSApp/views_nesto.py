@@ -7,9 +7,12 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from django.core.files.storage import default_storage
 
+from WAMSApp.oc_reports import *
+
 import logging
 import json
 import pandas as pd
+import threading
 logger = logging.getLogger(__name__)
 
 
@@ -251,8 +254,8 @@ class FetchNestoProductDetailsAPI(APIView):
             response["barcode"] = nesto_product_obj.barcode
             response["uom"] = nesto_product_obj.uom
             response["language_key"] = nesto_product_obj.language_key
-            response["brand"] = nesto_product_obj.brand.name
-            response["about_brand"] = nesto_product_obj.brand.description
+            response["brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.name
+            response["about_brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.description
             response["weight_volume"] = nesto_product_obj.weight_volume
             response["country_of_origin"] = nesto_product_obj.country_of_origin
             response["highlights"] = nesto_product_obj.highlights
@@ -327,6 +330,7 @@ class FetchNestoProductListAPI(APIView):
 
             filter_parameters = data.get("filter_parameters", {})
             search_list = data.get("tags",[])
+            generate_report = data.get("generate_report",False)
 
             nesto_product_objs = NestoProduct.objects.all()
 
@@ -424,6 +428,33 @@ class FetchNestoProductListAPI(APIView):
                         
             total_products = nesto_product_objs.count()
 
+            if generate_report==True:
+                try:
+                    if OCReport.objects.filter(is_processed=False).count()>6:
+                        response["approved"] = False
+                        response['status'] = 201
+                        return Response(data=response)
+                    note = data["note"]
+                    report_type = "filtered nesto products"
+                    filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+                    oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+                    
+                    custom_permission_obj = CustomPermission.objects.get(user=request.user)
+                    organization_obj = custom_permission_obj.organization
+                    oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=organization_obj)
+
+                    p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,nesto_product_objs,))
+                    p1.start()
+
+                    response["approved"] = True
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchNestoProductListAPI Report: %s at %s", e, str(exc_tb.tb_lineno))
+                response["status"] = 200
+                response["message"] = "report start"
+                response["total_products"] = int(total_products)
+                return Response(data=response)
+
             page = int(data.get('page', 1))
             paginator = Paginator(nesto_product_objs, 20)
             nesto_product_objs = paginator.page(page)
@@ -440,8 +471,8 @@ class FetchNestoProductListAPI(APIView):
                     temp_dict["barcode"] = nesto_product_obj.barcode
                     temp_dict["uom"] = nesto_product_obj.uom
                     temp_dict["language_key"] = nesto_product_obj.language_key
-                    temp_dict["brand"] = nesto_product_obj.brand.name
-                    temp_dict["about_brand"] = nesto_product_obj.brand.description
+                    temp_dict["brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.name
+                    temp_dict["about_brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.description
                     temp_dict["weight_volume"] = nesto_product_obj.weight_volume
                     temp_dict["country_of_origin"] = nesto_product_obj.country_of_origin
                     temp_dict["highlights"] = nesto_product_obj.highlights
@@ -903,6 +934,7 @@ class BulkUploadNestoProductsAPI(APIView):
                     ingredients = "" if str(dfs.iloc[i][16]).strip()=="nan" else str(dfs.iloc[i][16]).strip()
                     product_status = ""
                     barcode = barcode.split(".")[0]
+                    article_no = article_no.split(".")[0]
                     if article_no!="" and barcode!="" and article_name!="":
                         product_status = "not ecommerce"
                     if product_status=="not ecommerce" and brand_name!="" and language_key!="" and weight_volume!="" and country_of_origin!="" and storage_condition!="" and allergic_info!="" and  nutrition_facts!="" and  ingredients!="":
