@@ -3074,9 +3074,16 @@ class DeleteB2BDocumentAPI(APIView):
             logger.info("DeleteB2BDocumentAPI: %s", str(data))
 
             document_type = data["documentType"]
+            contact_number = data.get("contactNumber","")
+            is_dealshub = data.get("isDealshub",True)
+            location_group_uuid = data.get("locationGroupUuid","")
 
-            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
-
+            if is_dealshub == True:
+                b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+            else
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                website_group_name = location_group_obj.website_group.name.lower()
+                b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
             if document_type=="VAT":
                 b2b_user_obj.vat_certificate = None
             elif document_type=="PASSPORT":
