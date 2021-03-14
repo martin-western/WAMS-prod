@@ -421,7 +421,6 @@ class AddToCartAPI(APIView):
                 logger.error("AddToCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_obj = None
@@ -447,7 +446,6 @@ class AddToCartAPI(APIView):
             total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat_with_cod = cart_obj.get_vat(cod=True)
 
-
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
             voucher_code = ""
@@ -457,7 +455,6 @@ class AddToCartAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -514,7 +511,6 @@ class AddToFastCartAPI(APIView):
                 logger.error("AddToCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             
@@ -537,7 +533,6 @@ class AddToFastCartAPI(APIView):
             total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
             vat_with_cod = fast_cart_obj.get_vat(cod=True)
 
-
             is_voucher_applied = fast_cart_obj.voucher!=None
             voucher_discount = 0
             voucher_code = ""
@@ -547,7 +542,6 @@ class AddToFastCartAPI(APIView):
                 if fast_cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
 
             response["currency"] = fast_cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -605,7 +599,6 @@ class AddToOfflineCartAPI(APIView):
                 logger.error("AddToOfflineCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_obj = None
@@ -639,7 +632,6 @@ class AddToOfflineCartAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
