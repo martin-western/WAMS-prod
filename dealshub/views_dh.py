@@ -3953,9 +3953,9 @@ class SignUpCompletionAPI(APIView):
             vat_certificate_id = data.get("vat-certificate-id","")
             passport_copy_id = data.get("passport-copy-id","")
             trade_license_id = data.get("trade-license-id","")
-            vat_certificate_type = data["vatCertificateType"]
-            trade_license_type = data["tradeLicenseType"]
-            passport_copy_type = data["passportCopyType"]
+            vat_certificate_type = data.get("vatCertificateType", "")
+            trade_license_type = data.get("tradeLicenseType", "")
+            passport_copy_type = data.get("passportCopyType", "")
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
