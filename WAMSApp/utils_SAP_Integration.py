@@ -24,7 +24,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         credentials = ("MOBSERVICE", "~lDT8+QklV=(")
         
         body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,CUSTOMER_ID)
-        
+        logger.info("price and stock req body :%s", str(body))
         response = requests.post(url=PRICE_STOCK_URL, auth=credentials, data=body, headers=headers)
         
         content = response.content
@@ -171,6 +171,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
 
         result["atp_threshold"] = atp_threshold
         result["holding_threshold"] = holding_threshold
+        logger.info("price and stock result : %s",str(json.dumps(result)))
         
         result["status"] = 200
         result["message"] = "Success"
@@ -265,7 +266,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                 result["stock_status"] = "CRITICAL STOCK"
 
         if len(transfer_information) > 0:
-
+            logger.info("tansfer info : %s", str(json.dumps(transfer_information)))
             body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
             response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers)
             content = response.content
@@ -328,7 +329,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                 result["stock_status"] = "MORE HOLDING"
             else:
                 result["stock_status"] = "CRITICAL STOCK"
-
+            logger.info("afer holding transfer result : %s",str(json.dumps(result)))
             result["total_holding_after"] = total_holding
             result["total_atp_after"] = total_atp
             return result

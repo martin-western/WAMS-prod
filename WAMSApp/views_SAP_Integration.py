@@ -301,6 +301,7 @@ class UpdateProductHoldingDetailsAPI(APIView):
                         response['error_message'] = SAP_message
                         response['status'] = 503
                         return Response(data=response)
+                    logger.info("sucess holding transfer, %s", str(SAP_message))
                     dealshub_product_obj.stock = transfer_result["total_holding_after"]
                     dealshub_product_obj.save()
                 except Exception as e:
