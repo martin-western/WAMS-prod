@@ -421,7 +421,6 @@ class AddToCartAPI(APIView):
                 logger.error("AddToCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_obj = None
@@ -447,7 +446,6 @@ class AddToCartAPI(APIView):
             total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat_with_cod = cart_obj.get_vat(cod=True)
 
-
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
             voucher_code = ""
@@ -457,7 +455,6 @@ class AddToCartAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -514,7 +511,6 @@ class AddToFastCartAPI(APIView):
                 logger.error("AddToCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             
@@ -537,7 +533,6 @@ class AddToFastCartAPI(APIView):
             total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
             vat_with_cod = fast_cart_obj.get_vat(cod=True)
 
-
             is_voucher_applied = fast_cart_obj.voucher!=None
             voucher_discount = 0
             voucher_code = ""
@@ -547,7 +542,6 @@ class AddToFastCartAPI(APIView):
                 if fast_cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
 
             response["currency"] = fast_cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -605,7 +599,6 @@ class AddToOfflineCartAPI(APIView):
                 logger.error("AddToOfflineCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_obj = None
@@ -639,7 +632,6 @@ class AddToOfflineCartAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -2989,40 +2981,40 @@ class UpdateB2BCustomerStatusAPI(APIView):
             passport_copy_type = data["passportCopyType"]
 
             if vat_certificate_type == "IMG":
-                image_count = int(data["vat-certificate"].get("image_count",0))
+                image_count = int(data.get("vatCertificateImageCount",0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["vat-certificate"]["image_" + str(i+1)])
+                    image_obj = Image.objects.create(image = data["vat-certificate-image-" + str(i+1)])
                     b2b_user_obj.vat_certificate_images.add(image_obj)
                 b2b_user_obj.vat_certificate = None
             elif vat_certificate_type == "PDF":
-                if data["vat-certificate"].get("document","") != "":
-                    b2b_user_obj.vat_certificate = data["vat-certificate"]["document"]
+                if data["vat-certificate-document"] != "":
+                    b2b_user_obj.vat_certificate = data["vat-certificate-document"]
                 image_objs = b2b_user_obj.vat_certificate_images.all()
                 for image_obj in image_objs:
                     image_obj.delete()
 
             if trade_license_type == "IMG":
-                image_count = int(data["trade-license"].get("image_count",0))
+                image_count = int(data.get("tradeLicenseImageCount",0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["trade-license"]["image_" + str(i+1)])
+                    image_obj = Image.objects.create(image = data["trade-license-image-" + str(i+1)])
                     b2b_user_obj.trade_license_images.add(image_obj)
                 b2b_user_obj.trade_license = None
             elif trade_license_type == "PDF":
-                if data["trade-license"].get("document","") != "":
-                    b2b_user_obj.trade_license = data["trade-license"]["document"]
+                if data["trade-license-document"] != "":
+                    b2b_user_obj.trade_license = data["trade-license-document"]
                 image_objs = b2b_user_obj.trade_license_images.all()
                 for image_obj in image_objs:
                     image_obj.delete()
 
             if passport_copy_type == "IMG":
-                image_count = int(data["passport-copy"].get("image_count",0))
+                image_count = int(data.get("passportCopyImageCount",0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["passport-copy"]["image_" + str(i+1)])
+                    image_obj = Image.objects.create(image = data["passport-copy-image-" + str(i+1)])
                     b2b_user_obj.passport_copy_images.add(image_obj)
                 b2b_user_obj.passport_copy = None
             elif passport_copy_type == "PDF":
-                if data["passport-copy"].get("document","") != "":
-                    b2b_user_obj.passport_copy = data["passport-copy"]["document"]
+                if data["passport-copy-document"] != "":
+                    b2b_user_obj.passport_copy = data["passport-copy-document"]
                 image_objs = b2b_user_obj.passport_copy_images.all()
                 for image_obj in image_objs:
                     image_obj.delete()
