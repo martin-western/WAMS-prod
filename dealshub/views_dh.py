@@ -3080,7 +3080,7 @@ class DeleteB2BDocumentAPI(APIView):
 
             if is_dealshub == True:
                 b2b_user_obj = B2BUser.objects.get(username = request.user.username)
-            else
+            else:
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 website_group_name = location_group_obj.website_group.name.lower()
                 b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
