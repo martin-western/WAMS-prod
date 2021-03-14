@@ -8373,6 +8373,15 @@ class GRNProcessingCronAPI(APIView):
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         order_information["charges"] = get_all_the_charges(order_obj)
                         order_information["customer_id"] = order_obj.get_customer_id_for_final_sap_billing()
+                        is_b2b = order_obj.location_group.is_b2b
+                        order_information["is_b2b"] = is_b2b
+                        if is_b2b==True:
+                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                            order_information["region"] = order_obj.shipping_address.state
+                            order_information["telephone"] = order_obj.shipping_address.contact_number
+                            order_information["email"] = order_obj.owner.email
+                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            order_information["trn"] = b2b_user_obj.vat_certificate_id
 
                         unit_order_information_list = []
 
@@ -8415,7 +8424,7 @@ class GRNProcessingCronAPI(APIView):
                                 logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
 
                         order_obj.sap_final_billing_info = json.dumps(result)
-                        order_obj.order_information = json.dumps(order_information)
+                        #order_obj.order_information = json.dumps(order_information)
                         order_obj.save()
 
                         refresh_stock(order_obj)
