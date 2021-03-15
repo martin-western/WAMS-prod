@@ -753,6 +753,9 @@ class Address(models.Model):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
 
+        if Address.objects.filter(user=self.user).count()>10:
+            return
+
         super(Address, self).save(*args, **kwargs)
 
     def get_country(self):
