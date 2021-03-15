@@ -349,8 +349,14 @@ def xml_generator_for_final_billing(company_code,customer_id,order_information):
                                <IM_NAME2>""" + str(order_information["customer_middle_name"]) + """</IM_NAME2>
                                <IM_NAME3>""" + str(order_information["customer_last_name"]) + """</IM_NAME3>
                                <IM_VKORG>""" + str(company_code) + """</IM_VKORG>
-                               <IM_VTWEG></IM_VTWEG>
-                               <T_CONDITION>"""+ str(condition_feed) + """</T_CONDITION>
+                               <IM_VTWEG></IM_VTWEG>"""
+        if order_information["is_b2b"]==True:
+               xml_feed +="""        <IM_STREET>""" + str(order_information["street"])+ """</IM_STREET>
+                                 <IM_REGION>""" + str(order_information["region"])+ """</IM_REGION>
+                                 <IM_TELEPHONE>""" + str(order_information["telephone"])+ """</IM_TELEPHONE>
+                                 <IM_EMAIL>""" + str(order_information["email"])+ """</IM_EMAIL>
+                                 <IM_STCEG>""" + str(order_information["trn"])+ """</IM_STCEG>"""
+        xml_feed +=         """<T_CONDITION>"""+ str(condition_feed) + """</T_CONDITION>
                                <T_DOCS>
                                   <item>
                                      <DOCTYP></DOCTYP>

@@ -17,6 +17,7 @@ from WAMSApp.utils_SAP_Integration import *
 from dealshub.network_global_integration import *
 from dealshub.hyperpay_integration import *
 from dealshub.spotii_integration import *
+from dealshub.tap_integration import *
 from dealshub.postaplus import *
 
 from django.core.paginator import Paginator
@@ -421,7 +422,6 @@ class AddToCartAPI(APIView):
                 logger.error("AddToCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_obj = None
@@ -447,7 +447,6 @@ class AddToCartAPI(APIView):
             total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat_with_cod = cart_obj.get_vat(cod=True)
 
-
             is_voucher_applied = cart_obj.voucher!=None
             voucher_discount = 0
             voucher_code = ""
@@ -457,7 +456,6 @@ class AddToCartAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -514,7 +512,6 @@ class AddToFastCartAPI(APIView):
                 logger.error("AddToCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             
@@ -537,7 +534,6 @@ class AddToFastCartAPI(APIView):
             total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
             vat_with_cod = fast_cart_obj.get_vat(cod=True)
 
-
             is_voucher_applied = fast_cart_obj.voucher!=None
             voucher_discount = 0
             voucher_code = ""
@@ -547,7 +543,6 @@ class AddToFastCartAPI(APIView):
                 if fast_cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
 
             response["currency"] = fast_cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -605,7 +600,6 @@ class AddToOfflineCartAPI(APIView):
                 logger.error("AddToOfflineCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_obj = None
@@ -639,7 +633,6 @@ class AddToOfflineCartAPI(APIView):
                 if cart_obj.voucher.voucher_type=="SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-
 
             response["currency"] = cart_obj.get_currency()
             response["subtotal"] = subtotal
@@ -2989,40 +2982,40 @@ class UpdateB2BCustomerStatusAPI(APIView):
             passport_copy_type = data["passportCopyType"]
 
             if vat_certificate_type == "IMG":
-                image_count = int(data["vat-certificate"].get("image_count",0))
+                image_count = int(data.get("vatCertificateImageCount",0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["vat-certificate"]["image_" + str(i+1)])
+                    image_obj = Image.objects.create(image = data["vat-certificate-image-" + str(i+1)])
                     b2b_user_obj.vat_certificate_images.add(image_obj)
                 b2b_user_obj.vat_certificate = None
             elif vat_certificate_type == "PDF":
-                if data["vat-certificate"].get("document","") != "":
-                    b2b_user_obj.vat_certificate = data["vat-certificate"]["document"]
+                if data["vat-certificate-document"] != "":
+                    b2b_user_obj.vat_certificate = data["vat-certificate-document"]
                 image_objs = b2b_user_obj.vat_certificate_images.all()
                 for image_obj in image_objs:
                     image_obj.delete()
 
             if trade_license_type == "IMG":
-                image_count = int(data["trade-license"].get("image_count",0))
+                image_count = int(data.get("tradeLicenseImageCount",0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["trade-license"]["image_" + str(i+1)])
+                    image_obj = Image.objects.create(image = data["trade-license-image-" + str(i+1)])
                     b2b_user_obj.trade_license_images.add(image_obj)
                 b2b_user_obj.trade_license = None
             elif trade_license_type == "PDF":
-                if data["trade-license"].get("document","") != "":
-                    b2b_user_obj.trade_license = data["trade-license"]["document"]
+                if data["trade-license-document"] != "":
+                    b2b_user_obj.trade_license = data["trade-license-document"]
                 image_objs = b2b_user_obj.trade_license_images.all()
                 for image_obj in image_objs:
                     image_obj.delete()
 
             if passport_copy_type == "IMG":
-                image_count = int(data["passport-copy"].get("image_count",0))
+                image_count = int(data.get("passportCopyImageCount",0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["passport-copy"]["image_" + str(i+1)])
+                    image_obj = Image.objects.create(image = data["passport-copy-image-" + str(i+1)])
                     b2b_user_obj.passport_copy_images.add(image_obj)
                 b2b_user_obj.passport_copy = None
             elif passport_copy_type == "PDF":
-                if data["passport-copy"].get("document","") != "":
-                    b2b_user_obj.passport_copy = data["passport-copy"]["document"]
+                if data["passport-copy-document"] != "":
+                    b2b_user_obj.passport_copy = data["passport-copy-document"]
                 image_objs = b2b_user_obj.passport_copy_images.all()
                 for image_obj in image_objs:
                     image_obj.delete()
@@ -3067,6 +3060,44 @@ class DeleteB2BDocumentImageAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteB2BDocumentImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DeleteB2BDocumentAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response["status"] = 500
+
+        try:
+            data = request.data
+            logger.info("DeleteB2BDocumentAPI: %s", str(data))
+
+            document_type = data["documentType"]
+            contact_number = data.get("contactNumber","")
+            is_dealshub = data.get("isDealshub",True)
+            location_group_uuid = data.get("locationGroupUuid","")
+
+            if is_dealshub == True:
+                b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+            else:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                website_group_name = location_group_obj.website_group.name.lower()
+                b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+            if document_type=="VAT":
+                b2b_user_obj.vat_certificate = None
+            elif document_type=="PASSPORT":
+                b2b_user_obj.passport_copy = None
+            elif document_type=="TRADE":
+                b2b_user_obj.trade_license = None
+            b2b_user_obj.save()
+
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteB2BDocumentAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -3997,7 +4028,7 @@ class SignUpCompletionAPI(APIView):
                     image_obj = Image.objects.create(image = data["passport-copy-image-" + str(i+1)])
                     b2b_user_obj.passport_copy_images.add(image_obj)
             elif passport_copy_type == "PDF":
-                if data["passport-copy-document",""] != "":
+                if data["passport-copy-document"] != "":
                     b2b_user_obj.passport_copy = data["passport-copy-document"]
 
             is_new_user_created =False
@@ -4125,7 +4156,8 @@ class SendOTPSMSLoginAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SendOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-            response["isNewUser"] = is_new_user
+            if website_group_name not in ["shopnesto"]:
+                response["isNewUser"] = is_new_user
             response["status"] = 200
 
         except Exception as e:
@@ -6307,6 +6339,10 @@ class SetShippingMethodAPI(APIView):
                             order_information["email"] = order_obj.owner.email
                             b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
                             order_information["trn"] = b2b_user_obj.vat_certificate_id
+                            if order_information["trn"] == "":
+                                response["message"] = "TRN number is empty"
+                                response["status"] = 406
+                                return Response(data=response)
                         order_information["items"] = []
                         
                         for unit_order_obj in grouped_unit_orders[brand_name]:
@@ -7955,11 +7991,17 @@ class PlaceOnlineOrderAPI(APIView):
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
                     return Response(data=response)
+            elif online_payment_mode.strip().lower()=="tap":
+                if get_charge_status(data["charge_id"])!="CAPTURED":
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PlaceOnlineOrderAPI: TAP STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                    return Response(data=response)
             else:
                 if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
                     return Response(data=response)
+            
 
             if is_fast_cart==False:
 
@@ -8346,6 +8388,15 @@ class GRNProcessingCronAPI(APIView):
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         order_information["charges"] = get_all_the_charges(order_obj)
                         order_information["customer_id"] = order_obj.get_customer_id_for_final_sap_billing()
+                        is_b2b = order_obj.location_group.is_b2b
+                        order_information["is_b2b"] = is_b2b
+                        if is_b2b==True:
+                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                            order_information["region"] = order_obj.shipping_address.state
+                            order_information["telephone"] = order_obj.shipping_address.contact_number
+                            order_information["email"] = order_obj.owner.email
+                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            order_information["trn"] = b2b_user_obj.vat_certificate_id
 
                         unit_order_information_list = []
 
@@ -8388,7 +8439,7 @@ class GRNProcessingCronAPI(APIView):
                                 logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
 
                         order_obj.sap_final_billing_info = json.dumps(result)
-                        order_obj.order_information = json.dumps(order_information)
+                        #order_obj.order_information = json.dumps(order_information)
                         order_obj.save()
 
                         refresh_stock(order_obj)
@@ -8766,6 +8817,8 @@ FetchCustomerDetails = FetchCustomerDetailsAPI.as_view()
 UpdateB2BCustomerStatus = UpdateB2BCustomerStatusAPI.as_view()
 
 DeleteB2BDocumentImage = DeleteB2BDocumentImageAPI.as_view()
+
+DeleteB2BDocument = DeleteB2BDocumentAPI.as_view()
 
 FetchCustomerOrders = FetchCustomerOrdersAPI.as_view()
 

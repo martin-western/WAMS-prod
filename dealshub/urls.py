@@ -128,6 +128,7 @@ urlpatterns = [
     url(r'^payment/make-purchase-request/$', views.MakePurchaseRequest),
     url(r'^payment/request-hyperpay-checkout/$', views.RequestHyperpayCheckout),
     url(r'^payment/make-payment-spotii/$', views.MakePaymentSpotii),
+    url(r'^payment/make-payment-online-tap/$', views.MakePaymentOnlineTAP),
     # url(r'^payment/fetch-installment-plans/$', views.FetchInstallmentPlans),
     # url(r'^payment/make-purchase-request-installment/$', views.MakePurchaseRequestInstallment),
 
@@ -144,6 +145,7 @@ urlpatterns = [
     url(r'^fetch-customer-details/$', views.FetchCustomerDetails),
     url(r'^update-b2b-customer-status/$',views.UpdateB2BCustomerStatus),
     url(r'^delete-b2b-document-image/$',views.DeleteB2BDocumentImage),
+    url(r'^delete-b2b-document/$',views.DeleteB2BDocument),
     url(r'^fetch-customer-orders/$', views.FetchCustomerOrders),
 
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
