@@ -17,6 +17,7 @@ from WAMSApp.utils_SAP_Integration import *
 from dealshub.network_global_integration import *
 from dealshub.hyperpay_integration import *
 from dealshub.spotii_integration import *
+from dealshub.tap_integration import *
 from dealshub.postaplus import *
 
 from django.core.paginator import Paginator
@@ -7982,11 +7983,17 @@ class PlaceOnlineOrderAPI(APIView):
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
                     return Response(data=response)
+            elif online_payment_mode.strip().lower()=="tap":
+                if get_charge_status(data["charge_id"])!="CAPTURED":
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.warning("PlaceOnlineOrderAPI: TAP STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                    return Response(data=response)
             else:
                 if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
                     return Response(data=response)
+            
 
             if is_fast_cart==False:
 
