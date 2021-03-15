@@ -4155,7 +4155,8 @@ class SendOTPSMSLoginAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SendOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-            response["isNewUser"] = is_new_user
+            if website_group_name not in ["shopnesto"]:
+                response["isNewUser"] = is_new_user
             response["status"] = 200
 
         except Exception as e:
