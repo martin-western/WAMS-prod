@@ -4027,7 +4027,7 @@ class SignUpCompletionAPI(APIView):
                     image_obj = Image.objects.create(image = data["passport-copy-image-" + str(i+1)])
                     b2b_user_obj.passport_copy_images.add(image_obj)
             elif passport_copy_type == "PDF":
-                if data["passport-copy-document",""] != "":
+                if data["passport-copy-document"] != "":
                     b2b_user_obj.passport_copy = data["passport-copy-document"]
 
             is_new_user_created =False
