@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 def header_for_requests():
     headers = {
-        "Authorization" : "Bearer " + "sk_test_aZxbfAKFzM2RwdhGmXc1Quq4"
+        "Authorization" : "Bearer " + "sk_test_aZxbfAKFzM2RwdhGmXc1Quq4",
+        "content-type" : "application/json"
     }
     return headers
 
@@ -57,7 +58,7 @@ def complete_payment_charges(generic_cart_obj, reference, token_id):
         input_data["redirect"] = {}
         input_data["redirect"]["url"] = WIGME_IP+"/transaction-processing/?reference="+reference
         logger.info("fmd input data: %s",str(input_data))
-        r = requests.post(url=TAP_IP+"/charges",data=input_data,headers=header_for_requests())
+        r = requests.post(url=TAP_IP+"/charges",data=json.dumps(input_data),headers=header_for_requests())
         result = r.json()
         logger.info("charges resp : %s", result)
         return result
