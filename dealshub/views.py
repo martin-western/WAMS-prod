@@ -539,7 +539,7 @@ class FetchSectionProductsAPI(APIView):
             dealshub_product_objs = paginator.page(page)
 
             for dealshub_product_obj in dealshub_product_objs:
-                if dealshub_product_obj.get_actual_price()==0:
+                if dealshub_product_obj.now_price==0:
                     continue
                 temp_dict2 = {}
                 temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
