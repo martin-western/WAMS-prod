@@ -106,7 +106,6 @@ class MakePaymentOnlineTAPAPI(APIView):
            
             response["charge_id"] = order_result["id"]
             response["charge_status"] = order_result["status"]
-            response["tap_url"] = order_result["transaction"]["url"]
             response["status"] = 200
             response["message"] = "sucessfull creation of checkout into spotii"
         except Exception as e:
