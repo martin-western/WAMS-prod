@@ -2221,8 +2221,19 @@ class SectionBulkUploadAPI(APIView):
                     product_id = str(dfs.iloc[i][0]).strip()
                     product_id = product_id.split(".")[0]
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id, is_published=True)
-                    dealshub_product_obj.promotion = section_obj.promotion
+                    
+                    if dealshub_product_obj.is_promotional and check_valid_promotion(dealshub_product_obj.promotion)==False:
+                        dealshub_product_obj.is_promotional = False
+                        dealshub_product_obj.promotion = None
+                        dealshub_product_obj.save()
+                    
+                    if section_obj.promotion!=None and dealshub_product_obj.is_promotional:
+                        unsuccessful_count += 1
+                        continue
 
+                    if section_obj.promotion!=None:
+                        dealshub_product_obj.promotion = section_obj.promotion
+                    
                     promotional_price = dealshub_product_obj.now_price
                     try:
                         promotional_price = float(dfs.iloc[i][1])
