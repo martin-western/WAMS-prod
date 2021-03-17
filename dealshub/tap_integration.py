@@ -59,6 +59,7 @@ def complete_payment_charges(generic_cart_obj, reference, token_id):
         
         r = requests.post(url=TAP_IP+"/charges",data=input_data,headers=header_for_requests())
         result = r.json()
+        logger.info("charges resp : %s", result)
         return result
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()

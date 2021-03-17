@@ -58,6 +58,9 @@ def get_product_promotion_details(dealshub_product_obj):
         }
         data["promotion_tag"] = str(dealshub_product_obj.promotion.promotion_tag)
     else:
+        dealshub_product_obj.promotion = None
+        dealshub_product_obj.is_promotional = False
+        dealshub_product_obj.save()
         data["remaining_time"] = {}
         data["start_time"] = None
         data["end_time"] = None
