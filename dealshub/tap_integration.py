@@ -105,12 +105,13 @@ class MakePaymentOnlineTAPAPI(APIView):
             order_result = complete_payment_charges(generic_cart_obj = fast_cart_obj if is_fast_cart else cart_obj, reference=reference, token_id=data["token_id"])
            
             response["charge_id"] = order_result["id"]
+            response["merchant_reference"] = reference
             response["charge_status"] = order_result["status"]
             response["status"] = 200
             response["message"] = "sucessfull creation of checkout into spotii"
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("MakePaymentSpotiiAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("MakePaymentOnlineTAPAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
