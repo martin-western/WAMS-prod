@@ -4376,7 +4376,7 @@ class ForgotLoginPinAPI(APIView):
                 r = requests.get(url)
             elif location_group_obj.website_group.name.lower()=="parajohn":
                 contact_number = "971"+contact_number
-                url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to="+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+                url = "https://retail.atech.alarislabs.com/rest/send_sms?from=PARA JOHN&to="+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
                 r = requests.get(url)
             elif location_group_obj.website_group.name.lower()=="kryptonworld":
                 contact_number = "971"+contact_number
