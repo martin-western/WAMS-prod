@@ -1213,7 +1213,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
         
         try:
             
-            data = request.data
+            data = request.data 
             logger.info("BulkUpdateDealshubProductPriceAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -1229,6 +1229,9 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock ,
+
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
 

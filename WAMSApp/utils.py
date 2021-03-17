@@ -2455,3 +2455,10 @@ def isNoneOrEmpty(variable):
         logger.error("isNoneOrEmpty: %s at %s", e, str(exc_tb.tb_lineno))
         return True
 
+
+def bulk_update_dealshub_product_price_or_stock(path, type):
+    try:
+        
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("bulk_update_dealshub_product_price_or_stock: %s at %s", e, str(exc_tb.tb_lineno))
