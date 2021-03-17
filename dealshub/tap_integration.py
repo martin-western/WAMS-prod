@@ -108,6 +108,7 @@ class MakePaymentOnlineTAPAPI(APIView):
 
             if data["token_id"] == "src_kw.knet":
                 response["knet_url"] = order_result["transaction"]["url"]
+            response["threeDSecure"] = order_result["threeDSecure"]
             if response["threeDSecure"] == True:
                 response["redirect_url"] = order_result["transaction"]["url"]
             response["charge_id"] = order_result["id"]
