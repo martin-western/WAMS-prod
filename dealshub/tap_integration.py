@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 def header_for_requests():
     headers = {
-        "Authorization" : "Bearer " + "sk_test_aZxbfAKFzM2RwdhGmXc1Quq4"
+        "Authorization" : "Bearer " + "sk_test_aZxbfAKFzM2RwdhGmXc1Quq4",
+        "content-type" : "application/json"
     }
     return headers
 
@@ -56,8 +57,8 @@ def complete_payment_charges(generic_cart_obj, reference, token_id):
         input_data["source"]["id"] = token_id
         input_data["redirect"] = {}
         input_data["redirect"]["url"] = WIGME_IP+"/transaction-processing/?reference="+reference
-        
-        r = requests.post(url=TAP_IP+"/charges",data=input_data,headers=header_for_requests())
+        logger.info("fmd input data: %s",str(input_data))
+        r = requests.post(url=TAP_IP+"/charges",data=json.dumps(input_data),headers=header_for_requests())
         result = r.json()
         logger.info("charges resp : %s", result)
         return result
@@ -102,15 +103,17 @@ class MakePaymentOnlineTAPAPI(APIView):
                 cart_obj.save()
             
             order_result = complete_payment_charges(generic_cart_obj = fast_cart_obj if is_fast_cart else cart_obj, reference=reference, token_id=data["token_id"])
-           
+
+            if data["token_id"] == "src_kw.knet":
+                response["knet_url"] = order_result["transaction"]["url"]
             response["charge_id"] = order_result["id"]
+            response["merchant_reference"] = reference
             response["charge_status"] = order_result["status"]
-            response["tap_url"] = order_result["transaction"]["url"]
             response["status"] = 200
             response["message"] = "sucessfull creation of checkout into spotii"
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("MakePaymentSpotiiAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("MakePaymentOnlineTAPAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 

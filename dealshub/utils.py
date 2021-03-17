@@ -43,8 +43,6 @@ def get_actual_price(dealshub_product_obj):
 
 def get_product_promotion_details(dealshub_product_obj):
     data = {}
-    data["is_promotional"] = dealshub_product_obj.promotion!=None
-    data["product_is_promotional"] = dealshub_product_obj.is_promotional
     if dealshub_product_obj.promotion!=None and check_valid_promotion(dealshub_product_obj.promotion):
         data["start_time"] = str(dealshub_product_obj.promotion.start_time)[:19]
         data["end_time"] = str(dealshub_product_obj.promotion.end_time)[:19]
@@ -65,6 +63,8 @@ def get_product_promotion_details(dealshub_product_obj):
         data["start_time"] = None
         data["end_time"] = None
         data["promotion_tag"] = None
+    data["is_promotional"] = dealshub_product_obj.promotion!=None
+    data["product_is_promotional"] = dealshub_product_obj.is_promotional
     return data
 
 def calc_response_signature(PASS, data):
