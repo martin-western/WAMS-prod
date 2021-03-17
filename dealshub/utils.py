@@ -307,7 +307,7 @@ def send_parajohn_order_status_sms(unit_order_obj,message):
             return
         logger.info("send_parajohn_order_status_sms:", message)
         contact_number = dealshub_user_obj.contact_number
-        url = "https://retail.antwerp.alarislabs.com/rest/send_sms?from=PARA JOHN&to=971"+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+        url = "https://retail.atech.alarislabs.com/rest/send_sms?from=PARA JOHN&to=971"+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
         requests.get(url)  
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
