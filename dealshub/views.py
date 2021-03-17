@@ -4108,6 +4108,12 @@ class AddProductToSectionAPI(APIView):
 
             response["stock"] = str(dealshub_product_obj.stock)
             response["allowedQty"] = str(dealshub_product_obj.get_allowed_qty())
+
+            if dealshub_product_obj.is_promotional and check_valid_promotion(dealshub_product_obj.promotion)==False:
+                dealshub_product_obj.is_promotional = False
+                dealshub_product_obj.promotion = None
+                dealshub_product_obj.save()
+
             response["is_product_promotional"] = dealshub_product_obj.is_promotional
             
             if section_obj.promotion!=None and dealshub_product_obj.is_promotional:
