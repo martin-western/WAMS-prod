@@ -624,9 +624,11 @@ class FetchSuperCategoriesAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["category_name"] = category_obj.get_name(language_code)
                     temp_dict2["category_name_en"] = category_obj.get_name("en")
-                    category_list.append(temp_dict2)
+                    if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
+                        category_list.append(temp_dict2)
                 temp_dict["category_list"] = category_list
-                super_category_list.append(temp_dict)
+                if len(category_list)>0:
+                    super_category_list.append(temp_dict)
 
             cache.set("sc-list-"+website_group_name+"-"+language_code, json.dumps(super_category_list))
 

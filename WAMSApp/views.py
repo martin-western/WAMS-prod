@@ -6834,7 +6834,7 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["is_published"] = dealshub_product_obj.is_published
             response["is_new_arrival"] = dealshub_product_obj.is_new_arrival
             response["is_on_sale"] = dealshub_product_obj.is_on_sale
-            if dealshub_product_obj.is_promotional and check_valid_promotion(dealshub_product_obj.promotion):
+            if dealshub_product_obj.is_promotional and check_valid_promotion(dealshub_product_obj.promotion)==False:
                 dealshub_product_obj.promotion = None
                 dealshub_product_obj.is_promotional = False
                 dealshub_product_obj.save()
