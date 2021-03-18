@@ -199,6 +199,18 @@ class FetchProductDetailsAPI(APIView):
                         image_list.append(temp_image)
                     except Exception as e:
                         pass
+
+                if dealshub_product_obj.location_group.name=="PARA JOHN - UAE":
+                    aplus_content_image_objs = product_obj.aplus_content_images.all()
+                    for aplus_content_image_obj in aplus_content_image_objs:
+                        try:
+                            temp_image = {}
+                            temp_image["high-res"] = aplus_content_image_obj.image.url
+                            temp_image["original"] = aplus_content_image_obj.mid_image.url
+                            temp_image["thumbnail"] = aplus_content_image_obj.thumbnail.url
+                            image_list.append(temp_image)
+                        except Exception as e:
+                            pass
                 cache.set("image_url_list_"+product_obj.uuid, json.dumps(image_list))
             
             try:
@@ -539,7 +551,7 @@ class FetchSectionProductsAPI(APIView):
             dealshub_product_objs = paginator.page(page)
 
             for dealshub_product_obj in dealshub_product_objs:
-                if dealshub_product_obj.get_actual_price()==0:
+                if dealshub_product_obj.now_price==0:
                     continue
                 temp_dict2 = {}
                 temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
@@ -2808,10 +2820,10 @@ class PublishDealsHubProductAPI(APIView):
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
             
-            if dealshub_product_obj.product.no_of_images_for_filter==0:
-                response['status'] = 407
-                response['message'] = 'product without images cannot be published'
-                return Response(data=response)
+            # if dealshub_product_obj.product.no_of_images_for_filter==0:
+            #     response['status'] = 407
+            #     response['message'] = 'product without images cannot be published'
+            #     return Response(data=response)
 
             dealshub_product_obj.is_published = True
             dealshub_product_obj.save()
