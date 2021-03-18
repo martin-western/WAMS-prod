@@ -199,6 +199,18 @@ class FetchProductDetailsAPI(APIView):
                         image_list.append(temp_image)
                     except Exception as e:
                         pass
+
+                if dealshub_product_obj.location_group.name=="PARA JOHN - UAE":
+                    aplus_content_image_objs = product_obj.aplus_content_images.all()
+                    for aplus_content_image_obj in aplus_content_image_objs:
+                        try:
+                            temp_image = {}
+                            temp_image["high-res"] = aplus_content_image_obj.image.url
+                            temp_image["original"] = aplus_content_image_obj.mid_image.url
+                            temp_image["thumbnail"] = aplus_content_image_obj.thumbnail.url
+                            image_list.append(temp_image)
+                        except Exception as e:
+                            pass
                 cache.set("image_url_list_"+product_obj.uuid, json.dumps(image_list))
             
             try:
