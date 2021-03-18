@@ -58,7 +58,7 @@ def complete_payment_charges(generic_cart_obj, reference, token_id):
         input_data["source"] = {}
         input_data["source"]["id"] = token_id
         input_data["redirect"] = {}
-        input_data["redirect"]["url"] = "http://localhost:3010"+"/transaction-processing/?reference="+reference
+        input_data["redirect"]["url"] = WIGME_IP+"/transaction-processing/?reference="+reference
         logger.info("fmd input data: %s",str(input_data))
         r = requests.post(url=TAP_IP+"/charges",data=json.dumps(input_data),headers=header_for_requests())
         result = r.json()
