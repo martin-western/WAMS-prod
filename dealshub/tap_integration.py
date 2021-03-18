@@ -43,6 +43,8 @@ def complete_payment_charges(generic_cart_obj, reference, token_id):
         input_data = {}
         input_data["amount"] = generic_cart_obj.to_pay
         input_data["currency"] = generic_cart_obj.get_currency()
+        if token_id == "src_kw.knet":
+            input_data["currency"] = "KWD"
         input_data["reference"] = {}
         input_data["reference"]["order"] = reference
         customer_details = {}
@@ -106,6 +108,9 @@ class MakePaymentOnlineTAPAPI(APIView):
 
             if data["token_id"] == "src_kw.knet":
                 response["knet_url"] = order_result["transaction"]["url"]
+            response["threeDSecure"] = order_result["threeDSecure"]
+            if response["threeDSecure"] == True:
+                response["redirect_url"] = order_result["transaction"]["url"]
             response["charge_id"] = order_result["id"]
             response["merchant_reference"] = reference
             response["charge_status"] = order_result["status"]
