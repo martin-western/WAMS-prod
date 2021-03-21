@@ -375,6 +375,7 @@ class DeleteShippingAddressAPI(APIView):
 
         response = {}
         response['status'] = 500
+        response['status'] = 500
         try:
 
             data = request.data
@@ -4036,6 +4037,7 @@ class SignUpCompletionAPI(APIView):
                 b2b_user_obj.contact_number = contact_number
                 b2b_user_obj.first_name = name
                 b2b_user_obj.email = email
+                b2b_user_obj.email_verified = True
                 b2b_user_obj.date_created = timezone.now()
                 b2b_user_obj.company_name = company_name
                 b2b_user_obj.vat_certificate_id = vat_certificate_id
