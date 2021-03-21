@@ -1755,6 +1755,7 @@ class OCReport(models.Model):
     filename = models.CharField(max_length=200, default="")
     uuid = models.CharField(max_length=200, default="")
     organization = models.ForeignKey(Organization,blank=True,null=True,on_delete=models.SET_NULL)
+    location_group = models.ForeignKey(LocationGroup, blank=True, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = "OC Report"

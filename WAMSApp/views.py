@@ -1229,30 +1229,27 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+            
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
 
-            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock ,
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the price" 
+            report_type = "bulk upload product price"
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
-
-                    now_price = float(dfs.iloc[i][1])
-                    was_price = float(dfs.iloc[i][2])
-                    
-                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                    dh_product_obj.now_price = now_price
-                    dh_product_obj.was_price = was_price
-                    dh_product_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,location_group_obj,"price",))
+            p1.start()
 
             response['status'] = 200
-
+            response['approved'] = True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1285,9 +1282,25 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-b2b-price.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
+            
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
 
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the price" 
+            report_type = "bulk upload product price"
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
+
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,location_group_obj,"price",))
+            p1.start()
+            
             for i in range(rows):
                 try:
                     product_id = str(dfs.iloc[i][0]).strip()
@@ -1455,24 +1468,27 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-stock.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
 
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
-                    stock = float(dfs.iloc[i][1])
-                    
-                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                    dh_product_obj.stock = stock
-                    dh_product_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the stock" 
+            report_type = "bulk upload product stock"
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
+
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path, location_group_obj, "stock",))
+            p1.start()
 
             response['status'] = 200
-
+            response['approved'] = True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))

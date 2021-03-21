@@ -2456,9 +2456,72 @@ def isNoneOrEmpty(variable):
         return True
 
 
-def bulk_update_dealshub_product_price_or_stock(path, type):
+def bulk_update_dealshub_product_price_or_stock(oc_uuid,path, location_group_obj, update_type):
     try:
         
+        dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+        dfs.fillna("")
+        rows = len(dfs.iloc[:])
+
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+        row = ["No.","Product ID", "Status"]
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        cnt=0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        for i in range(rows):
+            try:
+                cnt += 1
+                product_id = str(dfs.iloc[i][0]).strip()
+                product_id = product_id.split(".")[0]
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = product_id
+
+                if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
+                    dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    if update_type == "stock":
+                        stock = float(dfs.iloc[i][1])
+                        dh_product_obj.stock = stock
+                        dh_product_obj.save()
+                    elif update_type == "price":
+                        now_price = float(dfs.iloc[i][1])
+                        was_price = float(dfs.iloc[i][2])
+                        dh_product_obj.now_price = now_price
+                        dh_product_obj.was_price = was_price
+                        dh_product_obj.save()
+                    common_row[2] = "success"
+                else:
+                    common_row[2] = "fail"
+    
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("bulk_update_dealshub_product_price_or_stock: %s at %s", e, str(exc_tb.tb_lineno))
+            
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=oc_uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("bulk_update_dealshub_product_price_or_stock: %s at %s", e, str(exc_tb.tb_lineno))
