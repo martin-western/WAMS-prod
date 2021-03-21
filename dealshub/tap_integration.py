@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def header_for_requests():
     headers = {
-        "Authorization" : "Bearer " + "sk_test_aZxbfAKFzM2RwdhGmXc1Quq4",
+        "Authorization" : "Bearer " + "sk_live_oOcVZgdFBwzMJ5qfnp0SilU1",
         "content-type" : "application/json"
     }
     return headers
@@ -43,8 +43,6 @@ def complete_payment_charges(generic_cart_obj, reference, token_id):
         input_data = {}
         input_data["amount"] = generic_cart_obj.to_pay
         input_data["currency"] = generic_cart_obj.get_currency()
-        if token_id == "src_kw.knet":
-            input_data["currency"] = "KWD"
         input_data["reference"] = {}
         input_data["reference"]["order"] = reference
         customer_details = {}
