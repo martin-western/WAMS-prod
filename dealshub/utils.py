@@ -367,7 +367,7 @@ def send_order_request_placed_mail(order_request_obj):
                         subject='Order Request Placed',
                         body='Order Request Placed',
                         from_email=location_group_obj.get_order_from_email_id(),
-                        to=[order_obj.owner.email],
+                        to=[order_request_obj.owner.email],
                         cc=location_group_obj.get_order_cc_email_list(),
                         bcc=location_group_obj.get_order_bcc_email_list(),
                         connection=connection
