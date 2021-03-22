@@ -1235,7 +1235,8 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
                 response['status'] = 200
                 return Response(data=response)
 
-            report_type = "bulk upload product price"
+            report_type = "bulk upload product"
+            report_title = "bulk upload product price"
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the price" 
@@ -1243,7 +1244,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
             organization_obj = custom_permission_obj.organization
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,filename,location_group_obj,"price",))
             p1.start()
@@ -1288,7 +1289,8 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
                 response['status'] = 200
                 return Response(data=response)
 
-            report_type = "bulk upload b2b product price"
+            report_type = "bulk upload product"
+            report_title = "bulk upload b2b product price"
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the price" 
@@ -1296,7 +1298,7 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
             organization_obj = custom_permission_obj.organization
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_price , args=(oc_report_obj.uuid,path,filename,location_group_obj))
             p1.start()
@@ -1341,7 +1343,8 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
                 response['status'] = 200
                 return Response(data=response)
 
-            report_type = "bulk upload b2b product MOQ"
+            report_type = "bulk upload product"
+            report_title = "bulk upload b2b product MOQ"
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the MOQ" 
@@ -1349,7 +1352,7 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
             organization_obj = custom_permission_obj.organization
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_moq , args=(oc_report_obj.uuid,path,filename,location_group_obj,))
             p1.start()
@@ -1394,7 +1397,8 @@ class BulkUpdateDealshubProductStockAPI(APIView):
                 response['status'] = 200
                 return Response(data=response)
 
-            report_type = "bulk upload product stock"
+            report_type = "bulk upload product"
+            report_title = "bulk upload product stock"
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the stock" 
@@ -1402,7 +1406,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
             organization_obj = custom_permission_obj.organization
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path,filename, location_group_obj, "stock",))
             p1.start()
