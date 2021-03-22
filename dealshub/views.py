@@ -3276,6 +3276,37 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
                     unit_banner_products = list(unit_banner_products)
                     unit_banner_products.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
+
+                    if is_dealshub==False :
+                        temp_products = []
+                        for dealshub_product_obj in unit_banner_products[:40]:
+                            if dealshub_product_obj.now_price==0:
+                                continue
+                            temp_dict3 = {}
+
+                            temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                            temp_dict3["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
+                            temp_dict3["name"] = dealshub_product_obj.get_name(language_code)
+                            temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
+                            temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
+                            temp_dict3["brand"] = dealshub_product_obj.get_brand(language_code)
+                            temp_dict3["uuid"] = dealshub_product_obj.uuid
+                            temp_dict3["link"] = dealshub_product_obj.url
+
+                            promotion_obj = dealshub_product_obj.promotion
+
+                            temp_dict3["promotional_price"] = dealshub_product_obj.promotional_price
+                            temp_dict3["now_price"] = dealshub_product_obj.now_price
+                            temp_dict3["was_price"] = dealshub_product_obj.was_price
+                            temp_dict3["stock"] = dealshub_product_obj.stock
+                            temp_dict3["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+                            if dealshub_product_obj.stock>0:
+                                temp_dict3["isStockAvailable"] = True
+                            else:
+                                temp_dict3["isStockAvailable"] = False
+
+                            temp_products.append(temp_dict3)    # No need to Send all
+                        temp_dict2["products"] = temp_products
                     
                     temp_dict2["has_products"] = len(unit_banner_products)>0
                     banner_images.append(temp_dict2)
@@ -4336,7 +4367,7 @@ class FetchUnitBannerProductsAPI(APIView):
                     brand_list = []
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))      
+                logger.error("SearchAPI brand list: %s at %s", e, str(exc_tb.tb_lineno))
             
             if len(brand_filter)>0:
                 dealshub_product_objs = dealshub_product_objs.filter(product__base_product__brand__name__in=brand_filter)      
