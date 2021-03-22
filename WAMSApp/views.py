@@ -1245,7 +1245,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,location_group_obj,"price",))
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,filename,location_group_obj,"price",))
             p1.start()
 
             response['status'] = 200
@@ -1298,7 +1298,7 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-            p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_price , args=(oc_report_obj.uuid,path,location_group_obj))
+            p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_price , args=(oc_report_obj.uuid,path,filename,location_group_obj))
             p1.start()
             
             response['status'] = 200
@@ -1351,7 +1351,7 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-            p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_moq , args=(oc_report_obj.uuid,path,location_group_obj,))
+            p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_moq , args=(oc_report_obj.uuid,path,filename,location_group_obj,))
             p1.start()
             
             response['status'] = 200
@@ -1404,7 +1404,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path, location_group_obj, "stock",))
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path,filename, location_group_obj, "stock",))
             p1.start()
 
             response['status'] = 200
