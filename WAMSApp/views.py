@@ -1213,7 +1213,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
         
         try:
             
-            data = request.data
+            data = request.data 
             logger.info("BulkUpdateDealshubProductPriceAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -1229,27 +1229,27 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
+            
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
 
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the price" 
+            report_type = "bulk upload product price"
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-                    now_price = float(dfs.iloc[i][1])
-                    was_price = float(dfs.iloc[i][2])
-                    
-                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                    dh_product_obj.now_price = now_price
-                    dh_product_obj.was_price = was_price
-                    dh_product_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
+
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,location_group_obj,"price",))
+            p1.start()
 
             response['status'] = 200
-
+            response['approved'] = True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1282,69 +1282,25 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-b2b-price.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
+            
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
 
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the price" 
+            report_type = "bulk upload b2b product price"
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-                    dealshub_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-                    if str(dfs.iloc[i][1]) != "nan" and str(dfs.iloc[i][1]) != "":
-                        now_price = float(dfs.iloc[i][1])
-                        dealshub_product_obj.now_price = now_price
-
-                    if str(dfs.iloc[i][2]) != "nan" and str(dfs.iloc[i][2]) != "":
-                        now_price_cohort1 = float(dfs.iloc[i][2])
-                        dealshub_product_obj.now_price_cohort1 = now_price_cohort1
-
-                    if str(dfs.iloc[i][3]) != "nan" and str(dfs.iloc[i][3]) != "":
-                        now_price_cohort2 = float(dfs.iloc[i][3])
-                        dealshub_product_obj.now_price_cohort2 = now_price_cohort2
-
-                    if str(dfs.iloc[i][4]) != "nan" and str(dfs.iloc[i][4]) != "":
-                        now_price_cohort3 = float(dfs.iloc[i][4])
-                        dealshub_product_obj.now_price_cohort3 = now_price_cohort3
-
-                    if str(dfs.iloc[i][5]) != "nan" and str(dfs.iloc[i][5]) != "":
-                        now_price_cohort4 = float(dfs.iloc[i][5])
-                        dealshub_product_obj.now_price_cohort4 = now_price_cohort4
-
-                    if str(dfs.iloc[i][6]) != "nan" and str(dfs.iloc[i][6]) != "":
-                        now_price_cohort5 = float(dfs.iloc[i][6])
-                        dealshub_product_obj.now_price_cohort5 = now_price_cohort5
-
-                    if str(dfs.iloc[i][7]) != "nan" and str(dfs.iloc[i][7]) != "":
-                        promotional_price = float(dfs.iloc[i][7])
-                        dealshub_product_obj.promotional_price = promotional_price
-
-                    if str(dfs.iloc[i][8]) != "nan" and str(dfs.iloc[i][8]) != "":
-                        promotional_price_cohort1 = float(dfs.iloc[i][8])
-                        dealshub_product_obj.promotional_price_cohort1 = promotional_price_cohort1
-
-                    if str(dfs.iloc[i][9]) != "nan" and str(dfs.iloc[i][9]) != "":
-                        promotional_price_cohort2 = float(dfs.iloc[i][9])
-                        dealshub_product_obj.promotional_price_cohort2 = promotional_price_cohort2
-
-                    if str(dfs.iloc[i][10]) != "nan" and str(dfs.iloc[i][10]) != "":
-                        promotional_price_cohort3 = float(dfs.iloc[i][10])
-                        dealshub_product_obj.promotional_price_cohort3 = promotional_price_cohort3
-
-                    if str(dfs.iloc[i][11]) != "nan" and str(dfs.iloc[i][11]) != "":
-                        promotional_price_cohort4 = float(dfs.iloc[i][11])
-                        dealshub_product_obj.promotional_price_cohort4 = promotional_price_cohort4
-
-                    if str(dfs.iloc[i][12]) != "nan" and str(dfs.iloc[i][12]) != "":
-                        promotional_price_cohort5 = float(dfs.iloc[i][12])
-                        dealshub_product_obj.promotional_price_cohort5 = promotional_price_cohort5
-
-                    dealshub_product_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateB2BDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
+            p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_price , args=(oc_report_obj.uuid,path,location_group_obj))
+            p1.start()
+            
             response['status'] = 200
 
         except Exception as e:
@@ -1379,45 +1335,25 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-b2b-moq.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
+            
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
 
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the MOQ" 
+            report_type = "bulk upload b2b product MOQ"
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-                    dealshub_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-                    if str(dfs.iloc[i][1]) != "nan" and str(dfs.iloc[i][1]) != "":
-                        moq = int(dfs.iloc[i][1])
-                        dealshub_product_obj.moq = moq
-
-                    if str(dfs.iloc[i][2]) != "nan" and str(dfs.iloc[i][2]) != "":
-                        moq_cohort1 = int(dfs.iloc[i][2])
-                        dealshub_product_obj.moq_cohort1 = moq_cohort1
-
-                    if str(dfs.iloc[i][3]) != "nan" and str(dfs.iloc[i][3]) != "":
-                        moq_cohort2 = int(dfs.iloc[i][3])
-                        dealshub_product_obj.moq_cohort2 = moq_cohort2
-
-                    if str(dfs.iloc[i][4]) != "nan" and str(dfs.iloc[i][4]) != "":
-                        moq_cohort3 = int(dfs.iloc[i][4])
-                        dealshub_product_obj.moq_cohort3 = moq_cohort3
-
-                    if str(dfs.iloc[i][5]) != "nan" and str(dfs.iloc[i][5]) != "":
-                        moq_cohort4 = int(dfs.iloc[i][5])
-                        dealshub_product_obj.moq_cohort4 = moq_cohort4
-
-                    if str(dfs.iloc[i][6]) != "nan" and str(dfs.iloc[i][6]) != "":
-                        moq_cohort5 = int(dfs.iloc[i][6])
-                        dealshub_product_obj.moq_cohort5 = moq_cohort5
-
-                    dealshub_product_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateB2BDealshubProductMOQAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
+            p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_moq , args=(oc_report_obj.uuid,path,location_group_obj,))
+            p1.start()
+            
             response['status'] = 200
 
         except Exception as e:
@@ -1452,24 +1388,27 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-stock.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
 
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
-                    stock = float(dfs.iloc[i][1])
-                    
-                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                    dh_product_obj.stock = stock
-                    dh_product_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the stock" 
+            report_type = "bulk upload product stock"
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
+
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path, location_group_obj, "stock",))
+            p1.start()
 
             response['status'] = 200
-
+            response['approved'] = True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5862,8 +5801,14 @@ class FetchLocationGroupListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            custom = data.get("custom",False)
+
+            location_group_objs = LocationGroup.objects.all()
+            if custom==True:
+                location_group_objs = CustomPermission.objects.get(user=request.user).location_groups.all()
+
             location_group_list = []
-            for location_group_obj in LocationGroup.objects.all():
+            for location_group_obj in location_group_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = location_group_obj.uuid
                 temp_dict["name"] = location_group_obj.name
@@ -6224,13 +6169,18 @@ class CreateOCReportAPI(APIView):
             from_date = data.get("from_date", "")
             to_date = data.get("to_date", "")
 
+            location_group_uuid = data.get("locationGroupUuid","")
+            location_group_obj = None
+            if location_group_uuid!="":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
 
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
 
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
@@ -6247,51 +6197,49 @@ class CreateOCReportAPI(APIView):
                 p1 = threading.Thread(target=create_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
                 p1.start()
             elif report_type.lower()=="ecommerce":
-                p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="search keyword":
-                p1 = threading.Thread(target=create_search_keyword_report, args=(filename,oc_report_obj.uuid,custom_permission_obj,))
+                p1 = threading.Thread(target=create_search_keyword_report, args=(filename,oc_report_obj.uuid,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="sales":
-                p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="order":
-                p1 = threading.Thread(target=create_order_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_order_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="sap billing":
-                p1 = threading.Thread(target=create_sap_billing_report, args=(filename,oc_report_obj.uuid,from_date, to_date, custom_permission_obj,))
+                p1 = threading.Thread(target=create_sap_billing_report, args=(filename,oc_report_obj.uuid,from_date, to_date, custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="verified products":
                 p1 = threading.Thread(target=create_verified_products_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
                 p1.start()
             elif report_type.lower()=="wishlist":
-                p1 = threading.Thread(target=create_wishlist_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_wishlist_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="abandoned cart":
-                p1 = threading.Thread(target=create_abandoned_cart_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_abandoned_cart_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="delivery":
                 shipping_method = data["shipping_method"]
                 oc_report_obj.report_title = oc_report_obj.report_title + " " + shipping_method
                 oc_report_obj.save()
                 if shipping_method.lower()=="sendex":
-                    p1 = threading.Thread(target=create_sendex_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                    p1 = threading.Thread(target=create_sendex_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
                     p1.start()
                 elif shipping_method.lower()=="standard":
-                    p1 = threading.Thread(target=create_standard_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                    p1 = threading.Thread(target=create_standard_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
                     p1.start()
                 elif shipping_method.lower()=="postaplus":
-                    p1 =  threading.Thread(target=create_postaplus_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                    p1 =  threading.Thread(target=create_postaplus_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
                     p1.start()
             elif report_type.lower()=="sales executive":
-                p1 = threading.Thread(target=create_sales_executive_value_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                p1 = threading.Thread(target=create_sales_executive_value_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="bulk image":
                 p1 = threading.Thread(target=create_bulk_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
                 p1.start()
             elif report_type.lower()=="stock":
-                location_group_uuid = data["locationGroupUuid"]
-                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 p1 = threading.Thread(target=create_stock_report, args=(filename,oc_report_obj.uuid,brand_list,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="nesto ecommerce product":
@@ -6342,8 +6290,8 @@ class CreateSEOReportAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
             report_name = report_type+" "+seo_type
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_name, created_by=oc_user_obj, note=note, filename=filename, organization=organization_obj)
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_name, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=organization_obj)
 
             if seo_type=="product":
                 p1 = threading.Thread(target=bulk_download_product_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
@@ -6539,11 +6487,17 @@ class FetchOCReportListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            location_group_uuid = data.get("locationGroupUuid","")
+            location_group_obj = None
+            if location_group_uuid!="":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             oc_reports = json.loads(custom_permission_obj.oc_reports)
 
-            oc_report_objs = OCReport.objects.filter(name__in=oc_reports,
-                                organization=custom_permission_obj.organization).order_by('-pk')
+            oc_report_objs = OCReport.objects.filter(name__in=oc_reports, organization=custom_permission_obj.organization).order_by('-pk')
+            if location_group_obj!=None:
+                oc_report_objs = oc_report_objs.filter(location_group=location_group_obj)
 
             page = int(data.get("page",1))
             paginator = Paginator(oc_report_objs, 20)
