@@ -1235,10 +1235,10 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
                 response['status'] = 200
                 return Response(data=response)
 
+            report_type = "bulk upload product price"
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the price" 
-            report_type = "bulk upload product price"
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -1288,10 +1288,10 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
                 response['status'] = 200
                 return Response(data=response)
 
+            report_type = "bulk upload b2b product price"
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the price" 
-            report_type = "bulk upload b2b product price"
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -1341,10 +1341,10 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
                 response['status'] = 200
                 return Response(data=response)
 
+            report_type = "bulk upload b2b product MOQ"
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the MOQ" 
-            report_type = "bulk upload b2b product MOQ"
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -1394,10 +1394,10 @@ class BulkUpdateDealshubProductStockAPI(APIView):
                 response['status'] = 200
                 return Response(data=response)
 
+            report_type = "bulk upload product stock"
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the stock" 
-            report_type = "bulk upload product stock"
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
