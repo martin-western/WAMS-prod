@@ -4348,14 +4348,14 @@ class FetchUnitBannerProductsAPI(APIView):
             else:
                 dealshub_product_objs = list(dealshub_product_objs)
                 dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
-            
+
             page = int(data.get('page', 1))
             paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
 
             product_list = []
             for dealshub_product_obj in dealshub_product_objs:
-                if dealshub_product_obj.get_actual_price()==0:
+                if dealshub_product_obj.now_price==0:
                     continue
                 temp_dict = {}
                 temp_dict["name"] = dealshub_product_obj.get_name(language_code)
