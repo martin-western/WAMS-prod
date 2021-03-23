@@ -557,7 +557,14 @@ class DealsHubProduct(models.Model):
                 self.url = url
             except Exception as e:
                 pass
-        
+
+        try:
+            p1 = threading.Thread(target = add_product_to_index, args=(dealshub_product_obj,))
+            p1.start()
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
+
         super(DealsHubProduct, self).save(*args, **kwargs)
 
 
