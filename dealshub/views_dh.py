@@ -3847,7 +3847,11 @@ class SendB2BOTPSMSLoginAPI(APIView):
 
             otp_sent = False
             username = contact_number + "-" + website_group_name
-            if B2BUser.objects.filter(username = username).exists() == True and B2BUser.objects.get(username = username).contact_verified == True:
+            b2b_user_obj = None
+            if B2BUser.objects.filter(username = username).exists() == True:
+                b2b_user_obj = B2BUser.objects.get(username=username)
+
+            if b2b_user_obj != None and b2b_user_obj.contact_verified == True and b2b_user_obj.is_signup_completed == True:
                 b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.verification_code = OTP
@@ -3917,7 +3921,12 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                 OTP = "777777"
 
             is_new_user = False
-            if B2BUser.objects.filter(username = contact_number + "-" + website_group_name).exists() == False:
+            username = contact_number + "-" + website_group_name
+            b2b_user_obj = None
+            if B2BUser.objects.filter(username = username).exists() == True:
+                b2b_user_obj = B2BUser.objects.get(username=username)
+
+            if b2b_user_obj == None:
                 b2b_user_obj = B2BUser.objects.create(
                     username = contact_number+"-"+website_group_name,
                     contact_number = contact_number,
@@ -3927,7 +3936,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.save()
                 is_new_user =True
-            elif B2BUser.objects.get(username=contact_number + "-" + website_group_name).contact_verified == False:
+            elif b2b_user_obj.contact_verified == False or b2b_user_obj.is_signup_completed == False:
                 b2b_user_obj = B2BUser.objects.get(username = contact_number+ "-"+ website_group_name)
                 b2b_user_obj.verification_code = OTP
                 b2b_user_obj.set_password(OTP)
@@ -4062,6 +4071,7 @@ class SignUpCompletionAPI(APIView):
                 conf["isVerifiedShown"] =False
                 b2b_user_obj.conf = json.dumps(conf)
 
+                b2b_user_obj.is_signup_completed = True
                 b2b_user_obj.save()
 
             credentials = {
