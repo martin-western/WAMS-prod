@@ -27,7 +27,8 @@ settings = {
 		"filterOnly(subCategory)",
 		"filterOnly(superCategory)",
 		"filterOnly(price)",
-		"filterOnly(is_published)"
+		"filterOnly(is_published)",
+		"filterOnly(stock)"
 	]
 	"forwardToReplicas":True
 }

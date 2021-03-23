@@ -41,7 +41,7 @@ def search_index(data):
 
 	if filters['filters'] != "":
 		filters['filters'] = filters['filters'] + "AND "
-	filters['filters'] += "isPublished: True AND stock > 0 AND price > 0 AND "
+	filters['filters'] += "isPublished: True AND stock > 0 AND price > 0.0 AND "
 
 	if data["superCategory"] != "":
 		if filters['filters'] != "":
