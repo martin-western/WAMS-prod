@@ -1,7 +1,16 @@
-from algolia.constant import *
 from algoliasearch.search_client import SearchClient
 from constants import *
 import json
+
+import requests
+import json
+import pytz
+import csv
+import logging
+import sys
+import xlrd
+import uuid
+import time
 
 def add_product_to_index(dealshub_product_obj):
 
@@ -25,62 +34,61 @@ def add_product_to_index(dealshub_product_obj):
 		
 		index.save_objects(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
 	except Excpetion as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
-    return
+	    exc_type, exc_obj, exc_tb = sys.exc_info()
+	    logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
 
 def search_index(data):
 	try:
 
-	filters = {}
-	filters['hitsPerPage'] = data["pageSize"]
-	filters['page'] = data["page"]
-	filters['filters'] = ""
+		filters = {}
+		filters['hitsPerPage'] = data["pageSize"]
+		filters['page'] = data["page"]
+		filters['filters'] = ""
 
-	filters['filters'] += "locationGroup: " + str(data["locationGroupUuid"]) + " "
+		filters['filters'] += "locationGroup: " + str(data["locationGroupUuid"]) + " "
 
-	if filters['filters'] != "":
-		filters['filters'] = filters['filters'] + "AND "
-	filters['filters'] += "isPublished: True AND stock > 0 AND price > 0.0 AND "
-
-	if data["superCategory"] != "":
 		if filters['filters'] != "":
 			filters['filters'] = filters['filters'] + "AND "
-		filters['filters'] += "superCategory:" + "'" + data["superCategory"] + "' "
+		filters['filters'] += "isPublished: True AND stock > 0 AND price > 0.0 AND "
 
-	if data["category"] !="":
-		if filters['filters'] != "":
-			filters['filters'] = filters['filters'] + "AND "
-		filters['filters'] += "category:" + "'" + data["category"] + "' "
+		if data["superCategory"] != "":
+			if filters['filters'] != "":
+				filters['filters'] = filters['filters'] + "AND "
+			filters['filters'] += "superCategory:" + "'" + data["superCategory"] + "' "
 
-	if data["subCategory"] != "":
-		if filters['filters'] != "":
-			filters['filters'] = filters['filters'] + "AND "
-		filters['filters'] += "category:" + "'" +  data["subCategory"] + "' "
+		if data["category"] !="":
+			if filters['filters'] != "":
+				filters['filters'] = filters['filters'] + "AND "
+			filters['filters'] += "category:" + "'" + data["category"] + "' "
 
-	if len(data["brands"]) !=0:
-		filters['filters'] += "AND " + "("
+		if data["subCategory"] != "":
+			if filters['filters'] != "":
+				filters['filters'] = filters['filters'] + "AND "
+			filters['filters'] += "category:" + "'" +  data["subCategory"] + "' "
 
-	for brand in data["brands"]:
-		filters['filters'] += "brand:"  + "'" + brand + "' "
-		if filters['filters'] != "":
-			filters['filters'] = filters['filters'] + "OR "
+		if len(data["brands"]) !=0:
+			filters['filters'] += "AND " + "("
 
-	if len(data["brands"]) !=0:
-		filters['filters'] = filters['filters'][:-3] +  ")"
+		for brand in data["brands"]:
+			filters['filters'] += "brand:"  + "'" + brand + "' "
+			if filters['filters'] != "":
+				filters['filters'] = filters['filters'] + "OR "
 
-	client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
-	if data["ranking"] == 0:
-		index = client.init_index('DealsHubProduct')
-	elif data["ranking"] == 1:
-		index = client.init_index('DealsHubProductPriceAsc')
-	else:
-		index = client.init_index('DealsHubProductPriceDesc')
+		if len(data["brands"]) !=0:
+			filters['filters'] = filters['filters'][:-3] +  ")"
 
-	result = index.search(search_string,filters)
+		client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
+		if data["ranking"] == 0:
+			index = client.init_index('DealsHubProduct')
+		elif data["ranking"] == 1:
+			index = client.init_index('DealsHubProductPriceAsc')
+		else:
+			index = client.init_index('DealsHubProductPriceDesc')
+
+		result = index.search(search_string,filters)
 
 	except Excpetion as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))	
+	    exc_type, exc_obj, exc_tb = sys.exc_info()
+	    logger.error("search_index: %s at %s", e, str(exc_tb.tb_lineno))
 
-    return result
+	return result
