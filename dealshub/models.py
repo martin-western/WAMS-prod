@@ -1561,7 +1561,7 @@ class B2BUser(DealsHubUser):
     vat_certificate_status = models.CharField(max_length=30, choices=STATUS_OPTIONS,default='Pending')
     trade_license_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
     passport_copy_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
-    is_profile_approved = models.BooleanField(default=False)
+    is_signup_completed = models.BooleanField(default=False)
 
     cohort = models.CharField(max_length=50, default="",blank=True)
     conf = models.TextField(default = "{}")
