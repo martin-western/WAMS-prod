@@ -234,3 +234,6 @@ class SearchWIG3API(APIView):
             logger.error("SearchWIG3API: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
+
+
+SearchWIG3 = SearchWIG3API.as_view()
