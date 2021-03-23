@@ -2456,7 +2456,7 @@ def isNoneOrEmpty(variable):
         return True
 
 
-def bulk_update_dealshub_product_price_or_stock(oc_uuid,path, location_group_obj, update_type):
+def bulk_update_dealshub_product_price_or_stock(oc_uuid,path,filename, location_group_obj, update_type):
     try:
         
         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
@@ -2526,7 +2526,7 @@ def bulk_update_dealshub_product_price_or_stock(oc_uuid,path, location_group_obj
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("bulk_update_dealshub_product_price_or_stock: %s at %s", e, str(exc_tb.tb_lineno))
 
-def bulk_update_b2b_dealshub_product_price(oc_uuid,path, location_group_obj):
+def bulk_update_b2b_dealshub_product_price(oc_uuid,path,filename, location_group_obj):
     try:
         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
         dfs.fillna("")
@@ -2635,7 +2635,7 @@ def bulk_update_b2b_dealshub_product_price(oc_uuid,path, location_group_obj):
         logger.error("bulk_update_b2b_dealshub_product_price: %s at %s", e, str(exc_tb.tb_lineno))
 
 
-def bulk_update_b2b_dealshub_product_moq(oc_uuid,path, location_group_obj):
+def bulk_update_b2b_dealshub_product_moq(oc_uuid,path,filename, location_group_obj):
     try:
         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
         dfs.fillna("")
