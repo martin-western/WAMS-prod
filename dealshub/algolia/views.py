@@ -3,11 +3,22 @@ import json
 import logging
 
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import AllowAny
 
 from dealshub.models import *
 from dealshub.constants import *
+
+from algoliasearch.search_client import SearchClient
+from constants import *
+
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return
 
 
 class SearchWIG3API(APIView):
