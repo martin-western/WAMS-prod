@@ -704,6 +704,18 @@ class CustomProductUnitBanner(models.Model):
         verbose_name_plural = "Custom ProductUnitBanners"
 
 
+class AddressManager(models.Manager):
+    
+    def get_queryset(self):
+        return super(AddressManager, self).get_queryset().exclude(is_deleted=True)
+
+
+class AddressRecoveryManager(models.Manager):
+
+    def get_queryset(self):
+        return super(AddressRecoveryManager, self).get_queryset()
+
+
 class Address(models.Model):
 
     MR, MISS, MRS, MS, DR = ('Mr', 'Miss', 'Mrs', 'Ms', 'Dr')
@@ -735,6 +747,9 @@ class Address(models.Model):
 
     is_shipping = models.BooleanField(default=True)
     is_billing = models.BooleanField(default=True)
+
+    objects = AddressManager()
+    recovery = AddressRecoveryManager()
 
     is_deleted = models.BooleanField(default=False)
 
