@@ -1,6 +1,6 @@
 from algolia.constant import *
 from algoliasearch.search_client import SearchClient
-from algolia.constants import *
+from constants import *
 import json
 
 def add_product_to_index(dealshub_product_obj):

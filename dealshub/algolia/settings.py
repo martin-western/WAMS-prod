@@ -1,6 +1,5 @@
-from algolia.constant import *
 from algoliasearch.search_client import SearchClient
-from algolia.constants import *
+from constants import *
 import json
 
 
@@ -9,9 +8,9 @@ index = client.init_index('DealsHubProduct')
 
 settings = {
 	"replicas":[
-		virtual(DealsHubProductPriceDesc),
-		virtual(DealsHubProductPriceAsc)
-	]
+		'virtual(DealsHubProductPriceDesc)',
+		'virtual(DealsHubProductPriceAsc)'
+	],
 	"searchableAttributes":[
 		"productName",
 		"brand",
@@ -30,10 +29,9 @@ settings = {
 		"filterOnly(isPublished)",
 		"filterOnly(stock)"
 	]
-	"forwardToReplicas":True
 }
 
-index.set_settings(settings)
+index.set_settings(settings,{"forwardToReplicas":True})
 
 replica_index_desc = client.init_index('DealsHubProductPriceDesc')
 replica_index_desc.set_settings({
