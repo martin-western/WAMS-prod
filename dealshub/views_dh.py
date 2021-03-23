@@ -386,7 +386,7 @@ class DeleteShippingAddressAPI(APIView):
             uuid = data["uuid"]
 
             address_obj = Address.objects.get(uuid=uuid)
-            dealshub_user_obj = address_obj.owner
+            dealshub_user_obj = address_obj.user
             cart_obj = Cart.objects.get(owner=dealshub_user_obj)
 
             if cart_obj.shipping_address != None and cart_obj.shipping_address.pk == address_obj.pk:
