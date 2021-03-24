@@ -735,7 +735,7 @@ class FetchCategoriesForNewUserAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class SetInterestedCategoriesForNewUserAPI(APIView):
 
     def post(self,request,*args,**kwargs):
@@ -4941,7 +4941,6 @@ class FetchPostaPlusDetailsAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
 class UpdateUnitOrderQtyAdminAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5007,7 +5006,6 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
 class UpdateOrderShippingAdminAPI(APIView):
 
     def post(self, request, *args, **kwargs):
