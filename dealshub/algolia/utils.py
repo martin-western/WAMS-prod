@@ -21,7 +21,7 @@ def add_product_to_index(dealshub_product_obj):
     index = client.init_index('DealsHubProduct')
     
     try:
-        logger.info("add_product_to_index: ", dealshub_product_obj)
+        logger.info("add_product_to_index: %s", str(dealshub_product_obj.__dict__))
         dealshub_product_dict = {}
         dealshub_product_dict["locationGroup"] = dealshub_product_obj.location_group.uuid
         dealshub_product_dict["objectID"] = dealshub_product_obj.uuid
@@ -42,7 +42,11 @@ def add_product_to_index(dealshub_product_obj):
 
 def search_algolia_index(data):
     try:
-        logger.info("search_algolia_index: ",data)
+        logger.info("search_algolia_index: %s",str(data))
+        if not isinstance(data, dict):
+            data = json.loads(data)
+ 
+        search_string = data["search_string"]
         filters = {}
         filters['hitsPerPage'] = data["pageSize"]
         filters['page'] = data["page"]
@@ -52,7 +56,7 @@ def search_algolia_index(data):
 
         if filters['filters'] != "":
             filters['filters'] = filters['filters'] + "AND "
-        filters['filters'] += "isPublished: True AND stock > 0 AND price > 0.0 AND "
+        filters['filters'] += "isPublished: true AND stock > 0 AND price > 0.0 "
 
         if data["superCategory"] != "":
             if filters['filters'] != "":
