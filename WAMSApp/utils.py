@@ -9,7 +9,7 @@ from WAMSApp.amazon_uae import *
 from WAMSApp.ebay import *
 from WAMSApp.noon import *
 from WAMSApp.serializers import UserSerializer
-
+from WAMSApp.models import *
 from django.db.models import Q
 from django.db.models import Count
 
@@ -2718,3 +2718,20 @@ def bulk_update_b2b_dealshub_product_moq(oc_uuid,path,filename, location_group_o
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("bulk_update_b2b_dealshub_product_moq: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def activitylog(user,table_name,action_type,table_item_pk='',prev_instance={},current_intense={},location_group_obj=None,render=''):
+    if render != "":
+        render = "pk :- {} is {}(action) in model {}(name)".format(table_item_pk,action_type,table_name)
+
+    ActivityLog.objects.save(
+        user=user,
+        location_group = location_group_obj,
+        table_name = table_name,
+        table_item_pk = table_item_pk,
+        action_type = action_type,
+        prev_instance = json.dumps(prev_instance),
+        current_intense = json.dumps(current_instance),
+        render = render,
+        )
+    return
