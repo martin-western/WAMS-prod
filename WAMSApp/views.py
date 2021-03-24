@@ -7142,6 +7142,88 @@ class SecureDeleteProductAPI(APIView):
         return Response(data=response)
 
 
+class FetchOmnyCommUserListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("LogoutUserAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            page = int(data.get("page", 1))
+            organization = data.get("organization","WIG")
+
+            custom_permission_objs = CustomPermission.objects.filter(organization__name=organization)
+
+            user_count = custom_permission_objs.count()
+            paginator  = Paginator(custom_permission_objs,20)
+            total_pages = int(paginator.num_pages)
+
+            if page > total_pages:
+                response['status'] = 404
+                response['message'] = "Page number out of range"
+                logger.warning("FetchReviewsAdminAPI : Page number out of range")
+                return Response(data=response)            
+
+            custom_permission_objs = paginator.page(page)
+
+            user_list = []
+
+            for custom_permission_obj in custom_permission_objs:
+                temp_dict = {}
+                omnycomm_user_obj = OmnyCommUser.objects.get(username=custom_permission_obj.user.username)
+                temp_dict["username"] = omnycomm_user_obj.username
+                temp_dict["first_name"] = omnycomm_user_obj.first_name
+                temp_dict["last_name"] = omnycomm_user_obj.last_name
+                temp_dict["email"] = omnycomm_user_obj.email
+                image_obj = omnycomm_user_obj.image
+                if image_obj!=None:
+                    temp_dict["image_url"] = image_obj.image.url
+                temp_dict["contact_no"] = omnycomm_user_obj.contact_number
+                temp_dict["designation"] = omnycomm_user_obj.designation
+                temp_dict["website_group"] = omnycomm_user_obj.website_group.name
+                brand_list = []
+                for brand_obj in custom_permission_obj.brands.all():
+                    brand_list.append(brand_obj.name)
+                temp_dict["brands"] = brand_list
+                temp_dict["sap_functions"] = json.loads(custom_permission_obj.sap_functions)
+                temp_dict["price"] = json.loads(custom_permission_obj.price)
+                temp_dict["stock"] = json.loads(custom_permission_obj.stock)
+                temp_dict["oc_report_list"] = json.loads(custom_permission_obj.oc_reports)
+                temp_dict["page_list"] = json.loads(custom_permission_obj.page_list)
+                location_group_list = []
+                for location_group_obj in custom_permission_obj.location_groups.all():
+                    location_group_list.append(location_group_obj.name)
+                temp_dict["location_group_list"] = location_group_list
+                temp_dict["cohort"] = json.loads(custom_permission_obj.cohort)
+                temp_dict["other_list"] = json.loads(custom_permission_obj.misc)
+
+                user_list.append(temp_dict)
+
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
+            response["totalPages"] = total_pages
+            response["total_reviews"] = total_reviews
+
+            response["userList"] = user_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("LogoutUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response) 
+
+
 class LogoutOCUserAPI(APIView):
     
     def post(self, request, *args, **kwargs):
