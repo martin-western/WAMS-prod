@@ -33,7 +33,7 @@ def add_product_to_index(dealshub_product_obj):
 		dealshub_product_dict["stock"] = dealshub_product_obj.stock
 		
 		index.save_objects(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
-	except Excpetion as e:
+	except Exception as e:
 	    exc_type, exc_obj, exc_tb = sys.exc_info()
 	    logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
 
@@ -87,7 +87,7 @@ def search_algolia_index(data):
 
 		result = index.search(search_string,filters)
 
-	except Excpetion as e:
+	except Exception as e:
 	    exc_type, exc_obj, exc_tb = sys.exc_info()
 	    logger.error("search_index: %s at %s", e, str(exc_tb.tb_lineno))
 
