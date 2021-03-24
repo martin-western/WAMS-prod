@@ -284,7 +284,7 @@ class LocationGroup(models.Model):
         verbose_name_plural = "LocationGroup"
 
 
-class AcivityLog(models.Model):
+class ActivityLog(models.Model):
     user = models.ForeignKey(User, null=True)
     uuid = models.CharField(max_length=256, blank=True, default='')
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True)
@@ -292,8 +292,8 @@ class AcivityLog(models.Model):
     table_name = models.CharField(max_length=256, blank=True, default='') #model name
     table_item_pk = models.CharField(max_length=256, blank=True, default='') # item pk is id of change in that item 
     action_type = models.CharField(max_length=64,null=True,blank=True) # created updated deleted 
-    prev_instance = models.TextField(null = True,blank = True,default='{}')
-    current_intense = models.TextField(null = True,blank = True,default='{}')
+    prev_instance = models.TextField(null = True,blank = True,default='')
+    current_instance = models.TextField(null = True,blank = True,default='')
     render =  models.TextField(null = True,blank = True) #messages
 
     def __str__(self):
@@ -304,11 +304,11 @@ class AcivityLog(models.Model):
         if self.uuid == None or self.uuid=="":
             self.uuid = str(uuid.uuid4())
 
-        super(AcivityLog, self).save(*args, **kwargs)
+        super(ActivityLog, self).save(*args, **kwargs)
 
     class Meta:
-        verbose_name = "AcivityLog"
-        verbose_name_plural = "AcivityLog"
+        verbose_name = "ActivityLog"
+        verbose_name_plural = "ActivityLog"
 
 
 # location_group_uuid = data["locationGroupUuid"]

@@ -2720,18 +2720,19 @@ def bulk_update_b2b_dealshub_product_moq(oc_uuid,path,filename, location_group_o
         logger.error("bulk_update_b2b_dealshub_product_moq: %s at %s", e, str(exc_tb.tb_lineno))
 
 
-def activitylog(user,table_name,action_type,table_item_pk='',prev_instance={},current_intense={},location_group_obj=None,render=''):
-    if render != "":
-        render = "pk :- {} is {}(action) in model {}(name)".format(table_item_pk,action_type,table_name)
-
-    ActivityLog.objects.save(
+def activitylog(user,table_name,action_type,table_item_pk='',prev_instance={},current_instance={},location_group_obj=None,render=''):
+    ActivityLog.objects.create(
         user=user,
         location_group = location_group_obj,
         table_name = table_name,
         table_item_pk = table_item_pk,
         action_type = action_type,
         prev_instance = json.dumps(prev_instance),
-        current_intense = json.dumps(current_instance),
-        render = render,
+        current_instance = json.dumps(current_instance),
+        render = render
         )
+    print("activitylog added")
     return
+
+
+# url : http://127.0.0.1:8000/dealshub/unpublish-dealshub-product/ Authorization : JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6ImpheWRhdmUxIiwiZXhwIjoxNjMyMTI4Nzc5LCJlbWFpbCI6IiJ9.y3duuuDA7aUU3IXQDHhb1AZ6nlxXgkhp80zQ0VHQ3ps request parameters : { "product_uuid":"789-7946-45488"}
