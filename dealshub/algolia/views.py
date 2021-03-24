@@ -10,6 +10,7 @@ from rest_framework.permissions import AllowAny
 
 from dealshub.models import *
 from dealshub.constants import *
+from dealshub.algolia.utils import *
 
 from algoliasearch.search_client import SearchClient
 from dealshub.algolia.constants import *
