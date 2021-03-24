@@ -37,7 +37,7 @@ def add_product_to_index(dealshub_product_obj):
 	    exc_type, exc_obj, exc_tb = sys.exc_info()
 	    logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
 
-def search_index(data):
+def search_algolia_index(data):
 	try:
 
 		filters = {}
