@@ -100,7 +100,7 @@ class GithubWebhookAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CreateNewBaseProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -209,7 +209,7 @@ class CreateNewBaseProductAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CreateNewProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -286,7 +286,7 @@ class CreateNewProductAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveNoonChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -352,7 +352,7 @@ class SaveNoonChannelProductAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveAmazonUKChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -418,7 +418,7 @@ class SaveAmazonUKChannelProductAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveAmazonUAEChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -484,7 +484,7 @@ class SaveAmazonUAEChannelProductAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveEbayChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1139,7 +1139,7 @@ class FetchDealsHubProductsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateDealshubProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1203,7 +1203,7 @@ class UpdateDealshubProductAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class BulkUpdateDealshubProductPriceAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1257,7 +1257,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1311,7 +1311,7 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1365,7 +1365,7 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class BulkUpdateDealshubProductStockAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1419,7 +1419,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class BulkUpdateDealshubProductPublishStatusAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -1476,7 +1476,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveBaseProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1597,7 +1597,7 @@ class SaveBaseProductAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2018,7 +2018,7 @@ class FetchExportListAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
+#API with active log
 class AddToExportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2355,7 +2355,7 @@ class ImportProductsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UploadProductImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2501,7 +2501,7 @@ class UploadProductImageAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
+#API with active log
 class UpdateMainImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2554,7 +2554,7 @@ class UpdateMainImageAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateSubImagesAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2608,7 +2608,7 @@ class UpdateSubImagesAPI(APIView):
 
 #################################### FLyer Section #######################
 
-
+#API with active log
 class CreateFlyerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3005,7 +3005,7 @@ class FetchFlyerDetailsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CreatePFLAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3273,7 +3273,7 @@ class FetchProductListFlyerPFLAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class AddProductFlyerBucketAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3381,7 +3381,7 @@ class AddProductFlyerBucketAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class AddProductPFLBucketAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3545,7 +3545,7 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveFlyerTemplateAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3580,7 +3580,7 @@ class SaveFlyerTemplateAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SavePFLTemplateAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3625,7 +3625,7 @@ class SavePFLTemplateAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UploadImageExternalBucketFlyerAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3657,7 +3657,7 @@ class UploadImageExternalBucketFlyerAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UploadImageExternalBucketPFLAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3867,7 +3867,7 @@ class FetchFlyerListAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UploadNewFlyerBGImageAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3903,7 +3903,7 @@ class UploadNewFlyerBGImageAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UploadFlyerTagAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3939,7 +3939,7 @@ class UploadFlyerTagAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UploadFlyerPriceTagAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -4105,7 +4105,7 @@ class FetchChannelsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SavePFLInBucketAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -4156,7 +4156,7 @@ class SavePFLInBucketAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveFlyerInBucketAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -4190,7 +4190,7 @@ class SaveFlyerInBucketAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
+#API with active log
 class VerifyProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4266,7 +4266,7 @@ class LockProductAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CopyBestImagesAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4309,7 +4309,7 @@ class CopyBestImagesAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class RemoveImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4333,7 +4333,7 @@ class RemoveImageAPI(APIView):
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             image_pk = data["image_pk"]
             image_obj = Image.objects.get(pk=int(image_pk))
-
+# {"product_pk":1,"image_pk":1,"image_category":"pfl_images"}
             if data["image_category"] == "pfl_images":
                 product_obj.pfl_images.remove(image_obj)
             elif data["image_category"] == "white_background_images":
@@ -4367,7 +4367,7 @@ class RemoveImageAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class DeleteImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4392,7 +4392,7 @@ class DeleteImageAPI(APIView):
             image_pk = int(data["image_pk"])
             channel_name = data["channel_name"]
             product_pk = data["product_pk"]
-
+# {"image_type":"other","image_pk":2,"product_pk":1,"channel_name":""}
             product_obj = Product.objects.get(pk=product_pk)
             if product_obj.locked:
                 logger.warning("DeleteImageAPI Restricted Access - Locked!")
@@ -4430,7 +4430,7 @@ class DeleteImageAPI(APIView):
             logger.error("DeleteImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
+#API with active log
 class RemoveProductFromExportListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4929,7 +4929,7 @@ class FetchUserProfileAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class EditUserProfileAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -5210,7 +5210,7 @@ class FetchAuditLogsAPI(APIView):
 
         return Response(data=response)
         
-
+#API with active log
 class CreateRequestHelpAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5366,7 +5366,7 @@ class FetchCompanyProfileAPI(APIView):
             logger.error("FetchCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
+#API with active log
 class SaveCompanyProfileAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5429,7 +5429,7 @@ class SaveCompanyProfileAPI(APIView):
             logger.error("SaveCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
+#API with active log
 class UploadCompanyLogoAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5466,7 +5466,7 @@ class UploadCompanyLogoAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UploadCompanyFooterLogoAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6145,7 +6145,7 @@ class CheckSectionPermissionsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CreateOCReportAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -6263,7 +6263,7 @@ class CreateOCReportAPI(APIView):
             logger.error("CreateOCReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
+#API with active log
 class CreateSEOReportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6391,7 +6391,7 @@ class BulkUploadSEODetailsAPI(APIView):
         return Response(data=response)
         
 
-
+#API with active log
 class CreateContentReportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6542,7 +6542,7 @@ class FetchOCReportListAPI(APIView):
             logger.error("FetchOCReportListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
+#API with active log
 class UpdateChannelProductStockandPriceAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6845,7 +6845,7 @@ class FetchDealshubProductDetailsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveDealshubProductDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7023,7 +7023,7 @@ class FetchExportTemplatesAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CreateExportTemplateAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7058,7 +7058,7 @@ class CreateExportTemplateAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class DeleteExportTemplateAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7086,7 +7086,7 @@ class DeleteExportTemplateAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SecureDeleteProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7141,7 +7141,7 @@ class SecureDeleteProductAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class LogoutOCUserAPI(APIView):
     
     def post(self, request, *args, **kwargs):

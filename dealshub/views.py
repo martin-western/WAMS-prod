@@ -735,7 +735,7 @@ class FetchCategoriesForNewUserAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SetInterestedCategoriesForNewUserAPI(APIView):
 
     def post(self,request,*args,**kwargs):
@@ -2001,7 +2001,7 @@ class FetchParajohnCategoriesAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class CreateAdminCategoryAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2047,6 +2047,7 @@ class CreateAdminCategoryAPI(APIView):
         
         return Response(data=response)
 
+#API with active log
 
 class UpdateAdminCategoryAPI(APIView):
 
@@ -2111,6 +2112,7 @@ class UpdateAdminCategoryAPI(APIView):
         
         return Response(data=response)
 
+#API with active log
 
 class DeleteAdminCategoryAPI(APIView):
 
@@ -2144,6 +2146,7 @@ class DeleteAdminCategoryAPI(APIView):
         
         return Response(data=response)
 
+#API with active log
 
 class PublishAdminCategoryAPI(APIView):
 
@@ -2171,6 +2174,7 @@ class PublishAdminCategoryAPI(APIView):
         
         return Response(data=response)
 
+#API with active log
 
 class UnPublishAdminCategoryAPI(APIView):
 
@@ -2198,7 +2202,7 @@ class UnPublishAdminCategoryAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class SectionBulkUploadAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -2291,7 +2295,7 @@ class SectionBulkUploadAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class BannerBulkUploadAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -2505,7 +2509,7 @@ class FetchBannerTypesAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class CreateBannerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2547,7 +2551,7 @@ class CreateBannerAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UpdateBannerNameAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2573,7 +2577,7 @@ class UpdateBannerNameAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class AddBannerImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2600,7 +2604,7 @@ class AddBannerImageAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UpdateBannerImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2641,7 +2645,7 @@ class UpdateBannerImageAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class DeleteBannerImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2680,7 +2684,7 @@ class DeleteBannerImageAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class DeleteUnitBannerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2714,7 +2718,7 @@ class DeleteUnitBannerAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class DeleteBannerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2750,7 +2754,7 @@ class DeleteBannerAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class PublishBannerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2778,7 +2782,7 @@ class PublishBannerAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UnPublishBannerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2806,7 +2810,7 @@ class UnPublishBannerAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class PublishDealsHubProductAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -2835,7 +2839,7 @@ class PublishDealsHubProductAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UnPublishDealsHubProductAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -2858,7 +2862,7 @@ class UnPublishDealsHubProductAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class ActivateCODDealsHubProductAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -2881,7 +2885,7 @@ class ActivateCODDealsHubProductAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class DeactivateCODDealsHubProductAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -2904,7 +2908,7 @@ class DeactivateCODDealsHubProductAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class DeleteProductFromSectionAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2935,7 +2939,7 @@ class DeleteProductFromSectionAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class PublishDealsHubProductsAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -2959,7 +2963,7 @@ class PublishDealsHubProductsAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UnPublishDealsHubProductsAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -3659,7 +3663,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class SaveDealshubAdminSectionsOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4115,7 +4119,7 @@ class FetchCompanyProfileDealshubAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class AddProductToSectionAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -4226,7 +4230,7 @@ class FetchWebsiteGroupBrandsAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class AddProductToUnitBannerAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -4273,7 +4277,7 @@ class AddProductToUnitBannerAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class DeleteProductFromUnitBannerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4429,7 +4433,7 @@ class FetchUnitBannerProductsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class AddUnitBannerHoveringImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4490,7 +4494,7 @@ class FetchUnitBannerHoveringImageAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class AddSectionHoveringImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4551,7 +4555,7 @@ class FetchSectionHoveringImageAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class DeleteHoveringImageAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -4575,7 +4579,7 @@ class DeleteHoveringImageAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UpdateSuperCategoryImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4604,7 +4608,7 @@ class UpdateSuperCategoryImageAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UpdateUnitBannerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4659,7 +4663,7 @@ class UpdateUnitBannerAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class CreateVoucherAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -4705,7 +4709,7 @@ class CreateVoucherAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateVoucherAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -4794,7 +4798,7 @@ class FetchVouchersAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class DeleteVoucherAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4821,7 +4825,7 @@ class DeleteVoucherAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class PublishVoucherAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4848,7 +4852,7 @@ class PublishVoucherAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UnPublishVoucherAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4937,7 +4941,7 @@ class FetchPostaPlusDetailsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateUnitOrderQtyAdminAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5003,7 +5007,7 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateOrderShippingAdminAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5497,7 +5501,7 @@ class FetchLocationGroupSettingsAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UpdateLocationGroupSettingsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5575,7 +5579,7 @@ class FetchSalesTargetsListAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UpdateSalesTargetAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5610,7 +5614,7 @@ class UpdateSalesTargetAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class AddSalesTargetAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5645,7 +5649,7 @@ class AddSalesTargetAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class AddProductToOrderAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -5743,7 +5747,7 @@ class AddProductToOrderAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateOrderChargesAPI(APIView):
     
     def post(self, request, *args, **kwargs):

@@ -49,7 +49,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return
 
-
+#API with active log
 class AddToWishListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -91,7 +91,7 @@ class AddToWishListAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class RemoveFromWishListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -210,7 +210,7 @@ class FetchShippingAddressListAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class EditShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -266,7 +266,7 @@ class EditShippingAddressAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CreateShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -318,7 +318,7 @@ class CreateShippingAddressAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CreateOfflineShippingAddressAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -368,7 +368,7 @@ class CreateOfflineShippingAddressAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class DeleteShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -397,7 +397,7 @@ class DeleteShippingAddressAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class AddToCartAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -487,7 +487,7 @@ class AddToCartAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class AddToFastCartAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -574,7 +574,7 @@ class AddToFastCartAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class AddToOfflineCartAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -849,7 +849,7 @@ class FetchOfflineCartDetailsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateCartDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -929,7 +929,7 @@ class UpdateCartDetailsAPI(APIView):
             logger.error("UpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
-
+#API with active log
 class UpdateOfflineCartDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1004,7 +1004,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
             logger.error("UpdateOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
-
+#API with active log
 class BulkUpdateCartDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1080,7 +1080,7 @@ class BulkUpdateCartDetailsAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UpdateFastCartDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1150,7 +1150,7 @@ class UpdateFastCartDetailsAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class RemoveFromCartAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1224,7 +1224,7 @@ class RemoveFromCartAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class SelectAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1258,7 +1258,7 @@ class SelectAddressAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class SelectOfflineAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1290,7 +1290,7 @@ class SelectOfflineAddressAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class SelectPaymentModeAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1319,7 +1319,7 @@ class SelectPaymentModeAPI(APIView):
             logger.error("SelectPaymentModeAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
-
+#API with active log
 class FetchActiveOrderDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1416,7 +1416,7 @@ class FetchActiveOrderDetailsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class PlaceOrderRequestAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1551,7 +1551,7 @@ class PlaceOrderRequestAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class ProcessOrderRequestAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1653,7 +1653,7 @@ class ProcessOrderRequestAPI(APIView):
             logger.error("ProcessOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
-
+#API with active log
 class PlaceB2BOnlineOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1750,7 +1750,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
             logger.error("PlaceB2BOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
-
+#API with active log
 class PlaceOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1920,7 +1920,7 @@ class PlaceOrderAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class PlaceOfflineOrderAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -1995,7 +1995,7 @@ class PlaceOfflineOrderAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CancelOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2383,7 +2383,7 @@ class FetchOrderVersionDetailsAPI(APIView):
             logger.error("FetchOrderVersionDetails: %s at %s", e, str(exc_tb.tb_lineno))
         return Response(data=response)
       
-      
+#API with active log      
 class CreateUnitOrderCancellationRequestAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2413,7 +2413,7 @@ class CreateUnitOrderCancellationRequestAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CreateOrderCancellationRequestAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -2445,7 +2445,7 @@ class CreateOrderCancellationRequestAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CreateOfflineCustomerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2498,7 +2498,7 @@ class CreateOfflineCustomerAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateOfflineUserProfileAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -2660,7 +2660,7 @@ class FetchUserProfileAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateUserProfileAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2953,7 +2953,7 @@ class FetchCustomerDetailsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateB2BCustomerStatusAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3041,7 +3041,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class DeleteB2BDocumentImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3064,7 +3064,7 @@ class DeleteB2BDocumentImageAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class DeleteB2BDocumentAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3251,7 +3251,7 @@ class FetchTokenRequestParametersAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class MakePurchaseRequestAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3353,7 +3353,7 @@ class MakePurchaseRequestAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class PaymentTransactionAPI(APIView):
     
     permission_classes = (AllowAny,)
@@ -3963,7 +3963,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SignUpCompletionAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -4075,7 +4075,7 @@ class SignUpCompletionAPI(APIView):
 
         return Response(data=response) 
 
-
+#API with active log
 class SendOTPSMSLoginAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -4168,7 +4168,7 @@ class SendOTPSMSLoginAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CheckUserPinSetAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -4277,7 +4277,7 @@ class SetLoginPinAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class VerifyLoginPinAPI(APIView):
 
     permission_classes = [AllowAny]
@@ -4575,7 +4575,7 @@ class UpdateUserEmailAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class AddReviewAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
@@ -4627,7 +4627,7 @@ class AddReviewAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class AddFakeReviewAdminAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -4677,7 +4677,7 @@ class AddFakeReviewAdminAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UpdateReviewAdminAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4739,7 +4739,7 @@ class UpdateReviewAdminAPI(APIView):
         return Response(data=response)
 
 
-
+#API with active log
 class AddRatingAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
@@ -4769,7 +4769,7 @@ class AddRatingAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UpdateRatingAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
@@ -4798,7 +4798,7 @@ class UpdateRatingAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class AddAdminCommentAPI(APIView):
     
     def post(self, request, *arg, **kwargs):
@@ -4848,7 +4848,7 @@ class AddAdminCommentAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateAdminCommentAPI(APIView):
     
     def post(self, request, *arg, **kwargs):
@@ -4873,7 +4873,7 @@ class UpdateAdminCommentAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class AddUpvoteAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
@@ -4902,7 +4902,7 @@ class AddUpvoteAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class DeleteUpvoteAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
@@ -5233,7 +5233,7 @@ class FetchProductReviewsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class DeleteUserReviewImageAPI(APIView):
     
     def post(self, request, *arg, **kwargs):
@@ -5263,7 +5263,7 @@ class DeleteUserReviewImageAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class DeleteAdminReviewImageAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
@@ -5292,7 +5292,7 @@ class DeleteAdminReviewImageAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class DeleteUserReviewAPI(APIView):
     
     def post(self, request, *arg, **kwargs):
@@ -5318,7 +5318,7 @@ class DeleteUserReviewAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class HideReviewAdminAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5346,7 +5346,7 @@ class HideReviewAdminAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateReviewPublishStatusAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6172,7 +6172,7 @@ class FetchShippingMethodAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SetShippingMethodAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6631,7 +6631,7 @@ class ResendSAPOrderAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateManualOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6740,7 +6740,7 @@ class SetOrdersStatusBulkAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UpdateOrderStatusAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,) 
@@ -6783,7 +6783,7 @@ class UpdateOrderStatusAPI(APIView):
 
         return Response(data = response)
 
-
+#API with active log
 class SetCallStatusAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -6870,7 +6870,7 @@ class FetchOCSalesPersonsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CancelOrdersAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6914,7 +6914,7 @@ class CancelOrdersAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class ApproveCancellationRequestAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6959,7 +6959,7 @@ class ApproveCancellationRequestAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class RejectCancellationRequestAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -6990,7 +6990,7 @@ class RejectCancellationRequestAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class UpdateCancellationRequestRefundStatusAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -7196,7 +7196,7 @@ class UploadOrdersAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class ApplyVoucherCodeAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7358,7 +7358,7 @@ class ApplyVoucherCodeAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class RemoveVoucherCodeAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7788,7 +7788,7 @@ class FetchOrderAnalyticsParamsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class PlaceDaycartOnlineOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7962,7 +7962,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
         
         return Response(data=response)
 
-
+#API with active log
 class PlaceOnlineOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):

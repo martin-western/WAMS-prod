@@ -284,6 +284,55 @@ class LocationGroup(models.Model):
         verbose_name_plural = "LocationGroup"
 
 
+class AcivityLog(models.Model):
+    # ACTION_CHOICES = (
+    #     ("create", "create"),
+    #     ("update", "update"),
+    #     ("delete", "delete"),
+    # )
+    user = models.ForeignKey(User, null=True)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True)
+    created_date = models.DateTimeField()
+    table_name = models.CharField(max_length=256, blank=True, default='')
+    table_item_pk = models.CharField(max_length=256, blank=True, default='')
+    action_type = models.CharField(max_length=64,null=True,blank=True)
+    prev_intense = models.TextField(null = True,blank = True)
+    current_intense = models.TextField(null = True,blank = True)
+    render =  models.TextField(null = True,blank = True) #messages
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(AcivityLog, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "AcivityLog"
+        verbose_name_plural = "AcivityLog"
+
+
+# location_group_uuid = data["locationGroupUuid"]
+# location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+# ActivityLog.objects.save(
+#     user=request.user,
+#     location_group = location_group_obj,
+#     created_date = timezone.now(),
+#     table_name = 'model_name',
+#     table_item_pk = 'uuid/pk',
+#     action_type = 'create / update / delete',
+#     prev_intense = 'call same query before updating or delete it and then json.dumps() or we have to figure out other optizimed solution ',
+#     current_intense = 'same as obj created after what currently saving',
+#     render = 'xyz item created/updated/deleted'
+#     )
+
+
+
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
