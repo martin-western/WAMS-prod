@@ -35,11 +35,10 @@ def add_product_to_index(dealshub_product_obj):
 		index.save_objects(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
 	except Exception as e:
 	    exc_type, exc_obj, exc_tb = sys.exc_info()
-	    logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
+		logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
 
 def search_algolia_index(data):
 	try:
-
 		filters = {}
 		filters['hitsPerPage'] = data["pageSize"]
 		filters['page'] = data["page"]
@@ -88,7 +87,6 @@ def search_algolia_index(data):
 		result = index.search(search_string,filters)
 
 	except Exception as e:
-	    exc_type, exc_obj, exc_tb = sys.exc_info()
-	    logger.error("search_index: %s at %s", e, str(exc_tb.tb_lineno))
-
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("search_algolia_index: %s at %s", e, str(exc_tb.tb_lineno))
 	return result
