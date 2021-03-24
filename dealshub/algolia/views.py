@@ -146,15 +146,15 @@ class SearchWIG3API(APIView):
             search_data["string"] = search_string
             search_data["locationGroupUuid"] = location_group_obj.uuid
             if super_category_name!="ALL":
-            	search_data["superCategory"] = super_category_name
+                search_data["superCategory"] = super_category_name
             else:
-            	search_data["superCategory"] = ""
+                search_data["superCategory"] = ""
             if category_name!="ALL":
-            	search_data["category"] = category_name
+                search_data["category"] = category_name
             else:
-            	search_data["category"] = ""
+                search_data["category"] = ""
             if sub_category_name!="":
-            	search_data["SubCategory"] = sub_category_name
+                search_data["SubCategory"] = sub_category_name
 
             search_data["brand_filter"] = data.get("brand_filter", [])
             search_data["page"] = data.get("page", 0)
@@ -165,17 +165,17 @@ class SearchWIG3API(APIView):
             search_data["ranking"] = 0
             sort_filter = data.get("sort_filter",{})
             if sort_filter.get("price", "")=="high-to-low":
-            	search_data["ranking"] = 1
+                search_data["ranking"] = 1
             if sort_filter.get("price", "")=="low-to-high":
-            	search_data["ranking"] = -1
+                search_data["ranking"] = -1
 
             try:
                 logger.info("SearchWIG3API: ", search_data)
-            	search_result = search_algolia_index(search_data)
+                search_result = search_algolia_index(search_data)
             except Exception as e:
-            	exc_type, exc_obj, exc_tb = sys.exc_info()
-            	logger.error("SearchWIG3API: %s at %s", e, str(exc_tb.tb_lineno))
-            	return Response(data=response)
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchWIG3API: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
 
             if not isinstance(search_result, dict):
                 search_result = json.loads(search_result)
