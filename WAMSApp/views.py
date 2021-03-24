@@ -7,7 +7,7 @@ from WAMSApp.constants import *
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-
+from WAMSApp.utils import activitylog
 from rest_framework.response import Response
 from rest_framework import permissions, status
 from rest_framework.decorators import api_view
@@ -4333,7 +4333,6 @@ class RemoveImageAPI(APIView):
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             image_pk = data["image_pk"]
             image_obj = Image.objects.get(pk=int(image_pk))
-# {"product_pk":1,"image_pk":1,"image_category":"pfl_images"}
             if data["image_category"] == "pfl_images":
                 product_obj.pfl_images.remove(image_obj)
             elif data["image_category"] == "white_background_images":
@@ -4392,7 +4391,8 @@ class DeleteImageAPI(APIView):
             image_pk = int(data["image_pk"])
             channel_name = data["channel_name"]
             product_pk = data["product_pk"]
-# {"image_type":"other","image_pk":2,"product_pk":1,"channel_name":""}
+            print(Image.objects.first().pk)
+            # {"image_type":"other","image_pk":2,"product_pk":1,"channel_name":""}
             product_obj = Product.objects.get(pk=product_pk)
             if product_obj.locked:
                 logger.warning("DeleteImageAPI Restricted Access - Locked!")
@@ -4401,6 +4401,9 @@ class DeleteImageAPI(APIView):
 
             if image_type == "other":
                 Image.objects.get(pk=int(image_pk)).delete()
+                print("image deleted")
+                print(request.user,image_pk,)
+                # activitylog(user=request.user,table_name='Image',action_type='delete',table_item_pk=image_pk,render='deleted')
             elif image_type == "main":
                 main_images_obj = None
                 if channel_name=="":

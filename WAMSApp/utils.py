@@ -2721,6 +2721,9 @@ def bulk_update_b2b_dealshub_product_moq(oc_uuid,path,filename, location_group_o
 
 
 def activitylog(user,table_name,action_type,table_item_pk='',prev_instance={},current_instance={},location_group_obj=None,render=''):
+    if render == "":
+        render = "pk :- {} is {}(action) in model {}(name)".format(table_item_pk,action_type,table_name)
+
     ActivityLog.objects.create(
         user=user,
         location_group = location_group_obj,
