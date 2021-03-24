@@ -286,7 +286,6 @@ class CreateNewProductAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
 class SaveNoonChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -352,7 +351,6 @@ class SaveNoonChannelProductAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
 class SaveAmazonUKChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -418,7 +416,6 @@ class SaveAmazonUKChannelProductAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
 class SaveAmazonUAEChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -484,7 +481,6 @@ class SaveAmazonUAEChannelProductAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
 class SaveEbayChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2608,7 +2604,7 @@ class UpdateSubImagesAPI(APIView):
 
 #################################### FLyer Section #######################
 
-#API with active log
+
 class CreateFlyerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3005,7 +3001,6 @@ class FetchFlyerDetailsAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
 class CreatePFLAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3273,7 +3268,7 @@ class FetchProductListFlyerPFLAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class AddProductFlyerBucketAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3381,7 +3376,7 @@ class AddProductFlyerBucketAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class AddProductPFLBucketAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3545,7 +3540,7 @@ class FetchProductDetailsFlyerPFLAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class SaveFlyerTemplateAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3580,7 +3575,7 @@ class SaveFlyerTemplateAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class SavePFLTemplateAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3625,7 +3620,6 @@ class SavePFLTemplateAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
 class UploadImageExternalBucketFlyerAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3657,7 +3651,7 @@ class UploadImageExternalBucketFlyerAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class UploadImageExternalBucketPFLAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3867,7 +3861,7 @@ class FetchFlyerListAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class UploadNewFlyerBGImageAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3903,7 +3897,7 @@ class UploadNewFlyerBGImageAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class UploadFlyerTagAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -3939,7 +3933,7 @@ class UploadFlyerTagAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class UploadFlyerPriceTagAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -4105,7 +4099,7 @@ class FetchChannelsAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class SavePFLInBucketAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -4156,7 +4150,7 @@ class SavePFLInBucketAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class SaveFlyerInBucketAPI(APIView):
 
     permission_classes = (permissions.AllowAny,)
@@ -4190,6 +4184,7 @@ class SaveFlyerInBucketAPI(APIView):
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 #API with active log
 class VerifyProductAPI(APIView):
 
@@ -5827,7 +5822,7 @@ class FetchLocationGroupListAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class UploadBulkExportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
