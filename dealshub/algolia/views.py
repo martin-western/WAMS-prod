@@ -158,13 +158,13 @@ class SearchWIG3API(APIView):
             	search_data["SubCategory"] = sub_category_name
 
             search_data["brand_filter"] = data.get("brand_filter", [])
-            search_data["sort_filter"] = data.get("sort_filter", {})
             search_data["page"] = data.get("page", 0)
             search_data["pageSize"] = 50
             search = {}
             available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
             # Ranking
             search_data["ranking"] = 0
+            sort_filter = data.get("sort_filter",{})
             if sort_filter.get("price", "")=="high-to-low":
             	search_data["ranking"] = 1
             if sort_filter.get("price", "")=="low-to-high":
