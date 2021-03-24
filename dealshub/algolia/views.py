@@ -12,6 +12,7 @@ from dealshub.models import *
 from dealshub.constants import *
 from dealshub.algolia.utils import *
 
+logger = logging.getLogger(__name__)
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
