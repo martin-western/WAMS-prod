@@ -12,6 +12,7 @@ from dealshub.utils import *
 from dealshub.views_dh import *
 from dealshub.network_global_integration import *
 from dealshub.hyperpay_integration import *
+from dealshub.algolia.views import *
 
 from django.shortcuts import HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
