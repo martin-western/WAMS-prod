@@ -170,7 +170,7 @@ class SearchWIG3API(APIView):
             	search_data["ranking"] = -1
 
             try:
-            	search_result = search_algolia(search_data)
+            	search_result = search_algolia_index(search_data)
             except Exception as e:
             	exc_type, exc_obj, exc_tb = sys.exc_info()
             	logger.error("SearchWIG3API: %s at %s", e, str(exc_tb.tb_lineno))
