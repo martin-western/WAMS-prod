@@ -285,11 +285,6 @@ class LocationGroup(models.Model):
 
 
 class AcivityLog(models.Model):
-    # ACTION_CHOICES = (
-    #     ("create", "create"),
-    #     ("update", "update"),
-    #     ("delete", "delete"),
-    # )
     user = models.ForeignKey(User, null=True)
     uuid = models.CharField(max_length=256, blank=True, default='')
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True)
