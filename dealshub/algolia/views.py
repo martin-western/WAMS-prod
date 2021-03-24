@@ -193,7 +193,7 @@ class SearchWIG3API(APIView):
             dealshub_product_objs.sort(key=lambda t: temp_uuid_list.index(t.uuid))
             products = []
             currency = location_group_obj.location.currency
-            for dealshub_user_obj in dealshub_product_objs:
+            for dealshub_product_obj in dealshub_product_objs:
                 try:
                     if dealshub_product_obj.now_price==0:
                         continue
