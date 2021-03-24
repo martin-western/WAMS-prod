@@ -160,7 +160,7 @@ class SearchWIG3API(APIView):
                 search_data["subCategory"] = ""
 
             search_data["brands"] = data.get("brand_filter", [])
-            search_data["page"] = data.get("page", 0)
+            search_data["page"] = data.get("page", 1) - 1
             search_data["pageSize"] = 50
             search = {}
 
@@ -183,12 +183,12 @@ class SearchWIG3API(APIView):
                 search_result = json.loads(search_result)
 
             hits = search_result["hits"]
-            temp_uuid_list = []
+            temp_pk_list = []
             for hit in hits:
-                temp_uuid_list.append(hit["objectID"])
-            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=temp_uuid_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
+                temp_pk_list.append(hit["pk"])
+            dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
             dealshub_product_objs = list(dealshub_product_objs)
-            dealshub_product_objs.sort(key=lambda t: temp_uuid_list.index(t.uuid))
+            dealshub_product_objs.sort(key=lambda t: temp_pk_list.index(t.pk))
             products = []
             currency = location_group_obj.location.currency
             for dealshub_product_obj in dealshub_product_objs:
