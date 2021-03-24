@@ -4352,6 +4352,7 @@ class RemoveImageAPI(APIView):
                 ProductImage.objects.get(product=product_obj, image=image_obj).delete()
                 
             product_obj.save()
+            #activitylog(user=request.user,table_name='product',action_type='delete',prev_instance={},current_instance={},table_item_pk=image_pk,render='deleted')
 
             response['status'] = 200
 
