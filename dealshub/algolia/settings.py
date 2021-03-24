@@ -1,5 +1,5 @@
 from algoliasearch.search_client import SearchClient
-from constants import *
+from dealshub.algolia.constants import *
 import json
 
 

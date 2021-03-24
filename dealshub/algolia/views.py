@@ -14,7 +14,6 @@ from dealshub.constants import *
 from algoliasearch.search_client import SearchClient
 from dealshub.algolia.constants import *
 
-
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
     def enforce_csrf(self, request):
