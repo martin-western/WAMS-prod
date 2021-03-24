@@ -8,7 +8,6 @@ from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import AllowAny
 
-from dealshub.models import *
 from dealshub.constants import *
 from dealshub.algolia.utils import *
 
@@ -171,6 +170,7 @@ class SearchWIG3API(APIView):
             	search_data["ranking"] = -1
 
             try:
+                logger.info("SearchWIG3API: ", search_data)
             	search_result = search_algolia_index(search_data)
             except Exception as e:
             	exc_type, exc_obj, exc_tb = sys.exc_info()
