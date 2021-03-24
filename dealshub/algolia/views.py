@@ -143,7 +143,7 @@ class SearchWIG3API(APIView):
 
 
             search_data = {}
-            search_data["string"] = search_string
+            search_data["search_string"] = search_string
             search_data["locationGroupUuid"] = location_group_obj.uuid
             if super_category_name!="ALL":
                 search_data["superCategory"] = super_category_name
@@ -154,13 +154,15 @@ class SearchWIG3API(APIView):
             else:
                 search_data["category"] = ""
             if sub_category_name!="":
-                search_data["SubCategory"] = sub_category_name
+                search_data["subCategory"] = sub_category_name
+            else:
+                search_data["subCategory"] = ""
 
-            search_data["brand_filter"] = data.get("brand_filter", [])
+            search_data["brands"] = data.get("brand_filter", [])
             search_data["page"] = data.get("page", 0)
             search_data["pageSize"] = 50
             search = {}
-            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
+
             # Ranking
             search_data["ranking"] = 0
             sort_filter = data.get("sort_filter",{})
@@ -170,7 +172,6 @@ class SearchWIG3API(APIView):
                 search_data["ranking"] = -1
 
             try:
-                logger.info("SearchWIG3API: ", search_data)
                 search_result = search_algolia_index(search_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -218,8 +219,9 @@ class SearchWIG3API(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SearchWIG3API: %s at %s", e, str(exc_tb.tb_lineno))
+
             is_available = True
-            if int(paginator.num_pages) == int(page):
+            if search_result["page"] == search_result["nbPages"]-1:
                 is_available = False
             response["is_available"] = is_available
             response["totalPages"] = search_result["nbPages"]
