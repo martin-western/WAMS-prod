@@ -9,6 +9,7 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import AllowAny
 
 from dealshub.constants import *
+from dealshub.utils import *
 from dealshub.algolia.utils import *
 
 from algoliasearch.search_client import SearchClient
