@@ -12,7 +12,7 @@ from dealshub.models import *
 from dealshub.constants import *
 
 from algoliasearch.search_client import SearchClient
-from constants import *
+from dealshub.algolia.constants import *
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
