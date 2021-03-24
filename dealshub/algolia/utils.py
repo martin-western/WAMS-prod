@@ -1,3 +1,4 @@
+from dealshub.models import *
 from algoliasearch.search_client import SearchClient
 from dealshub.algolia.constants import *
 import json
@@ -11,6 +12,8 @@ import sys
 import xlrd
 import uuid
 import time
+
+logger = logging.getLogger(__name__)
 
 def add_product_to_index(dealshub_product_obj):
 
@@ -35,10 +38,11 @@ def add_product_to_index(dealshub_product_obj):
         index.save_objects(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("SearchWIG3API: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
 
 def search_algolia_index(data):
     try:
+        logger.info("search_algolia_index: ",data)
         filters = {}
         filters['hitsPerPage'] = data["pageSize"]
         filters['page'] = data["page"]
