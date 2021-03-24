@@ -1,3 +1,4 @@
+from dealshub.models import *
 from algoliasearch.search_client import SearchClient
 from dealshub.algolia.constants import *
 import json
