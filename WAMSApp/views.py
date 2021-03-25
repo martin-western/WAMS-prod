@@ -7416,6 +7416,35 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
         return Response(data=response)
 
 
+class ResetOmnyCommUserPasswordAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("LogoutUserAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            username = data["username"]
+
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=username)
+            password = generate_random_password(length=8)
+            omnycomm_user_obj.set_password(password)
+
+            response["password"] = password
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("LogoutUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class LogoutOCUserAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -7641,5 +7670,7 @@ CreateOmnyCommUser = CreateOmnyCommUserAPI.as_view()
 SaveOmnyCommUserDetails = SaveOmnyCommUserDetailsAPI.as_view()
 
 SaveOmnyCommUserPermissions = SaveOmnyCommUserPermissionsAPI.as_view()
+
+ResetOmnyCommUserPassword = ResetOmnyCommUserPasswordAPI.as_view()
 
 LogoutOCUser = LogoutOCUserAPI.as_view()
