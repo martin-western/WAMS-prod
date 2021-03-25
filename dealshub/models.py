@@ -561,7 +561,8 @@ class DealsHubProduct(models.Model):
                 pass
 
         try:
-            p1 = threading.Thread(target = add_product_to_index, args=(dealshub_product_obj,))
+            logger.info("Update DealsHubProduct to Index: %s",str(self))
+            p1 = threading.Thread(target = add_product_to_index, args=(self,))
             p1.start()
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
