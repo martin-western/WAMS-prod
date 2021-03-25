@@ -71,7 +71,7 @@ def search_algolia_index(data):
         if data["subCategory"] != "":
             if filters['filters'] != "":
                 filters['filters'] = filters['filters'] + "AND "
-            filters['filters'] += "category:" + "'" +  data["subCategory"] + "' "
+            filters['filters'] += "subCategory:" + "'" +  data["subCategory"] + "' "
 
         if len(data["brands"]) !=0:
             filters['filters'] += "AND " + "("
