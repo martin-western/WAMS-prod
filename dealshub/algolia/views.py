@@ -173,8 +173,6 @@ class SearchWIG3API(APIView):
             if sort_filter.get("price", "")=="low-to-high":
                 search_data["ranking"] = -1
 
-            t2 = datetime.datetime.now()
-            logger.info("Check1: %s",str((t2-t1).total_seconds()))
             try:
                 search_result = search_algolia_index(search_data)
             except Exception as e:
