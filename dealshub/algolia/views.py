@@ -1,6 +1,7 @@
 import requests
 import json
 import logging
+import datetime
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -33,6 +34,7 @@ class SearchWIG3API(APIView):
         response = {}
         response['status'] = 500
         try:
+            t1 = datetime.datetime.now()
             data = request.data
             logger.info("SearchWIG3API: %s", str(data))
 
@@ -175,12 +177,16 @@ class SearchWIG3API(APIView):
             if sort_filter.get("price", "")=="low-to-high":
                 search_data["ranking"] = -1
 
+            t2 = datetime.datetime.now()
+            logger.info("Check1: %s",str((t2-t1).total_seconds()))
             try:
                 search_result = search_algolia_index(search_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchWIG3API: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
+            t3 = datetime.datetime.now()
+            logger.info("Check1: %s",str((t3-t2).total_seconds()))
 
             if not isinstance(search_result, dict):
                 search_result = json.loads(search_result)
@@ -194,6 +200,9 @@ class SearchWIG3API(APIView):
             dealshub_product_objs.sort(key=lambda t: temp_pk_list.index(t.pk))
             products = []
             currency = location_group_obj.location.currency
+            t4 = datetime.datetime.now()
+            logger.info("Check1: %s",str((t4-t3).total_seconds()))
+
             for dealshub_product_obj in dealshub_product_objs:
                 try:
                     if dealshub_product_obj.now_price==0:
