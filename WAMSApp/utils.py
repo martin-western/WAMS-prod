@@ -20,6 +20,7 @@ from django.utils import timezone
 import sys
 import xlsxwriter
 import pandas as pd
+import string
 
 def my_jwt_response_handler(token, user=None, request=None):
     
@@ -2455,6 +2456,12 @@ def isNoneOrEmpty(variable):
         logger.error("isNoneOrEmpty: %s at %s", e, str(exc_tb.tb_lineno))
         return True
 
+def generate_random_password(length):
+    chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
+    password = ''
+    for i in range(length):
+        password += chars[ord(os.urandom(1)) % len(chars)]
+    return password
 
 def bulk_update_dealshub_product_price_or_stock(oc_uuid,path,filename, location_group_obj, update_type):
     try:
