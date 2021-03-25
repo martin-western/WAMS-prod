@@ -164,7 +164,7 @@ class SearchWIG3API(APIView):
                 search_data["subCategory"] = ""
 
             search_data["brands"] = data.get("brand_filter", [])
-            search_data["page"] = data.get("page", 1) - 1
+            search_data["page"] = int(data.get("page", 1)) - 1
             search_data["pageSize"] = 50
             search = {}
 
