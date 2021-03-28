@@ -665,7 +665,7 @@ def create_image_report(filename, uuid, brand_list, organization_obj):
     notify_user_for_report(oc_report_obj)
 
 
-def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
+def create_wigme_report(filename, uuid, brand_list, custom_permission_obj,location_group_obj):
 
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
@@ -690,6 +690,8 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
         colnum += 1
 
     location_group_objs = custom_permission_obj.location_groups.all()
+    if location_group_obj!=None:
+        location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
 
     dh_product_objs = DealsHubProduct.objects.filter(product__base_product__brand__name__in=brand_list, location_group__in=location_group_objs)
 
@@ -729,7 +731,7 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj):
     notify_user_for_report(oc_report_obj)
 
 
-def create_search_keyword_report(filename, uuid, custom_permission_obj):
+def create_search_keyword_report(filename, uuid, custom_permission_obj,location_group_obj):
 
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
@@ -747,6 +749,8 @@ def create_search_keyword_report(filename, uuid, custom_permission_obj):
         colnum += 1
 
     location_group_objs = custom_permission_obj.location_groups.all()
+    if location_group_obj!=None:
+        location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
 
     search_keyword_objs = SearchKeyword.objects.filter(location_group__in=location_group_objs).order_by('-pk')[:5000]
 
@@ -778,7 +782,7 @@ def create_search_keyword_report(filename, uuid, custom_permission_obj):
     notify_user_for_report(oc_report_obj)
 
 
-def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj):
+def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj,location_group_obj):
 
     workbook = xlsxwriter.Workbook('./'+filename)
     worksheet = workbook.add_worksheet()
@@ -799,7 +803,9 @@ def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_p
         colnum += 1
 
     location_group_objs = custom_permission_obj.location_groups.all()
-
+    if location_group_obj!=None:
+        location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
+    
     unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs)
     if from_date!="":
         from_date = from_date[:10]+"T00:00:00+04:00"
@@ -858,7 +864,7 @@ def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_p
     notify_user_for_report(oc_report_obj)
 
 
-def create_order_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj):
+def create_order_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj,location_group_obj):
 
     try:
         logger.info("create_order_report started!")
@@ -904,6 +910,8 @@ def create_order_report(filename, uuid, from_date, to_date, brand_list, custom_p
             colnum += 1
 
         location_group_objs = custom_permission_obj.location_groups.all()
+        if location_group_obj!=None:
+            location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
         unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
         if from_date!="":
             from_date = from_date[:10]+"T00:00:00+04:00"
@@ -1065,7 +1073,7 @@ def create_verified_products_report(filename, uuid, from_date, to_date, brand_li
     notify_user_for_report(oc_report_obj)
 
 
-def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
+def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj, location_group_obj):
 
     try:
         workbook = xlsxwriter.Workbook('./'+filename)
@@ -1084,6 +1092,8 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
             colnum += 1
 
         location_group_objs = custom_permission_obj.location_groups.all()
+        if location_group_obj!=None:
+            location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
 
         dealshub_user_objs = DealsHubUser.objects.filter(pk__in=UnitWishList.objects.filter(product__product__base_product__brand__name__in=brand_list, wish_list__location_group__in=location_group_objs).values_list('wish_list__owner__pk', flat=True).distinct())
 
@@ -1127,7 +1137,7 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj):
         logger.error("Error create_wishlist_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_obj):
+def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_obj, location_group_obj):
 
     try:
         workbook = xlsxwriter.Workbook('./'+filename)
@@ -1146,6 +1156,8 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
             colnum += 1
 
         location_group_objs = custom_permission_obj.location_groups.all()
+        if location_group_obj!=None:
+            location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
 
         dealshub_user_objs = DealsHubUser.objects.filter(pk__in=UnitCart.objects.filter(product__product__base_product__brand__name__in=brand_list, cart__location_group__in=location_group_objs).values_list('cart__owner__pk', flat=True).distinct())
 
@@ -1193,7 +1205,7 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
         logger.error("Error create_abandoned_cart_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permission_obj):
+def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permission_obj, location_group_obj):
     try:
         logger.info('Sap billing report start..')
         workbook = xlsxwriter.Workbook('./'+filename)
@@ -1233,6 +1245,8 @@ def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permiss
             colnum += 1
         
         location_group_objs = custom_permission_obj.location_groups.all()
+        if location_group_obj!=None:
+            location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
         unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
         if from_date!="":
             from_date = from_date[:10]+"T00:00:00+04:00"
@@ -1296,7 +1310,7 @@ def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permiss
         logger.error("Error create_sap_billing_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_permission_obj):
+def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_permission_obj, location_group_obj):
     try:
         logger.info('Sendex Courier report start...')
         workbook = xlsxwriter.Workbook('./'+filename)
@@ -1329,6 +1343,8 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
             colomn += 1
         
         location_group_objs = custom_permission_obj.location_groups.all()
+        if location_group_obj!=None:
+            location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
         unit_order_objs = UnitOrder.objects.filter(shipping_method="sendex", order__location_group__in=location_group_objs).order_by('-pk')
         if from_date!="":
             from_date = from_date[:10]+"T00:00:00+04:00"
@@ -1398,7 +1414,7 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
         logger.error("Error create_sendex_courier_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def create_standard_courier_report(filename, uuid, from_date, to_date, custom_permission_obj):
+def create_standard_courier_report(filename, uuid, from_date, to_date, custom_permission_obj, location_group_obj):
     try:
         logger.info('Standard Courier report start...')
         workbook = xlsxwriter.Workbook('./'+filename)
@@ -1437,6 +1453,8 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
             colomn += 1
         
         location_group_objs = custom_permission_obj.location_groups.all()
+        if location_group_obj!=None:
+            location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
         unit_order_objs = UnitOrder.objects.filter(shipping_method="standard", order__location_group__in=location_group_objs).order_by('-pk')
         if from_date!="":
             from_date = from_date[:10]+"T00:00:00+04:00"
@@ -1515,7 +1533,7 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
         logger.error("Error create_standard_courier_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def create_postaplus_courier_report(filename, uuid, from_date, to_date, custom_permission_obj):
+def create_postaplus_courier_report(filename, uuid, from_date, to_date, custom_permission_obj, location_group_obj):
     try:
         logger.info('Postaplus Courier report start...')
         workbook = xlsxwriter.Workbook('./'+filename)
@@ -1564,6 +1582,8 @@ def create_postaplus_courier_report(filename, uuid, from_date, to_date, custom_p
             colomn += 1
         
         location_group_objs = custom_permission_obj.location_groups.all()
+        if location_group_obj!=None:
+            location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
         unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
         if from_date!="":
             from_date = from_date[:10]+"T00:00:00+04:00"
@@ -1649,7 +1669,7 @@ def create_postaplus_courier_report(filename, uuid, from_date, to_date, custom_p
         logger.error("Error create_postaplus_courier_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def create_sales_executive_value_report(filename, uuid, from_date, to_date, custom_permission_obj):
+def create_sales_executive_value_report(filename, uuid, from_date, to_date, custom_permission_obj, location_group_obj):
     
     try:
         logger.info('Sales Executive Value report start...')
@@ -1678,6 +1698,8 @@ def create_sales_executive_value_report(filename, uuid, from_date, to_date, cust
             colomn += 1
         
         location_group_objs = custom_permission_obj.location_groups.all()
+        if location_group_obj!=None:
+            location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
 
         for location_group_obj in location_group_objs:
             custom_permission_objs = location_group_obj.custompermission_set.all()
