@@ -35,6 +35,7 @@ from WAMSApp.views_category_manager import *
 from WAMSApp.views_SAP_Integration import *
 from WAMSApp.utils_SAP_Integration import *
 from WAMSApp.views_nesto import *
+from WAMSApp.views_cron import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
@@ -113,6 +114,11 @@ class CreateNewBaseProductAPI(APIView):
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("CreateNewBaseProductAPI Restricted Access!")
                 response['status'] = 403
+                return Response(data=response)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateNewBaseProductAPI Restricted Access!")
                 return Response(data=response)
 
             data = request.data
@@ -224,6 +230,11 @@ class CreateNewProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateNewProductAPI Restricted Access!")
+                return Response(data=response)
+
             data = request.data
             logger.info("CreateNewProductAPI: %s", str(data))
 
@@ -301,6 +312,11 @@ class SaveNoonChannelProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveNoonChannelProductAPI Restricted Access!")
+                return Response(data=response)
+
             data = request.data
             logger.info("SaveNoonChannelProductAPI: %s", str(data))
 
@@ -365,6 +381,11 @@ class SaveAmazonUKChannelProductAPI(APIView):
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("SaveAmazonUKChannelProductAPI Restricted Access!")
                 response['status'] = 403
+                return Response(data=response)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveAmazonUKChannelProductAPI Restricted Access!")
                 return Response(data=response)
 
             data = request.data
@@ -433,6 +454,11 @@ class SaveAmazonUAEChannelProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access!")
+                return Response(data=response)
+
             data = request.data
             logger.info("SaveAmazonUAEChannelProductAPI: %s", str(data))
 
@@ -497,6 +523,11 @@ class SaveEbayChannelProductAPI(APIView):
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("SaveEbayChannelProductAPI Restricted Access!")
                 response['status'] = 403
+                return Response(data=response)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveEbayChannelProductAPI Restricted Access!")
                 return Response(data=response)
 
             data = request.data
@@ -566,6 +597,11 @@ class FetchChannelProductAPI(APIView):
                 data = json.loads(data)
 
             logger.info("FetchChannelProductAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchChannelProductAPI Restricted Access!")
+                return Response(data=response)
 
             channel_name = data["channel_name"]
 
@@ -680,6 +716,11 @@ class FetchBaseProductDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchBaseProductDetailsAPI Restricted Access!")
+                return Response(data=response)
+
             base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
             brand_obj = base_product_obj.brand
 
@@ -731,6 +772,11 @@ class FetchProductDetailsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchProductDetailsAPI Restricted Access!")
+                return Response(data=response)
 
             product_obj = Product.objects.get(pk=data["product_pk"])
             base_product_obj = product_obj.base_product
@@ -997,6 +1043,11 @@ class FetchDealsHubProductsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchDealsHubProductsAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
@@ -1152,6 +1203,12 @@ class UpdateDealshubProductAPI(APIView):
             data = request.data
             logger.info("UpdateDealshubProductAPI: %s", str(data))
 
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateDealshubProductAPI Restricted Access!")
+                return Response(data=response)
+
             is_b2b = False
             location_group_uuid = data.get("locationGroupUuid","")
             if location_group_uuid != "":
@@ -1213,11 +1270,16 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
         
         try:
             
-            data = request.data
+            data = request.data 
             logger.info("BulkUpdateDealshubProductPriceAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateDealshubProductPriceAPI Restricted Access!")
+                return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
 
@@ -1229,27 +1291,28 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-price.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
+            
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
 
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
+            report_type = "bulk upload product"
+            report_title = "bulk upload product price"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the price" 
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-                    now_price = float(dfs.iloc[i][1])
-                    was_price = float(dfs.iloc[i][2])
-                    
-                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                    dh_product_obj.now_price = now_price
-                    dh_product_obj.was_price = was_price
-                    dh_product_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
+
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,filename,location_group_obj,"price",))
+            p1.start()
 
             response['status'] = 200
-
+            response['approved'] = True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1272,6 +1335,11 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateB2BDealshubProductPriceAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
 
             cohort_permission = custom_permission_cohort(request.user, "dealshub")
@@ -1282,69 +1350,26 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-b2b-price.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
+            
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
 
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
+            report_type = "bulk upload product"
+            report_title = "bulk upload b2b product price"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the price" 
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-                    dealshub_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-                    if str(dfs.iloc[i][1]) != "nan" and str(dfs.iloc[i][1]) != "":
-                        now_price = float(dfs.iloc[i][1])
-                        dealshub_product_obj.now_price = now_price
-
-                    if str(dfs.iloc[i][2]) != "nan" and str(dfs.iloc[i][2]) != "":
-                        now_price_cohort1 = float(dfs.iloc[i][2])
-                        dealshub_product_obj.now_price_cohort1 = now_price_cohort1
-
-                    if str(dfs.iloc[i][3]) != "nan" and str(dfs.iloc[i][3]) != "":
-                        now_price_cohort2 = float(dfs.iloc[i][3])
-                        dealshub_product_obj.now_price_cohort2 = now_price_cohort2
-
-                    if str(dfs.iloc[i][4]) != "nan" and str(dfs.iloc[i][4]) != "":
-                        now_price_cohort3 = float(dfs.iloc[i][4])
-                        dealshub_product_obj.now_price_cohort3 = now_price_cohort3
-
-                    if str(dfs.iloc[i][5]) != "nan" and str(dfs.iloc[i][5]) != "":
-                        now_price_cohort4 = float(dfs.iloc[i][5])
-                        dealshub_product_obj.now_price_cohort4 = now_price_cohort4
-
-                    if str(dfs.iloc[i][6]) != "nan" and str(dfs.iloc[i][6]) != "":
-                        now_price_cohort5 = float(dfs.iloc[i][6])
-                        dealshub_product_obj.now_price_cohort5 = now_price_cohort5
-
-                    if str(dfs.iloc[i][7]) != "nan" and str(dfs.iloc[i][7]) != "":
-                        promotional_price = float(dfs.iloc[i][7])
-                        dealshub_product_obj.promotional_price = promotional_price
-
-                    if str(dfs.iloc[i][8]) != "nan" and str(dfs.iloc[i][8]) != "":
-                        promotional_price_cohort1 = float(dfs.iloc[i][8])
-                        dealshub_product_obj.promotional_price_cohort1 = promotional_price_cohort1
-
-                    if str(dfs.iloc[i][9]) != "nan" and str(dfs.iloc[i][9]) != "":
-                        promotional_price_cohort2 = float(dfs.iloc[i][9])
-                        dealshub_product_obj.promotional_price_cohort2 = promotional_price_cohort2
-
-                    if str(dfs.iloc[i][10]) != "nan" and str(dfs.iloc[i][10]) != "":
-                        promotional_price_cohort3 = float(dfs.iloc[i][10])
-                        dealshub_product_obj.promotional_price_cohort3 = promotional_price_cohort3
-
-                    if str(dfs.iloc[i][11]) != "nan" and str(dfs.iloc[i][11]) != "":
-                        promotional_price_cohort4 = float(dfs.iloc[i][11])
-                        dealshub_product_obj.promotional_price_cohort4 = promotional_price_cohort4
-
-                    if str(dfs.iloc[i][12]) != "nan" and str(dfs.iloc[i][12]) != "":
-                        promotional_price_cohort5 = float(dfs.iloc[i][12])
-                        dealshub_product_obj.promotional_price_cohort5 = promotional_price_cohort5
-
-                    dealshub_product_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateB2BDealshubProductPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
+            p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_price , args=(oc_report_obj.uuid,path,filename,location_group_obj))
+            p1.start()
+            
             response['status'] = 200
 
         except Exception as e:
@@ -1369,6 +1394,11 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateB2BDealshubProductMOQAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
 
             cohort_permission = custom_permission_cohort(request.user, "dealshub")
@@ -1379,45 +1409,26 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-b2b-moq.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
+            
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
 
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
+            report_type = "bulk upload product"
+            report_title = "bulk upload b2b product MOQ"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the MOQ" 
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-                    dealshub_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-                    if str(dfs.iloc[i][1]) != "nan" and str(dfs.iloc[i][1]) != "":
-                        moq = int(dfs.iloc[i][1])
-                        dealshub_product_obj.moq = moq
-
-                    if str(dfs.iloc[i][2]) != "nan" and str(dfs.iloc[i][2]) != "":
-                        moq_cohort1 = int(dfs.iloc[i][2])
-                        dealshub_product_obj.moq_cohort1 = moq_cohort1
-
-                    if str(dfs.iloc[i][3]) != "nan" and str(dfs.iloc[i][3]) != "":
-                        moq_cohort2 = int(dfs.iloc[i][3])
-                        dealshub_product_obj.moq_cohort2 = moq_cohort2
-
-                    if str(dfs.iloc[i][4]) != "nan" and str(dfs.iloc[i][4]) != "":
-                        moq_cohort3 = int(dfs.iloc[i][4])
-                        dealshub_product_obj.moq_cohort3 = moq_cohort3
-
-                    if str(dfs.iloc[i][5]) != "nan" and str(dfs.iloc[i][5]) != "":
-                        moq_cohort4 = int(dfs.iloc[i][5])
-                        dealshub_product_obj.moq_cohort4 = moq_cohort4
-
-                    if str(dfs.iloc[i][6]) != "nan" and str(dfs.iloc[i][6]) != "":
-                        moq_cohort5 = int(dfs.iloc[i][6])
-                        dealshub_product_obj.moq_cohort5 = moq_cohort5
-
-                    dealshub_product_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateB2BDealshubProductMOQAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
+            p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_moq , args=(oc_report_obj.uuid,path,filename,location_group_obj,))
+            p1.start()
+            
             response['status'] = 200
 
         except Exception as e:
@@ -1442,6 +1453,11 @@ class BulkUpdateDealshubProductStockAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateDealshubProductStockAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
 
             stock_permission = custom_permission_stock(request.user, "dealshub")
@@ -1452,24 +1468,28 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             path = default_storage.save('tmp/bulk-upload-stock.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
-            dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            rows = len(dfs.iloc[:])
 
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
-                    stock = float(dfs.iloc[i][1])
-                    
-                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                    dh_product_obj.stock = stock
-                    dh_product_obj.save()
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+
+            report_type = "bulk upload product"
+            report_title = "bulk upload product stock"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the stock" 
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
+
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path,filename, location_group_obj, "stock",))
+            p1.start()
 
             response['status'] = 200
-
+            response['approved'] = True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductStockAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1490,6 +1510,11 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateDealshubProductPublishStatusAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
 
@@ -1550,6 +1575,11 @@ class SaveBaseProductAPI(APIView):
 
             data = request.data
             logger.info("SaveBaseProductAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveBaseProductAPI Restricted Access!")
+                return Response(data=response)
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -1674,6 +1704,11 @@ class SaveProductAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveProductAPI Restricted Access!")
+                return Response(data=response)
 
 
             # Check for duplicate
@@ -1831,6 +1866,11 @@ class FetchProductListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchProductListAPI Restricted Access!")
+                return Response(data=response)
 
             filter_parameters = data["filter_parameters"]
             chip_data = data["tags"]
@@ -2018,6 +2058,11 @@ class FetchExportListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchExportListAPI Restricted Access!")
+                return Response(data=response)
+
             chip_data = json.loads(data.get('tags', '[]'))
 
             search_list_objs = []
@@ -2095,6 +2140,11 @@ class AddToExportAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddToExportAPI Restricted Access!")
+                return Response(data=response)
 
             select_all = data.get("select_all", False)
             export_option = data["export_option"]
@@ -2190,6 +2240,11 @@ class FetchExportProductListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchExportProductListAPI Restricted Access!")
+                return Response(data=response)
 
             export_obj = ExportList.objects.get(pk=int(data["export_pk"]))
             channel_name = export_obj.channel.name
@@ -2294,6 +2349,11 @@ class DownloadExportListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DownloadExportListAPI Restricted Access!")
+                return Response(data=response)
+
             export_format = data["export_format"]
 
             export_obj = ExportList.objects.get(pk=int(data["export_pk"]))
@@ -2348,6 +2408,11 @@ class DownloadProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DownloadProductAPI Restricted Access!")
+                return Response(data=response)
+
             export_format = data["export_format"]
 
             products = Product.objects.filter(pk=int(data["product_pk"]))
@@ -2394,6 +2459,11 @@ class ImportProductsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("ImportProductsAPI Restricted Access!")
+                return Response(data=response)
+
             import_format = data["import_format"]
             import_rule = data["import_rule"]
             import_file = data["import_file"]
@@ -2432,6 +2502,11 @@ class UploadProductImageAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadProductImageAPI Restricted Access!")
+                return Response(data=response)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
 
@@ -2579,6 +2654,11 @@ class UpdateMainImageAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateMainImageAPI Restricted Access!")
+                return Response(data=response)
+
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             channel_obj = None
             
@@ -2631,6 +2711,11 @@ class UpdateSubImagesAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateSubImagesAPI Restricted Access!")
+                return Response(data=response)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             channel_obj = None
@@ -2685,6 +2770,11 @@ class CreateFlyerAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateFlyerAPI Restricted Access!")
+                return Response(data=response)
 
             brand_obj = Brand.objects.get(pk=int(data["brand_pk"]))
             organization_obj = brand_obj.organization
@@ -3082,6 +3172,11 @@ class CreatePFLAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreatePFLAPI Restricted Access!")
+                return Response(data=response)
 
             pfl_obj = PFL.objects.create(name=convert_to_ascii(data["name"]))
 
@@ -3765,6 +3860,11 @@ class FetchPFLListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchPFLListAPI Restricted Access!")
+                return Response(data=response)
+
             page = int(data["page"])
 
             all_pfl_objs = custom_permission_filter_pfls(request.user)
@@ -3856,6 +3956,11 @@ class FetchFlyerListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchFlyerListAPI Restricted Access!")
+                return Response(data=response)
 
             page = int(data["page"])
 
@@ -4105,6 +4210,11 @@ class FetchBrandsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchBrandsAPI Restricted Access!")
+                return Response(data=response)
+
             brand_objs = None
             if FactoryUser.objects.filter(username=request.user.username).exists():
                 brand_objs = Brand.objects.all()
@@ -4142,6 +4252,11 @@ class FetchChannelsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchChannelsAPI Restricted Access!")
+                return Response(data=response)
 
             channel_objs = custom_permission_filter_channels(request.user)
             channel_list = []
@@ -4263,6 +4378,11 @@ class VerifyProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("VerifyProductAPI Restricted Access!")
+                return Response(data=response)
+
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             if custom_permission_obj.verify_product==False:
                 logger.warning("VerifyProductAPI Restricted Access!")
@@ -4301,6 +4421,11 @@ class LockProductAPI(APIView):
             
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("LockProductAPI Restricted Access!")
+                return Response(data=response)
 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             if custom_permission_obj.verify_product==False:
@@ -4344,6 +4469,11 @@ class CopyBestImagesAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CopyBestImagesAPI Restricted Access!")
+                return Response(data=response)
+
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             image_pk_list = data["image_pk_list"]
 
@@ -4385,6 +4515,11 @@ class RemoveImageAPI(APIView):
             if request.user.has_perm('WAMSApp.delete_image') == False:
                 logger.warning("RemoveImageAPI Restricted Access!")
                 response['status'] = 403
+                return Response(data=response)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("RemoveImageAPI Restricted Access!")
                 return Response(data=response)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
@@ -4444,6 +4579,11 @@ class DeleteImageAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteImageAPI Restricted Access!")
+                return Response(data=response)
 
             image_type = data["image_type"]
             image_pk = int(data["image_pk"])
@@ -4508,6 +4648,11 @@ class RemoveProductFromExportListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("RemoveProductFromExportListAPI Restricted Access!")
+                return Response(data=response)
 
             product_pk = int(data["product_pk"])
             export_pk = int(data["export_pk"])
@@ -4640,6 +4785,11 @@ class SapIntegrationAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SapIntegrationAPI Restricted Access!")
+                return Response(data=response)
 
             product_obj = Product.objects.get(pk=data["product_pk"])
             seller_sku = product_obj.base_product.seller_sku
@@ -4795,6 +4945,11 @@ class FetchUserProfileAPI(APIView):
         
         try:
             data = request.data
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchUserProfileAPI Restricted Access!")
+                return Response(data=response)
             
             content_manager = OmnyCommUser.objects.get(username=request.user.username)
 
@@ -5000,6 +5155,11 @@ class EditUserProfileAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("EditUserProfileAPI Restricted Access!")
+                return Response(data=response)
             
             first_name = data["first_name"]
             last_name = data["last_name"]
@@ -5037,6 +5197,11 @@ class FetchAuditLogsByUserAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchAuditLogsByUserAPI Restricted Access!")
+                return Response(data=response)
 
             page = data["page"]
 
@@ -5161,6 +5326,11 @@ class FetchAuditLogsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchAuditLogsAPI Restricted Access!")
+                return Response(data=response)
+
             page = data["page"]
 
             all_log_entry_objs = LogEntry.objects.exclude(actor=None)
@@ -5283,6 +5453,11 @@ class CreateRequestHelpAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateRequestHelpAPI Restricted Access!")
+                return Response(data=response)
+
             message = data["message"]
             page = data["page"]
 
@@ -5310,6 +5485,11 @@ class RefreshProductPriceAndStockAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("RefreshProductPriceAndStockAPI Restricted Access!")
+                return Response(data=response)
 
             product_pk = data["product_pk"]
             warehouse_code = data["warehouse_code"]
@@ -5341,6 +5521,11 @@ class RefreshPagePriceAndStockAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("RefreshPagePriceAndStockAPI Restricted Access!")
+                return Response(data=response)
 
             product_pk_list = data["product_pk_list"]
             warehouse_code = data["warehouse_code"]
@@ -5377,6 +5562,11 @@ class FetchCompanyProfileAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchCompanyProfileAPI Restricted Access!")
+                return Response(data=response)
 
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
 
@@ -5438,6 +5628,11 @@ class SaveCompanyProfileAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveCompanyProfileAPI Restricted Access!")
+                return Response(data=response)
 
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
 
@@ -5501,6 +5696,11 @@ class UploadCompanyLogoAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadCompanyLogoAPI Restricted Access!")
+                return Response(data=response)
+
             data = request.data
             logger.info("UploadCompanyLogoAPI: %s", str(data))
 
@@ -5541,6 +5741,11 @@ class UploadCompanyFooterLogoAPI(APIView):
             data = request.data
             logger.info("UploadCompanyFooterLogoAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadCompanyFooterLogoAPI Restricted Access!")
+                return Response(data=response)
+
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
            
             logo_image_url = data["logo_image_url"]
@@ -5575,6 +5780,11 @@ class FetchChannelProductListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchChannelProductListAPI Restricted Access!")
+                return Response(data=response)
 
             chip_data = data.get("tags", "[]")
             filter_parameters = data.get("filter_parameters", "{}")
@@ -5862,8 +6072,19 @@ class FetchLocationGroupListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchLocationGroupListAPI Restricted Access!")
+                return Response(data=response)
+            
+            custom = data.get("custom",False)
+
+            location_group_objs = LocationGroup.objects.all()
+            if custom==True:
+                location_group_objs = CustomPermission.objects.get(user=request.user).location_groups.all()
+
             location_group_list = []
-            for location_group_obj in LocationGroup.objects.all():
+            for location_group_obj in location_group_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = location_group_obj.uuid
                 temp_dict["name"] = location_group_obj.name
@@ -5893,6 +6114,11 @@ class UploadBulkExportAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadBulkExportAPI Restricted Access!")
+                return Response(data=response)
 
             path = default_storage.save('tmp/temp-bulk-upload.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
@@ -5949,6 +6175,11 @@ class SearchBulkExportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SearchBulkExportAPI Restricted Access!")
+                return Response(data=response)
+
             search_string = data["search_string"]
 
             organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
@@ -5998,6 +6229,11 @@ class FetchDataPointsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchDataPointsAPI Restricted Access!")
+                return Response(data=response)
+
             data_point_objs = DataPoint.objects.all()
             data_point_list = []
             for data_point_obj in data_point_objs:
@@ -6032,6 +6268,11 @@ class DownloadBulkExportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DownloadBulkExportAPI Restricted Access!")
+                return Response(data=response)
+
             data_point_list = data["data_point_list"]
             product_uuid_list = data["product_uuid_list"]
 
@@ -6064,6 +6305,11 @@ class TransferBulkChannelAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("TransferBulkChannelAPI Restricted Access!")
+                return Response(data=response)
 
             channel_list = data["channel_list"]
             product_uuid_list = data["product_uuid_list"]
@@ -6109,6 +6355,11 @@ class FetchAllCategoriesAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchAllCategoriesAPI Restricted Access!")
+                return Response(data=response)
 
             super_category_objs = SuperCategory.objects.all()
             super_category_list = []
@@ -6166,6 +6417,11 @@ class CheckSectionPermissionsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CheckSectionPermissionsAPI Restricted Access!")
+                return Response(data=response)
+
             website_group_name = ""
             ecommerce_pages = []
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
@@ -6212,6 +6468,11 @@ class CreateOCReportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateOCReportAPI Restricted Access!")
+                return Response(data=response)
+
             if OCReport.objects.filter(is_processed=False).count()>4:
                 response["approved"] = False
                 response['status'] = 200
@@ -6224,13 +6485,18 @@ class CreateOCReportAPI(APIView):
             from_date = data.get("from_date", "")
             to_date = data.get("to_date", "")
 
+            location_group_uuid = data.get("locationGroupUuid","")
+            location_group_obj = None
+            if location_group_uuid!="":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
 
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=custom_permission_obj.organization)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
 
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
@@ -6247,51 +6513,49 @@ class CreateOCReportAPI(APIView):
                 p1 = threading.Thread(target=create_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
                 p1.start()
             elif report_type.lower()=="ecommerce":
-                p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="search keyword":
-                p1 = threading.Thread(target=create_search_keyword_report, args=(filename,oc_report_obj.uuid,custom_permission_obj,))
+                p1 = threading.Thread(target=create_search_keyword_report, args=(filename,oc_report_obj.uuid,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="sales":
-                p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="order":
-                p1 = threading.Thread(target=create_order_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_order_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="sap billing":
-                p1 = threading.Thread(target=create_sap_billing_report, args=(filename,oc_report_obj.uuid,from_date, to_date, custom_permission_obj,))
+                p1 = threading.Thread(target=create_sap_billing_report, args=(filename,oc_report_obj.uuid,from_date, to_date, custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="verified products":
                 p1 = threading.Thread(target=create_verified_products_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
                 p1.start()
             elif report_type.lower()=="wishlist":
-                p1 = threading.Thread(target=create_wishlist_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_wishlist_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="abandoned cart":
-                p1 = threading.Thread(target=create_abandoned_cart_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,))
+                p1 = threading.Thread(target=create_abandoned_cart_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="delivery":
                 shipping_method = data["shipping_method"]
                 oc_report_obj.report_title = oc_report_obj.report_title + " " + shipping_method
                 oc_report_obj.save()
                 if shipping_method.lower()=="sendex":
-                    p1 = threading.Thread(target=create_sendex_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                    p1 = threading.Thread(target=create_sendex_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
                     p1.start()
                 elif shipping_method.lower()=="standard":
-                    p1 = threading.Thread(target=create_standard_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                    p1 = threading.Thread(target=create_standard_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
                     p1.start()
                 elif shipping_method.lower()=="postaplus":
-                    p1 =  threading.Thread(target=create_postaplus_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                    p1 =  threading.Thread(target=create_postaplus_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
                     p1.start()
             elif report_type.lower()=="sales executive":
-                p1 = threading.Thread(target=create_sales_executive_value_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,))
+                p1 = threading.Thread(target=create_sales_executive_value_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="bulk image":
                 p1 = threading.Thread(target=create_bulk_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
                 p1.start()
             elif report_type.lower()=="stock":
-                location_group_uuid = data["locationGroupUuid"]
-                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 p1 = threading.Thread(target=create_stock_report, args=(filename,oc_report_obj.uuid,brand_list,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="nesto ecommerce product":
@@ -6326,6 +6590,11 @@ class CreateSEOReportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateSEOReportAPI Restricted Access!")
+                return Response(data=response)
+
             if OCReport.objects.filter(is_processed=False).count()>4:
                 response["approved"] = False
                 response['status'] = 200
@@ -6342,8 +6611,8 @@ class CreateSEOReportAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
             report_name = report_type+" "+seo_type
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_name, created_by=oc_user_obj, note=note, filename=filename, organization=organization_obj)
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_name, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=organization_obj)
 
             if seo_type=="product":
                 p1 = threading.Thread(target=bulk_download_product_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
@@ -6393,6 +6662,11 @@ class BulkUploadSEODetailsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUploadSEODetailsAPI Restricted Access!")
+                return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -6454,6 +6728,11 @@ class CreateContentReportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateContentReportAPI Restricted Access!")
+                return Response(data=response)
+
             if OCReport.objects.filter(is_processed=False).count()>4:
                 response["approved"] = False
                 response['status'] = 200
@@ -6511,6 +6790,11 @@ class FetchOCReportPermissionsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOCReportPermissionsAPI Restricted Access!")
+                return Response(data=response)
+
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             oc_reports = json.loads(custom_permission_obj.oc_reports)
 
@@ -6539,11 +6823,20 @@ class FetchOCReportListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOCReportListAPI Restricted Access!")
+                return Response(data=response)
+            
+            location_group_uuid = data.get("locationGroupUuid","")
+            location_group_obj = None
+            if location_group_uuid!="":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             oc_reports = json.loads(custom_permission_obj.oc_reports)
 
-            oc_report_objs = OCReport.objects.filter(name__in=oc_reports,
-                                organization=custom_permission_obj.organization).order_by('-pk')
+            oc_report_objs = OCReport.objects.filter(name__in=oc_reports,location_group=location_group_obj, organization=custom_permission_obj.organization).order_by('-pk')
 
             page = int(data.get("page",1))
             paginator = Paginator(oc_report_objs, 20)
@@ -6601,6 +6894,11 @@ class UpdateChannelProductStockandPriceAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateChannelProductStockandPriceAPI Restricted Access!")
+                return Response(data=response)
 
             product_pk = data["product_pk"]
             channel_name = data["channel_name"]
@@ -6661,6 +6959,11 @@ class DownloadDynamicExcelTemplateAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DownloadDynamicExcelTemplateAPI Restricted Access!")
+                return Response(data=response)
+
             data_point_list = data["data_point_list"]
 
             filename = "files/dynamic bulk upload excel/Excel Template.xlsx"
@@ -6714,6 +7017,11 @@ class BulkUploadDynamicExcelAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUploadDynamicExcelAPI Restricted Access!")
+                return Response(data=response)
+
             operation = data["operation"]
 
             path = default_storage.save('tmp/temp-dynamic-template-upload.xlsx', data["import_file"])
@@ -6751,6 +7059,11 @@ class FetchDataPointsForUploadAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchDataPointsForUploadAPI Restricted Access!")
+                return Response(data=response)
 
             operation = data["operation"]
 
@@ -6808,6 +7121,11 @@ class FetchDealshubProductDetailsAPI(APIView):
             
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchDealshubProductDetailsAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
@@ -6904,6 +7222,11 @@ class SaveDealshubProductDetailsAPI(APIView):
             
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveDealshubProductDetailsAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
@@ -7037,6 +7360,11 @@ class FetchExportTemplatesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchExportTemplatesAPI Restricted Access!")
+                return Response(data=response)
+
             export_template_objs = ExportTemplate.objects.filter(user__username=request.user.username)
 
             export_template_list = []
@@ -7082,6 +7410,11 @@ class CreateExportTemplateAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateExportTemplateAPI Restricted Access!")
+                return Response(data=response)
+
             name = data["name"]
             data_point_list = data["data_point_list"]
 
@@ -7117,6 +7450,11 @@ class DeleteExportTemplateAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteExportTemplateAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
 
             export_template_obj = ExportTemplate.objects.get(uuid=uuid)
@@ -7144,6 +7482,11 @@ class SecureDeleteProductAPI(APIView):
             
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SecureDeleteProductAPI Restricted Access!")
+                return Response(data=response)
 
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
             if custom_permission_obj.delete_product==False:

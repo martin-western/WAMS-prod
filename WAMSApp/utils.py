@@ -2455,3 +2455,271 @@ def isNoneOrEmpty(variable):
         logger.error("isNoneOrEmpty: %s at %s", e, str(exc_tb.tb_lineno))
         return True
 
+
+def is_oc_user(user_obj):
+    if OmnyCommUser.objects.filter(username=user_obj.username).exists():
+        return True
+    return False
+
+def bulk_update_dealshub_product_price_or_stock(oc_uuid,path,filename, location_group_obj, update_type):
+    try:
+        
+        dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+        dfs.fillna("")
+        rows = len(dfs.iloc[:])
+
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+        row = ["No.","Product ID", "Status"]
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        cnt=0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        for i in range(rows):
+            try:
+                cnt += 1
+                product_id = str(dfs.iloc[i][0]).strip()
+                product_id = product_id.split(".")[0]
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = product_id
+
+                if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
+                    dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    if update_type == "stock":
+                        stock = float(dfs.iloc[i][1])
+                        dh_product_obj.stock = stock
+                        dh_product_obj.save()
+                    elif update_type == "price":
+                        now_price = float(dfs.iloc[i][1])
+                        was_price = float(dfs.iloc[i][2])
+                        dh_product_obj.now_price = now_price
+                        dh_product_obj.was_price = was_price
+                        dh_product_obj.save()
+                    common_row[2] = "success"
+                else:
+                    common_row[2] = "fail"
+    
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("bulk_update_dealshub_product_price_or_stock: %s at %s", e, str(exc_tb.tb_lineno))
+            
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=oc_uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("bulk_update_dealshub_product_price_or_stock: %s at %s", e, str(exc_tb.tb_lineno))
+
+def bulk_update_b2b_dealshub_product_price(oc_uuid,path,filename, location_group_obj):
+    try:
+        dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+        dfs.fillna("")
+        rows = len(dfs.iloc[:])
+
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+        row = ["No.","Product ID", "Status"]
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        cnt=0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        for i in range(rows):
+            try:
+                cnt += 1
+                product_id = str(dfs.iloc[i][0]).strip()
+                product_id = product_id.split(".")[0]
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = product_id
+
+                if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
+                    dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    if str(dfs.iloc[i][1]) != "nan" and str(dfs.iloc[i][1]) != "":
+                        now_price = float(dfs.iloc[i][1])
+                        dealshub_product_obj.now_price = now_price
+
+                    if str(dfs.iloc[i][2]) != "nan" and str(dfs.iloc[i][2]) != "":
+                        now_price_cohort1 = float(dfs.iloc[i][2])
+                        dealshub_product_obj.now_price_cohort1 = now_price_cohort1
+
+                    if str(dfs.iloc[i][3]) != "nan" and str(dfs.iloc[i][3]) != "":
+                        now_price_cohort2 = float(dfs.iloc[i][3])
+                        dealshub_product_obj.now_price_cohort2 = now_price_cohort2
+
+                    if str(dfs.iloc[i][4]) != "nan" and str(dfs.iloc[i][4]) != "":
+                        now_price_cohort3 = float(dfs.iloc[i][4])
+                        dealshub_product_obj.now_price_cohort3 = now_price_cohort3
+
+                    if str(dfs.iloc[i][5]) != "nan" and str(dfs.iloc[i][5]) != "":
+                        now_price_cohort4 = float(dfs.iloc[i][5])
+                        dealshub_product_obj.now_price_cohort4 = now_price_cohort4
+
+                    if str(dfs.iloc[i][6]) != "nan" and str(dfs.iloc[i][6]) != "":
+                        now_price_cohort5 = float(dfs.iloc[i][6])
+                        dealshub_product_obj.now_price_cohort5 = now_price_cohort5
+
+                    if str(dfs.iloc[i][7]) != "nan" and str(dfs.iloc[i][7]) != "":
+                        promotional_price = float(dfs.iloc[i][7])
+                        dealshub_product_obj.promotional_price = promotional_price
+
+                    if str(dfs.iloc[i][8]) != "nan" and str(dfs.iloc[i][8]) != "":
+                        promotional_price_cohort1 = float(dfs.iloc[i][8])
+                        dealshub_product_obj.promotional_price_cohort1 = promotional_price_cohort1
+
+                    if str(dfs.iloc[i][9]) != "nan" and str(dfs.iloc[i][9]) != "":
+                        promotional_price_cohort2 = float(dfs.iloc[i][9])
+                        dealshub_product_obj.promotional_price_cohort2 = promotional_price_cohort2
+
+                    if str(dfs.iloc[i][10]) != "nan" and str(dfs.iloc[i][10]) != "":
+                        promotional_price_cohort3 = float(dfs.iloc[i][10])
+                        dealshub_product_obj.promotional_price_cohort3 = promotional_price_cohort3
+
+                    if str(dfs.iloc[i][11]) != "nan" and str(dfs.iloc[i][11]) != "":
+                        promotional_price_cohort4 = float(dfs.iloc[i][11])
+                        dealshub_product_obj.promotional_price_cohort4 = promotional_price_cohort4
+
+                    if str(dfs.iloc[i][12]) != "nan" and str(dfs.iloc[i][12]) != "":
+                        promotional_price_cohort5 = float(dfs.iloc[i][12])
+                        dealshub_product_obj.promotional_price_cohort5 = promotional_price_cohort5
+
+                    dealshub_product_obj.save()
+                    common_row[2] = "success"
+                else:
+                    common_row[2] = "fail"
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("bulk_update_b2b_dealshub_product_price: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=oc_uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("bulk_update_b2b_dealshub_product_price: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_update_b2b_dealshub_product_moq(oc_uuid,path,filename, location_group_obj):
+    try:
+        dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+        dfs.fillna("")
+        rows = len(dfs.iloc[:])
+
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+        row = ["No.","Product ID", "Status"]
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        cnt=0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        for i in range(rows):
+            try:
+                cnt += 1
+                product_id = str(dfs.iloc[i][0]).strip()
+                product_id = product_id.split(".")[0]
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = product_id
+
+                if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
+                    dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    if str(dfs.iloc[i][1]) != "nan" and str(dfs.iloc[i][1]) != "":
+                        moq = int(dfs.iloc[i][1])
+                        dealshub_product_obj.moq = moq
+
+                    if str(dfs.iloc[i][2]) != "nan" and str(dfs.iloc[i][2]) != "":
+                        moq_cohort1 = int(dfs.iloc[i][2])
+                        dealshub_product_obj.moq_cohort1 = moq_cohort1
+
+                    if str(dfs.iloc[i][3]) != "nan" and str(dfs.iloc[i][3]) != "":
+                        moq_cohort2 = int(dfs.iloc[i][3])
+                        dealshub_product_obj.moq_cohort2 = moq_cohort2
+
+                    if str(dfs.iloc[i][4]) != "nan" and str(dfs.iloc[i][4]) != "":
+                        moq_cohort3 = int(dfs.iloc[i][4])
+                        dealshub_product_obj.moq_cohort3 = moq_cohort3
+
+                    if str(dfs.iloc[i][5]) != "nan" and str(dfs.iloc[i][5]) != "":
+                        moq_cohort4 = int(dfs.iloc[i][5])
+                        dealshub_product_obj.moq_cohort4 = moq_cohort4
+
+                    if str(dfs.iloc[i][6]) != "nan" and str(dfs.iloc[i][6]) != "":
+                        moq_cohort5 = int(dfs.iloc[i][6])
+                        dealshub_product_obj.moq_cohort5 = moq_cohort5
+
+                    dealshub_product_obj.save()
+                    common_row[2] = "success"
+                else:
+                    common_row[2] = "fail"
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("bulk_update_b2b_dealshub_product_moq: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=oc_uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("bulk_update_b2b_dealshub_product_moq: %s at %s", e, str(exc_tb.tb_lineno))
