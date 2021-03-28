@@ -53,7 +53,13 @@ class UnPublishedWIGmeProductReportAPI(APIView):
                 worksheet.write(cnt, colnum, k)
                 colnum += 1
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(location_group__in=location_group_objs, product__no_of_images_for_filter=0, is_published=False)
+
+            total_brand_objs = Brand.objects.none()
+            for location_group_obj in location_group_objs:
+                total_brand_objs |= location_group_obj.website_group.brands.all()
+            total_brand_objs = total_brand_objs.distinct()
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(location_group__in=location_group_objs, product__base_product__brands__in=total_brand_objs, product__no_of_images_for_filter=0, is_published=False)
             for dealshub_product_obj in dealshub_product_objs:
                 try:
                     cnt += 1
