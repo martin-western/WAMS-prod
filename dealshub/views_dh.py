@@ -358,6 +358,7 @@ class CreateOfflineShippingAddressAPI(APIView):
 
                 response["uuid"] = address_obj.uuid
                 response['status'] = 200
+                activitylog(request.user, Address, "created", address_obj.uuid, None, address_obj, location_group_obj, "New Offline Shipping Address created for " + username)
             else:
                 response["status"] = 409
 
@@ -367,7 +368,7 @@ class CreateOfflineShippingAddressAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class DeleteShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -602,6 +603,7 @@ class AddToOfflineCartAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            prev_cart_obj = cart_obj
             unit_cart_obj = None
             if UnitCart.objects.filter(cart=cart_obj, product__uuid=product_uuid).exists()==True:
                 unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product__uuid=product_uuid)
@@ -657,6 +659,7 @@ class AddToOfflineCartAPI(APIView):
 
             response["unitCartUuid"] = unit_cart_obj.uuid
             response["status"] = 200
+            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, location_group_obj, "Product " + dealshub_product_obj.product_name + " added to cart offline for " + username)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("AddToOfflineCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -928,6 +931,7 @@ class UpdateCartDetailsAPI(APIView):
             logger.error("UpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
+
 #API with active log
 class UpdateOfflineCartDetailsAPI(APIView):
 
@@ -948,6 +952,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
             is_order_offline = True
 
             cart_obj = Cart.objects.get(uuid=cart_uuid)
+            prev_cart_obj = cart_obj
 
             cart_obj.offline_cod_charge = offline_cod_charge
             cart_obj.offline_delivery_fee = offline_delivery_fee
@@ -997,6 +1002,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
             }
 
             response["status"] = 200
+            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, None, "Cart updated offline for " + cart_obj.owner.username)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1277,6 +1283,7 @@ class SelectOfflineAddressAPI(APIView):
             address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+            prev_cart_obj = cart_obj
             
             cart_obj.shipping_address = address_obj
             cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
@@ -1284,6 +1291,7 @@ class SelectOfflineAddressAPI(APIView):
             cart_obj.save()
 
             response["status"] = 200
+            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, None, "Shipping Address updated offline for " + username)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SelectOfflineAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2489,6 +2497,7 @@ class CreateOfflineCustomerAPI(APIView):
 
                 response["username"] = dealshub_user_obj.username
                 response["status"] = 200
+                activitylog(request.user, DealsHubUser, "created", "", None, dealshub_user_obj, location_group_obj, "New User created offline with username " + dealshub_user_obj.username)
             else:
                 response["status"] = 409
 
@@ -2522,12 +2531,14 @@ class UpdateOfflineUserProfileAPI(APIView):
 
             if DealsHubUser.objects.filter(username=username).exists():
                 dealshub_user_obj = DealsHubUser.objects.get(username=username)
+                prev_dealshub_user_obj = dealshub_user_obj
                 dealshub_user_obj.email = email_id
                 dealshub_user_obj.first_name = first_name
                 dealshub_user_obj.last_name = last_name
                 dealshub_user_obj.contact_number = contact_number
                 dealshub_user_obj.save()
                 response['status'] = 200
+                activitylog(request.user, DealsHubUser, "updated", dealshub_user_obj.pk, prev_dealshub_user_obj, dealshub_user_obj, None, "User profile updated offline with username " + dealshub_user_obj.username)
             else:
                 response['status'] = 404
 
@@ -2660,7 +2671,7 @@ class FetchUserProfileAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class UpdateUserProfileAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2967,6 +2978,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
             username = data["username"]
 
             b2b_user_obj = B2BUser.objects.get(username = username)
+            prev_b2b_user_obj = b2b_user_obj
 
             company_name = data["companyName"]
             vat_certificate_status = data["vatCertificateStatus"]
@@ -3034,6 +3046,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.save()
 
             response["status"] = 200
+            activitylog(request.user, B2BUser, "updated", b2b_user_obj.pk, prev_b2b_user_obj, b2b_user_obj, None, "B2B user status updated offline for " + username)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -3057,6 +3070,7 @@ class DeleteB2BDocumentImageAPI(APIView):
             image_obj.delete()
 
             response["status"] = 200
+            activitylog(request.user, Image, "deleted", pk, image_obj, None, None, "B2B document image deleted")
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -3086,6 +3100,7 @@ class DeleteB2BDocumentAPI(APIView):
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 website_group_name = location_group_obj.website_group.name.lower()
                 b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+                prev_b2b_user_obj = b2b_user_obj
             if document_type=="VAT":
                 b2b_user_obj.vat_certificate = None
             elif document_type=="PASSPORT":
@@ -3095,6 +3110,9 @@ class DeleteB2BDocumentAPI(APIView):
             b2b_user_obj.save()
 
             response["status"] = 200
+
+            if is_dealshub == False:
+                activitylog(request.user, B2BUser, "updated", b2b_user_obj.pk, prev_b2b_user_obj, b2b_user_obj, location_group_obj, "B2B document deleted")
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4701,6 +4719,7 @@ class UpdateReviewAdminAPI(APIView):
             content = str(review_content["content"])
             
             review_obj = Review.objects.get(uuid=review_uuid)
+            prev_review_obj = review_obj
             review_obj.rating = rating
             if review_obj.is_fake==True:
                 review_obj.fake_customer_name = fake_customer_name
@@ -4708,7 +4727,9 @@ class UpdateReviewAdminAPI(APIView):
             review_content_obj = review_obj.content
             if review_content_obj is None:
                 review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+                prev_review_content_obj = None
             else:
+                prev_review_content_obj = review_content_obj
                 review_content_obj.subject = subject
                 review_content_obj.content = content
                 review_content_obj.save()
@@ -4731,6 +4752,8 @@ class UpdateReviewAdminAPI(APIView):
             response['review_uuid'] = review_obj.uuid
             response['review_content_uuid'] = review_content_obj.uuid
             response['status'] = 200
+            activitylog(request.user, Review, "updated", review_obj.uuid, prev_review_obj, review_obj, None, "Review updated")
+            activitylog(request.user, ReviewContent, "updated", review_content_obj.uuid, prev_review_content_obj, review_content_obj, None, "Review Content updated")
             
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

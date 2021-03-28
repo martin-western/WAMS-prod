@@ -2108,7 +2108,7 @@ class UpdateAdminCategoryAPI(APIView):
             section_obj.save()
 
             response['status'] = 200
-            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, "")
+            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, None, "")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2140,6 +2140,7 @@ class DeleteAdminCategoryAPI(APIView):
 
             location_group_uuid = section_obj.location_group.uuid
             #cache.set(location_group_uuid, "has_expired")
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 
             section_obj.delete()
             
@@ -2172,6 +2173,7 @@ class PublishAdminCategoryAPI(APIView):
 
             location_group_uuid = section_obj.location_group.uuid
             #cache.set(location_group_uuid, "has_expired")
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             
             response['status'] = 200
             activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, "{} is published".format(section_obj.name))
@@ -2202,6 +2204,7 @@ class UnPublishAdminCategoryAPI(APIView):
 
             location_group_uuid = section_obj.location_group.uuid
             #cache.set(location_group_uuid, "has_expired")
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             
             response['status'] = 200
             activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, "{} is unpublished".format(section_obj.name))
@@ -2585,7 +2588,7 @@ class UpdateBannerNameAPI(APIView):
             banner_obj.save()
             
             response['status'] = 200
-            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, location_group_obj, "")
+            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, None, "")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateBannerNameAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2613,7 +2616,7 @@ class AddBannerImageAPI(APIView):
 
             response['uuid'] = unit_banner_image_obj.uuid
             response['status'] = 200
-            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, location_group_obj, "Image added to banner")
+            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, None, "Image added to banner")
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4177,6 +4180,7 @@ class AddProductToSectionAPI(APIView):
 
             is_b2b = False
             location_group_uuid = data.get("locationGroupUuid","")
+            location_group_obj = None
             if location_group_uuid != "":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 is_b2b = location_group_obj.is_b2b
