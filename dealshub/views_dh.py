@@ -4813,6 +4813,7 @@ class AddAdminCommentAPI(APIView):
             comment = str(data["comment"])
 
             review_obj = Review.objects.get(uuid=uuid)
+            prev_review_instance = review_obj
 
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
@@ -4824,20 +4825,26 @@ class AddAdminCommentAPI(APIView):
                 review_content_obj = review_obj.content 
                 review_content_obj.admin_comment = None
                 review_content_obj.save()
+                activitylog(user=omnycomm_user_obj,table_name=Review,action_type='update',location_group_obj=None,prev_instance=prev_review_instance,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render='')
                 response["status"] = 200
                 return Response(data=response)
             
             admin_comment_obj = None
+            prev_instance = admin_comment_obj
             if review_obj.content.admin_comment!=None:
                 admin_comment_obj = review_obj.content.admin_comment
                 admin_comment_obj.comment = comment
                 admin_comment_obj.user = omnycomm_user_obj
                 admin_comment_obj.save()
+                activitylog(user=omnycomm_user_obj,table_name=AdminReviewComment,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render='')
             else:
                 admin_comment_obj = AdminReviewComment.objects.create(user=omnycomm_user_obj, comment=comment)
+                activitylog(user=omnycomm_user_obj,table_name=AdminReviewComment,action_type='create',location_group_obj=None,prev_instance=None,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render='')
                 review_content_obj = review_obj.content
                 review_content_obj.admin_comment = admin_comment_obj
                 review_content_obj.save()
+                activitylog(user=omnycomm_user_obj,table_name=Review,action_type='update',location_group_obj=None,prev_instance=prev_review_instance,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render='')
+    
 
             response["admin_comment_uuid"] = admin_comment_obj.uuid
             response["status"] = 200
@@ -4862,9 +4869,10 @@ class UpdateAdminCommentAPI(APIView):
             comment = str(data["comment"])
 
             admin_comment_obj = AdminReviewComment.objects.get(uuid=uuid)
+            prev_instance = admin_comment_obj
             admin_comment_obj.comment = comment
             admin_comment_obj.save()
-
+            activitylog(user=request.user,table_name=AdminReviewComment,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render='')
             response["status"] = 200
 
         except Exception as e:
@@ -5279,11 +5287,12 @@ class DeleteAdminReviewImageAPI(APIView):
             review_uuid = data["review_uuid"]
 
             review_obj = Review.objects.get(uuid=review_uuid)
+            prev_review_instance = review_obj
             review_content_obj = review_obj.content
             image_obj = Image.objects.get(pk=image_uuid)
             review_content_obj.images.remove(image_obj)
             review_content_obj.save()
-
+            activitylog(user=request.user,table_name=Review,action_type='update',location_group_obj=None,prev_instance=prev_review_instance,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render='')
             response["status"] = 200
 
         except Exception as e:
@@ -5335,8 +5344,10 @@ class HideReviewAdminAPI(APIView):
             review_uuid = data["review_uuid"]
 
             review_obj = Review.objects.get(uuid=review_uuid)
+            prev_review_instance = review_obj
             review_obj.is_deleted = True
             review_obj.save()
+            activitylog(user=request.user,table_name=Review,action_type='update',location_group_obj=None,prev_instance=prev_review_instance,current_instance=review_obj,table_item_pk=review_obj.pk,render='{} is mark deleted'.format(prev_review_instance))
 
             response['status'] = 200
 
@@ -5364,9 +5375,10 @@ class UpdateReviewPublishStatusAPI(APIView):
             is_published = data["is_published"]
 
             review_obj = Review.objects.get(uuid=review_uuid)
+            prev_review_instance = review_obj
             review_obj.is_published = is_published
             review_obj.save()
-
+            activitylog(user=request.user,table_name=Review,action_type='update',location_group_obj=None,prev_instance=prev_review_instance,current_instance=review_obj,table_item_pk=review_obj.pk,render='{} is published'.format(prev_review_instance))
             response['status'] = 200
 
         except Exception as e:
@@ -6648,9 +6660,10 @@ class UpdateManualOrderAPI(APIView):
             order_uuid = data["orderUuid"]
 
             order_obj = Order.objects.get(uuid=order_uuid)
-
+            prev_order_instance = order_obj
             order_obj.sap_status = "Success"
             order_obj.save()
+            activitylog(user=request.user,table_name=Order,action_type='update',location_group_obj=None,prev_instance=prev_order_instance,current_instance=order_obj,table_item_pk=order_obj.pk,render='')
 
             unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
             unit_order_objs.update(sap_status="GRN Done")
@@ -6769,10 +6782,13 @@ class UpdateOrderStatusAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order = order_obj)
 
             for unit_order_obj in unit_order_objs:
-                if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":               
+                prev_unit_order_instance = unit_order_obj
+                if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":          
                     set_order_status(unit_order_obj, "dispatched")
+                    activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} is dispatched'.format(unit_order_obj))
                 elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
                     set_order_status(unit_order_obj, "delivered")
+                    activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} is delivered'.format(unit_order_obj))
                 else:
                     logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
                     break
@@ -6934,17 +6950,21 @@ class ApproveCancellationRequestAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(uuid__in=unit_order_uuid_list)
 
             for unit_order_obj in unit_order_objs:
+                prev_unit_order_instance = unit_order_obj
                 if unit_order_obj.order.payment_mode=="COD":
                     unit_order_obj.user_cancellation_status="approved"
                     unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"approved")
+                    activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} canceled'.format(unit_order_obj))
                 else:
                     unit_order_obj.user_cancellation_status="refund processed"
                     unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
+                    activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} refund processed'.format(unit_order_obj))
                 cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
+                
             
             if unit_order_objs.exists():
                 order_obj = unit_order_objs[0].order
@@ -6976,11 +6996,13 @@ class RejectCancellationRequestAPI(APIView):
 
             unit_order_uuid_list = data["unit_order_uuid_list"]
             for unit_order_uuid in unit_order_uuid_list:
-                unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)       
+                unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
+                prev_unit_order_instance = unit_order_obj
                 unit_order_obj.user_cancellation_status = "rejected"
                 unit_order_obj.cancellation_request_action_taken = True
                 unit_order_obj.save()
                 notify_order_cancel_status_to_user(unit_order_obj,"rejected")
+                activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} cancellation rejected'.format(unit_order_obj))
                 
             response['status'] = 200
 
@@ -7008,10 +7030,12 @@ class UpdateCancellationRequestRefundStatusAPI(APIView):
             unit_order_uuid = data["unit_order_uuid"]
 
             unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
+            prev_unit_order_instance = unit_order_obj
             unit_order_obj.user_cancellation_status = "refunded"
             unit_order_obj.save()
-            
+
             notify_order_cancel_status_to_user(unit_order_obj,"refunded")
+            activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} refunded'.format(unit_order_obj))
             response['status'] = 200
 
         except Exception as e:
