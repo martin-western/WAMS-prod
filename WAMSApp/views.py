@@ -177,9 +177,8 @@ class CreateNewBaseProductAPI(APIView):
                                               manufacturer=manufacturer,
                                               manufacturer_part_number=manufacturer_part_number,
                                               dimensions=base_dimensions)
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
-            activitylog(user=request.user,table_name=BaseProduct,action_type='create',location_group_obj=location_group_obj,prev_instance={},current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
+            
+            activitylog(user=request.user,table_name=BaseProduct,action_type='create',location_group_obj=None,prev_instance={},current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
             
             dynamic_form_attributes = {}
             
@@ -196,7 +195,7 @@ class CreateNewBaseProductAPI(APIView):
                 pass
 
             product_obj = Product.objects.create(product_name=product_name, base_product=base_product_obj, dynamic_form_attributes=json.dumps(dynamic_form_attributes))
-            activitylog(user=request.user,table_name=Product,action_type='create',location_group_obj=location_group_obj,prev_instance={},current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            activitylog(user=request.user,table_name=Product,action_type='create',location_group_obj=None,prev_instance={},current_instance=product_obj,table_item_pk=product_obj.pk,render='')
 
 
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
@@ -270,15 +269,14 @@ class CreateNewProductAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("CreateNewProductAPI: %s at %s", e, str(exc_tb.tb_lineno))          
 
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             product_obj = Product.objects.create(product_name = product_name,
                                             product_name_sap=product_name,
                                             pfl_product_name=product_name,
                                             base_product=base_product_obj,
                                             dynamic_form_attributes=json.dumps(dynamic_form_attributes))
 
-            activitylog(user=request.user,table_name=Product,action_type='create',location_group_obj=location_group_obj,prev_instance={},current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            activitylog(user=request.user,table_name=Product,action_type='create',location_group_obj=None,prev_instance={},current_instance=product_obj,table_item_pk=product_obj.pk,render='')
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
                 dealshub_product_obj = DealsHubProduct.objects.create(product_name=product_obj.product_name, product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
@@ -1199,7 +1197,6 @@ class UpdateDealshubProductAPI(APIView):
                     dh_product_obj.stock = stock
 
             dh_product_obj.save()
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
             activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.pk,render='')
             
 
@@ -1256,7 +1253,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,filename,location_group_obj,"price",))
             p1.start()
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
 
             response['status'] = 200
             response['approved'] = True
@@ -1311,7 +1308,7 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_price , args=(oc_report_obj.uuid,path,filename,location_group_obj))
             p1.start()
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
 
             response['status'] = 200
 
@@ -1366,7 +1363,7 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_moq , args=(oc_report_obj.uuid,path,filename,location_group_obj,))
             p1.start()
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
 
             
             response['status'] = 200
@@ -1422,7 +1419,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path,filename, location_group_obj, "stock",))
             p1.start()
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
 
             response['status'] = 200
             response['approved'] = True
@@ -1477,7 +1474,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                     prev_instance = dh_product_obj
                     dh_product_obj.is_published = is_published
                     dh_product_obj.save()
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.pk,render='')
+                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.pk,render='')
 
 
                 except Exception as e:
@@ -1583,9 +1580,8 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.category = category_obj
             base_product_obj.sub_category = sub_category_obj
             base_product_obj.dimensions = dimensions
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
-            activitylog(user=request.user,table_name=BaseProduct,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
+            
+            activitylog(user=request.user,table_name=BaseProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
             
             base_product_obj.save()
 
@@ -1769,9 +1765,8 @@ class SaveProductAPI(APIView):
 
                 product_obj.atp_threshold = atp_threshold
                 product_obj.holding_threshold = holding_threshold
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
-            activitylog(user=request.user,table_name=Product,action_type='create',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            
+            activitylog(user=request.user,table_name=Product,action_type='create',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
             
 
             product_obj.save()
@@ -2122,9 +2117,7 @@ class AddToExportAPI(APIView):
                     export_obj.products.add(product_obj)
                     export_obj.channel = channel_obj
                     export_obj.save()
-                location_group_uuid = data["locationGroupUuid"]
-                location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
-                activitylog(user=request.user,table_name=ExportList,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=export_obj,table_item_pk=export_obj.pk,render='')
+                activitylog(user=request.user,table_name=ExportList,action_type='create',location_group_obj=None,prev_instance=None,current_instance=export_obj,table_item_pk=export_obj.pk,render='')
             
 
             
@@ -2140,9 +2133,7 @@ class AddToExportAPI(APIView):
                     export_obj.products.add(product)
                     export_obj.channel = channel_obj
                     export_obj.save()
-                location_group_uuid = data["locationGroupUuid"]
-                location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
-                activitylog(user=request.user,table_name=ExportList,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=export_obj,table_item_pk=export_obj.pk,render='')
+                activitylog(user=request.user,table_name=ExportList,action_type='create',location_group_obj=None,prev_instance=None,current_instance=export_obj,table_item_pk=export_obj.pk,render='')
             
 
 
@@ -2421,12 +2412,11 @@ class UploadProductImageAPI(APIView):
                 return Response(data=response)
 
             image_objs = []
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             image_count = int(data["image_count"])
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
-                activitylog(user=request.user,table_name=Image,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=image_obj,table_item_pk=image_obj.pk,render='')
+                activitylog(user=request.user,table_name=Image,action_type='create',location_group_obj=None,prev_instance=None,current_instance=image_obj,table_item_pk=image_obj.pk,render='')
                 image_objs.append(image_obj)
 
             if data["image_category"] == "main_images":
@@ -2434,13 +2424,13 @@ class UploadProductImageAPI(APIView):
                 for image_obj in image_objs:
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
-                    activitylog(user=request.user,table_name=ImageBucket,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render='')
+                    activitylog(user=request.user,table_name=ImageBucket,action_type='create',location_group_obj=None,prev_instance=None,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render='')
                         
                     product_obj.no_of_images_for_filter += 1
 
                     if data["channel_name"] == "" or data["channel_name"] == None:
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
-                        activitylog(user=request.user,table_name=MainImages,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render='')
+                        activitylog(user=request.user,table_name=MainImages,action_type='create',location_group_obj=None,prev_instance=None,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render='')
                         main_images_obj.main_images.add(image_bucket_obj)
                         main_images_obj.save()
 
@@ -2463,7 +2453,7 @@ class UploadProductImageAPI(APIView):
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
                         main_images_obj.main_images.add(image_bucket_obj)
                         main_images_obj.save()
-                        activitylog(user=request.user,table_name=MainImages,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render='')
+                        activitylog(user=request.user,table_name=MainImages,action_type='create',location_group_obj=None,prev_instance=None,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render='')
                         
 
             elif data["image_category"] == "sub_images":
@@ -2488,10 +2478,10 @@ class UploadProductImageAPI(APIView):
                     image_bucket_obj = ImageBucket.objects.create(image=image_obj,
                                                                   is_sub_image=is_sub_image,
                                                                   sub_image_index=sub_image_index)
-                    activitylog(user=request.user,table_name=ImageBucket,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render='')
+                    activitylog(user=request.user,table_name=ImageBucket,action_type='create',location_group_obj=None,prev_instance=None,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render='')
                     sub_images_obj.sub_images.add(image_bucket_obj)
                     sub_images_obj.save()
-                    activitylog(user=request.user,table_name=SubImages,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render='')
+                    activitylog(user=request.user,table_name=SubImages,action_type='create',location_group_obj=None,prev_instance=None,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render='')
 
             
             elif data["image_category"] == "pfl_images":
@@ -2537,7 +2527,7 @@ class UploadProductImageAPI(APIView):
                     number += 1
                     ProductImage.objects.create(image=image_obj, product=product_obj, number=number)
                     
-            activitylog(user=request.user,table_name=Product,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            activitylog(user=request.user,table_name=Product,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
             product_obj.save()
 
 
@@ -2572,8 +2562,7 @@ class UpdateMainImageAPI(APIView):
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             channel_obj = None
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             
             if data["channel_name"]!="":
                 channel_obj = Channel.objects.get(name=data["channel_name"])
@@ -2584,7 +2573,7 @@ class UpdateMainImageAPI(APIView):
                 pk=int(data["checked_pk"]))
             prev_instance = image_bucket_obj
             image_bucket_obj.is_main_image = True
-            activitylog(user=request.user,table_name=ImageBucket,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render='')
+            activitylog(user=request.user,table_name=ImageBucket,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render='')
             image_bucket_obj.save()
 
             try:
@@ -2592,7 +2581,7 @@ class UpdateMainImageAPI(APIView):
                 prev_instance = pfl_obj
                 if pfl_obj.product_image == None:
                     pfl_obj.product_image = image_bucket_obj.image
-                    activitylog(user=request.user,table_name=PFL,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=pfl_obj,table_item_pk=pfl_obj.pk,render='')
+                    activitylog(user=request.user,table_name=PFL,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=pfl_obj,table_item_pk=pfl_obj.pk,render='')
                     pfl_obj.save()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2617,8 +2606,7 @@ class UpdateSubImagesAPI(APIView):
         response['status'] = 500
         
         try:
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             if request.user.has_perm('WAMSApp.change_image') == False:
                 logger.warning("UpdateSubImagesAPI Restricted Access!")
                 response['status'] = 403
@@ -2651,7 +2639,7 @@ class UpdateSubImagesAPI(APIView):
                     sub_image_obj.sub_image_index = 0
                     sub_image_obj.is_sub_image = False
                 sub_image_obj.save()
-                activitylog(user=request.user,table_name=ImageBucket,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=sub_image_obj,table_item_pk=sub_image_obj.pk,render='')
+                activitylog(user=request.user,table_name=ImageBucket,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_image_obj,table_item_pk=sub_image_obj.pk,render='')
 
             response['status'] = 200
 
@@ -4255,8 +4243,7 @@ class VerifyProductAPI(APIView):
         response['status'] = 500
         
         try:
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             data = request.data
             logger.info("VerifyProductAPI: %s", str(data))
             
@@ -4277,7 +4264,7 @@ class VerifyProductAPI(APIView):
                 product_obj.partially_verified = verify
 
             product_obj.save()
-            activitylog(user=request.user,table_name=Product,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            activitylog(user=request.user,table_name=Product,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
 
             response['status'] = 200
 
@@ -4337,8 +4324,7 @@ class CopyBestImagesAPI(APIView):
 
             data = request.data
             logger.info("CopyBestImagesAPI: %s", str(data))
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()            
+                        
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -4360,7 +4346,7 @@ class CopyBestImagesAPI(APIView):
                     continue
                 number += 1
                 productimage_obj = ProductImage.objects.create(image=image_obj, product=product_obj, number=number)
-                activitylog(user=request.user,table_name=ProductImage,action_type='update',location_group_obj=location_group_obj,prev_instance='',current_instance=productimage_obj,table_item_pk=productimage_obj.pk,render='')
+                activitylog(user=request.user,table_name=ProductImage,action_type='update',location_group_obj=None,prev_instance=None,current_instance=productimage_obj,table_item_pk=productimage_obj.pk,render='')
 
 
             response['status'] = 200
@@ -4391,8 +4377,7 @@ class RemoveImageAPI(APIView):
                 logger.warning("RemoveImageAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             image_pk = data["image_pk"]
             prev_instance = product_obj
@@ -4421,11 +4406,11 @@ class RemoveImageAPI(APIView):
                 product_obj.transparent_images.remove(image_obj)
             elif data["image_category"] == "best_images":
                 productimage_obj = ProductImage.objects.get(product=product_obj, image=image_obj).delete()
-                activitylog(user=request.user,table_name=ProductImage,action_type='delete',location_group_obj=location_group_obj,prev_instance='',current_instance=productimage_obj,table_item_pk=productimage_obj.pk,render='')            
+                activitylog(user=request.user,table_name=ProductImage,action_type='delete',location_group_obj=None,prev_instance=None,current_instance=productimage_obj,table_item_pk=productimage_obj.pk,render='')            
 
                 
             product_obj.save()
-            activitylog(user=request.user,table_name=Product,action_type='delete',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')            
+            activitylog(user=request.user,table_name=Product,action_type='delete',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')            
             response['status'] = 200
 
         except Exception as e:
@@ -4443,8 +4428,7 @@ class DeleteImageAPI(APIView):
         response['status'] = 500
         
         try:
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             if request.user.has_perm('WAMSApp.delete_image') == False:
                 logger.warning("DeleteImageAPI Restricted Access!")
                 response['status'] = 403
@@ -4469,7 +4453,7 @@ class DeleteImageAPI(APIView):
 
             if image_type == "other":
                 image_obj = Image.objects.get(pk=int(image_pk))
-                activitylog(user=request.user,table_name=Image,action_type='delete',location_group_obj=location_group_obj,prev_instance=image_obj,current_instance='',table_item_pk=image_obj.pk,render='')
+                activitylog(user=request.user,table_name=Image,action_type='delete',location_group_obj=None,prev_instance=image_obj,current_instance=None,table_item_pk=image_obj.pk,render='')
                 image_obj.delete()
             elif image_type == "main":
                 main_images_obj = None
@@ -4482,7 +4466,7 @@ class DeleteImageAPI(APIView):
                 prev_instance = main_images_obj
                 main_images_obj.main_images.remove(image_bucket_obj)
                 main_images_obj.save()
-                activitylog(user=request.user,table_name=MainImages,action_type='delete',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render='')
+                activitylog(user=request.user,table_name=MainImages,action_type='delete',location_group_obj=None,prev_instance=prev_instance,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render='')
 
             elif image_type == "sub":
                 sub_images_obj = None
@@ -4495,7 +4479,7 @@ class DeleteImageAPI(APIView):
                 prev_instance = sub_images_obj
                 sub_images_obj.sub_images.remove(image_bucket_obj)
                 sub_images_obj.save()
-                activitylog(user=request.user,table_name=SubImages,action_type='delete',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render='')
+                activitylog(user=request.user,table_name=SubImages,action_type='delete',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render='')
             response['status'] = 200
 
         except Exception as e:
@@ -4524,8 +4508,7 @@ class RemoveProductFromExportListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             product_pk = int(data["product_pk"])
             export_pk = int(data["export_pk"])
 
@@ -4534,7 +4517,7 @@ class RemoveProductFromExportListAPI(APIView):
             prev_instance = export_obj
             export_obj.products.remove(product_obj)
             export_obj.save()
-            activitylog(user=request.user,table_name=ExportList,action_type='delete',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=export_obj,table_item_pk=export_obj.pk,render='')
+            activitylog(user=request.user,table_name=ExportList,action_type='delete',location_group_obj=None,prev_instance=prev_instance,current_instance=export_obj,table_item_pk=export_obj.pk,render='')
 
             response['status'] = 200
 
@@ -5015,8 +4998,7 @@ class EditUserProfileAPI(APIView):
         try:
             data = request.data
             logger.info("EditUserProfileAPI: %s", str(data))
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             if not isinstance(data, dict):
                 data = json.loads(data)
             
@@ -5034,7 +5016,7 @@ class EditUserProfileAPI(APIView):
             omnycomm_user.email = email
             omnycomm_user.designation = designation
             omnycomm_user.save()
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=omnycomm_user,table_item_pk=omnycomm_user.pk,render='')
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=omnycomm_user,table_item_pk=omnycomm_user.pk,render='')
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -5304,10 +5286,9 @@ class CreateRequestHelpAPI(APIView):
 
             message = data["message"]
             page = data["page"]
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             requesthelp_obj = RequestHelp.objects.create(message=message, page=page, user=request.user)
-            activitylog(user=request.user,table_name=RequestHelp,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=requesthelp_obj,table_item_pk=requesthelp_obj.pk,render='')
+            activitylog(user=request.user,table_name=RequestHelp,action_type='create',location_group_obj=None,prev_instance=None,current_instance=requesthelp_obj,table_item_pk=requesthelp_obj.pk,render='')
 
             response['status'] = 200
         
@@ -5459,8 +5440,7 @@ class SaveCompanyProfileAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
             prev_instance = website_group_obj
             company_data = data["company_data"]
@@ -5500,7 +5480,7 @@ class SaveCompanyProfileAPI(APIView):
             website_group_obj.color_scheme = json.dumps(color_scheme)
             
             website_group_obj.save()
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render='')
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render='')
             response['status'] = 200
         
         except Exception as e:
@@ -5525,8 +5505,7 @@ class UploadCompanyLogoAPI(APIView):
 
             data = request.data
             logger.info("UploadCompanyLogoAPI: %s", str(data))
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
             prev_instance = website_group_obj
             logo_image_url = data["logo_image_url"]
@@ -5536,7 +5515,7 @@ class UploadCompanyLogoAPI(APIView):
                 website_group_obj.logo = image_obj
                 website_group_obj.save()
                 response["image_url"] = image_obj.mid_image.url
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render='')
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render='')
             response['status'] = 200
 
         except Exception as e:
@@ -5560,8 +5539,7 @@ class UploadCompanyFooterLogoAPI(APIView):
                 logger.warning("UploadCompanyFooterLogoAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             data = request.data
             logger.info("UploadCompanyFooterLogoAPI: %s", str(data))
 
@@ -5574,7 +5552,7 @@ class UploadCompanyFooterLogoAPI(APIView):
                 website_group_obj.footer_logo = image_obj
                 website_group_obj.save()
                 response["image_url"] = image_obj.mid_image.url
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render='')
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render='')
             response['status'] = 200
 
         except Exception as e:
@@ -5923,8 +5901,7 @@ class UploadBulkExportAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             path = default_storage.save('tmp/temp-bulk-upload.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
@@ -6267,7 +6244,7 @@ class CreateOCReportAPI(APIView):
             organization_obj = custom_permission_obj.organization
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
                 for brand_obj in brand_objs:
@@ -6378,6 +6355,7 @@ class CreateSEOReportAPI(APIView):
             report_name = report_type+" "+seo_type
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_name, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=organization_obj)
+            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
 
             if seo_type=="product":
                 p1 = threading.Thread(target=bulk_download_product_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
@@ -6484,8 +6462,7 @@ class CreateContentReportAPI(APIView):
         try:
             data = request.data
             logger.info("CreateContentReportAPI: %s", str(data))
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -6508,7 +6485,7 @@ class CreateContentReportAPI(APIView):
             organization_obj = custom_permission_obj.organization
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title="Content Health", created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=None,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
 
             filter_parameters = data["filter_parameters"]
 
@@ -6638,8 +6615,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             
             data = request.data
             logger.info("UpdateChannelProductStockandPriceAPI: %s", str(data))
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -6678,7 +6654,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
 
             channel_product.save()
-            activitylog(user=request.user,table_name=OCReport,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=channel_product,table_item_pk=channel_product.pk,render='')
+            activitylog(user=request.user,table_name=OCReport,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=channel_product,table_item_pk=channel_product.pk,render='')
 
             response['status'] = 200
 
@@ -7027,13 +7003,13 @@ class SaveDealshubProductDetailsAPI(APIView):
                 promotional_tag = promotion["promotional_tag"]
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=promotion_obj,table_item_pk=promotion_obj.pk,render='')
+                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='create',location_group_obj=None,prev_instance=None,current_instance=promotion_obj,table_item_pk=promotion_obj.pk,render='')
                 else:
                     promotion_obj.promotion_tag = promotional_tag
                     promotion_obj.start_time = start_date
                     promotion_obj.end_time = end_date
                     promotion_obj.save()
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.pk,render='')
+                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.pk,render='')
 
                 dealshub_product_obj.is_promotional = True
             else:
@@ -7058,7 +7034,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.category = category_obj
             dealshub_product_obj.sub_category = sub_category_obj
             dealshub_product_obj.save()
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render='')
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render='')
             response["status"] = 200
 
         except Exception as e:
@@ -7124,8 +7100,7 @@ class CreateExportTemplateAPI(APIView):
         try:
             data = request.data
             logger.info("CreateExportTemplateAPI: %s", str(data))
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -7134,14 +7109,14 @@ class CreateExportTemplateAPI(APIView):
 
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             export_template_obj = ExportTemplate.objects.create(user=omnycomm_user_obj, name=name)
-            activitylog(user=request.user,table_name=ExportTemplate,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=export_template_obj,table_item_pk=export_template_obj.pk,render='')
+            activitylog(user=request.user,table_name=ExportTemplate,action_type='create',location_group_obj=None,prev_instance=None,current_instance=export_template_obj,table_item_pk=export_template_obj.pk,render='')
             prev_instance = export_template_obj
             for data_point in data_point_list:
                 data_point_obj = DataPoint.objects.get(variable=data_point)
                 export_template_obj.data_points.add(data_point_obj)
 
             export_template_obj.save()
-            activitylog(user=request.user,table_name=ExportTemplate,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=export_template_obj,table_item_pk=export_template_obj.pk,render='')
+            activitylog(user=request.user,table_name=ExportTemplate,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=export_template_obj,table_item_pk=export_template_obj.pk,render='')
             response["uuid"] = export_template_obj.uuid
             response["status"] = 200
 
@@ -7162,8 +7137,7 @@ class DeleteExportTemplateAPI(APIView):
         try:
             data = request.data
             logger.info("DeleteExportTemplateAPI: %s", str(data))
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -7171,7 +7145,7 @@ class DeleteExportTemplateAPI(APIView):
 
             export_template_obj = ExportTemplate.objects.get(uuid=uuid)
             prev_instance = export_template_obj
-            activitylog(user=request.user,table_name=ExportTemplate,action_type='delete',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance='',table_item_pk=export_template_obj.pk,render='')
+            activitylog(user=request.user,table_name=ExportTemplate,action_type='delete',location_group_obj=None,prev_instance=prev_instance,current_instance=None,table_item_pk=export_template_obj.pk,render='')
             export_template_obj.delete()
             response["status"] = 200
 
@@ -7192,8 +7166,7 @@ class SecureDeleteProductAPI(APIView):
         try:
             data = request.data
             logger.info("SecureDeleteProductAPI: %s", str(data))
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -7225,15 +7198,15 @@ class SecureDeleteProductAPI(APIView):
 
             product_obj.is_deleted = True
             product_obj.save()
-            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
 
             dealshub_product_objs.update(is_deleted=True)
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance_dealshub_product,current_instance=dealshub_product_objs,table_item_pk=dealshub_product_objs.pk,render='')
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance_dealshub_product,current_instance=dealshub_product_objs,table_item_pk=dealshub_product_objs.pk,render='')
 
             if Product.objects.filter(base_product=base_product_obj).exists()==False:
                 base_product_obj.is_deleted = True
                 base_product_obj.save()
-                activitylog(user=request.user,table_name=BaseProduct,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance_base_product,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
+                activitylog(user=request.user,table_name=BaseProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance_base_product,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
 
 
             response["status"] = 200
@@ -7255,14 +7228,13 @@ class LogoutOCUserAPI(APIView):
         try:
             data = request.data
             logger.info("LogoutUserAPI: %s", str(data))
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+            
             if not isinstance(data, dict):
                 data = json.loads(data)
             
             token = request.META["HTTP_AUTHORIZATION"].split(" ")[1]
             blacklist_token_obj, created = BlackListToken.objects.get_or_create(token=token)
-            activitylog(user=request.user,table_name=BlackListToken,action_type='create',location_group_obj=location_group_obj,prev_instance='',current_instance=blacklist_token_obj,table_item_pk=blacklist_token_obj.pk,render='')
+            activitylog(user=request.user,table_name=BlackListToken,action_type='create',location_group_obj=None,prev_instance=None,current_instance=blacklist_token_obj,table_item_pk=blacklist_token_obj.pk,render='')
 
             response["status"] = 200
         except Exception as e:
