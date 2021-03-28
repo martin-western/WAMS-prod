@@ -14,6 +14,7 @@ import json
 import pandas as pd
 import threading
 import datetime
+import xlsxwriter
 
 logger = logging.getLogger(__name__)
 
