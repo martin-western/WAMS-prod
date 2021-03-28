@@ -1,6 +1,7 @@
 import requests
 import json
 import logging
+import datetime
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -160,7 +161,7 @@ class SearchWIG3API(APIView):
                 search_data["subCategory"] = ""
 
             search_data["brands"] = data.get("brand_filter", [])
-            search_data["page"] = data.get("page", 1) - 1
+            search_data["page"] = int(data.get("page", 1)) - 1
             search_data["pageSize"] = 50
             search = {}
 
@@ -191,6 +192,7 @@ class SearchWIG3API(APIView):
             dealshub_product_objs.sort(key=lambda t: temp_pk_list.index(t.pk))
             products = []
             currency = location_group_obj.location.currency
+
             for dealshub_product_obj in dealshub_product_objs:
                 try:
                     if dealshub_product_obj.now_price==0:
@@ -220,7 +222,6 @@ class SearchWIG3API(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SearchWIG3API: %s at %s", e, str(exc_tb.tb_lineno))
-
             is_available = True
             if search_result["page"] == search_result["nbPages"]-1:
                 is_available = False
