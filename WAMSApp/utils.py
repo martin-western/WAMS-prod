@@ -2455,3 +2455,8 @@ def isNoneOrEmpty(variable):
         logger.error("isNoneOrEmpty: %s at %s", e, str(exc_tb.tb_lineno))
         return True
 
+
+def is_oc_user(user_obj):
+    if OmnyCommUser.objects.filter(username=user_obj.username).exists():
+        return True
+    return False
