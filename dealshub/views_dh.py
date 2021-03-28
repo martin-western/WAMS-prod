@@ -1002,7 +1002,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
             }
 
             response["status"] = 200
-            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, location_group_obj, "Cart updated offline for " + cart_obj.owner.username)
+            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, None, "Cart updated offline for " + cart_obj.owner.username)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
