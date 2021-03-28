@@ -2041,7 +2041,7 @@ class CreateAdminCategoryAPI(APIView):
 
             response['uuid'] = str(section_obj.uuid)
             response['status'] = 200
-            activitylog(request.user, Section, "created", section_obj.uuid, {}, section_obj, location_group_obj, "")
+            activitylog(request.user, Section, "created", section_obj.uuid, None, section_obj, location_group_obj, "")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CreateAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2144,7 +2144,7 @@ class DeleteAdminCategoryAPI(APIView):
             section_obj.delete()
             
             response['status'] = 200
-            activitylog(request.user, Section, "deleted", section_obj.uuid, prev_section_obj, {}, location_group_obj, "")
+            activitylog(request.user, Section, "deleted", section_obj.uuid, prev_section_obj, None, location_group_obj, "")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2299,7 +2299,7 @@ class SectionBulkUploadAPI(APIView):
             response["filepath"] = path
             response['status'] = 200
             activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, "Products added to {} section".format(section_obj.name))
-            activitylog(request.user, DealsHubProduct, "updated", "", {}, {}, location_group_obj, "DealsHubProducts Updated")
+            activitylog(request.user, DealsHubProduct, "updated", "", None, None, location_group_obj, "DealsHubProducts Updated")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SectionBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2382,7 +2382,7 @@ class BannerBulkUploadAPI(APIView):
             response["filepath"] = path
             response['status'] = 200
             activitylog(request.user, UnitBannerImage, "updated", unit_banner_obj.uuid, prev_unit_banner_obj, unit_banner_obj, location_group_obj, "")
-            activitylog(request.user, DealsHubProduct, "updated", "", {}, {}, location_group_obj, "DealsHub Products Updated")
+            activitylog(request.user, DealsHubProduct, "updated", "", None, None, location_group_obj, "DealsHub Products Updated")
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2558,7 +2558,7 @@ class CreateBannerAPI(APIView):
             response['uuid'] = banner_obj.uuid
             response["limit"] = banner_type_obj.limit
             response['status'] = 200
-            activitylog(request.user, Banner, "created", banner_obj.uuid, {}, banner_obj, location_group_obj, "")
+            activitylog(request.user, Banner, "created", banner_obj.uuid, None, banner_obj, location_group_obj, "")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CreateBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2733,8 +2733,8 @@ class DeleteUnitBannerAPI(APIView):
 
             unit_banner_obj.delete()
             response['status'] = 200
-            activitylog(request.user, UnitBannerImage, "deleted", unit_banner_obj.uuid, {}, {}, location_group_obj, 'UnitBannerImage deleted')
-            activitylog(request.user, DealsHubProduct, "updated", "", {}, {}, location_group_obj, "DealsHubProduct updated")
+            activitylog(request.user, UnitBannerImage, "deleted", unit_banner_obj.uuid, None, None, location_group_obj, 'UnitBannerImage deleted')
+            activitylog(request.user, DealsHubProduct, "updated", "", None, None, location_group_obj, "DealsHubProduct updated")
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2773,8 +2773,8 @@ class DeleteBannerAPI(APIView):
             banner_obj.delete()
             
             response['status'] = 200
-            activitylog(request.user, Banner, "deleted", "", prev_banner_obj, {}, location_group_obj, "")
-            activitylog(request.user, DealsHubProduct, "updated", "", {}, {}, location_group_obj, "DealsHubProduct updated")
+            activitylog(request.user, Banner, "deleted", "", prev_banner_obj, None, location_group_obj, "")
+            activitylog(request.user, DealsHubProduct, "updated", "", None, None, location_group_obj, "DealsHubProduct updated")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2997,7 +2997,7 @@ class PublishDealsHubProductsAPI(APIView):
                 dealshub_product_obj.save()
 
             response['status'] = 200
-            activitylog(request.user, DealsHubProduct, "updated", '', {}, {}, None, "DealsHubProducts published")
+            activitylog(request.user, DealsHubProduct, "updated", '', None, None, None, "DealsHubProducts published")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("PublishDealsHubProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3022,7 +3022,7 @@ class UnPublishDealsHubProductsAPI(APIView):
                 dealshub_product_obj.save()
 
             response['status'] = 200
-            activitylog(request.user, DealsHubProduct, "updated", '', {}, {}, None, "DealsHubProducts unpublished")
+            activitylog(request.user, DealsHubProduct, "updated", '', None, None, None, "DealsHubProducts unpublished")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UnPublishDealsHubProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3738,7 +3738,7 @@ class SaveDealshubAdminSectionsOrderAPI(APIView):
                 cnt += 1
 
             response['status'] = 200
-            activitylog(request.user, Section, "updated", '', {}, {}, None, "Section Order updated")
+            activitylog(request.user, Section, "updated", '', None, None, None, "Section Order updated")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SaveDealshubAdminSectionsOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
