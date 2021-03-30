@@ -1486,7 +1486,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                         render_value = 'DealsHubProduct {} is published'.format(dh_product_obj.product_name)
                     else:
                         render_value = 'DealsHubProduct {} is not published'.format(dh_product_obj.product_name)
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
+                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
 
 
                 except Exception as e:
@@ -6633,7 +6633,7 @@ class CreateContentReportAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title="Content Health", created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
             render_value = 'OCReport {} is created.'.format(oc_report_obj.name)
-            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=None,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=oc_report_obj.location_group,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             filter_parameters = data["filter_parameters"]
 
@@ -7186,7 +7186,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.sub_category = sub_category_obj
             dealshub_product_obj.save()
             render_value = 'Dealshub product {} details updated.'.format(dealshub_product_obj.product_name)
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dealshub_product_obj.location_group,prev_instance=prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
             response["status"] = 200
 
         except Exception as e:
@@ -7356,7 +7356,7 @@ class SecureDeleteProductAPI(APIView):
             dealshub_product_objs.update(is_deleted=True)
             for dealshub_product_obj in dealshub_product_objs:
                 render_value = 'Dealshub Product {} is deleted'.format(dealshub_product_obj.product_name)
-                activitylog(user=request.user,table_name=DealsHubProduct,action_type='deleted',location_group_obj=None,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
+                activitylog(user=request.user,table_name=DealsHubProduct,action_type='deleted',location_group_obj=dealshub_product_obj.location_group,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
 
             if Product.objects.filter(base_product=base_product_obj).exists()==False:
                 base_product_obj.is_deleted = True
