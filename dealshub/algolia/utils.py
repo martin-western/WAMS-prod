@@ -100,7 +100,7 @@ def search_algolia_index(data):
         logger.error("search_algolia_index: %s at %s", e, str(exc_tb.tb_lineno))
     return result
 
-def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj=None):
+def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
     products = []
 
     for dealshub_product_obj in dealshub_product_objs:
@@ -123,7 +123,7 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj=None):
             product_promotion_details = get_product_promotion_details(dealshub_product_obj)
             for key in product_promotion_details.keys():
                 temp_dict[key]=product_promotion_details[key]
-            temp_dict["currency"] = currency
+            temp_dict["currency"] = dealshub_product_obj.get_currency()
             temp_dict["uuid"] = dealshub_product_obj.uuid
             temp_dict["link"] = dealshub_product_obj.url
             temp_dict["id"] = dealshub_product_obj.uuid
