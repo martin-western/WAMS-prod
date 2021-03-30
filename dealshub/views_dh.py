@@ -40,6 +40,7 @@ import math
 import random
 import os
 import pandas as pd
+from copy import deepcopy
 
 logger = logging.getLogger(__name__)
 
@@ -357,8 +358,10 @@ class CreateOfflineShippingAddressAPI(APIView):
                 address_obj = Address.objects.create(user=dealshub_user_obj,first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj, emirates=emirates)
 
                 response["uuid"] = address_obj.uuid
+
+                render_value = "New Offline Shipping Address created for " + username
+                activitylog(request.user, Address, "created", address_obj.uuid, None, address_obj, location_group_obj, render_value)
                 response['status'] = 200
-                activitylog(request.user, Address, "created", address_obj.uuid, None, address_obj, location_group_obj, "New Offline Shipping Address created for " + username)
             else:
                 response["status"] = 409
 
@@ -603,7 +606,7 @@ class AddToOfflineCartAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-            prev_cart_obj = cart_obj
+            prev_cart_obj = deepcopy(cart_obj)
             unit_cart_obj = None
             if UnitCart.objects.filter(cart=cart_obj, product__uuid=product_uuid).exists()==True:
                 unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product__uuid=product_uuid)
@@ -658,8 +661,9 @@ class AddToOfflineCartAPI(APIView):
             }
 
             response["unitCartUuid"] = unit_cart_obj.uuid
+            render_value = "Product " + dealshub_product_obj.product_name + " added to offline cart for " + username
+            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, location_group_obj, render_value)
             response["status"] = 200
-            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, location_group_obj, "Product " + dealshub_product_obj.product_name + " added to cart offline for " + username)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("AddToOfflineCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -952,7 +956,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
             is_order_offline = True
 
             cart_obj = Cart.objects.get(uuid=cart_uuid)
-            prev_cart_obj = cart_obj
+            prev_cart_obj = deepcopy(cart_obj)
 
             cart_obj.offline_cod_charge = offline_cod_charge
             cart_obj.offline_delivery_fee = offline_delivery_fee
@@ -1001,8 +1005,9 @@ class UpdateOfflineCartDetailsAPI(APIView):
                 "voucher_code": voucher_code
             }
 
+            render_value = "Offline Cart updated for " + cart_obj.owner.username
+            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, cart_obj.location_group, render_value)
             response["status"] = 200
-            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, None, "Cart updated offline for " + cart_obj.owner.username)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1283,15 +1288,16 @@ class SelectOfflineAddressAPI(APIView):
             address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
-            prev_cart_obj = cart_obj
+            prev_cart_obj = deepcopy(cart_obj)
             
             cart_obj.shipping_address = address_obj
             cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
             cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
             cart_obj.save()
-
+            
+            render_value =  "Shipping Address updated offline for " + username
+            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, cart_obj.location_group, render_value)
             response["status"] = 200
-            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, None, "Shipping Address updated offline for " + username)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SelectOfflineAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2496,8 +2502,10 @@ class CreateOfflineCustomerAPI(APIView):
                     FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
 
                 response["username"] = dealshub_user_obj.username
+
+                render_value = "New User created offline with username " + dealshub_user_obj.username
+                activitylog(request.user, DealsHubUser, "created", dealshub_user_obj.username, None, dealshub_user_obj, location_group_obj, render_value)
                 response["status"] = 200
-                activitylog(request.user, DealsHubUser, "created", "", None, dealshub_user_obj, location_group_obj, "New User created offline with username " + dealshub_user_obj.username)
             else:
                 response["status"] = 409
 
@@ -2531,18 +2539,18 @@ class UpdateOfflineUserProfileAPI(APIView):
 
             if DealsHubUser.objects.filter(username=username).exists():
                 dealshub_user_obj = DealsHubUser.objects.get(username=username)
-                prev_dealshub_user_obj = dealshub_user_obj
+                prev_dealshub_user_obj = deepcopy(dealshub_user_obj)
                 dealshub_user_obj.email = email_id
                 dealshub_user_obj.first_name = first_name
                 dealshub_user_obj.last_name = last_name
                 dealshub_user_obj.contact_number = contact_number
                 dealshub_user_obj.save()
+                
+                render_value = "User profile updated for username " + dealshub_user_obj.username
+                activitylog(request.user, DealsHubUser, "updated", dealshub_user_obj.username, prev_dealshub_user_obj, dealshub_user_obj, None, render_value)
                 response['status'] = 200
-                activitylog(request.user, DealsHubUser, "updated", dealshub_user_obj.pk, prev_dealshub_user_obj, dealshub_user_obj, None, "User profile updated offline with username " + dealshub_user_obj.username)
             else:
                 response['status'] = 404
-
-
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2978,7 +2986,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
             username = data["username"]
 
             b2b_user_obj = B2BUser.objects.get(username = username)
-            prev_b2b_user_obj = b2b_user_obj
+            prev_b2b_user_obj = deepcopy(b2b_user_obj)
 
             company_name = data["companyName"]
             vat_certificate_status = data["vatCertificateStatus"]
@@ -3045,8 +3053,12 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.passport_copy_id = passport_copy_id
             b2b_user_obj.save()
 
+            b2b_location_group_obj = None
+            if LocationGroup.objects.filter(is_b2b=True).exists():
+                b2b_location_group_obj = LocationGroup.objects.filter(is_b2b=True)[0]
+            render_value = "B2B user status updated offline for " + username
+            activitylog(request.user, B2BUser, "updated", b2b_user_obj.username, prev_b2b_user_obj, b2b_user_obj, b2b_location_group_obj, render_value)
             response["status"] = 200
-            activitylog(request.user, B2BUser, "updated", b2b_user_obj.pk, prev_b2b_user_obj, b2b_user_obj, None, "B2B user status updated offline for " + username)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -3067,11 +3079,15 @@ class DeleteB2BDocumentImageAPI(APIView):
 
             pk = data["pk"]
             image_obj = Image.objects.get(pk = pk)
+            image_url = image_obj.image.url
             image_obj.delete()
-
+            
+            b2b_location_group_obj = None
+            if LocationGroup.objects.filter(is_b2b=True).exists():
+                b2b_location_group_obj = LocationGroup.objects.filter(is_b2b=True)[0]
+            render_value = "B2B document image" + image_url + "deleted"
+            activitylog(request.user, Image, "deleted", pk, image_obj, None, b2b_location_group_obj, render_value)
             response["status"] = 200
-            activitylog(request.user, Image, "deleted", pk, image_obj, None, None, "B2B document image deleted")
-
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteB2BDocumentImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3100,7 +3116,7 @@ class DeleteB2BDocumentAPI(APIView):
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 website_group_name = location_group_obj.website_group.name.lower()
                 b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
-                prev_b2b_user_obj = b2b_user_obj
+                prev_b2b_user_obj = deepcopy(b2b_user_obj)
             if document_type=="VAT":
                 b2b_user_obj.vat_certificate = None
             elif document_type=="PASSPORT":
@@ -3109,10 +3125,10 @@ class DeleteB2BDocumentAPI(APIView):
                 b2b_user_obj.trade_license = None
             b2b_user_obj.save()
 
-            response["status"] = 200
-
             if is_dealshub == False:
-                activitylog(request.user, B2BUser, "updated", b2b_user_obj.pk, prev_b2b_user_obj, b2b_user_obj, location_group_obj, "B2B document deleted")
+                render_value =  "B2B documents deleted for user" + b2b_user_obj.username
+                activitylog(request.user, B2BUser, "updated", b2b_user_obj.username, prev_b2b_user_obj, b2b_user_obj, location_group_obj, render_value)
+            response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4719,7 +4735,7 @@ class UpdateReviewAdminAPI(APIView):
             content = str(review_content["content"])
             
             review_obj = Review.objects.get(uuid=review_uuid)
-            prev_review_obj = review_obj
+            prev_review_obj = deepcopy(review_obj)
             review_obj.rating = rating
             if review_obj.is_fake==True:
                 review_obj.fake_customer_name = fake_customer_name
@@ -4729,7 +4745,7 @@ class UpdateReviewAdminAPI(APIView):
                 review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
                 prev_review_content_obj = None
             else:
-                prev_review_content_obj = review_content_obj
+                prev_review_content_obj = deepcopy(review_content_obj)
                 review_content_obj.subject = subject
                 review_content_obj.content = content
                 review_content_obj.save()
@@ -4751,9 +4767,13 @@ class UpdateReviewAdminAPI(APIView):
             response['image_url_list'] = image_url_list
             response['review_uuid'] = review_obj.uuid
             response['review_content_uuid'] = review_content_obj.uuid
+
+            render_value_1 = "Review of product" + review_obj.product.product_name + "updated"
+            activitylog(request.user, Review, "updated", review_obj.uuid, prev_review_obj, review_obj, review_obj.product.location_group, render_value_1)
+            render_value_2 = "Review Content of product" + review_obj.product.product_name + "updated"
+            activitylog(request.user, ReviewContent, "updated", review_content_obj.uuid, prev_review_content_obj, review_content_obj, review_obj.product.location_group, render_value_2)
+
             response['status'] = 200
-            activitylog(request.user, Review, "updated", review_obj.uuid, prev_review_obj, review_obj, None, "Review updated")
-            activitylog(request.user, ReviewContent, "updated", review_content_obj.uuid, prev_review_content_obj, review_content_obj, None, "Review Content updated")
             
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4836,7 +4856,6 @@ class AddAdminCommentAPI(APIView):
             comment = str(data["comment"])
 
             review_obj = Review.objects.get(uuid=uuid)
-            prev_review_instance = review_obj
 
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
@@ -4846,28 +4865,30 @@ class AddAdminCommentAPI(APIView):
 
             if comment.strip()=="":
                 review_content_obj = review_obj.content 
+                prev_review_content_obj = deepcopy(review_content_obj)
                 review_content_obj.admin_comment = None
                 review_content_obj.save()
-                activitylog(user=omnycomm_user_obj,table_name=Review,action_type='update',location_group_obj=None,prev_instance=prev_review_instance,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render='')
+                render_value = "Admin comment for product" + review_obj.product.product_name +" deleted"
+                activitylog(user=omnycomm_user_obj,table_name=ReviewContent,action_type='deleted',location_group_obj=review_obj.product.location_group, prev_instance=prev_review_content_obj,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render=render_value)
                 response["status"] = 200
                 return Response(data=response)
             
             admin_comment_obj = None
-            prev_instance = admin_comment_obj
             if review_obj.content.admin_comment!=None:
                 admin_comment_obj = review_obj.content.admin_comment
+                prev_admin_comment_obj = deepcopy(admin_comment_obj)
                 admin_comment_obj.comment = comment
                 admin_comment_obj.user = omnycomm_user_obj
                 admin_comment_obj.save()
-                activitylog(user=omnycomm_user_obj,table_name=AdminReviewComment,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render='')
+                render_value = "Admin comment for product" + review_obj.product.product_name +" updated"
+                activitylog(user=omnycomm_user_obj,table_name=AdminReviewComment,action_type='updated',location_group_obj=review_obj.product.location_group,prev_instance=prev_admin_comment_obj,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render=render_value)
             else:
                 admin_comment_obj = AdminReviewComment.objects.create(user=omnycomm_user_obj, comment=comment)
-                activitylog(user=omnycomm_user_obj,table_name=AdminReviewComment,action_type='create',location_group_obj=None,prev_instance=None,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render='')
+                render_value = "Admin comment for product" + review_obj.product.product_name +" created"
+                activitylog(user=omnycomm_user_obj,table_name=AdminReviewComment,action_type='created',location_group_obj=review_obj.product.location_group,prev_instance=None,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render=render_value)
                 review_content_obj = review_obj.content
                 review_content_obj.admin_comment = admin_comment_obj
-                review_content_obj.save()
-                activitylog(user=omnycomm_user_obj,table_name=Review,action_type='update',location_group_obj=None,prev_instance=prev_review_instance,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render='')
-    
+                review_content_obj.save()    
 
             response["admin_comment_uuid"] = admin_comment_obj.uuid
             response["status"] = 200
@@ -4892,10 +4913,12 @@ class UpdateAdminCommentAPI(APIView):
             comment = str(data["comment"])
 
             admin_comment_obj = AdminReviewComment.objects.get(uuid=uuid)
-            prev_instance = admin_comment_obj
+            prev_admin_comment_obj = deepcopy(admin_comment_obj)
             admin_comment_obj.comment = comment
             admin_comment_obj.save()
-            activitylog(user=request.user,table_name=AdminReviewComment,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render='')
+            review_obj = Review.objects.get(content__admin_comment__uuid=uuid)
+            render_value = "Admin review comment for product " + review_obj.product.product_name +" updated"
+            activitylog(user=request.user,table_name=AdminReviewComment,action_type='updated',location_group_obj=review_obj.product.location_group,prev_instance=prev_admin_comment_obj,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render=render_value)
             response["status"] = 200
 
         except Exception as e:
@@ -5310,12 +5333,14 @@ class DeleteAdminReviewImageAPI(APIView):
             review_uuid = data["review_uuid"]
 
             review_obj = Review.objects.get(uuid=review_uuid)
-            prev_review_instance = review_obj
             review_content_obj = review_obj.content
+            prev_review_content_obj = deepcopy(review_content_obj)
             image_obj = Image.objects.get(pk=image_uuid)
             review_content_obj.images.remove(image_obj)
             review_content_obj.save()
-            activitylog(user=request.user,table_name=Review,action_type='update',location_group_obj=None,prev_instance=prev_review_instance,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render='')
+
+            render_value = "Image "+ image_obj.image.url + "removed from review of product " + review_obj.product.product_name
+            activitylog(user=request.user,table_name=ReviewContent,action_type='update',location_group_obj=review_obj.product.location_group,prev_instance=prev_review_content_obj,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render=render_value)
             response["status"] = 200
 
         except Exception as e:
@@ -5367,11 +5392,12 @@ class HideReviewAdminAPI(APIView):
             review_uuid = data["review_uuid"]
 
             review_obj = Review.objects.get(uuid=review_uuid)
-            prev_review_instance = review_obj
+            prev_review_obj = deepcopy(review_obj)
             review_obj.is_deleted = True
             review_obj.save()
-            activitylog(user=request.user,table_name=Review,action_type='update',location_group_obj=None,prev_instance=prev_review_instance,current_instance=review_obj,table_item_pk=review_obj.pk,render='{} is mark deleted'.format(prev_review_instance))
 
+            render_value = "Review of product " + review_obj.product.product_name + "by user " + (review_obj.dealshub_user.username if review_obj.dealshub_user!=None else "") + " deleted"
+            activitylog(user=request.user,table_name=Review,action_type='deleted',location_group_obj=review_obj.product.location_group,prev_instance=prev_review_obj,current_instance=review_obj,table_item_pk=review_obj.uuid,render=render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -5398,10 +5424,11 @@ class UpdateReviewPublishStatusAPI(APIView):
             is_published = data["is_published"]
 
             review_obj = Review.objects.get(uuid=review_uuid)
-            prev_review_instance = review_obj
+            prev_review_obj = deepcopy(review_obj)
             review_obj.is_published = is_published
             review_obj.save()
-            activitylog(user=request.user,table_name=Review,action_type='update',location_group_obj=None,prev_instance=prev_review_instance,current_instance=review_obj,table_item_pk=review_obj.pk,render='{} is published'.format(prev_review_instance))
+            render_value = "Review of product " + review_obj.product.product_name + "by user " + (review_obj.dealshub_user.username if review_obj.dealshub_user!=None else "") + " is published"
+            activitylog(user=request.user,table_name=Review,action_type='update',location_group_obj=review_obj.product.location_group,prev_instance=prev_review_obj,current_instance=review_obj,table_item_pk=review_obj.uuid,render=render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -6683,10 +6710,11 @@ class UpdateManualOrderAPI(APIView):
             order_uuid = data["orderUuid"]
 
             order_obj = Order.objects.get(uuid=order_uuid)
-            prev_order_instance = order_obj
+            prev_order_instance = deepcopy(order_obj)
             order_obj.sap_status = "Success"
             order_obj.save()
-            activitylog(user=request.user,table_name=Order,action_type='update',location_group_obj=None,prev_instance=prev_order_instance,current_instance=order_obj,table_item_pk=order_obj.pk,render='')
+            render_value = "Order " + order_obj.bundleid + "sap status updated"
+            activitylog(user=request.user,table_name=Order,action_type='update',location_group_obj=order_obj.location_group,prev_instance=prev_order_instance,current_instance=order_obj,table_item_pk=order_obj.uuid,render=render_value)
 
             unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
             unit_order_objs.update(sap_status="GRN Done")
@@ -6776,7 +6804,7 @@ class SetOrdersStatusBulkAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class UpdateOrderStatusAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,) 
@@ -6805,13 +6833,10 @@ class UpdateOrderStatusAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order = order_obj)
 
             for unit_order_obj in unit_order_objs:
-                prev_unit_order_instance = unit_order_obj
                 if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":          
                     set_order_status(unit_order_obj, "dispatched")
-                    activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} is dispatched'.format(unit_order_obj))
                 elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
                     set_order_status(unit_order_obj, "delivered")
-                    activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} is delivered'.format(unit_order_obj))
                 else:
                     logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
                     break
@@ -6953,7 +6978,7 @@ class CancelOrdersAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class ApproveCancellationRequestAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6973,19 +6998,16 @@ class ApproveCancellationRequestAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(uuid__in=unit_order_uuid_list)
 
             for unit_order_obj in unit_order_objs:
-                prev_unit_order_instance = unit_order_obj
                 if unit_order_obj.order.payment_mode=="COD":
                     unit_order_obj.user_cancellation_status="approved"
                     unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"approved")
-                    activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} canceled'.format(unit_order_obj))
                 else:
                     unit_order_obj.user_cancellation_status="refund processed"
                     unit_order_obj.cancellation_request_action_taken=True
                     unit_order_obj.save()
                     notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
-                    activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} refund processed'.format(unit_order_obj))
                 cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
                 
             
@@ -7002,7 +7024,7 @@ class ApproveCancellationRequestAPI(APIView):
         
         return Response(data=response)
 
-#API with active log
+
 class RejectCancellationRequestAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -7020,12 +7042,10 @@ class RejectCancellationRequestAPI(APIView):
             unit_order_uuid_list = data["unit_order_uuid_list"]
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
-                prev_unit_order_instance = unit_order_obj
                 unit_order_obj.user_cancellation_status = "rejected"
                 unit_order_obj.cancellation_request_action_taken = True
                 unit_order_obj.save()
                 notify_order_cancel_status_to_user(unit_order_obj,"rejected")
-                activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} cancellation rejected'.format(unit_order_obj))
                 
             response['status'] = 200
 
@@ -7035,7 +7055,7 @@ class RejectCancellationRequestAPI(APIView):
         
         return Response(data=response)
 
-#API with active log
+
 class UpdateCancellationRequestRefundStatusAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -7243,7 +7263,7 @@ class UploadOrdersAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class ApplyVoucherCodeAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7405,7 +7425,7 @@ class ApplyVoucherCodeAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
 class RemoveVoucherCodeAPI(APIView):
 
     def post(self, request, *args, **kwargs):
