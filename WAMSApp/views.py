@@ -6802,7 +6802,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
 
             channel_product.save()
-            render_value = 'For product {}, channel product stocks and price are updated.'{product_obj.product_name}
+            render_value = 'For product {}, channel product stocks and price are updated.'.format(product_obj.product_name)
             activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
 
             response['status'] = 200
