@@ -476,6 +476,7 @@ class Organization(models.Model):
 
     name = models.CharField(unique=True, max_length=100)
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    default_permissions = models.TextField(default='{}')
 
     class Meta:
         verbose_name = "Organization"

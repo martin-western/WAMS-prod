@@ -7802,6 +7802,34 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
         return Response(data=response)
 
 
+class FetchDefaultPermissionsListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("FetchDefaultPermissionsListAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            organization = data.get("organization","WIG")
+            organization_obj = Organization.objects.get(name=organization)
+
+            default_permissions = json.loads(organization_obj.default_permissions)
+
+            response["default_permissions"] = default_permissions
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDefaultPermissionsListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class ResetOmnyCommUserPasswordAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7811,7 +7839,7 @@ class ResetOmnyCommUserPasswordAPI(APIView):
 
         try:
             data = request.data
-            logger.info("LogoutUserAPI: %s", str(data))
+            logger.info("ResetOmnyCommUserPasswordAPI: %s", str(data))
             
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -7826,7 +7854,7 @@ class ResetOmnyCommUserPasswordAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("LogoutUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("ResetOmnyCommUserPasswordAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -8056,6 +8084,8 @@ CreateOmnyCommUser = CreateOmnyCommUserAPI.as_view()
 SaveOmnyCommUserDetails = SaveOmnyCommUserDetailsAPI.as_view()
 
 SaveOmnyCommUserPermissions = SaveOmnyCommUserPermissionsAPI.as_view()
+
+FetchDefaultPermissionsList = FetchDefaultPermissionsListAPI.as_view()
 
 ResetOmnyCommUserPassword = ResetOmnyCommUserPasswordAPI.as_view()
 
