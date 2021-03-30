@@ -7822,6 +7822,12 @@ class FetchDefaultPermissionsListAPI(APIView):
 
             default_permissions = json.loads(organization_obj.default_permissions)
 
+            brand_list = []
+            brand_objs = Brand.objects.filter(organization=organization_obj)
+            for brand_obj in brand_objs:
+                brand_list.append(brand_obj.name)
+
+            response["brand_list"] = brand_list
             response["default_permissions"] = default_permissions
             response["status"] = 200
         except Exception as e:
