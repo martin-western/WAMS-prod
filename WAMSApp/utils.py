@@ -2721,29 +2721,32 @@ def bulk_update_b2b_dealshub_product_moq(oc_uuid,path,filename, location_group_o
 
 
 def activitylog(user,table_name,action_type,table_item_pk='',prev_instance=None,current_instance=None,location_group_obj=None,render=''):
-    if render == "":
-        render = "pk :- {} is {}(action) in model {}(name)".format(table_item_pk,action_type,table_name)
-    
-    if prev_instance!=None:
-        prev_instance = convert_django_object_to_object(table_name,prev_instance)
-    else:
-        prev_instance = {}
-    if current_instance!=None:
-        current_instance = convert_django_object_to_object(table_name,current_instance)
-    else:
-        current_instance = {}
-    
-    ActivityLog.objects.create(
-        user=user,
-        location_group = location_group_obj,
-        table_name = table_name,
-        table_item_pk = table_item_pk,
-        action_type = action_type,
-        prev_instance = json.dumps(prev_instance),
-        current_instance = json.dumps(current_instance),
-        render = render
-        )
-    return
+    try:
+        if render == "":
+            render = "pk :- {} is {} in model {}".format(table_item_pk,action_type,table_name)
+        
+        if prev_instance!=None:
+            prev_instance = convert_django_object_to_object(table_name,prev_instance)
+        else:
+            prev_instance = {}
+        if current_instance!=None:
+            current_instance = convert_django_object_to_object(table_name,current_instance)
+        else:
+            current_instance = {}
+        
+        ActivityLog.objects.create(
+            user=user,
+            location_group = location_group_obj,
+            table_name = table_name,
+            table_item_pk = table_item_pk,
+            action_type = action_type,
+            prev_instance = json.dumps(prev_instance),
+            current_instance = json.dumps(current_instance),
+            render = render
+            )
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("activitylog: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def convert_django_object_to_object(model_name,django_object):
