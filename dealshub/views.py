@@ -2043,15 +2043,16 @@ class CreateAdminCategoryAPI(APIView):
 
             response['uuid'] = str(section_obj.uuid)
             response['status'] = 200
-            activitylog(request.user, Section, "created", section_obj.uuid, None, section_obj, location_group_obj, "")
+            render_value = "Section " + section_obj.name + " created"
+            activitylog(request.user, Section, "created", section_obj.uuid, None, section_obj, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CreateAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
-#API with active log
 
+#API with active log
 class UpdateAdminCategoryAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2074,7 +2075,7 @@ class UpdateAdminCategoryAPI(APIView):
             is_promotional = data["is_promotional"]
             
             section_obj = Section.objects.get(uuid=uuid)
-            prev_section_obj = section_obj
+            prev_section_obj = deepcopy(section_obj)
 
             promotion_obj = section_obj.promotion
             if is_promotional:
@@ -2109,8 +2110,9 @@ class UpdateAdminCategoryAPI(APIView):
 
             section_obj.save()
 
+            render_value = "Section " + section_obj.name + " updated"
+            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, section_obj.location_group, render_value)
             response['status'] = 200
-            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, None, "")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2132,7 +2134,7 @@ class DeleteAdminCategoryAPI(APIView):
             uuid = data["uuid"]
             
             section_obj = Section.objects.get(uuid=uuid)
-            prev_section_obj = section_obj
+            prev_section_obj = deepcopy(section_obj)
             dealshub_product_uuid_list = list(CustomProductSection.objects.filter(section=section_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
 
@@ -2145,9 +2147,10 @@ class DeleteAdminCategoryAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 
             section_obj.delete()
-            
+
+            render_value = "Section " + prev_section_obj.name + " deleted"
+            activitylog(request.user, Section, "deleted", section_obj.uuid, prev_section_obj, None, location_group_obj, render_value)      
             response['status'] = 200
-            activitylog(request.user, Section, "deleted", section_obj.uuid, prev_section_obj, None, location_group_obj, "")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2169,24 +2172,25 @@ class PublishAdminCategoryAPI(APIView):
             uuid = data["uuid"]
             
             section_obj = Section.objects.get(uuid=uuid)
-            prev_section_obj = section_obj
+            prev_section_obj = deepcopy(section_obj)
             section_obj.is_published = True
             section_obj.save()
 
             location_group_uuid = section_obj.location_group.uuid
             #cache.set(location_group_uuid, "has_expired")
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            
+
+            render_value = "Section " + section_obj.name +" is published"
+            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, render_value)
             response['status'] = 200
-            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, "{} is published".format(section_obj.name))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("PublishAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
-#API with active log
 
+#API with active log
 class UnPublishAdminCategoryAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2200,16 +2204,17 @@ class UnPublishAdminCategoryAPI(APIView):
             uuid = data["uuid"]
             
             section_obj = Section.objects.get(uuid=uuid)
-            prev_section_obj = section_obj
+            prev_section_obj = deepcopy(section_obj)
             section_obj.is_published = False
             section_obj.save()
 
             location_group_uuid = section_obj.location_group.uuid
             #cache.set(location_group_uuid, "has_expired")
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            
+
+            render_value = "Section" + section_obj.name + " is unpublished"
+            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, render_value)
             response['status'] = 200
-            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, "{} is unpublished".format(section_obj.name))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UnPublishAdminCategoryAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2235,7 +2240,7 @@ class SectionBulkUploadAPI(APIView):
 
             uuid = data["uuid"]
             section_obj = Section.objects.get(uuid=uuid)
-            prev_section_obj = section_obj
+            prev_section_obj = deepcopy(section_obj)
             location_group_obj = section_obj.location_group
 
             products = []
@@ -2302,9 +2307,11 @@ class SectionBulkUploadAPI(APIView):
             response["products"] = products[:40]
             response["unsuccessful_count"] = unsuccessful_count
             response["filepath"] = path
+
+            render_value = "Products bulk uploaded to section"+ section_obj.name
+            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, render_value)
             response['status'] = 200
-            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, "Products added to {} section".format(section_obj.name))
-            activitylog(request.user, DealsHubProduct, "updated", "", None, None, location_group_obj, "DealsHubProducts Updated")
+            
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SectionBulkUploadAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2329,7 +2336,7 @@ class BannerBulkUploadAPI(APIView):
 
             uuid = data["uuid"]
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
-            prev_unit_banner_obj = unit_banner_obj
+            prev_unit_banner_obj = deepcopy(unit_banner_obj)
             location_group_obj = unit_banner_obj.banner.location_group
 
 
@@ -2386,8 +2393,8 @@ class BannerBulkUploadAPI(APIView):
             response["unsuccessful_count"] = unsuccessful_count
             response["filepath"] = path
             response['status'] = 200
-            activitylog(request.user, UnitBannerImage, "updated", unit_banner_obj.uuid, prev_unit_banner_obj, unit_banner_obj, location_group_obj, "")
-            activitylog(request.user, DealsHubProduct, "updated", "", None, None, location_group_obj, "DealsHub Products Updated")
+            render_value = "Products bulk uploaded to banner " + unit_banner_obj.banner.name
+            activitylog(request.user, UnitBannerImage, "updated", unit_banner_obj.uuid, prev_unit_banner_obj, unit_banner_obj, location_group_obj, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2563,7 +2570,8 @@ class CreateBannerAPI(APIView):
             response['uuid'] = banner_obj.uuid
             response["limit"] = banner_type_obj.limit
             response['status'] = 200
-            activitylog(request.user, Banner, "created", banner_obj.uuid, None, banner_obj, location_group_obj, "")
+            render_value = "Banner " + banner_obj.name + "is created"
+            activitylog(request.user, Banner, "created", banner_obj.uuid, None, banner_obj, location_group_obj,render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CreateBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2585,12 +2593,13 @@ class UpdateBannerNameAPI(APIView):
             uuid = data["uuid"]
 
             banner_obj = Banner.objects.get(uuid=uuid)
-            prev_banner_obj = banner_obj
+            prev_banner_obj = deepcopy(banner_obj)
             banner_obj.name = name
             banner_obj.save()
             
             response['status'] = 200
-            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, None, "")
+            render_value = "Banner " + banner_obj.name + "is updated"
+            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, banner_obj.location_group, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateBannerNameAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2612,13 +2621,14 @@ class AddBannerImageAPI(APIView):
             banner_image = data["image"]
 
             banner_obj = Banner.objects.get(uuid=uuid)
-            prev_banner_obj = banner_obj
+            prev_banner_obj = deepcopy(banner_obj)
             image_obj = Image.objects.create(image=banner_image)
             unit_banner_image_obj = UnitBannerImage.objects.create(image=image_obj, banner=banner_obj)
 
             response['uuid'] = unit_banner_image_obj.uuid
             response['status'] = 200
-            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, None, "Image added to banner")
+            render_value = "Image " + image_obj.image.url + " added to banner "+ banner_obj.name
+            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, banner_obj.location_group, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2643,7 +2653,7 @@ class UpdateBannerImageAPI(APIView):
             image_type = data.get("imageType", "mobile")
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
-            prev_unit_banner_image_obj = unit_banner_image_obj
+            prev_unit_banner_image_obj = deepcopy(unit_banner_image_obj)
             image_obj = Image.objects.create(image=banner_image)
             
             if image_type=="mobile":
@@ -2661,7 +2671,8 @@ class UpdateBannerImageAPI(APIView):
             response['uuid'] = unit_banner_image_obj.uuid
             response['url'] = image_obj.mid_image.url
             response['status'] = 200
-            activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_unit_banner_image_obj, unit_banner_image_obj, None, 'UnitBannerImage updated')
+            render_value = "Image " + image_obj.image.url + " is updated in banner " + unit_banner_image_obj.banner.name
+            activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_unit_banner_image_obj, unit_banner_image_obj, unit_banner_image_obj.banner.location_group, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2686,7 +2697,7 @@ class DeleteBannerImageAPI(APIView):
             language_code = data.get("language", "en")
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
-            prev_unit_banner_image_obj = unit_banner_image_obj
+            prev_unit_banner_image_obj = deepcopy(unit_banner_image_obj)
 
             if image_type=="mobile":
                 if language_code == "en":
@@ -2702,7 +2713,8 @@ class DeleteBannerImageAPI(APIView):
             unit_banner_image_obj.save()
 
             response['status'] = 200
-            activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_unit_banner_image_obj, unit_banner_image_obj, None, 'UnitBannerImage updated')
+            render_value = "Image deleted for banner " + unit_banner_image_obj.banner.name
+            activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_unit_banner_image_obj, unit_banner_image_obj, unit_banner_image_obj.banner.location_group, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2724,6 +2736,7 @@ class DeleteUnitBannerAPI(APIView):
             uuid = data["uuid"]
 
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
+            prev_unit_banner_obj = deepcopy(unit_banner_obj)
 
             dealshub_product_uuid_list = list(CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_obj).order_by('order_index').values_list("product__uuid", flat=True).distinct())
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
@@ -2738,8 +2751,8 @@ class DeleteUnitBannerAPI(APIView):
 
             unit_banner_obj.delete()
             response['status'] = 200
-            activitylog(request.user, UnitBannerImage, "deleted", unit_banner_obj.uuid, None, None, location_group_obj, 'UnitBannerImage deleted')
-            activitylog(request.user, DealsHubProduct, "updated", "", None, None, location_group_obj, "DealsHubProduct updated")
+            render_value = "Unit Banner " + prev_unit_banner_obj.banner.name + " deleted"
+            activitylog(request.user, UnitBannerImage, "deleted", unit_banner_obj.uuid, prev_unit_banner_obj, None, location_group_obj,render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2760,7 +2773,7 @@ class DeleteBannerAPI(APIView):
 
             uuid = data["uuid"]
             banner_obj = Banner.objects.get(uuid=uuid)
-            prev_banner_obj = banner_obj
+            prev_banner_obj = deepcopy(banner_obj)
 
             unit_banner_objs = UnitBannerImage.objects.filter(banner=banner_obj)
 
@@ -2778,8 +2791,8 @@ class DeleteBannerAPI(APIView):
             banner_obj.delete()
             
             response['status'] = 200
-            activitylog(request.user, Banner, "deleted", "", prev_banner_obj, None, location_group_obj, "")
-            activitylog(request.user, DealsHubProduct, "updated", "", None, None, location_group_obj, "DealsHubProduct updated")
+            render_value = "Banner " + prev_banner_obj.name + "is deleted"
+            activitylog(request.user, Banner, "deleted", "", prev_banner_obj, None, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2799,7 +2812,7 @@ class PublishBannerAPI(APIView):
 
             uuid = data["uuid"]
             banner_obj = Banner.objects.get(uuid=uuid)
-            prev_banner_obj = banner_obj
+            prev_banner_obj = deepcopy(banner_obj)
             banner_obj.is_published = True
             banner_obj.save()
 
@@ -2809,7 +2822,7 @@ class PublishBannerAPI(APIView):
 
             response['uuid'] = banner_obj.uuid
             response['status'] = 200
-            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, location_group_obj, "{} is published".format(banner_obj.name))
+            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, location_group_obj, "Banner {} is published".format(banner_obj.name))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2830,7 +2843,7 @@ class UnPublishBannerAPI(APIView):
 
             uuid = data["uuid"]
             banner_obj = Banner.objects.get(uuid=uuid)
-            prev_banner_obj = banner_obj
+            prev_banner_obj = deepcopy(banner_obj)
             banner_obj.is_published = False
             banner_obj.save()
 
@@ -2840,7 +2853,7 @@ class UnPublishBannerAPI(APIView):
             
             response['uuid'] = banner_obj.uuid
             response['status'] = 200
-            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, location_group_obj, "{} is unpublished".format(banner_obj.name))
+            activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, location_group_obj, "Banner {} is unpublished".format(banner_obj.name))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UnPublishBannerAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2871,7 +2884,8 @@ class PublishDealsHubProductAPI(APIView):
             dealshub_product_obj.save()
 
             response['status'] = 200
-            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj.uuid, prev_product_obj, dealshub_product_obj, None, "{} is published".format(dealshub_product_obj.product_name))
+            render_value = dealshub_product_obj.get_seller_sku() + " is published on " + dealshub_product_obj.location_group.name
+            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj.uuid, prev_product_obj, dealshub_product_obj, dealshub_product_obj.location_group, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("PublishDealsHubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2896,7 +2910,8 @@ class UnPublishDealsHubProductAPI(APIView):
             dealshub_product_obj.save()
 
             response['status'] = 200
-            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj.uuid, prev_product_obj, dealshub_product_obj, None, "{} is unpublished".format(dealshub_product_obj.product_name))
+            render_value = dealshub_product_obj.get_seller_sku() + " is unpublished on " + dealshub_product_obj.location_group.name
+            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj.uuid, prev_product_obj, dealshub_product_obj, dealshub_product_obj.location_group, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UnPublishDealsHubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2921,7 +2936,8 @@ class ActivateCODDealsHubProductAPI(APIView):
             dealshub_product_obj.save()
 
             response['status'] = 200
-            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj.uuid, prev_product_obj, dealshub_product_obj, None, "COD allowed for {}".format(dealshub_product_obj.product_name))
+            render_value = "COD activated for " + dealshub_product_obj.get_seller_sku()
+            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj.uuid, prev_product_obj, dealshub_product_obj, dealshub_product_obj.location_group, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("ActivateCODDealsHubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2946,7 +2962,8 @@ class DeactivateCODDealsHubProductAPI(APIView):
             dealshub_product_obj.save()
 
             response['status'] = 200
-            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj.uuid, prev_product_obj, dealshub_product_obj, None, "COD not allowed for {}".format(dealshub_product_obj.product_name))
+            render_value = "COD deactivated for " + dealshub_product_obj.get_seller_sku()
+            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj.uuid, prev_product_obj, dealshub_product_obj, dealshub_product_obj.location_group, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeactivateCODDealsHubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2977,7 +2994,8 @@ class DeleteProductFromSectionAPI(APIView):
             custom_product_section_obj.delete()
             
             response['status'] = 200
-            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj.uuid, prev_product_obj, dealshub_product_obj, None, "{} removed from {}".format(dealshub_product_obj.product_name, section_obj.name))
+            render_value = dealshub_product_obj.get_seller_sku() + " removed from " + section_obj.name + " on " + section_obj.location_group.name
+            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj.uuid, prev_product_obj, dealshub_product_obj, section_obj.location_group, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteProductFromSectionAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2996,13 +3014,16 @@ class PublishDealsHubProductsAPI(APIView):
             logger.info("PublishDealsHubProductsAPI: %s", str(data))
 
             product_uuid_list = data["product_uuid_list"]
+            location_group_obj = None
             for uuid in product_uuid_list:
                 dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
                 dealshub_product_obj.is_published = True
                 dealshub_product_obj.save()
+                location_group_obj = dealshub_product_obj.location_group
 
             response['status'] = 200
-            activitylog(request.user, DealsHubProduct, "updated", '', None, None, None, "DealsHubProducts published")
+            render_value = str(len(product_uuid_list)) + " products published on " + location_group_obj.name
+            activitylog(request.user, DealsHubProduct, "updated", '', None, None, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("PublishDealsHubProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3021,13 +3042,16 @@ class UnPublishDealsHubProductsAPI(APIView):
             logger.info("UnPublishDealsHubProductsAPI: %s", str(data))
 
             product_uuid_list = data["product_uuid_list"]
+            location_group_obj = None
             for uuid in product_uuid_list:
                 dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
                 dealshub_product_obj.is_published = False
                 dealshub_product_obj.save()
+                location_group_obj = dealshub_product_obj.location_group
 
             response['status'] = 200
-            activitylog(request.user, DealsHubProduct, "updated", '', None, None, None, "DealsHubProducts unpublished")
+            render_value = str(len(product_uuid_list)) + " products published on " + location_group_obj.name
+            activitylog(request.user, DealsHubProduct, "updated", '', None, None, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UnPublishDealsHubProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3728,22 +3752,26 @@ class SaveDealshubAdminSectionsOrderAPI(APIView):
             dealshub_admin_sections = data["dealshubAdminSections"]
 
             cnt = 1
+            location_group_obj = None
             for dealshub_admin_section in dealshub_admin_sections:
                 if dealshub_admin_section["type"]=="Banner":
                     uuid = dealshub_admin_section["uuid"]
                     banner_obj = Banner.objects.get(uuid=uuid)
                     banner_obj.order_index = cnt
                     banner_obj.save()
+                    location_group_obj = banner_obj.location_group
                 elif dealshub_admin_section["type"]=="ProductListing":
                     uuid = dealshub_admin_section["uuid"]
                     section_obj = Section.objects.get(uuid=uuid)
                     section_obj.order_index = cnt
                     section_obj.save()
+                    location_group_obj = section_obj.location_group
                 
                 cnt += 1
 
             response['status'] = 200
-            activitylog(request.user, Section, "updated", '', None, None, None, "Section Order updated")
+            render_value = "Section order changed on " + location_group_obj.name
+            activitylog(request.user, Section, "updated", '', None, None, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SaveDealshubAdminSectionsOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4239,8 +4267,8 @@ class AddProductToSectionAPI(APIView):
                 CustomProductSection.objects.create(section=section_obj, product=dealshub_product_obj, order_index=order_index)
             
             response['status'] = 200
-            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, "{} added to {}".format(dealshub_product_obj.product_name,section_obj.name))
-            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj, prev_product_obj, dealshub_product_obj, location_group_obj, "DealsHubProduct Updated")
+            render_value = dealshub_product_obj.get_seller_sku() + " added to " + section_obj.name + " on " + section_obj.location_group.name
+            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, section_obj.location_group, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4297,9 +4325,8 @@ class AddProductToUnitBannerAPI(APIView):
             product_uuid = data["productUuid"]
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
-            prev_banner_obj = unit_banner_image_obj
+            prev_unit_banner_image_obj = deepcopy(unit_banner_image_obj)
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
-            prev_product_obj = dealshub_product_obj
 
             dealshub_product_obj.promotion = unit_banner_image_obj.promotion
             dealshub_product_obj.save()
@@ -4324,8 +4351,8 @@ class AddProductToUnitBannerAPI(APIView):
                 CustomProductUnitBanner.objects.create(unit_banner=unit_banner_image_obj, product=dealshub_product_obj, order_index=order_index)
             
             response['status'] = 200
-            activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_banner_obj, unit_banner_image_obj, None, "{} added to banner".format(dealshub_product_obj.product_name))
-            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj, prev_product_obj, dealshub_product_obj, None, "DealsHubProduct Updated")
+            render_value = dealshub_product_obj.get_seller_sku() + " added to " + unit_banner_image_obj.banner.name + " on " + unit_banner_image_obj.banner.location_group.name
+            activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_unit_banner_image_obj, unit_banner_image_obj, unit_banner_image_obj.banner.location_group, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4348,9 +4375,8 @@ class DeleteProductFromUnitBannerAPI(APIView):
             product_uuid = data["productUuid"]
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=unit_banner_image_uuid)
-            prev_banner_obj = unit_banner_image_obj
+            prev_unit_banner_image_obj = deepcopy(unit_banner_image_obj)
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
-            prev_product_obj = dealshub_product_obj
             dealshub_product_obj.promotion = None
             dealshub_product_obj.save()
 
@@ -4359,8 +4385,8 @@ class DeleteProductFromUnitBannerAPI(APIView):
             custom_product_unit_banner_obj.delete()
 
             response['status'] = 200
-            activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_banner_obj, unit_banner_image_obj, None, "{} removed from banner".format(dealshub_product_obj.product_name))
-            activitylog(request.user, DealsHubProduct, "updated", dealshub_product_obj, prev_product_obj, dealshub_product_obj, None, "DealsHubProduct Updated")
+            render_value = dealshub_product_obj.get_seller_sku() + " removed from " + unit_banner_image_obj.banner.name + " on " + dealshub_product_obj.location_group.name
+            activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_unit_banner_image_obj, unit_banner_image_obj, dealshub_product_obj.location_group, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4509,7 +4535,7 @@ class AddUnitBannerHoveringImageAPI(APIView):
             hovering_banner_image = data["image"]
 
             unit_banner_image_obj = UnitBannerImage.objects.get(uuid=uuid)
-            prev_banner_obj = unit_banner_image_obj
+            prev_unit_banner_image_obj = deepcopy(unit_banner_image_obj)
             image_obj = Image.objects.create(image=hovering_banner_image)
             unit_banner_image_obj.hovering_banner_image = image_obj
             unit_banner_image_obj.save()
@@ -4517,7 +4543,8 @@ class AddUnitBannerHoveringImageAPI(APIView):
             response['uuid'] = image_obj.pk
             response['url'] = image_obj.image.url
             response['status'] = 200
-            activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_banner_obj, unit_banner_image_obj, None, "Hovering Image added to banner")
+            render_value = "Added hovering image for " + unit_banner_image_obj.banner.name + " on " + unit_banner_image_obj.banner.location_group.name
+            activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_unit_banner_image_obj, unit_banner_image_obj, unit_banner_image_obj.banner.location_group, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("AddUnitBannerHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4571,7 +4598,7 @@ class AddSectionHoveringImageAPI(APIView):
             hovering_banner_image = data["image"]
 
             section_obj = Section.objects.get(uuid=uuid)
-            prev_section_obj = section_obj
+            prev_section_obj = deepcopy(section_obj)
             image_obj = Image.objects.create(image=hovering_banner_image)
             section_obj.hovering_banner_image = image_obj
             section_obj.save()
@@ -4579,7 +4606,8 @@ class AddSectionHoveringImageAPI(APIView):
             response['uuid'] = image_obj.pk
             response['url'] = image_obj.image.url
             response['status'] = 200
-            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, None, "Hovering Image added to Section {}".format(section_obj.name))
+            render_value = "Added hovering image for " + section_obj.name + " on " + section_obj.location_group.name
+            activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, section_obj.location_group, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4635,7 +4663,8 @@ class DeleteHoveringImageAPI(APIView):
             Image.objects.get(pk=uuid).delete()
 
             response['status'] = 200
-            activitylog(request.user, Image, "deleted", "", None, None, None, "Hovering Image deleted")
+            render_value = "Hovering Image deleted"
+            activitylog(request.user, Image, "deleted", "", None, None, None, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("DeleteHoveringImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4658,14 +4687,15 @@ class UpdateSuperCategoryImageAPI(APIView):
             image = data["image"]
 
             super_category_obj = SuperCategory.objects.get(uuid=uuid)
-            prev_super_category_obj = super_category_obj
+            prev_super_category_obj = deepcopy(super_category_obj)
             image_obj = Image.objects.create(image=image)
             super_category_obj.image = image_obj
             super_category_obj.save()
 
             response["imageUrl"] = image_obj.mid_image.url
             response['status'] = 200
-            activitylog(request.user, SuperCategory, "updated", super_category_obj.uuid, prev_super_category_obj, super_category_obj, None, "Super Category Image updated")
+            render_value = super_category_obj.name + " image updated"
+            activitylog(request.user, SuperCategory, "updated", super_category_obj.uuid, prev_super_category_obj, super_category_obj, None, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateSuperCategoryImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
