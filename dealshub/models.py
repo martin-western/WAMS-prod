@@ -160,7 +160,7 @@ def add_product_to_index(dealshub_product_obj):
         dealshub_product_dict["price"] = dealshub_product_obj.now_price
         dealshub_product_dict["stock"] = dealshub_product_obj.stock
         
-        index.save_objects(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
+        index.save_object(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
         logger.info("This is done!!!!!")
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
