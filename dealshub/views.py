@@ -12,6 +12,7 @@ from dealshub.utils import *
 from dealshub.views_dh import *
 from dealshub.network_global_integration import *
 from dealshub.hyperpay_integration import *
+from dealshub.algolia.views import *
 
 from django.shortcuts import HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
@@ -2066,6 +2067,11 @@ class UpdateAdminCategoryAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateAdminCategoryAPI Restricted Access!")
+                return Response(data=response)
+
             data = data["sectionData"]
 
             uuid = data["uuid"]
@@ -2131,6 +2137,11 @@ class DeleteAdminCategoryAPI(APIView):
             data = request.data
             logger.info("DeleteAdminCategoryAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteAdminCategoryAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
             
             section_obj = Section.objects.get(uuid=uuid)
@@ -2169,6 +2180,11 @@ class PublishAdminCategoryAPI(APIView):
             data = request.data
             logger.info("PublishAdminCategoryAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("PublishAdminCategoryAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
             
             section_obj = Section.objects.get(uuid=uuid)
@@ -2201,6 +2217,11 @@ class UnPublishAdminCategoryAPI(APIView):
             data = request.data
             logger.info("UnPublishAdminCategoryAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UnPublishAdminCategoryAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
             
             section_obj = Section.objects.get(uuid=uuid)
@@ -2231,6 +2252,11 @@ class SectionBulkUploadAPI(APIView):
         try:
             data = request.data
             logger.info("SectionBulkUploadAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SectionBulkUploadAPI Restricted Access!")
+                return Response(data=response)
 
             path = default_storage.save('tmp/temp-section.xlsx', data["import_file"])
             logger.info("PATH %s", str(path))
@@ -2329,6 +2355,11 @@ class BannerBulkUploadAPI(APIView):
             data = request.data
             logger.info("BannerBulkUploadAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BannerBulkUploadAPI Restricted Access!")
+                return Response(data=response)
+
             path = default_storage.save('tmp/temp-banner.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
@@ -2413,6 +2444,11 @@ class SectionBulkDownloadAPI(APIView):
             data = request.data
             logger.info("SectionBulkDownloadAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SectionBulkDownloadAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
             section_obj = Section.objects.get(uuid=uuid)
 
@@ -2444,6 +2480,11 @@ class BannerBulkDownloadAPI(APIView):
         try:
             data = request.data
             logger.info("BannerBulkDownloadAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BannerBulkDownloadAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["uuid"]
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
@@ -2477,6 +2518,11 @@ class FetchNestedBannersAPI(APIView):
         try:
             data = request.data
             logger.info("FetchNestedBannersAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchNestedBannersAPI Restricted Access!")
+                return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -2546,6 +2592,11 @@ class CreateBannerAPI(APIView):
             data = request.data
             logger.info("CreateBannerAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateBannerAPI Restricted Access!")
+                return Response(data=response)
+
             banner_type = data["bannerType"]
             location_group_uuid = data["locationGroupUuid"]
             name = data.get("name", "")
@@ -2589,6 +2640,11 @@ class UpdateBannerNameAPI(APIView):
             data = request.data
             logger.info("UpdateBannerNameAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateBannerNameAPI Restricted Access!")
+                return Response(data=response)
+
             name = data["name"]
             uuid = data["uuid"]
 
@@ -2616,6 +2672,11 @@ class AddBannerImageAPI(APIView):
         try:
             data = request.data
             logger.info("AddBannerImageAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddBannerImageAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["uuid"]
             banner_image = data["image"]
@@ -2647,6 +2708,11 @@ class UpdateBannerImageAPI(APIView):
             data = request.data
             logger.info("UpdateBannerImageAPI: %s", str(data))
             language_code = data.get("language","en")
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateBannerImageAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["uuid"]
             banner_image = data["image"]
@@ -2691,6 +2757,11 @@ class DeleteBannerImageAPI(APIView):
             data = request.data
             logger.info("DeleteBannerImageAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteBannerImageAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
             image_type = data["imageType"]
 
@@ -2733,6 +2804,11 @@ class DeleteUnitBannerAPI(APIView):
             data = request.data
             logger.info("DeleteUnitBannerAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteUnitBannerAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
 
             unit_banner_obj = UnitBannerImage.objects.get(uuid=uuid)
@@ -2770,6 +2846,11 @@ class DeleteBannerAPI(APIView):
         try:
             data = request.data
             logger.info("DeleteBannerAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteBannerAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["uuid"]
             banner_obj = Banner.objects.get(uuid=uuid)
@@ -2810,6 +2891,11 @@ class PublishBannerAPI(APIView):
             data = request.data
             logger.info("PublishBannerAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("PublishBannerAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
             banner_obj = Banner.objects.get(uuid=uuid)
             prev_banner_obj = deepcopy(banner_obj)
@@ -2841,6 +2927,11 @@ class UnPublishBannerAPI(APIView):
             data = request.data
             logger.info("UnPublishBannerAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UnPublishBannerAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
             banner_obj = Banner.objects.get(uuid=uuid)
             prev_banner_obj = deepcopy(banner_obj)
@@ -2870,6 +2961,11 @@ class PublishDealsHubProductAPI(APIView):
         try:
             data = request.data
             logger.info("PublishDealsHubProductAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("PublishDealsHubProductAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
@@ -2903,6 +2999,11 @@ class UnPublishDealsHubProductAPI(APIView):
             data = request.data
             logger.info("UnPublishDealsHubProductAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("PublishAdminCategoryAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
             prev_product_obj = dealshub_product_obj
@@ -2928,6 +3029,11 @@ class ActivateCODDealsHubProductAPI(APIView):
         try:
             data = request.data
             logger.info("ActivateCODDealsHubProductAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("ActivateCODDealsHubProductAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
@@ -2955,6 +3061,11 @@ class DeactivateCODDealsHubProductAPI(APIView):
             data = request.data
             logger.info("DeactivateCODDealsHubProductAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeactivateCODDealsHubProductAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
             prev_product_obj = dealshub_product_obj
@@ -2980,6 +3091,11 @@ class DeleteProductFromSectionAPI(APIView):
         try:
             data = request.data
             logger.info("DeleteProductFromSectionAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteProductFromSectionAPI Restricted Access!")
+                return Response(data=response)
 
             section_uuid = data["sectionUuid"]
             product_uuid = data["productUuid"]
@@ -3013,6 +3129,11 @@ class PublishDealsHubProductsAPI(APIView):
             data = request.data
             logger.info("PublishDealsHubProductsAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("PublishDealsHubProductsAPI Restricted Access!")
+                return Response(data=response)
+
             product_uuid_list = data["product_uuid_list"]
             location_group_obj = None
             for uuid in product_uuid_list:
@@ -3040,6 +3161,11 @@ class UnPublishDealsHubProductsAPI(APIView):
         try:
             data = request.data
             logger.info("UnPublishDealsHubProductsAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UnPublishDealsHubProductsAPI Restricted Access!")
+                return Response(data=response)
 
             product_uuid_list = data["product_uuid_list"]
             location_group_obj = None
@@ -3749,6 +3875,11 @@ class SaveDealshubAdminSectionsOrderAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveDealshubAdminSectionsOrderAPI Restricted Access!")
+                return Response(data=response)
+
             dealshub_admin_sections = data["dealshubAdminSections"]
 
             cnt = 1
@@ -3789,6 +3920,11 @@ class SearchSectionProductsAutocompleteAPI(APIView):
 
             data = request.data
             logger.info("SearchSectionProductsAutocompleteAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SearchSectionProductsAutocompleteAPI Restricted Access!")
+                return Response(data=response)
 
             search_string = data["searchString"]
             location_group_uuid = data["locationGroupUuid"]
@@ -4043,6 +4179,11 @@ class SearchProductsAPI(APIView):
             data = request.data
             logger.info("SearchProductsAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SearchProductsAPI Restricted Access!")
+                return Response(data=response)
+
             language_code = data.get("language","en")
             search_string = data["searchString"]
             location_group_uuid = data["locationGroupUuid"]
@@ -4205,6 +4346,11 @@ class AddProductToSectionAPI(APIView):
             data = request.data
             logger.info("AddProductToSectionAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddProductToSectionAPI Restricted Access!")
+                return Response(data=response)
+
             section_uuid = data["sectionUuid"]
             product_uuid = data["productUuid"]
 
@@ -4321,6 +4467,11 @@ class AddProductToUnitBannerAPI(APIView):
             data = request.data
             logger.info("AddProductToUnitBannerAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddProductToUnitBannerAPI Restricted Access!")
+                return Response(data=response)
+
             unit_banner_image_uuid = data["unitBannerImageUuid"]
             product_uuid = data["productUuid"]
 
@@ -4370,6 +4521,11 @@ class DeleteProductFromUnitBannerAPI(APIView):
         try:
             data = request.data
             logger.info("DeleteProductFromUnitBannerAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteProductFromUnitBannerAPI Restricted Access!")
+                return Response(data=response)
 
             unit_banner_image_uuid = data["unitBannerImageUuid"]
             product_uuid = data["productUuid"]
@@ -4531,6 +4687,11 @@ class AddUnitBannerHoveringImageAPI(APIView):
             data = request.data
             logger.info("AddUnitBannerHoveringImageAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddUnitBannerHoveringImageAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
             hovering_banner_image = data["image"]
 
@@ -4593,6 +4754,11 @@ class AddSectionHoveringImageAPI(APIView):
 
             data = request.data
             logger.info("AddSectionHoveringImageAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddSectionHoveringImageAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["uuid"]
             hovering_banner_image = data["image"]
@@ -4658,6 +4824,11 @@ class DeleteHoveringImageAPI(APIView):
             data = request.data
             logger.info("DeleteHoveringImageAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteHoveringImageAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
 
             Image.objects.get(pk=uuid).delete()
@@ -4682,6 +4853,11 @@ class UpdateSuperCategoryImageAPI(APIView):
 
             data = request.data
             logger.info("UpdateSuperCategoryImageAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateSuperCategoryImageAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["uuid"]
             image = data["image"]
@@ -4715,6 +4891,11 @@ class UpdateUnitBannerAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateUnitBannerAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["uuid"]
             is_promotional = data["is_promotional"]
@@ -4773,6 +4954,11 @@ class CreateVoucherAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateVoucherAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
@@ -4821,6 +5007,11 @@ class UpdateVoucherAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateVoucherAPI Restricted Access!")
+                return Response(data=response)
+
             voucher_uuid = data["voucher_uuid"]
             voucher_obj = Voucher.objects.get(uuid=voucher_uuid)
             prev_voucher_obj = deepcopy(voucher_obj)
@@ -4867,6 +5058,11 @@ class FetchVouchersAPI(APIView):
             logger.info("FetchVouchersAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchVouchersAPI Restricted Access!")
+                return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
             voucher_objs = Voucher.objects.filter(is_deleted=False, location_group__uuid=location_group_uuid)
@@ -4917,6 +5113,11 @@ class DeleteVoucherAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteVoucherAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["voucher_uuid"]
             voucher_obj = Voucher.objects.get(uuid=uuid)
             location_group_obj = voucher_obj.location_group
@@ -4946,6 +5147,11 @@ class PublishVoucherAPI(APIView):
             logger.info("PublishVoucherAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("PublishVoucherAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["voucher_uuid"]
             voucher_obj = Voucher.objects.get(uuid=uuid)
@@ -4979,6 +5185,11 @@ class UnPublishVoucherAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UnPublishVoucherAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["voucher_uuid"]
             voucher_obj = Voucher.objects.get(uuid=uuid)
             prev_voucher_obj = deepcopy(voucher_obj)
@@ -5010,6 +5221,11 @@ class FetchPostaPlusDetailsAPI(APIView):
             logger.info("FetchPostaPlusDetailsAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchPostaPlusDetailsAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["orderUuid"]
             order_obj = Order.objects.get(uuid=uuid)
@@ -5071,6 +5287,11 @@ class UpdateUnitOrderQtyAdminAPI(APIView):
             logger.info("UpdateUnitOrderQtyAdminAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateUnitOrderQtyAdminAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["unitOrderUuid"]
             quantity = int(data["quantity"])
@@ -5136,6 +5357,11 @@ class UpdateOrderShippingAdminAPI(APIView):
             logger.info("UpdateOrderShippingAdminAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateOrderShippingAdminAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["orderUuid"]
 
@@ -5311,6 +5537,11 @@ class FetchSEOAdminAutocompleteAPI(APIView):
         try:
             data = request.data
             logger.info("FetchSEOAdminAutocompleteAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchSEOAdminAutocompleteAPI Restricted Access!")
+                return Response(data=response)
             
             page_type = data["page_type"]
             search_string = data["search_string"]
@@ -5397,6 +5628,11 @@ class FetchSEOAdminDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchSEOAdminDetailsAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchSEOAdminDetailsAPI Restricted Access!")
+                return Response(data=response)
             
             page_type = data["page_type"]
             uuid = data["uuid"]
@@ -5495,6 +5731,11 @@ class SaveSEOAdminDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("SaveSEOAdminDetailsAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveSEOAdminDetailsAPI Restricted Access!")
+                return Response(data=response)
             
             page_type = data["page_type"]
             uuid = data["uuid"]
@@ -5594,6 +5835,11 @@ class FetchLocationGroupSettingsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchLocationGroupSettingsAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchLocationGroupSettingsAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
 
@@ -5627,6 +5873,11 @@ class UpdateLocationGroupSettingsAPI(APIView):
         try:
             data = request.data
             logger.info("UpdateLocationGroupSettingsAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateLocationGroupSettingsAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
 
@@ -5671,6 +5922,11 @@ class FetchSalesTargetsListAPI(APIView):
         try:
             data = request.data
             logger.info("FetchSalesExecutiveTargetsListAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchSalesExecutiveTargetsListAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -5708,6 +5964,11 @@ class UpdateSalesTargetAPI(APIView):
         try:
             data = request.data
             logger.info("UpdateSalesTargetAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateSalesTargetAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -5746,6 +6007,11 @@ class AddSalesTargetAPI(APIView):
         try:
             data = request.data
             logger.info("AddSalesTargetAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddSalesTargetAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -5785,6 +6051,11 @@ class AddProductToOrderAPI(APIView):
             logger.info("AddProductToOrderAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddProductToOrderAPI Restricted Access!")
+                return Response(data=response)
 
             product_uuid = data["productUuid"]
             order_uuid = data["orderUuid"]
@@ -5884,6 +6155,11 @@ class UpdateOrderChargesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateOrderChargesAPI Restricted Access!")
+                return Response(data=response)
+
             order_uuid = data["orderUuid"]
             offline_cod_charge = float(data["offline_cod_charge"])
             offline_delivery_fee = float(data["offline_delivery_fee"])
@@ -5938,6 +6214,11 @@ class FetchLogixShippingStatusAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchLogixShippingStatusAPI Restricted Access!")
+                return Response(data=response)
 
             order_uuid  = data["orderUuid"]
 

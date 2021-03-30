@@ -20,6 +20,7 @@ from django.utils import timezone
 import sys
 import xlsxwriter
 import pandas as pd
+import string
 
 def my_jwt_response_handler(token, user=None, request=None):
     
@@ -2455,6 +2456,17 @@ def isNoneOrEmpty(variable):
         logger.error("isNoneOrEmpty: %s at %s", e, str(exc_tb.tb_lineno))
         return True
 
+def generate_random_password(length):
+    chars = string.ascii_uppercase + string.digits + string.ascii_lowercase
+    password = ''
+    for i in range(length):
+        password += chars[ord(os.urandom(1)) % len(chars)]
+    return password
+
+def is_oc_user(user_obj):
+    if OmnyCommUser.objects.filter(username=user_obj.username).exists():
+        return True
+    return False
 
 def bulk_update_dealshub_product_price_or_stock(oc_uuid,path,filename, location_group_obj, update_type):
     try:
@@ -2760,4 +2772,3 @@ def convert_django_object_to_object(model_name,django_object):
             pass
     return result
 
-# url : http://127.0.0.1:8000/dealshub/unpublish-dealshub-product/ Authorization : JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6ImpheWRhdmUxIiwiZXhwIjoxNjMyMTI4Nzc5LCJlbWFpbCI6IiJ9.y3duuuDA7aUU3IXQDHhb1AZ6nlxXgkhp80zQ0VHQ3ps request parameters : { "product_uuid":"789-7946-45488"}

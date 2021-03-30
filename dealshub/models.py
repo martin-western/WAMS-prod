@@ -5,11 +5,13 @@ from django.utils import timezone
 import logging
 import json
 import uuid
+import threading
 
 from WAMSApp.models import *
 from dealshub.core_utils import *
 from WAMSApp.SAP_constants import *
 from django.core.cache import cache
+from dealshub.algolia.utils import *
 
 logger = logging.getLogger(__name__)
 
@@ -357,7 +359,7 @@ class DealsHubProduct(models.Model):
             return 0
         return self.now_price
 
-    def get_was_price(self,dealshub_user_obj):
+    def get_was_price(self,dealshub_user_obj=None):
         if self.location_group.is_b2b==True:
             if dealshub_user_obj == None:
                 return 0
@@ -557,7 +559,15 @@ class DealsHubProduct(models.Model):
                 self.url = url
             except Exception as e:
                 pass
-        
+
+        try:
+            logger.info("Update DealsHubProduct to Index: %s",str(self))
+            p1 = threading.Thread(target = add_product_to_index, args=(self,))
+            p1.start()
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
+
         super(DealsHubProduct, self).save(*args, **kwargs)
 
 
@@ -704,6 +714,18 @@ class CustomProductUnitBanner(models.Model):
         verbose_name_plural = "Custom ProductUnitBanners"
 
 
+class AddressManager(models.Manager):
+    
+    def get_queryset(self):
+        return super(AddressManager, self).get_queryset().exclude(is_deleted=True)
+
+
+class AddressRecoveryManager(models.Manager):
+
+    def get_queryset(self):
+        return super(AddressRecoveryManager, self).get_queryset()
+
+
 class Address(models.Model):
 
     MR, MISS, MRS, MS, DR = ('Mr', 'Miss', 'Mrs', 'Ms', 'Dr')
@@ -735,6 +757,9 @@ class Address(models.Model):
 
     is_shipping = models.BooleanField(default=True)
     is_billing = models.BooleanField(default=True)
+
+    objects = AddressManager()
+    recovery = AddressRecoveryManager()
 
     is_deleted = models.BooleanField(default=False)
 
@@ -1546,7 +1571,7 @@ class B2BUser(DealsHubUser):
     vat_certificate_status = models.CharField(max_length=30, choices=STATUS_OPTIONS,default='Pending')
     trade_license_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
     passport_copy_status = models.CharField(max_length=30, choices=STATUS_OPTIONS, default='Pending')
-    is_profile_approved = models.BooleanField(default=False)
+    is_signup_completed = models.BooleanField(default=False)
 
     cohort = models.CharField(max_length=50, default="",blank=True)
     conf = models.TextField(default = "{}")
