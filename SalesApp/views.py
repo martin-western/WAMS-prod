@@ -442,6 +442,11 @@ class CreateNotificationAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateNotificationAPI Restricted Access!")
+                return Response(data=response)
+
             title = data.get('title', "")
             subtitle = data.get('subtitle', "")
             body = data.get('body', "")
@@ -515,6 +520,11 @@ class GetNotificationDeatilsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("GetNotificationDeatilsAPI Restricted Access!")
+                return Response(data=response)
+
             notification_id = data.get('notification_id', "")
 
             if notification_id == "":
@@ -566,6 +576,11 @@ class UploadNotificationImageAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadNotificationImageAPI Restricted Access!")
+                return Response(data=response)
 
             notification_id = data.get('notification_id', "")
             image_url = data.get('image_url', "")
@@ -623,6 +638,11 @@ class DeleteNotificationImageAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteNotificationImageAPI Restricted Access!")
+                return Response(data=response)
+
             notification_id = data.get('notification_id', "")
 
             if notification_id == "":
@@ -670,6 +690,11 @@ class SaveNotificationAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveNotificationAPI Restricted Access!")
+                return Response(data=response)
 
             title = data.get('title', "")
             subtitle = data.get('subtitle', "")
@@ -731,6 +756,11 @@ class FetchNotificationListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchNotificationListAPI Restricted Access!")
+                return Response(data=response)
 
             page = int(data.get('page', 1))
 
@@ -802,6 +832,11 @@ class SendNotificationAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SendNotificationAPI Restricted Access!")
+                return Response(data=response)
 
             notification_id = data.get('notification_id', "")
 
@@ -965,6 +1000,11 @@ class FetchNotificationListForAdminAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchNotificationListAPI Restricted Access!")
+                return Response(data=response)
 
             page = int(data.get('page', 1))
 
@@ -1232,6 +1272,11 @@ class FetchCategoriesForSalesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchCategoriesForSalesAPI Restricted Access!")
+                return Response(data=response)
+
             page = int(data.get('page', 1))
             has_image = data.get("has_image", None)
             search_list = data.get("tags",[])
@@ -1308,6 +1353,11 @@ class UploadCategorySalesImageAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadCategorySalesImageAPI Restricted Access!")
+                return Response(data=response)
 
             category_uuid = data["category_uuid"]
             image_type = data.get("image_type", "")

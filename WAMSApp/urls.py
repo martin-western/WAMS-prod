@@ -170,6 +170,12 @@ urlpatterns = [
     url(r'^admin/add-new-admin-sub-category/$', views.AddNewAdminSubCategory),
 
     url(r'^secure-delete-product/$',views.SecureDeleteProduct),
+    url(r'^fetch-omnycomm-user-list/$',views.FetchOmnyCommUserList),
+    url(r'^fetch-omnycomm-user-details/$',views.FetchOmnyCommUserDetails),
+    url(r'^create-omnycomm-user/$',views.CreateOmnyCommUser),
+    url(r'^save-omnycomm-user-details/$',views.SaveOmnyCommUserDetails),
+    url(r'^save-omnycomm-user-permissions/$',views.SaveOmnyCommUserPermissions),
+    url(r'^reset-omnycomm-user-password/$',views.ResetOmnyCommUserPassword),
     url(r'^logout-ocuser/$',views.LogoutOCUser),
 
     url(r'^create-nesto-product/$',views.CreateNestoProduct),
@@ -184,5 +190,7 @@ urlpatterns = [
     url(r'^unlink-nesto-product/$',views.UnLinkNestoProduct),
     url(r'^fetch-nesto-brands/$', views.FetchNestoBrands),
     url(r'^bulk-upload-nesto-products/$', views.BulkUploadNestoProducts),
+
+    url(r'^unpublished-wigme-product-report/$', views.UnPublishedWIGmeProductReport),
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -389,6 +389,13 @@ class DeleteShippingAddressAPI(APIView):
             uuid = data["uuid"]
 
             address_obj = Address.objects.get(uuid=uuid)
+            dealshub_user_obj = address_obj.user
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj)
+
+            if cart_obj.shipping_address != None and cart_obj.shipping_address.pk == address_obj.pk:
+                cart_obj.shipping_address = None
+                cart_obj.save()
+
             address_obj.is_deleted = True
             address_obj.save()
 
@@ -2188,6 +2195,11 @@ class FetchOrderListAdminAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOrderListAdminAPI Restricted Access!")
+                return Response(data=response)
+
             page = data.get("page", 1)
             location_group_uuid = data["locationGroupUuid"]
 
@@ -2377,6 +2389,12 @@ class FetchOrderVersionDetailsAPI(APIView):
             logger.info("FetchOrderVersionDetails: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOrderVersionDetailsAPI Restricted Access!")
+                return Response(data=response)
+
             order_uuid = data["uuid"]
             order_obj = Order.objects.get(uuid=order_uuid)
             version_order_list = []
@@ -2471,6 +2489,11 @@ class CreateOfflineCustomerAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateOfflineCustomerAPI Restricted Access!")
+                return Response(data=response)
+
             contact_number = data["contact_number"]
             location_group_uuid = data["locationGroupUuid"]
             first_name = data["first_name"]
@@ -2528,6 +2551,11 @@ class UpdateOfflineUserProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateOfflineUserProfileAPI Restricted Access!")
+                return Response(data=response)
+
             username = data["username"]
             email_id = data["emailId"]
             first_name = data["firstName"]
@@ -2570,6 +2598,11 @@ class SearchCustomerAutocompleteAPI(APIView):
             data = request.data
             logger.info("SearchCustomerAutocompleteAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SearchCustomerAutocompleteAPI Restricted Access!")
+                return Response(data=response)
+
             search_string = data["searchString"]
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -2611,6 +2644,11 @@ class FetchOfflineUserProfileAPI(APIView):
             logger.info("FetchOfflineUserProfileAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOfflineUserProfileAPI Restricted Access!")
+                return Response(data=response)
 
             username = data["username"]
 
@@ -2724,6 +2762,11 @@ class FetchCustomerListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchCustomerListAPI Restricted Access!")
+                return Response(data=response)
+
             search_list = data.get("search_list", [])
 
             location_group_uuid = data["locationGroupUuid"]
@@ -2823,6 +2866,11 @@ class FetchCustomerDetailsAPI(APIView):
             logger.info("FetchCustomerDetailsAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchCustomerDetailsAPI Restricted Access!")
+                return Response(data=response)
 
             username = data["username"]
 
@@ -2982,6 +3030,11 @@ class UpdateB2BCustomerStatusAPI(APIView):
         try:
             data = request.data
             logger.info("UpdateB2BCustomerStatusAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateB2BCustomerStatusAPI Restricted Access!")
+                return Response(data=response)
 
             username = data["username"]
 
@@ -3874,7 +3927,11 @@ class SendB2BOTPSMSLoginAPI(APIView):
 
             otp_sent = False
             username = contact_number + "-" + website_group_name
-            if B2BUser.objects.filter(username = username).exists() == True and B2BUser.objects.get(username = username).contact_verified == True:
+            b2b_user_obj = None
+            if B2BUser.objects.filter(username = username).exists() == True:
+                b2b_user_obj = B2BUser.objects.get(username=username)
+
+            if b2b_user_obj != None and b2b_user_obj.contact_verified == True and b2b_user_obj.is_signup_completed == True:
                 b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.verification_code = OTP
@@ -3944,7 +4001,12 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                 OTP = "777777"
 
             is_new_user = False
-            if B2BUser.objects.filter(username = contact_number + "-" + website_group_name).exists() == False:
+            username = contact_number + "-" + website_group_name
+            b2b_user_obj = None
+            if B2BUser.objects.filter(username = username).exists() == True:
+                b2b_user_obj = B2BUser.objects.get(username=username)
+
+            if b2b_user_obj == None:
                 b2b_user_obj = B2BUser.objects.create(
                     username = contact_number+"-"+website_group_name,
                     contact_number = contact_number,
@@ -3954,7 +4016,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.save()
                 is_new_user =True
-            elif B2BUser.objects.get(username=contact_number + "-" + website_group_name).contact_verified == False:
+            elif b2b_user_obj.contact_verified == False or b2b_user_obj.is_signup_completed == False:
                 b2b_user_obj = B2BUser.objects.get(username = contact_number+ "-"+ website_group_name)
                 b2b_user_obj.verification_code = OTP
                 b2b_user_obj.set_password(OTP)
@@ -4089,6 +4151,7 @@ class SignUpCompletionAPI(APIView):
                 conf["isVerifiedShown"] =False
                 b2b_user_obj.conf = json.dumps(conf)
 
+                b2b_user_obj.is_signup_completed = True
                 b2b_user_obj.save()
 
             credentials = {
@@ -4676,6 +4739,11 @@ class AddFakeReviewAdminAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddFakeReviewAdminAPI Restricted Access!")
+                return Response(data=response)
+
             product_code = str(data["product_code"])
             fake_customer_name = data["customerName"]
             rating = int(data["rating"])
@@ -4725,6 +4793,11 @@ class UpdateReviewAdminAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateReviewAdminAPI Restricted Access!")
+                return Response(data=response)
 
             review_uuid = str(data["review_uuid"])
             fake_customer_name = data.get("customerName","")
@@ -4852,6 +4925,11 @@ class AddAdminCommentAPI(APIView):
             data = request.data
             logger.info("AddAdminCommentAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddAdminCommentAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = str(data["uuid"])
             comment = str(data["comment"])
 
@@ -4909,6 +4987,12 @@ class UpdateAdminCommentAPI(APIView):
         try:
             data = request.data
             logger.info("UpdateAdminCommentAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateAdminCommentAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = str(data["admin_comment_uuid"])
             comment = str(data["comment"])
 
@@ -5046,6 +5130,11 @@ class FetchReviewsAdminAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchReviewsAdminAPI Restricted Access!")
+                return Response(data=response)
 
             product_code = data.get("product_code","")
             from_date = data.get("from_date","")
@@ -5328,6 +5417,11 @@ class DeleteAdminReviewImageAPI(APIView):
 
             data = request.data
             logger.info("DeleteAdminReviewImageAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteAdminReviewImageAPI Restricted Access!")
+                return Response(data=response)
             
             image_uuid = int(data["image_uuid"])
             review_uuid = data["review_uuid"]
@@ -5389,6 +5483,11 @@ class HideReviewAdminAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("HideReviewAdminAPI Restricted Access!")
+                return Response(data=response)
+
             review_uuid = data["review_uuid"]
 
             review_obj = Review.objects.get(uuid=review_uuid)
@@ -5420,6 +5519,11 @@ class UpdateReviewPublishStatusAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateReviewPublishStatusAPI Restricted Access!")
+                return Response(data=response)
+
             review_uuid = data["review_uuid"]
             is_published = data["is_published"]
 
@@ -5449,6 +5553,11 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
 
             if not isinstance(data,dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchSalesExecutiveAnalysisAPI Restricted Access!")
+                return Response(data=response)
             
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
             misc = json.loads(custom_permission_obj.misc)
@@ -5591,6 +5700,11 @@ class FetchOrderSalesAnalyticsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOrderSalesAnalyticsAPI Restricted Access!")
+                return Response(data=response)
 
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
             misc = json.loads(custom_permission_obj.misc)
@@ -5740,6 +5854,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOrdersForWarehouseManagerAPI Restricted Access!")
+                return Response(data=response)
 
             from_date = data.get("fromDate", "")
             to_date = data.get("toDate", "")
@@ -6071,6 +6190,11 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOrderRequestsForWarehouseManagerAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
             request_status = data.get("requestStatus","")
 
@@ -6222,6 +6346,11 @@ class FetchShippingMethodAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchShippingMethodAPI Restricted Access!")
+                return Response(data=response)
             
             shipping_methods = ["WIG Fleet", "P-Plus"]
 
@@ -6247,6 +6376,11 @@ class SetShippingMethodAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SetShippingMethodAPI Restricted Access!")
+                return Response(data=response)
 
             shipping_method = data["shippingMethod"]
             unit_order_uuid_list = data["unitOrderUuidList"]
@@ -6517,6 +6651,11 @@ class ResendSAPOrderAPI(APIView):
             data = request.data
             logger.info("ResendSAPOrderAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("ResendSAPOrderAPI Restricted Access!")
+                return Response(data=response)
+
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -6707,6 +6846,11 @@ class UpdateManualOrderAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateManualOrderAPI Restricted Access!")
+                return Response(data=response)
+
             order_uuid = data["orderUuid"]
 
             order_obj = Order.objects.get(uuid=order_uuid)
@@ -6740,6 +6884,11 @@ class SetOrdersStatusAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SetOrdersStatusAPI Restricted Access!")
+                return Response(data=response)
 
             order_status = data["orderStatus"]
             unit_order_uuid_list = data["unitOrderUuidList"]
@@ -6783,6 +6932,11 @@ class SetOrdersStatusBulkAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SetOrdersStatusBulkAPI Restricted Access!")
+                return Response(data=response)
 
             order_status = data["orderStatus"]
             order_uuid_list = data["orderUuidList"]
@@ -6862,6 +7016,11 @@ class SetCallStatusAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SetCallStatusAPI Restricted Access!")
+                return Response(data=response)
+
             updated_call_status = data["call_status"]
             order_uuid  = data["orderUuid"]
 
@@ -6902,6 +7061,11 @@ class FetchOCSalesPersonsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOCSalesPersonsAPI Restricted Access!")
+                return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
             is_sales_executive = data.get("is_sales_executive",False)
@@ -6948,6 +7112,11 @@ class CancelOrdersAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CancelOrdersAPI Restricted Access!")
+                return Response(data=response)
+
             unit_order_uuid_list = data["unitOrderUuidList"]
             cancelling_note = data["cancellingNote"]
 
@@ -6992,6 +7161,11 @@ class ApproveCancellationRequestAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("ApproveCancellationRequestAPI Restricted Access!")
+                return Response(data=response)
 
             unit_order_uuid_list = data["unit_order_uuid_list"]
 
@@ -7039,6 +7213,11 @@ class RejectCancellationRequestAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("RejectCancellationRequestAPI Restricted Access!")
+                return Response(data=response)
+
             unit_order_uuid_list = data["unit_order_uuid_list"]
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
@@ -7070,6 +7249,11 @@ class UpdateCancellationRequestRefundStatusAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateCancellationRequestRefundStatusAPI Restricted Access!")
+                return Response(data=response)
+
             unit_order_uuid = data["unit_order_uuid"]
 
             unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
@@ -7100,6 +7284,11 @@ class DownloadOrdersAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DownloadOrdersAPI Restricted Access!")
+                return Response(data=response)
 
             from_date = data.get("fromDate", "")
             to_date = data.get("toDate", "")
@@ -7226,6 +7415,11 @@ class UploadOrdersAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadOrdersAPI Restricted Access!")
+                return Response(data=response)
             
             path = default_storage.save('tmp/temp-orders.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
@@ -7560,6 +7754,11 @@ class ApplyOfflineVoucherCodeAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("ApplyOfflineVoucherCodeAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -7662,6 +7861,11 @@ class RemoveOfflineVoucherCodeAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("RemoveOfflineVoucherCodeAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -7735,6 +7939,11 @@ class AddOfflineReferenceMediumAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddOfflineReferenceMediumAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
             username = data["username"]
@@ -7802,6 +8011,11 @@ class AddOfflineAdditionalNoteAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddOfflineAdditionalNoteAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
             username = data["username"]
@@ -8057,18 +8271,15 @@ class PlaceOnlineOrderAPI(APIView):
 
             if online_payment_mode.strip().lower()=="spotii":
                 if on_approve_capture_order(merchant_reference)==False:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH!")
                     return Response(data=response)
             elif online_payment_mode.strip().lower()=="tap":
                 if get_charge_status(data["charge_id"])!="CAPTURED":
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PlaceOnlineOrderAPI: TAP STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("PlaceOnlineOrderAPI: TAP STATUS MISMATCH!")
                     return Response(data=response)
             else:
                 if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")
                     return Response(data=response)
             
 
@@ -8248,6 +8459,11 @@ class FetchPostaPlusTrackingAPI(APIView):
             logger.info("FetchPostaPlusTrackingAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchPostaPlusTrackingAPI Restricted Access!")
+                return Response(data=response)
 
             order_uuid = data["uuid"]
 

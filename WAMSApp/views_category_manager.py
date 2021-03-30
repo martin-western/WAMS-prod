@@ -310,6 +310,11 @@ class UpdateAdminCategoryDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateAdminCategoryDetailsAPI Restricted Access!")
+                return Response(data=response)
+
             category_uuid = data["category_uuid"]
             name = data.get("name","")
             image = data.get("image",None)
