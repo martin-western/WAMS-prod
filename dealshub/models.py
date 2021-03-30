@@ -523,7 +523,7 @@ class DealsHubProduct(models.Model):
         index = client.init_index('DealsHubProduct')
         
         try:
-            #logger.info("add_product_to_index: %s", str(self.__dict__))
+            logger.info("add_product_to_index: %s", str(self.__dict__))
             dealshub_product_dict = {}
             dealshub_product_dict["locationGroup"] = self.location_group.uuid
             dealshub_product_dict["objectID"] = self.uuid
@@ -538,6 +538,7 @@ class DealsHubProduct(models.Model):
             dealshub_product_dict["stock"] = self.stock
             
             index.save_objects(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
+            logger.info("This is done!!!!!")
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
