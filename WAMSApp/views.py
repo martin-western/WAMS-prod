@@ -7625,7 +7625,6 @@ class FetchOmnyCommUserDetailsAPI(APIView):
             for brand_obj in custom_permission_obj.brands.all():
                 temp_dict = {}
                 temp_dict["name"] = brand_obj.name
-                temp_dict["uuid"] = brand_obj.uuid
                 brand_list.append(temp_dict)
             response["brand_list"] = brand_list
             response["sap_functions"] = json.loads(custom_permission_obj.sap_functions)
@@ -7765,7 +7764,7 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
             
             username = data["username"]
             location_group_uuid_list = data["LocationGroupUuidList"]
-            brand_uuid_list = data["brandUuidList"]
+            brand_name_list = data["brandNameList"]
             sap_functions = data["sap_functions"]
             price = data["price"]
             stock = data["stock"]
@@ -7781,8 +7780,8 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 custom_permission_obj.location_groups.add(location_group_obj)
 
-            for brand_uuid in brand_uuid_list:
-                brand_obj = Brand.objects.get(uuid=brand_uuid)
+            for brand_name in brand_name_list:
+                brand_obj = Brand.objects.get(name=brand_name)
                 custom_permission_obj.brands.add(brand_obj)
             
             custom_permission_obj.sap_functions = json.dumps(sap_functions)
