@@ -359,7 +359,7 @@ class DealsHubProduct(models.Model):
             return 0
         return self.now_price
 
-    def get_was_price(self,dealshub_user_obj):
+    def get_was_price(self,dealshub_user_obj=None):
         if self.location_group.is_b2b==True:
             if dealshub_user_obj == None:
                 return 0
