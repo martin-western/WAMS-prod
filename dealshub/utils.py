@@ -1233,7 +1233,6 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
 
     for dealshub_product_obj in dealshub_product_objs:
         try:
-            logger.info("In here!!")
             if dealshub_product_obj.now_price==0:
                 continue
             temp_dict = {}
@@ -1251,7 +1250,6 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
             temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
             product_promotion_details = get_product_promotion_details(dealshub_product_obj)
             for key in product_promotion_details.keys():
-                logger.info("In here 22!!")
                 temp_dict[key]=product_promotion_details[key]
             temp_dict["currency"] = dealshub_product_obj.get_currency()
             temp_dict["uuid"] = dealshub_product_obj.uuid
@@ -1263,5 +1261,4 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("get_dealshub_product_details: %s at %s", e, str(exc_tb.tb_lineno))
 
-    logger.info("Out here 22!!")
     return products
