@@ -7681,7 +7681,7 @@ class CreateOmnyCommUserAPI(APIView):
                 return Response(data=response)
             
             website_group_obj = WebsiteGroup.objects.get(name="shopnesto") 
-            omnycomm_user_obj = OmnycommUser.objects.create(username=username,
+            omnycomm_user_obj = OmnyCommUser.objects.create(username=username,
                                                         password=password,
                                                         first_name=first_name,
                                                         last_name=last_name,
