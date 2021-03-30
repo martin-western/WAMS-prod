@@ -7198,15 +7198,15 @@ class SecureDeleteProductAPI(APIView):
 
             product_obj.is_deleted = True
             product_obj.save()
-            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            activitylog(user=request.user,table_name=Product,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
 
             dealshub_product_objs.update(is_deleted=True)
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance_dealshub_product,current_instance=dealshub_product_objs,table_item_pk=dealshub_product_objs.pk,render='')
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance_dealshub_product,current_instance=dealshub_product_objs,table_item_pk=dealshub_product_objs.pk,render='')
 
             if Product.objects.filter(base_product=base_product_obj).exists()==False:
                 base_product_obj.is_deleted = True
                 base_product_obj.save()
-                activitylog(user=request.user,table_name=BaseProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance_base_product,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
+                activitylog(user=request.user,table_name=BaseProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance_base_product,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
 
 
             response["status"] = 200
