@@ -39,7 +39,7 @@ from WAMSApp.views_nesto import *
 from PIL import Image as IMage
 from io import BytesIO as StringIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
-
+from copy import deepcopy
 import barcode
 from barcode.writer import ImageWriter
 
@@ -177,8 +177,8 @@ class CreateNewBaseProductAPI(APIView):
                                               manufacturer=manufacturer,
                                               manufacturer_part_number=manufacturer_part_number,
                                               dimensions=base_dimensions)
-            
-            activitylog(user=request.user,table_name=BaseProduct,action_type='create',location_group_obj=None,prev_instance={},current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
+            render_value = 'BaseProduct {} is created'.format(product_name)
+            activitylog(user=request.user,table_name=BaseProduct,action_type='created',location_group_obj=None,prev_instance=None,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render=render_value)
             
             dynamic_form_attributes = {}
             
@@ -195,13 +195,15 @@ class CreateNewBaseProductAPI(APIView):
                 pass
 
             product_obj = Product.objects.create(product_name=product_name, base_product=base_product_obj, dynamic_form_attributes=json.dumps(dynamic_form_attributes))
-            activitylog(user=request.user,table_name=Product,action_type='create',location_group_obj=None,prev_instance={},current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            render_value = 'Product {} is created'.format(product_name)
+            activitylog(user=request.user,table_name=Product,action_type='created',location_group_obj=None,prev_instance=None,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
 
 
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
                 dealshub_product_obj = DealsHubProduct.objects.create(product_name=product_obj.product_name, product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
-                activitylog(user=request.user,table_name=DealsHubProduct,action_type='create',location_group_obj=location_group_obj,prev_instance={},current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render='')
+                render_value = 'DealsHubProduct {} is created'.format(dealshub_product_obj.product_name)
+                activitylog(user=request.user,table_name=DealsHubProduct,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render=render_value)
             response["product_pk"] = product_obj.pk
             response['status'] = 200
 
@@ -275,12 +277,13 @@ class CreateNewProductAPI(APIView):
                                             pfl_product_name=product_name,
                                             base_product=base_product_obj,
                                             dynamic_form_attributes=json.dumps(dynamic_form_attributes))
-
-            activitylog(user=request.user,table_name=Product,action_type='create',location_group_obj=None,prev_instance={},current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            render_value = 'Product {} is created'.format(product_obj.product_name)
+            activitylog(user=request.user,table_name=Product,action_type='created',location_group_obj=None,prev_instance=None,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
                 dealshub_product_obj = DealsHubProduct.objects.create(product_name=product_obj.product_name, product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
-                activitylog(user=request.user,table_name=DealsHubProduct,action_type='create',location_group_obj=location_group_obj,prev_instance={},current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render='')
+                render_value = 'DealsHubProduct {} is created'.format(dealshub_product_obj.product_name)
+                activitylog(user=request.user,table_name=DealsHubProduct,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render=render_value)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -1166,7 +1169,7 @@ class UpdateDealshubProductAPI(APIView):
             product_uuid = data["product_uuid"]
 
             dh_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
-            prev_instance = dh_product_obj
+            prev_instance = deepcopy(dh_product_obj)
 
             price_permission = custom_permission_price(request.user, "dealshub")
             stock_permission = custom_permission_stock(request.user, "dealshub")
@@ -1197,7 +1200,8 @@ class UpdateDealshubProductAPI(APIView):
                     dh_product_obj.stock = stock
 
             dh_product_obj.save()
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.pk,render='')
+            render_value = 'DealsHubProduct {} is updated'.format(dealshub_product_obj.product_name)
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.pk,render=render_value)
             
 
             response['status'] = 200
@@ -1253,7 +1257,8 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,filename,location_group_obj,"price",))
             p1.start()
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
 
             response['status'] = 200
             response['approved'] = True
@@ -1308,7 +1313,8 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_price , args=(oc_report_obj.uuid,path,filename,location_group_obj))
             p1.start()
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
 
             response['status'] = 200
 
@@ -1363,7 +1369,8 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_moq , args=(oc_report_obj.uuid,path,filename,location_group_obj,))
             p1.start()
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
 
             
             response['status'] = 200
@@ -1419,7 +1426,8 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path,filename, location_group_obj, "stock",))
             p1.start()
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
 
             response['status'] = 200
             response['approved'] = True
@@ -1471,10 +1479,14 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                     is_published = True if is_published_str=="true" else False
 
                     dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                    prev_instance = dh_product_obj
+                    prev_instance = deepcopy(dh_product_obj)
                     dh_product_obj.is_published = is_published
                     dh_product_obj.save()
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.pk,render='')
+                    if is_published ==True:
+                        render_value = 'DealsHubProduct {} is published'.format(dh_product_obj.product_name)
+                    else:
+                        render_value = 'DealsHubProduct {} is not published'.format(dh_product_obj.product_name)
+                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.pk,render=render_value)
 
 
                 except Exception as e:
@@ -1531,7 +1543,7 @@ class SaveBaseProductAPI(APIView):
                 return Response(data=response)
 
             base_product_obj = BaseProduct.objects.get(pk=int(data["base_product_pk"]))
-            prev_instance = base_product_obj
+            prev_instance = deepcopy(base_product_obj)
             base_product_name = convert_to_ascii(data["base_product_name"])
             seller_sku = convert_to_ascii(data["seller_sku"])
             brand_name = convert_to_ascii(data["brand_name"])
@@ -1580,8 +1592,8 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.category = category_obj
             base_product_obj.sub_category = sub_category_obj
             base_product_obj.dimensions = dimensions
-            
-            activitylog(user=request.user,table_name=BaseProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
+            render_value = 'BaseProduct {} is updated'.format(base_product_obj.base_product_name)
+            activitylog(user=request.user,table_name=BaseProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render=render_value)
             
             base_product_obj.save()
 
@@ -1638,7 +1650,7 @@ class SaveProductAPI(APIView):
             product_id = data["product_id"]
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
-            prev_instance = product_obj
+            prev_instance = deepcopy(product_obj)
 
             if product_obj.locked:
                 logger.warning("SaveProductAPI Restricted Access - Locked!")
@@ -1765,8 +1777,8 @@ class SaveProductAPI(APIView):
 
                 product_obj.atp_threshold = atp_threshold
                 product_obj.holding_threshold = holding_threshold
-            
-            activitylog(user=request.user,table_name=Product,action_type='create',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            render_value = 'Product {} is updated'.format(product_obj.product_name)
+            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
             
 
             product_obj.save()
@@ -2109,32 +2121,38 @@ class AddToExportAPI(APIView):
                 
                 if export_option == "New":
                     export_obj = ExportList.objects.create(title=str(export_title), user=request.user)
+                    prev_instance = None
 
                 else:
                     export_obj = ExportList.objects.get(pk=int(export_title_pk))
+                    prev_instance = deepcopy(export_obj)
 
                 for product_obj in search_list_product_objs:
                     export_obj.products.add(product_obj)
                     export_obj.channel = channel_obj
                     export_obj.save()
-                activitylog(user=request.user,table_name=ExportList,action_type='create',location_group_obj=None,prev_instance=None,current_instance=export_obj,table_item_pk=export_obj.pk,render='')
-            
+                render_value = 'Products are added in ExportList'
+                activitylog(user=request.user,table_name=ExportList,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=export_obj,table_item_pk=export_obj.pk,render=render_value)
+                    
 
             
             else:
                 export_obj = None
                 if export_option == "New":
                     export_obj = ExportList.objects.create(title=str(export_title), user=request.user)
+                    prev_instance = None
                 else:
                     export_obj = ExportList.objects.get(pk=int(export_title_pk))
+                    prev_instance = deepcopy(export_obj)
 
                 for product_pk in products:
                     product = Product.objects.get(pk=int(product_pk))
                     export_obj.products.add(product)
                     export_obj.channel = channel_obj
                     export_obj.save()
-                activitylog(user=request.user,table_name=ExportList,action_type='create',location_group_obj=None,prev_instance=None,current_instance=export_obj,table_item_pk=export_obj.pk,render='')
-            
+                render_value = 'Products are added in ExportList'
+                activitylog(user=request.user,table_name=ExportList,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=export_obj,table_item_pk=export_obj.pk,render=render_value)
+               
 
 
             response['status'] = 200
@@ -2404,7 +2422,7 @@ class UploadProductImageAPI(APIView):
                 data = json.loads(data)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
-            prev_instance = product_obj
+            prev_instance = deepcopy(product_obj)
 
             if product_obj.locked:
                 logger.warning("UploadProductImageAPI Restricted Access - Locked!")
@@ -2416,7 +2434,8 @@ class UploadProductImageAPI(APIView):
             image_count = int(data["image_count"])
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
-                activitylog(user=request.user,table_name=Image,action_type='create',location_group_obj=None,prev_instance=None,current_instance=image_obj,table_item_pk=image_obj.pk,render='')
+                render_value = 'Image {} is created'.format(image_obj)
+                activitylog(user=request.user,table_name=Image,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_obj,table_item_pk=image_obj.pk,render=render_value)
                 image_objs.append(image_obj)
 
             if data["image_category"] == "main_images":
@@ -2424,15 +2443,22 @@ class UploadProductImageAPI(APIView):
                 for image_obj in image_objs:
                     image_bucket_obj = ImageBucket.objects.create(
                         image=image_obj)
-                    activitylog(user=request.user,table_name=ImageBucket,action_type='create',location_group_obj=None,prev_instance=None,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render='')
+                    render_value = 'ImageBucket is created'
+                    activitylog(user=request.user,table_name=ImageBucket,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render=render_value)
                         
                     product_obj.no_of_images_for_filter += 1
 
                     if data["channel_name"] == "" or data["channel_name"] == None:
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
-                        activitylog(user=request.user,table_name=MainImages,action_type='create',location_group_obj=None,prev_instance=None,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render='')
+                        prev_instance = deepcopy(main_images_obj)
                         main_images_obj.main_images.add(image_bucket_obj)
                         main_images_obj.save()
+                        if created:
+                            render_value = 'MainImages {} is created'.format(main_images_obj)
+                            activitylog(user=request.user,table_name=MainImages,action_type='created',location_group_obj=None,prev_instance=None,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render=render_value)
+                        else:
+                            render_value = 'MainImages {} is updated'.format(main_images_obj)
+                            activitylog(user=request.user,table_name=MainImages,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render=render_value)
 
                         if main_images_obj.main_images.all().count() == image_count:
                             image_bucket_obj = main_images_obj.main_images.all()[0]
@@ -2451,9 +2477,15 @@ class UploadProductImageAPI(APIView):
                     else:
                         channel_obj = Channel.objects.get(name=data["channel_name"])
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                        prev_instance = deepcopy(main_images_obj)
                         main_images_obj.main_images.add(image_bucket_obj)
                         main_images_obj.save()
-                        activitylog(user=request.user,table_name=MainImages,action_type='create',location_group_obj=None,prev_instance=None,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render='')
+                        if created:
+                            render_value = 'MainImages {} is created'.format(main_images_obj)
+                            activitylog(user=request.user,table_name=MainImages,action_type='created',location_group_obj=None,prev_instance=None,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render=render_value)
+                        else:
+                            render_value = 'MainImages {} is updated'.format(main_images_obj)
+                            activitylog(user=request.user,table_name=MainImages,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render=render_value)
                         
 
             elif data["image_category"] == "sub_images":
@@ -2463,7 +2495,11 @@ class UploadProductImageAPI(APIView):
                 else:
                     channel_obj = Channel.objects.get(name=data["channel_name"])
                     sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,channel=channel_obj)
-                                
+                if created:
+                    prev_instance = None
+                else:
+                    prev_instance = deepcopy(sub_images_obj)
+
                 sub_images = sub_images_obj.sub_images.all().order_by('-sub_image_index')
                 if sub_images.count() > 0:
                     index = sub_images[0].sub_image_index
@@ -2478,10 +2514,17 @@ class UploadProductImageAPI(APIView):
                     image_bucket_obj = ImageBucket.objects.create(image=image_obj,
                                                                   is_sub_image=is_sub_image,
                                                                   sub_image_index=sub_image_index)
-                    activitylog(user=request.user,table_name=ImageBucket,action_type='create',location_group_obj=None,prev_instance=None,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render='')
+                    render_value = 'ImageBucket is created'
+                    activitylog(user=request.user,table_name=ImageBucket,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render=render_value)
                     sub_images_obj.sub_images.add(image_bucket_obj)
                     sub_images_obj.save()
-                    activitylog(user=request.user,table_name=SubImages,action_type='create',location_group_obj=None,prev_instance=None,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render='')
+                    if created:
+                        render_value = 'subimage is created'
+                        activitylog(user=request.user,table_name=SubImages,action_type='created',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
+                    else:
+                        render_value = 'subimage is updated'
+                        activitylog(user=request.user,table_name=SubImages,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
+
 
             
             elif data["image_category"] == "pfl_images":
@@ -2526,11 +2569,9 @@ class UploadProductImageAPI(APIView):
                         continue
                     number += 1
                     ProductImage.objects.create(image=image_obj, product=product_obj, number=number)
-                    
-            activitylog(user=request.user,table_name=Product,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
-            product_obj.save()
-
-
+                    product_obj.save()
+                    render_value = "In product {} images are added".format(product_obj.product_name)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -2571,17 +2612,19 @@ class UpdateMainImageAPI(APIView):
 
             image_bucket_obj = ImageBucket.objects.get(
                 pk=int(data["checked_pk"]))
-            prev_instance = image_bucket_obj
+            prev_instance = deepcopy(image_bucket_obj)
             image_bucket_obj.is_main_image = True
-            activitylog(user=request.user,table_name=ImageBucket,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render='')
+            render_value = 'ImageBucket is set as main image.'
+            activitylog(user=request.user,table_name=ImageBucket,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render=render_value)
             image_bucket_obj.save()
 
             try:
                 pfl_obj = PFL.objects.filter(product=product_obj)[0]
-                prev_instance = pfl_obj
+                prev_instance = deepcopy(pfl_obj)
                 if pfl_obj.product_image == None:
                     pfl_obj.product_image = image_bucket_obj.image
-                    activitylog(user=request.user,table_name=PFL,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=pfl_obj,table_item_pk=pfl_obj.pk,render='')
+                    render_value = 'pfl image is updated'
+                    activitylog(user=request.user,table_name=PFL,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=pfl_obj,table_item_pk=pfl_obj.pk,render=render_value)
                     pfl_obj.save()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2630,16 +2673,19 @@ class UpdateSubImagesAPI(APIView):
             for sub_image in sub_images:
                 sub_image_obj = ImageBucket.objects.get(
                     pk=int(sub_image["pk"]))
-                prev_instance = sub_image_obj
+                prev_instance = deepcopy(sub_image_obj)
                 if sub_image["sub_image_index"] != "" and sub_image["sub_image_index"] != "0":
                     sub_image_obj.sub_image_index = int(
                         sub_image["sub_image_index"])
                     sub_image_obj.is_sub_image = True
+                    render_value = 'ImageBucket is set as sub image.'
                 else:
                     sub_image_obj.sub_image_index = 0
                     sub_image_obj.is_sub_image = False
+                    render_value = 'ImageBucket is not set as sub image.'
                 sub_image_obj.save()
-                activitylog(user=request.user,table_name=ImageBucket,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_image_obj,table_item_pk=sub_image_obj.pk,render='')
+                
+                activitylog(user=request.user,table_name=ImageBucket,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_image_obj,table_item_pk=sub_image_obj.pk,render=render_value)
 
             response['status'] = 200
 
@@ -4257,14 +4303,15 @@ class VerifyProductAPI(APIView):
                 return Response(data=response)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
-            prev_instance = product_obj
+            prev_instance = deepcopy(product_obj)
             verify = data["verify"]
             product_obj.verified = verify
+            render_value = "Product {} is not verified".format(product_obj.product_name)
             if verify:
                 product_obj.partially_verified = verify
-
+                render_value = "Product {} is verified".format(product_obj.product_name)
             product_obj.save()
-            activitylog(user=request.user,table_name=Product,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
 
             response['status'] = 200
 
@@ -4346,7 +4393,8 @@ class CopyBestImagesAPI(APIView):
                     continue
                 number += 1
                 productimage_obj = ProductImage.objects.create(image=image_obj, product=product_obj, number=number)
-                activitylog(user=request.user,table_name=ProductImage,action_type='update',location_group_obj=None,prev_instance=None,current_instance=productimage_obj,table_item_pk=productimage_obj.pk,render='')
+                render_value = 'ProductImage {} is created'.format(productimage_obj.image)
+                activitylog(user=request.user,table_name=ProductImage,action_type='created',location_group_obj=None,prev_instance=None,current_instance=productimage_obj,table_item_pk=productimage_obj.pk,render=render_value)
 
 
             response['status'] = 200
@@ -4380,7 +4428,7 @@ class RemoveImageAPI(APIView):
             
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             image_pk = data["image_pk"]
-            prev_instance = product_obj
+            prev_instance = deepcopy(product_obj)
             print(Image.objects.first().pk)
             image_obj = Image.objects.get(pk=int(image_pk))
             # {"product_pk":1,"image_pk":1,"image_category":"pfl_images","locationGroupUuid":5466}
@@ -4405,12 +4453,16 @@ class RemoveImageAPI(APIView):
             elif data["image_category"] == "transparent_images":
                 product_obj.transparent_images.remove(image_obj)
             elif data["image_category"] == "best_images":
-                productimage_obj = ProductImage.objects.get(product=product_obj, image=image_obj).delete()
-                activitylog(user=request.user,table_name=ProductImage,action_type='delete',location_group_obj=None,prev_instance=None,current_instance=productimage_obj,table_item_pk=productimage_obj.pk,render='')            
+                productimage_obj = ProductImage.objects.get(product=product_obj, image=image_obj)
+                prev_productimage_instance = deepcopy(productimage_obj)
+                productimage_obj.delete()
+                render_value = 'Best images are deleted from product {}'.format(product_obj.product_name)
+                activitylog(user=request.user,table_name=ProductImage,action_type='deleted',location_group_obj=None,prev_instance=productimage_obj,current_instance=None,table_item_pk=productimage_obj.pk,render=render_value)            
 
                 
             product_obj.save()
-            activitylog(user=request.user,table_name=Product,action_type='delete',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')            
+            render_value = 'Images are removed from product {}'.format(product_obj.product_name)
+            activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)            
             response['status'] = 200
 
         except Exception as e:
@@ -4453,7 +4505,8 @@ class DeleteImageAPI(APIView):
 
             if image_type == "other":
                 image_obj = Image.objects.get(pk=int(image_pk))
-                activitylog(user=request.user,table_name=Image,action_type='delete',location_group_obj=None,prev_instance=image_obj,current_instance=None,table_item_pk=image_obj.pk,render='')
+                render_value = 'Image {} is deleted'.format(image_obj)
+                activitylog(user=request.user,table_name=Image,action_type='deleted',location_group_obj=None,prev_instance=image_obj,current_instance=None,table_item_pk=image_obj.pk,render=render_value)
                 image_obj.delete()
             elif image_type == "main":
                 main_images_obj = None
@@ -4463,10 +4516,11 @@ class DeleteImageAPI(APIView):
                     main_images_obj = MainImages.objects.get(product__pk=product_pk, channel__name=channel_name)
 
                 image_bucket_obj = ImageBucket.objects.get(pk=int(image_pk))
-                prev_instance = main_images_obj
+                prev_instance = deepcopy(main_images_obj)
                 main_images_obj.main_images.remove(image_bucket_obj)
                 main_images_obj.save()
-                activitylog(user=request.user,table_name=MainImages,action_type='delete',location_group_obj=None,prev_instance=prev_instance,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render='')
+                render_value = 'Image {} is removed from main image {}.'.format(image_bucket_obj,main_images_obj)
+                activitylog(user=request.user,table_name=MainImages,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render=render_value)
 
             elif image_type == "sub":
                 sub_images_obj = None
@@ -4476,10 +4530,11 @@ class DeleteImageAPI(APIView):
                     sub_images_obj = SubImages.objects.get(product__pk=product_pk, channel__name=channel_name)
 
                 image_bucket_obj = ImageBucket.objects.get(pk=int(image_pk))
-                prev_instance = sub_images_obj
+                prev_instance = deepcopy(sub_images_obj)
                 sub_images_obj.sub_images.remove(image_bucket_obj)
                 sub_images_obj.save()
-                activitylog(user=request.user,table_name=SubImages,action_type='delete',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render='')
+                render_value = 'Image {} is removed from sub image {}.'.format(image_bucket_obj,sub_images_obj)
+                activitylog(user=request.user,table_name=SubImages,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -4514,10 +4569,11 @@ class RemoveProductFromExportListAPI(APIView):
 
             export_obj = ExportList.objects.get(pk=export_pk)
             product_obj = Product.objects.get(pk=product_pk)
-            prev_instance = export_obj
+            prev_instance = deepcopy(export_obj)
             export_obj.products.remove(product_obj)
             export_obj.save()
-            activitylog(user=request.user,table_name=ExportList,action_type='delete',location_group_obj=None,prev_instance=prev_instance,current_instance=export_obj,table_item_pk=export_obj.pk,render='')
+            render_value = 'Product {} is removed from export list {}'.format(product_obj.product_name,export_obj.title)
+            activitylog(user=request.user,table_name=ExportList,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=export_obj,table_item_pk=export_obj.pk,render=render_value)
 
             response['status'] = 200
 
@@ -5009,14 +5065,15 @@ class EditUserProfileAPI(APIView):
             designation = data["designation"]
 
             omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)
-            prev_instance = omnycomm_user
+            prev_instance = deepcopy(omnycomm_user)
             omnycomm_user.first_name = first_name
             omnycomm_user.last_name = last_name
             omnycomm_user.contact_number = contact_number
             omnycomm_user.email = email
             omnycomm_user.designation = designation
             omnycomm_user.save()
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=omnycomm_user,table_item_pk=omnycomm_user.pk,render='')
+            render_value = 'User details updated.'
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=omnycomm_user,table_item_pk=omnycomm_user.pk,render=render_value)
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -5373,7 +5430,8 @@ class CreateRequestHelpAPI(APIView):
             page = data["page"]
             
             requesthelp_obj = RequestHelp.objects.create(message=message, page=page, user=request.user)
-            activitylog(user=request.user,table_name=RequestHelp,action_type='create',location_group_obj=None,prev_instance=None,current_instance=requesthelp_obj,table_item_pk=requesthelp_obj.pk,render='')
+            render_value = 'Help request created.'
+            activitylog(user=request.user,table_name=RequestHelp,action_type='created',location_group_obj=None,prev_instance=None,current_instance=requesthelp_obj,table_item_pk=requesthelp_obj.pk,render=render_value)
 
             response['status'] = 200
         
@@ -5527,7 +5585,7 @@ class SaveCompanyProfileAPI(APIView):
                 data = json.loads(data)
             
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
-            prev_instance = website_group_obj
+            prev_instance = deepcopy(website_group_obj)
             company_data = data["company_data"]
             
             #name = company_data["name"]
@@ -5565,7 +5623,8 @@ class SaveCompanyProfileAPI(APIView):
             website_group_obj.color_scheme = json.dumps(color_scheme)
             
             website_group_obj.save()
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render='')
+            render_value = 'company profile is updated.'
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
             response['status'] = 200
         
         except Exception as e:
@@ -5592,7 +5651,7 @@ class UploadCompanyLogoAPI(APIView):
             logger.info("UploadCompanyLogoAPI: %s", str(data))
             
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
-            prev_instance = website_group_obj
+            prev_instance = deepcopy(website_group_obj)
             logo_image_url = data["logo_image_url"]
 
             if logo_image_url != "":
@@ -5600,7 +5659,8 @@ class UploadCompanyLogoAPI(APIView):
                 website_group_obj.logo = image_obj
                 website_group_obj.save()
                 response["image_url"] = image_obj.mid_image.url
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render='')
+            render_value = "company logo is updated."
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -5629,7 +5689,7 @@ class UploadCompanyFooterLogoAPI(APIView):
             logger.info("UploadCompanyFooterLogoAPI: %s", str(data))
 
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
-            prev_instance = website_group_obj
+            prev_instance = deepcopy(website_group_obj)
             logo_image_url = data["logo_image_url"]
 
             if logo_image_url != "":
@@ -5637,7 +5697,8 @@ class UploadCompanyFooterLogoAPI(APIView):
                 website_group_obj.footer_logo = image_obj
                 website_group_obj.save()
                 response["image_url"] = image_obj.mid_image.url
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render='')
+                render_value = 'company footer logo is updated.'
+                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -5971,7 +6032,6 @@ class FetchLocationGroupListAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
 class UploadBulkExportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -6329,7 +6389,8 @@ class CreateOCReportAPI(APIView):
             organization_obj = custom_permission_obj.organization
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
                 for brand_obj in brand_objs:
@@ -6440,7 +6501,8 @@ class CreateSEOReportAPI(APIView):
             report_name = report_type+" "+seo_type
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_name, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=organization_obj)
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            render_value = 'OCReport {} is created.'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
 
             if seo_type=="product":
                 p1 = threading.Thread(target=bulk_download_product_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
@@ -6570,7 +6632,8 @@ class CreateContentReportAPI(APIView):
             organization_obj = custom_permission_obj.organization
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title="Content Health", created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
-            activitylog(user=request.user,table_name=OCReport,action_type='create',location_group_obj=None,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render='')
+            render_value = 'OCReport {} is created.'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=None,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
 
             filter_parameters = data["filter_parameters"]
 
@@ -6716,7 +6779,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
 
             product_obj = Product.objects.get(pk=int(product_pk))
             channel_product = product_obj.channel_product
-            prev_instance = channel_product
+            prev_instance = deepcopy(product_obj)
             channel_product_dict = get_channel_product_dict(channel_name,channel_product)
 
             price_permission = custom_permission_price(request.user, channel_name)
@@ -6739,7 +6802,8 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
 
             channel_product.save()
-            activitylog(user=request.user,table_name=OCReport,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=channel_product,table_item_pk=channel_product.pk,render='')
+            render_value = 'For product {}, channel product stocks and price are updated.'{product_obj.product_name}
+            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
 
             response['status'] = 200
 
@@ -7010,7 +7074,7 @@ class SaveDealshubProductDetailsAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            prev_instance = dealshub_product_obj
+            prev_instance = deepcopy(dealshub_product_obj)
             is_b2b = False
             location_group_uuid = data.get("locationGroupUuid","")
             if location_group_uuid != "":
@@ -7080,7 +7144,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.set_search_keywords(search_keywords)
 
             promotion_obj = dealshub_product_obj.promotion
-            prev_instance = promotion_obj
+            prev_instance = deepcopy(promotion_obj)
             if is_promotional:
                 promotion = data["promotion"]
                 start_date = str(promotion["start_date"])[:-1] + "+0400"
@@ -7088,13 +7152,15 @@ class SaveDealshubProductDetailsAPI(APIView):
                 promotional_tag = promotion["promotional_tag"]
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='create',location_group_obj=None,prev_instance=None,current_instance=promotion_obj,table_item_pk=promotion_obj.pk,render='')
+                    render_value = 'Promotion {} is created.'.format(promotion_obj.promotional_tag)
+                    activitylog(user=request.user,table_name=Promotion,action_type='created',location_group_obj=None,prev_instance=None,current_instance=promotion_obj,table_item_pk=promotion_obj.pk,render=render_value)
                 else:
                     promotion_obj.promotion_tag = promotional_tag
                     promotion_obj.start_time = start_date
                     promotion_obj.end_time = end_date
                     promotion_obj.save()
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.pk,render='')
+                    render_value = 'Promotion {} is updated.'.format(promotion_obj.promotional_tag)
+                    activitylog(user=request.user,table_name=Promotion,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.pk,render=render_value)
 
                 dealshub_product_obj.is_promotional = True
             else:
@@ -7119,7 +7185,8 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.category = category_obj
             dealshub_product_obj.sub_category = sub_category_obj
             dealshub_product_obj.save()
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render='')
+            render_value = 'Dealshub product {} details updated.'.format(dealshub_product_obj.product_name)
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render=render_value)
             response["status"] = 200
 
         except Exception as e:
@@ -7194,14 +7261,14 @@ class CreateExportTemplateAPI(APIView):
 
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             export_template_obj = ExportTemplate.objects.create(user=omnycomm_user_obj, name=name)
-            activitylog(user=request.user,table_name=ExportTemplate,action_type='create',location_group_obj=None,prev_instance=None,current_instance=export_template_obj,table_item_pk=export_template_obj.pk,render='')
-            prev_instance = export_template_obj
+
             for data_point in data_point_list:
                 data_point_obj = DataPoint.objects.get(variable=data_point)
                 export_template_obj.data_points.add(data_point_obj)
 
             export_template_obj.save()
-            activitylog(user=request.user,table_name=ExportTemplate,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=export_template_obj,table_item_pk=export_template_obj.pk,render='')
+            render_value = 'Export Template {} is created'.format(export_template_obj.name)
+            activitylog(user=request.user,table_name=ExportTemplate,action_type='created',location_group_obj=None,prev_instance=None,current_instance=export_template_obj,table_item_pk=export_template_obj.pk,render=render_value)
             response["uuid"] = export_template_obj.uuid
             response["status"] = 200
 
@@ -7229,8 +7296,9 @@ class DeleteExportTemplateAPI(APIView):
             uuid = data["uuid"]
 
             export_template_obj = ExportTemplate.objects.get(uuid=uuid)
-            prev_instance = export_template_obj
-            activitylog(user=request.user,table_name=ExportTemplate,action_type='delete',location_group_obj=None,prev_instance=prev_instance,current_instance=None,table_item_pk=export_template_obj.pk,render='')
+            prev_instance = deepcopy(export_template_obj)
+            render_value = 'Export Template {} is deleted.'.format(export_template_obj.name)
+            activitylog(user=request.user,table_name=ExportTemplate,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=None,table_item_pk=export_template_obj.pk,render=render_value)
             export_template_obj.delete()
             response["status"] = 200
 
@@ -7263,7 +7331,7 @@ class SecureDeleteProductAPI(APIView):
 
             uuid = data["uuid"]
             product_obj = Product.objects.get(uuid=uuid)
-            prev_instance = product_obj
+            prev_product_instance = deepcopy(product_obj)
 
             if product_obj.verified==True or product_obj.locked==True:
                 response["status"] = 403
@@ -7271,10 +7339,9 @@ class SecureDeleteProductAPI(APIView):
                 return Response(data=response)
 
             base_product_obj = product_obj.base_product
-            prev_instance_base_product = base_product_obj
+            prev_instance_base_product = deepcopy(base_product_obj)
 
             dealshub_product_objs = DealsHubProduct.objects.filter(product=product_obj)
-            prev_instance_dealshub_product = dealshub_product_objs
             if dealshub_product_objs.filter(is_published=True).exists()==True:
                 response["status"] = 403
                 logger.warning("SecureDeleteProductAPI: DealsHubProduct is active!")
@@ -7283,15 +7350,19 @@ class SecureDeleteProductAPI(APIView):
 
             product_obj.is_deleted = True
             product_obj.save()
-            activitylog(user=request.user,table_name=Product,action_type='update',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render='')
+            render_value = 'Product {} is deleted'.format(product_obj.product_name)
+            activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_product_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
 
             dealshub_product_objs.update(is_deleted=True)
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance_dealshub_product,current_instance=dealshub_product_objs,table_item_pk=dealshub_product_objs.pk,render='')
+            for dealshub_product_obj in dealshub_product_objs:
+                render_value = 'Dealshub Product {} is deleted'.format(dealshub_product_obj.product_name)
+                activitylog(user=request.user,table_name=DealsHubProduct,action_type='deleted',location_group_obj=None,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render=render_value)
 
             if Product.objects.filter(base_product=base_product_obj).exists()==False:
                 base_product_obj.is_deleted = True
                 base_product_obj.save()
-                activitylog(user=request.user,table_name=BaseProduct,action_type='update',location_group_obj=None,prev_instance=prev_instance_base_product,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render='')
+                render_value = 'BaseProduct {} is deleted'.format(base_product_obj.base_product_name)
+                activitylog(user=request.user,table_name=BaseProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance_base_product,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render=render_value)
 
 
             response["status"] = 200
@@ -7319,7 +7390,9 @@ class LogoutOCUserAPI(APIView):
             
             token = request.META["HTTP_AUTHORIZATION"].split(" ")[1]
             blacklist_token_obj, created = BlackListToken.objects.get_or_create(token=token)
-            activitylog(user=request.user,table_name=BlackListToken,action_type='create',location_group_obj=None,prev_instance=None,current_instance=blacklist_token_obj,table_item_pk=blacklist_token_obj.pk,render='')
+            if created:
+                render_value = 'OC User logged out'
+                activitylog(user=request.user,table_name=BlackListToken,action_type='created',location_group_obj=None,prev_instance=None,current_instance=blacklist_token_obj,table_item_pk=blacklist_token_obj.pk,render=render_value)
 
             response["status"] = 200
         except Exception as e:
