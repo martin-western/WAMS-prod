@@ -311,23 +311,6 @@ class ActivityLog(models.Model):
         verbose_name_plural = "ActivityLog"
 
 
-# location_group_uuid = data["locationGroupUuid"]
-# location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-
-# ActivityLog.objects.save(
-#     user=request.user,
-#     location_group = location_group_obj,
-#     created_date = timezone.now(),
-#     table_name = 'model_name',
-#     table_item_pk = 'uuid/pk',
-#     action_type = 'create / update / delete',
-#     prev_instance = 'call same query before updating or delete it and then json.dumps() or we have to figure out other optizimed solution ',
-#     current_intense = 'same as obj created after what currently saving',
-#     render = 'xyz item created/updated/deleted'
-#     )
-
-
-
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
