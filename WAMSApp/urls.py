@@ -169,6 +169,12 @@ urlpatterns = [
     url(r'^admin/add-new-admin-sub-category/$', views.AddNewAdminSubCategory),
 
     url(r'^secure-delete-product/$',views.SecureDeleteProduct),
+    url(r'^fetch-omnycomm-user-list/$',views.FetchOmnyCommUserList),
+    url(r'^fetch-omnycomm-user-details/$',views.FetchOmnyCommUserDetails),
+    url(r'^create-omnycomm-user/$',views.CreateOmnyCommUser),
+    url(r'^save-omnycomm-user-details/$',views.SaveOmnyCommUserDetails),
+    url(r'^save-omnycomm-user-permissions/$',views.SaveOmnyCommUserPermissions),
+    url(r'^reset-omnycomm-user-password/$',views.ResetOmnyCommUserPassword),
     url(r'^logout-ocuser/$',views.LogoutOCUser),
 
     url(r'^create-nesto-product/$',views.CreateNestoProduct),
