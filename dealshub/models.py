@@ -146,7 +146,7 @@ def add_product_to_index(dealshub_product_obj):
     index = client.init_index('DealsHubProduct')
     
     try:
-        logger.info("add_product_to_index: %s", str(dealshub_product_obj.__dict__))
+        # logger.info("add_product_to_index: %s", str(dealshub_product_obj.__dict__))
         dealshub_product_dict = {}
         dealshub_product_dict["locationGroup"] = dealshub_product_obj.location_group.uuid
         dealshub_product_dict["objectID"] = dealshub_product_obj.uuid
@@ -161,7 +161,6 @@ def add_product_to_index(dealshub_product_obj):
         dealshub_product_dict["stock"] = dealshub_product_obj.stock
         
         index.save_object(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
-        logger.info("This is done!!!!!")
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
