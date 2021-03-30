@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import AllowAny
 
+from dealshub.models import *
 from dealshub.constants import *
 from dealshub.utils import *
 from dealshub.algolia.utils import *
