@@ -35,6 +35,7 @@ from WAMSApp.views_category_manager import *
 from WAMSApp.views_SAP_Integration import *
 from WAMSApp.utils_SAP_Integration import *
 from WAMSApp.views_nesto import *
+from WAMSApp.views_cron import *
 
 from PIL import Image as IMage
 from io import BytesIO as StringIO
@@ -113,6 +114,11 @@ class CreateNewBaseProductAPI(APIView):
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("CreateNewBaseProductAPI Restricted Access!")
                 response['status'] = 403
+                return Response(data=response)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateNewBaseProductAPI Restricted Access!")
                 return Response(data=response)
 
             data = request.data
@@ -224,6 +230,11 @@ class CreateNewProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateNewProductAPI Restricted Access!")
+                return Response(data=response)
+
             data = request.data
             logger.info("CreateNewProductAPI: %s", str(data))
 
@@ -301,6 +312,11 @@ class SaveNoonChannelProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveNoonChannelProductAPI Restricted Access!")
+                return Response(data=response)
+
             data = request.data
             logger.info("SaveNoonChannelProductAPI: %s", str(data))
 
@@ -365,6 +381,11 @@ class SaveAmazonUKChannelProductAPI(APIView):
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("SaveAmazonUKChannelProductAPI Restricted Access!")
                 response['status'] = 403
+                return Response(data=response)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveAmazonUKChannelProductAPI Restricted Access!")
                 return Response(data=response)
 
             data = request.data
@@ -433,6 +454,11 @@ class SaveAmazonUAEChannelProductAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveAmazonUAEChannelProductAPI Restricted Access!")
+                return Response(data=response)
+
             data = request.data
             logger.info("SaveAmazonUAEChannelProductAPI: %s", str(data))
 
@@ -497,6 +523,11 @@ class SaveEbayChannelProductAPI(APIView):
             if request.user.has_perm('WAMSApp.add_product') == False:
                 logger.warning("SaveEbayChannelProductAPI Restricted Access!")
                 response['status'] = 403
+                return Response(data=response)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveEbayChannelProductAPI Restricted Access!")
                 return Response(data=response)
 
             data = request.data
@@ -566,6 +597,11 @@ class FetchChannelProductAPI(APIView):
                 data = json.loads(data)
 
             logger.info("FetchChannelProductAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchChannelProductAPI Restricted Access!")
+                return Response(data=response)
 
             channel_name = data["channel_name"]
 
@@ -680,6 +716,11 @@ class FetchBaseProductDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchBaseProductDetailsAPI Restricted Access!")
+                return Response(data=response)
+
             base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
             brand_obj = base_product_obj.brand
 
@@ -731,6 +772,11 @@ class FetchProductDetailsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchProductDetailsAPI Restricted Access!")
+                return Response(data=response)
 
             product_obj = Product.objects.get(pk=data["product_pk"])
             base_product_obj = product_obj.base_product
@@ -997,6 +1043,11 @@ class FetchDealsHubProductsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchDealsHubProductsAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
@@ -1152,6 +1203,12 @@ class UpdateDealshubProductAPI(APIView):
             data = request.data
             logger.info("UpdateDealshubProductAPI: %s", str(data))
 
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateDealshubProductAPI Restricted Access!")
+                return Response(data=response)
+
             is_b2b = False
             location_group_uuid = data.get("locationGroupUuid","")
             if location_group_uuid != "":
@@ -1219,6 +1276,11 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateDealshubProductPriceAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
 
             price_permission = custom_permission_price(request.user, "dealshub")
@@ -1272,6 +1334,11 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateB2BDealshubProductPriceAPI Restricted Access!")
+                return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
 
@@ -1327,6 +1394,11 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateB2BDealshubProductMOQAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
 
             cohort_permission = custom_permission_cohort(request.user, "dealshub")
@@ -1381,6 +1453,11 @@ class BulkUpdateDealshubProductStockAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateDealshubProductStockAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
 
             stock_permission = custom_permission_stock(request.user, "dealshub")
@@ -1433,6 +1510,11 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateDealshubProductPublishStatusAPI Restricted Access!")
+                return Response(data=response)
             
             location_group_uuid = data["locationGroupUuid"]
 
@@ -1493,6 +1575,11 @@ class SaveBaseProductAPI(APIView):
 
             data = request.data
             logger.info("SaveBaseProductAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveBaseProductAPI Restricted Access!")
+                return Response(data=response)
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -1617,6 +1704,11 @@ class SaveProductAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveProductAPI Restricted Access!")
+                return Response(data=response)
 
 
             # Check for duplicate
@@ -1774,6 +1866,11 @@ class FetchProductListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchProductListAPI Restricted Access!")
+                return Response(data=response)
 
             filter_parameters = data["filter_parameters"]
             chip_data = data["tags"]
@@ -1961,6 +2058,11 @@ class FetchExportListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchExportListAPI Restricted Access!")
+                return Response(data=response)
+
             chip_data = json.loads(data.get('tags', '[]'))
 
             search_list_objs = []
@@ -2038,6 +2140,11 @@ class AddToExportAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("AddToExportAPI Restricted Access!")
+                return Response(data=response)
 
             select_all = data.get("select_all", False)
             export_option = data["export_option"]
@@ -2133,6 +2240,11 @@ class FetchExportProductListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchExportProductListAPI Restricted Access!")
+                return Response(data=response)
 
             export_obj = ExportList.objects.get(pk=int(data["export_pk"]))
             channel_name = export_obj.channel.name
@@ -2237,6 +2349,11 @@ class DownloadExportListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DownloadExportListAPI Restricted Access!")
+                return Response(data=response)
+
             export_format = data["export_format"]
 
             export_obj = ExportList.objects.get(pk=int(data["export_pk"]))
@@ -2291,6 +2408,11 @@ class DownloadProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DownloadProductAPI Restricted Access!")
+                return Response(data=response)
+
             export_format = data["export_format"]
 
             products = Product.objects.filter(pk=int(data["product_pk"]))
@@ -2337,6 +2459,11 @@ class ImportProductsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("ImportProductsAPI Restricted Access!")
+                return Response(data=response)
+
             import_format = data["import_format"]
             import_rule = data["import_rule"]
             import_file = data["import_file"]
@@ -2375,6 +2502,11 @@ class UploadProductImageAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadProductImageAPI Restricted Access!")
+                return Response(data=response)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
 
@@ -2522,6 +2654,11 @@ class UpdateMainImageAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateMainImageAPI Restricted Access!")
+                return Response(data=response)
+
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             channel_obj = None
             
@@ -2574,6 +2711,11 @@ class UpdateSubImagesAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateSubImagesAPI Restricted Access!")
+                return Response(data=response)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             channel_obj = None
@@ -2628,6 +2770,11 @@ class CreateFlyerAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateFlyerAPI Restricted Access!")
+                return Response(data=response)
 
             brand_obj = Brand.objects.get(pk=int(data["brand_pk"]))
             organization_obj = brand_obj.organization
@@ -3025,6 +3172,11 @@ class CreatePFLAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreatePFLAPI Restricted Access!")
+                return Response(data=response)
 
             pfl_obj = PFL.objects.create(name=convert_to_ascii(data["name"]))
 
@@ -3708,6 +3860,11 @@ class FetchPFLListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchPFLListAPI Restricted Access!")
+                return Response(data=response)
+
             page = int(data["page"])
 
             all_pfl_objs = custom_permission_filter_pfls(request.user)
@@ -3799,6 +3956,11 @@ class FetchFlyerListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchFlyerListAPI Restricted Access!")
+                return Response(data=response)
 
             page = int(data["page"])
 
@@ -4048,6 +4210,11 @@ class FetchBrandsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchBrandsAPI Restricted Access!")
+                return Response(data=response)
+
             brand_objs = None
             if FactoryUser.objects.filter(username=request.user.username).exists():
                 brand_objs = Brand.objects.all()
@@ -4085,6 +4252,11 @@ class FetchChannelsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchChannelsAPI Restricted Access!")
+                return Response(data=response)
 
             channel_objs = custom_permission_filter_channels(request.user)
             channel_list = []
@@ -4206,6 +4378,11 @@ class VerifyProductAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("VerifyProductAPI Restricted Access!")
+                return Response(data=response)
+
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             if custom_permission_obj.verify_product==False:
                 logger.warning("VerifyProductAPI Restricted Access!")
@@ -4244,6 +4421,11 @@ class LockProductAPI(APIView):
             
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("LockProductAPI Restricted Access!")
+                return Response(data=response)
 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             if custom_permission_obj.verify_product==False:
@@ -4287,6 +4469,11 @@ class CopyBestImagesAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CopyBestImagesAPI Restricted Access!")
+                return Response(data=response)
+
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             image_pk_list = data["image_pk_list"]
 
@@ -4328,6 +4515,11 @@ class RemoveImageAPI(APIView):
             if request.user.has_perm('WAMSApp.delete_image') == False:
                 logger.warning("RemoveImageAPI Restricted Access!")
                 response['status'] = 403
+                return Response(data=response)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("RemoveImageAPI Restricted Access!")
                 return Response(data=response)
 
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
@@ -4387,6 +4579,11 @@ class DeleteImageAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteImageAPI Restricted Access!")
+                return Response(data=response)
 
             image_type = data["image_type"]
             image_pk = int(data["image_pk"])
@@ -4451,6 +4648,11 @@ class RemoveProductFromExportListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("RemoveProductFromExportListAPI Restricted Access!")
+                return Response(data=response)
 
             product_pk = int(data["product_pk"])
             export_pk = int(data["export_pk"])
@@ -4583,6 +4785,11 @@ class SapIntegrationAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SapIntegrationAPI Restricted Access!")
+                return Response(data=response)
 
             product_obj = Product.objects.get(pk=data["product_pk"])
             seller_sku = product_obj.base_product.seller_sku
@@ -4738,6 +4945,11 @@ class FetchUserProfileAPI(APIView):
         
         try:
             data = request.data
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchUserProfileAPI Restricted Access!")
+                return Response(data=response)
             
             content_manager = OmnyCommUser.objects.get(username=request.user.username)
 
@@ -4943,6 +5155,11 @@ class EditUserProfileAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("EditUserProfileAPI Restricted Access!")
+                return Response(data=response)
             
             first_name = data["first_name"]
             last_name = data["last_name"]
@@ -4980,6 +5197,11 @@ class FetchAuditLogsByUserAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchAuditLogsByUserAPI Restricted Access!")
+                return Response(data=response)
 
             page = data["page"]
 
@@ -5104,6 +5326,11 @@ class FetchAuditLogsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchAuditLogsAPI Restricted Access!")
+                return Response(data=response)
+
             page = data["page"]
 
             all_log_entry_objs = LogEntry.objects.exclude(actor=None)
@@ -5226,6 +5453,11 @@ class CreateRequestHelpAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateRequestHelpAPI Restricted Access!")
+                return Response(data=response)
+
             message = data["message"]
             page = data["page"]
 
@@ -5253,6 +5485,11 @@ class RefreshProductPriceAndStockAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("RefreshProductPriceAndStockAPI Restricted Access!")
+                return Response(data=response)
 
             product_pk = data["product_pk"]
             warehouse_code = data["warehouse_code"]
@@ -5284,6 +5521,11 @@ class RefreshPagePriceAndStockAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("RefreshPagePriceAndStockAPI Restricted Access!")
+                return Response(data=response)
 
             product_pk_list = data["product_pk_list"]
             warehouse_code = data["warehouse_code"]
@@ -5320,6 +5562,11 @@ class FetchCompanyProfileAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchCompanyProfileAPI Restricted Access!")
+                return Response(data=response)
 
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
 
@@ -5381,6 +5628,11 @@ class SaveCompanyProfileAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveCompanyProfileAPI Restricted Access!")
+                return Response(data=response)
 
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
 
@@ -5444,6 +5696,11 @@ class UploadCompanyLogoAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadCompanyLogoAPI Restricted Access!")
+                return Response(data=response)
+
             data = request.data
             logger.info("UploadCompanyLogoAPI: %s", str(data))
 
@@ -5484,6 +5741,11 @@ class UploadCompanyFooterLogoAPI(APIView):
             data = request.data
             logger.info("UploadCompanyFooterLogoAPI: %s", str(data))
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadCompanyFooterLogoAPI Restricted Access!")
+                return Response(data=response)
+
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
            
             logo_image_url = data["logo_image_url"]
@@ -5518,6 +5780,11 @@ class FetchChannelProductListAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchChannelProductListAPI Restricted Access!")
+                return Response(data=response)
 
             chip_data = data.get("tags", "[]")
             filter_parameters = data.get("filter_parameters", "{}")
@@ -5805,6 +6072,11 @@ class FetchLocationGroupListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchLocationGroupListAPI Restricted Access!")
+                return Response(data=response)
+            
             custom = data.get("custom",False)
 
             location_group_objs = LocationGroup.objects.all()
@@ -5842,6 +6114,11 @@ class UploadBulkExportAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UploadBulkExportAPI Restricted Access!")
+                return Response(data=response)
 
             path = default_storage.save('tmp/temp-bulk-upload.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
@@ -5898,6 +6175,11 @@ class SearchBulkExportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SearchBulkExportAPI Restricted Access!")
+                return Response(data=response)
+
             search_string = data["search_string"]
 
             organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
@@ -5947,6 +6229,11 @@ class FetchDataPointsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchDataPointsAPI Restricted Access!")
+                return Response(data=response)
+
             data_point_objs = DataPoint.objects.all()
             data_point_list = []
             for data_point_obj in data_point_objs:
@@ -5981,6 +6268,11 @@ class DownloadBulkExportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DownloadBulkExportAPI Restricted Access!")
+                return Response(data=response)
+
             data_point_list = data["data_point_list"]
             product_uuid_list = data["product_uuid_list"]
 
@@ -6013,6 +6305,11 @@ class TransferBulkChannelAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("TransferBulkChannelAPI Restricted Access!")
+                return Response(data=response)
 
             channel_list = data["channel_list"]
             product_uuid_list = data["product_uuid_list"]
@@ -6058,6 +6355,11 @@ class FetchAllCategoriesAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchAllCategoriesAPI Restricted Access!")
+                return Response(data=response)
 
             super_category_objs = SuperCategory.objects.all()
             super_category_list = []
@@ -6115,6 +6417,11 @@ class CheckSectionPermissionsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CheckSectionPermissionsAPI Restricted Access!")
+                return Response(data=response)
+
             website_group_name = ""
             ecommerce_pages = []
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
@@ -6160,6 +6467,11 @@ class CreateOCReportAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateOCReportAPI Restricted Access!")
+                return Response(data=response)
 
             if OCReport.objects.filter(is_processed=False).count()>4:
                 response["approved"] = False
@@ -6278,6 +6590,11 @@ class CreateSEOReportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateSEOReportAPI Restricted Access!")
+                return Response(data=response)
+
             if OCReport.objects.filter(is_processed=False).count()>4:
                 response["approved"] = False
                 response['status'] = 200
@@ -6346,6 +6663,11 @@ class BulkUploadSEODetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUploadSEODetailsAPI Restricted Access!")
+                return Response(data=response)
+
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
@@ -6406,6 +6728,11 @@ class CreateContentReportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateContentReportAPI Restricted Access!")
+                return Response(data=response)
+
             if OCReport.objects.filter(is_processed=False).count()>4:
                 response["approved"] = False
                 response['status'] = 200
@@ -6463,6 +6790,11 @@ class FetchOCReportPermissionsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOCReportPermissionsAPI Restricted Access!")
+                return Response(data=response)
+
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             oc_reports = json.loads(custom_permission_obj.oc_reports)
 
@@ -6491,6 +6823,11 @@ class FetchOCReportListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchOCReportListAPI Restricted Access!")
+                return Response(data=response)
+            
             location_group_uuid = data.get("locationGroupUuid","")
             location_group_obj = None
             if location_group_uuid!="":
@@ -6558,6 +6895,11 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateChannelProductStockandPriceAPI Restricted Access!")
+                return Response(data=response)
+
             product_pk = data["product_pk"]
             channel_name = data["channel_name"]
 
@@ -6617,6 +6959,11 @@ class DownloadDynamicExcelTemplateAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DownloadDynamicExcelTemplateAPI Restricted Access!")
+                return Response(data=response)
+
             data_point_list = data["data_point_list"]
 
             filename = "files/dynamic bulk upload excel/Excel Template.xlsx"
@@ -6670,6 +7017,11 @@ class BulkUploadDynamicExcelAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUploadDynamicExcelAPI Restricted Access!")
+                return Response(data=response)
+
             operation = data["operation"]
 
             path = default_storage.save('tmp/temp-dynamic-template-upload.xlsx', data["import_file"])
@@ -6707,6 +7059,11 @@ class FetchDataPointsForUploadAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchDataPointsForUploadAPI Restricted Access!")
+                return Response(data=response)
 
             operation = data["operation"]
 
@@ -6764,6 +7121,11 @@ class FetchDealshubProductDetailsAPI(APIView):
             
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchDealshubProductDetailsAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
@@ -6860,6 +7222,11 @@ class SaveDealshubProductDetailsAPI(APIView):
             
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SaveDealshubProductDetailsAPI Restricted Access!")
+                return Response(data=response)
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
@@ -6993,6 +7360,11 @@ class FetchExportTemplatesAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchExportTemplatesAPI Restricted Access!")
+                return Response(data=response)
+
             export_template_objs = ExportTemplate.objects.filter(user__username=request.user.username)
 
             export_template_list = []
@@ -7038,6 +7410,11 @@ class CreateExportTemplateAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("CreateExportTemplateAPI Restricted Access!")
+                return Response(data=response)
+
             name = data["name"]
             data_point_list = data["data_point_list"]
 
@@ -7073,6 +7450,11 @@ class DeleteExportTemplateAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteExportTemplateAPI Restricted Access!")
+                return Response(data=response)
+
             uuid = data["uuid"]
 
             export_template_obj = ExportTemplate.objects.get(uuid=uuid)
@@ -7100,6 +7482,11 @@ class SecureDeleteProductAPI(APIView):
             
             if not isinstance(data, dict):
                 data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("SecureDeleteProductAPI Restricted Access!")
+                return Response(data=response)
 
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
             if custom_permission_obj.delete_product==False:

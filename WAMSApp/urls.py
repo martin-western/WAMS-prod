@@ -189,5 +189,7 @@ urlpatterns = [
     url(r'^unlink-nesto-product/$',views.UnLinkNestoProduct),
     url(r'^fetch-nesto-brands/$', views.FetchNestoBrands),
     url(r'^bulk-upload-nesto-products/$', views.BulkUploadNestoProducts),
+
+    url(r'^unpublished-wigme-product-report/$', views.UnPublishedWIGmeProductReport),
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

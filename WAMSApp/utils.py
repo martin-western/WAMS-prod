@@ -2463,6 +2463,11 @@ def generate_random_password(length):
         password += chars[ord(os.urandom(1)) % len(chars)]
     return password
 
+def is_oc_user(user_obj):
+    if OmnyCommUser.objects.filter(username=user_obj.username).exists():
+        return True
+    return False
+
 def bulk_update_dealshub_product_price_or_stock(oc_uuid,path,filename, location_group_obj, update_type):
     try:
         
