@@ -29,6 +29,8 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db.models import Count, Avg, F
 
+from copy import deepcopy
+
 import xmltodict
 import requests
 import random
@@ -4767,7 +4769,8 @@ class CreateVoucherAPI(APIView):
 
             response["uuid"] = str(voucher_obj.uuid)
             response["status"] = 200
-            activitylog(request.user, Voucher, "created", voucher_obj.uuid, None, voucher_obj, location_group_obj, "New Voucher created with code: " + voucher_obj.voucher_code)
+            render_value = "Voucher " + voucher_obj.voucher_code + " created on " + location_group_obj.name
+            activitylog(request.user, Voucher, "created", voucher_obj.uuid, None, voucher_obj, location_group_obj, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4790,7 +4793,7 @@ class UpdateVoucherAPI(APIView):
 
             voucher_uuid = data["voucher_uuid"]
             voucher_obj = Voucher.objects.get(uuid=voucher_uuid)
-            prev_voucher_obj = voucher_obj
+            prev_voucher_obj = deepcopy(voucher_obj)
 
             voucher_obj.voucher_code = data["voucher_code"]
             voucher_obj.start_time = data["start_time"]
@@ -4808,8 +4811,12 @@ class UpdateVoucherAPI(APIView):
             voucher_obj.customer_usage_limit = int(data["customer_usage_limit"])
             voucher_obj.maximum_usage_limit = int(data["maximum_usage_limit"])
             voucher_obj.save()
+
+            location_group_obj = voucher_obj.location_group
+
             response["status"] = 200
-            activitylog(request.user, Voucher, "updated", voucher_obj.uuid, prev_voucher_obj, voucher_obj, None, voucher_obj.voucher_code + " voucher updated")
+            render_value = "Voucher " + voucher_obj.voucher_code + " updated on " + location_group_obj.name
+            activitylog(request.user, Voucher, "updated", voucher_obj.uuid, prev_voucher_obj, voucher_obj, location_group_obj, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4882,11 +4889,13 @@ class DeleteVoucherAPI(APIView):
 
             uuid = data["voucher_uuid"]
             voucher_obj = Voucher.objects.get(uuid=uuid)
+            location_group_obj = voucher_obj.location_group
             voucher_obj.is_deleted = True
             voucher_obj.save()
 
             response["status"] = 200
-            activitylog(request.user, Voucher, "deleted", "", voucher_obj, None, None, voucher_obj.voucher_code + " voucher deleted")
+            render_value = "Voucher " + voucher_obj.voucher_code + " deleted from " + location_group_obj.name
+            activitylog(request.user, Voucher, "deleted", "", voucher_obj, None, location_group_obj, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4910,12 +4919,15 @@ class PublishVoucherAPI(APIView):
 
             uuid = data["voucher_uuid"]
             voucher_obj = Voucher.objects.get(uuid=uuid)
-            prev_voucher_obj = voucher_obj
+            prev_voucher_obj = deepcopy(voucher_obj)
             voucher_obj.is_published = True
             voucher_obj.save()
 
+            location_group_obj = voucher_obj.location_group
+
             response["status"] = 200
-            activitylog(request.user, Voucher, "updated", voucher_obj.uuid, prev_voucher_obj, voucher_obj, None, voucher_obj.voucher_code + " voucher is published")
+            render_value = "Voucher " + voucher_obj.voucher_code + " published on " + location_group_obj.name
+            activitylog(request.user, Voucher, "updated", voucher_obj.uuid, prev_voucher_obj, voucher_obj, location_group_obj, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4939,12 +4951,15 @@ class UnPublishVoucherAPI(APIView):
 
             uuid = data["voucher_uuid"]
             voucher_obj = Voucher.objects.get(uuid=uuid)
-            prev_voucher_obj = voucher_obj
+            prev_voucher_obj = deepcopy(voucher_obj)
             voucher_obj.is_published = False
             voucher_obj.save()
 
+            location_group_obj = voucher_obj.location_group
+
             response["status"] = 200
-            activitylog(request.user, Voucher, "updated", voucher_obj.uuid, prev_voucher_obj, voucher_obj, None, voucher_obj.voucher_code + " voucher is unpublished")
+            render_value = "Voucher " + voucher_obj.voucher_code + " unpublished on " + location_group_obj.name
+            activitylog(request.user, Voucher, "updated", voucher_obj.uuid, prev_voucher_obj, voucher_obj, location_group_obj, render_value)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -5595,7 +5610,7 @@ class UpdateLocationGroupSettingsAPI(APIView):
             monthly_orders_target = float(data["monthly_orders_target"])
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            prev_location_group_obj = location_group_obj
+            prev_location_group_obj = deepcopy(location_group_obj)
 
             location_group_obj.delivery_fee = delivery_fee
             location_group_obj.cod_charge = cod_charge
@@ -5608,7 +5623,8 @@ class UpdateLocationGroupSettingsAPI(APIView):
             location_group_obj.save()
             
             response['status'] = 200
-            activitylog(request.user, LocationGroup, "updated", location_group_obj.uuid, prev_location_group_obj, location_group_obj, location_group_obj, location_group_obj.name + " location group is updated")
+            render_value = location_group_obj.name + " settings updated"
+            activitylog(request.user, LocationGroup, "updated", location_group_obj.uuid, prev_location_group_obj, location_group_obj, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateLocationGroupSettingsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5668,7 +5684,7 @@ class UpdateSalesTargetAPI(APIView):
 
             sales_target_uuid = data["sales_target_uuid"]
             sales_target_obj = SalesTarget.objects.get(uuid=sales_target_uuid, location_group=location_group_obj)
-            prev_sales_target_obj = sales_target_obj
+            prev_sales_target_obj = deepcopy(sales_target_obj)
             
             today_sales_target = float(data["today_sales_target"])
             monthly_sales_target = float(data["monthly_sales_target"])
@@ -5682,7 +5698,8 @@ class UpdateSalesTargetAPI(APIView):
             sales_target_obj.save()
             
             response['status'] = 200
-            activitylog(request.user, SalesTarget, "updated", sales_target_obj.uuid, prev_sales_target_obj, sales_target_obj, location_group_obj, "Sales Target updated")
+            render_value = "Sales Target updated for " + sales_person_obj.username + " for " + location_group_obj.name
+            activitylog(request.user, SalesTarget, "updated", sales_target_obj.uuid, prev_sales_target_obj, sales_target_obj, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("UpdateSalesTargetAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5718,7 +5735,8 @@ class AddSalesTargetAPI(APIView):
                                                           monthly_orders_target=data["monthly_orders_target"])
             
             response['status'] = 200
-            activitylog(request.user, SalesTarget, "created", sales_target_obj.uuid, None, sales_target_obj, location_group_obj, "Sales Target created for " + sales_person_obj.username + " at location group " + location_group_obj.name)
+            render_value = "Sales Target created for " + sales_person_obj.username + " for " + location_group_obj.name
+            activitylog(request.user, SalesTarget, "created", sales_target_obj.uuid, None, sales_target_obj, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("AddSalesTargetAPI: %s at %s", e, str(exc_tb.tb_lineno))
