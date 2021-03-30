@@ -7820,7 +7820,7 @@ class FetchDefaultPermissionsListAPI(APIView):
             organization = data.get("organization","WIG")
             organization_obj = Organization.objects.get(name=organization)
 
-            default_permissions = json.dumps(organization_obj.default_permissions)
+            default_permissions = json.loads(organization_obj.default_permissions)
 
             response["default_permissions"] = default_permissions
             response["status"] = 200
