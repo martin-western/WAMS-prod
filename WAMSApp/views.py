@@ -7529,6 +7529,309 @@ class SecureDeleteProductAPI(APIView):
         return Response(data=response)
 
 
+class FetchOmnyCommUserListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("FetchOmnyCommUserListAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            page = int(data.get("page", 1))
+            organization = data.get("organization","WIG")
+
+            custom_permission_objs = CustomPermission.objects.filter(organization__name=organization).order_by("-pk")
+
+            user_count = custom_permission_objs.count()
+            paginator  = Paginator(custom_permission_objs,20)
+            total_pages = int(paginator.num_pages)
+
+            if page > total_pages:
+                response['status'] = 404
+                response['message'] = "Page number out of range"
+                logger.warning("FetchOmnyCommUserListAPI : Page number out of range")
+                return Response(data=response)            
+
+            custom_permission_objs = paginator.page(page)
+
+            user_list = []
+
+            for custom_permission_obj in custom_permission_objs:
+                temp_dict = {}
+                omnycomm_user_obj = OmnyCommUser.objects.get(username=custom_permission_obj.user.username)
+                temp_dict["username"] = omnycomm_user_obj.username
+                temp_dict["first_name"] = omnycomm_user_obj.first_name
+                temp_dict["last_name"] = omnycomm_user_obj.last_name
+                temp_dict["is_active"] = omnycomm_user_obj.is_active
+                temp_dict["designation"] = omnycomm_user_obj.designation
+                user_list.append(temp_dict)
+
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
+            response["totalPages"] = total_pages
+            response["total_users"] = user_count
+
+            response["userList"] = user_list
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOmnyCommUserListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response) 
+
+
+class FetchOmnyCommUserDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("FetchOmnyCommUserDetailsAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            username = data["username"]
+
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=username)
+            custom_permission_obj = CustomPermission.objects.get(user=omnycomm_user_obj)
+
+            response["username"] = omnycomm_user_obj.username
+            response["first_name"] = omnycomm_user_obj.first_name
+            response["last_name"] = omnycomm_user_obj.last_name
+            response["is_active"] = omnycomm_user_obj.is_active
+            response["designation"] = omnycomm_user_obj.designation
+            response["email"] = omnycomm_user_obj.email
+            image_obj = omnycomm_user_obj.image
+            if image_obj!=None:
+                response["image_url"] = image_obj.image.url
+            response["contact_no"] = omnycomm_user_obj.contact_number
+            response["designation"] = omnycomm_user_obj.designation
+            response["website_group"] = omnycomm_user_obj.website_group.name
+            brand_list = []
+            for brand_obj in custom_permission_obj.brands.all():
+                temp_dict = {}
+                temp_dict["name"] = brand_obj.name
+                temp_dict["uuid"] = brand_obj.uuid
+                brand_list.append(temp_dict)
+            response["brand_list"] = brand_list
+            response["sap_functions"] = json.loads(custom_permission_obj.sap_functions)
+            response["price"] = json.loads(custom_permission_obj.price)
+            response["stock"] = json.loads(custom_permission_obj.stock)
+            response["oc_report_list"] = json.loads(custom_permission_obj.oc_reports)
+            response["page_list"] = json.loads(custom_permission_obj.page_list)
+            location_group_list = []
+            for location_group_obj in custom_permission_obj.location_groups.all():
+                temp_dict = {}
+                temp_dict["name"] = location_group_obj.name
+                temp_dict["uuid"] = location_group_obj.uuid
+                location_group_list.append(temp_dict)
+            response["location_group_list"] = location_group_list
+            response["cohort"] = json.loads(custom_permission_obj.cohort)
+            response["other_list"] = json.loads(custom_permission_obj.misc)
+            
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchOmnyCommUserDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateOmnyCommUserAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("CreateOmnyCommUserAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            username = data["username"]
+            first_name = data["first_name"]
+            last_name = data["last_name"]
+            email = data["email"]
+            contact_no = data["contact_number"]
+            designation = data["designation"]
+            
+            password = generate_random_password(length=8)
+
+            if OmnyCommUser.objects.filter(username=username).exists():
+                response["status"] = 403
+                response["message"] = "The username already exists"
+                return Response(data=response)
+            
+            website_group_obj = WebsiteGroup.objects.get(name="shopnesto") 
+            omnycomm_user_obj = OmnycommUser.objects.create(username=username,
+                                                        password=password,
+                                                        first_name=first_name,
+                                                        last_name=last_name,
+                                                        website_group=website_group_obj,
+                                                        contact_number=contact_no,
+                                                        email=email,
+                                                        designation=designation)
+            organization_obj = Organization.objects.get(name="WIG")
+            custom_permission_obj = CustomPermission.objects.create(user=omnycomm_user_obj,
+                                                                    organization=organization_obj)
+            
+            response["password"] = password
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOmnyCommUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SaveOmnyCommUserDetailsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("SaveOmnyCommUserDetailsAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            username = data["username"]
+            first_name = data["first_name"]
+            last_name = data["last_name"]
+            email = data["email"]
+            contact_no = data["contact_number"]
+            designation = data["designation"]
+            is_active = data["is_active"]
+
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=username)
+
+            profile_image = data.get("user_image",None)
+
+            if profile_image!=None:
+                image_obj = Image.objects.create(image=profile_image)
+                omnycomm_user_obj.image=image_obj
+            
+            omnycomm_user_obj.first_name = first_name
+            omnycomm_user_obj.last_name = last_name
+            omnycomm_user_obj.email = email
+            omnycomm_user_obj.contact_number = contact_no
+            omnycomm_user_obj.designation = designation
+            omnycomm_user_obj.is_active = is_active
+
+            omnycomm_user_obj.save()
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveOmnyCommUserDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class SaveOmnyCommUserPermissionsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("SaveOmnyCommUserPermissionsAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            username = data["username"]
+            location_group_uuid_list = data["LocationGroupUuidList"]
+            brand_uuid_list = data["brandUuidList"]
+            sap_functions = data["sap_functions"]
+            price = data["price"]
+            stock = data["stock"]
+            oc_reports = data["oc_reports"]
+            page_list = data["page_list"]
+            cohort = data["cohort"]
+            misc = data["misc"]
+            
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=username)
+            custom_permission_obj = CustomPermission.objects.get(user=omnycomm_user_obj)
+
+            for location_group_uuid in location_group_uuid_list:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                custom_permission_obj.location_groups.add(location_group_obj)
+
+            for brand_uuid in brand_uuid_list:
+                brand_obj = Brand.objects.get(uuid=brand_uuid)
+                custom_permission_obj.brands.add(brand_obj)
+            
+            custom_permission_obj.sap_functions = json.dumps(sap_functions)
+            custom_permission_obj.price = json.dumps(price)
+            custom_permission_obj.stock = json.dumps(stock)
+            custom_permission_obj.oc_reports = json.dumps(oc_reports)
+            custom_permission_obj.page_list = json.dumps(page_list)
+            custom_permission_obj.cohort = json.dumps(cohort)
+            custom_permission_obj.misc = json.dumps(misc)
+
+            custom_permission_obj.save()
+
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SaveOmnyCommUserPermissionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class ResetOmnyCommUserPasswordAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("LogoutUserAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            username = data["username"]
+
+            omnycomm_user_obj = OmnyCommUser.objects.get(username=username)
+            password = generate_random_password(length=8)
+            omnycomm_user_obj.set_password(password)
+
+            response["password"] = password
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("LogoutUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class LogoutOCUserAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -7744,5 +8047,17 @@ CreateExportTemplate = CreateExportTemplateAPI.as_view()
 DeleteExportTemplate = DeleteExportTemplateAPI.as_view()
 
 SecureDeleteProduct = SecureDeleteProductAPI.as_view()
+
+FetchOmnyCommUserList = FetchOmnyCommUserListAPI.as_view()
+
+FetchOmnyCommUserDetails = FetchOmnyCommUserDetailsAPI.as_view()
+
+CreateOmnyCommUser = CreateOmnyCommUserAPI.as_view()
+
+SaveOmnyCommUserDetails = SaveOmnyCommUserDetailsAPI.as_view()
+
+SaveOmnyCommUserPermissions = SaveOmnyCommUserPermissionsAPI.as_view()
+
+ResetOmnyCommUserPassword = ResetOmnyCommUserPasswordAPI.as_view()
 
 LogoutOCUser = LogoutOCUserAPI.as_view()
