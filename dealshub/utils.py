@@ -1003,7 +1003,7 @@ def get_recommended_products(dealshub_product_objs,language_code):
 
     product_list = []
     for dealshub_product_obj in dealshub_product_objs:
-        if dealshub_product_obj.now_price()==0:
+        if dealshub_product_obj.now_price==0:
             continue
         try:
             temp_dict = {}
