@@ -11,7 +11,9 @@ from WAMSApp.models import *
 from dealshub.core_utils import *
 from WAMSApp.SAP_constants import *
 from django.core.cache import cache
-from dealshub.algolia.utils import *
+#from dealshub.algolia.utils import *
+from algoliasearch.search_client import SearchClient
+from dealshub.algolia.constants import *
 
 logger = logging.getLogger(__name__)
 
@@ -515,6 +517,32 @@ class DealsHubProduct(models.Model):
             pass
 
 
+    def add_product_to_index(self):
+
+        client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
+        index = client.init_index('DealsHubProduct')
+        
+        try:
+            #logger.info("add_product_to_index: %s", str(self.__dict__))
+            dealshub_product_dict = {}
+            dealshub_product_dict["locationGroup"] = self.location_group.uuid
+            dealshub_product_dict["objectID"] = self.uuid
+            dealshub_product_dict["productName"] = self.get_name()
+            dealshub_product_dict["category"] = self.get_category()
+            dealshub_product_dict["superCategory"] = self.get_super_category()
+            dealshub_product_dict["subCategory"] = self.get_sub_category()
+            dealshub_product_dict["brand"] = self.get_brand()
+            dealshub_product_dict["sellerSKU"] = self.get_seller_sku()
+            dealshub_product_dict["isPublished"] = self.is_published
+            dealshub_product_dict["price"] = self.now_price
+            dealshub_product_dict["stock"] = self.stock
+            
+            index.save_objects(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
+
+
     def save(self, *args, **kwargs):
         
         if self.uuid == None or self.uuid == "":
@@ -562,7 +590,7 @@ class DealsHubProduct(models.Model):
 
         try:
             logger.info("Update DealsHubProduct to Index: %s",str(self))
-            p1 = threading.Thread(target = add_product_to_index, args=(self,))
+            p1 = threading.Thread(target = self.add_product_to_index, args=(self,))
             p1.start()
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
