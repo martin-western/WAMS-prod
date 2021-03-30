@@ -146,7 +146,7 @@ class SearchWIG3API(APIView):
 
             dealshub_product_objs = DealsHubProduct.objects.filter(product__base_product__seller_sku__contains=search_string)
             if dealshub_product_objs.count() != 0:
-                products = get_dealshub_product_details(dealshub_product_objs)
+                products = get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj)
                 is_available = False
                 response["is_available"] = is_available
                 response["totalPages"] = 1
