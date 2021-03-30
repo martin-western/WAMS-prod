@@ -196,14 +196,14 @@ class CreateNewBaseProductAPI(APIView):
 
             product_obj = Product.objects.create(product_name=product_name, base_product=base_product_obj, dynamic_form_attributes=json.dumps(dynamic_form_attributes))
             render_value = 'Product {} is created'.format(product_name)
-            activitylog(user=request.user,table_name=Product,action_type='created',location_group_obj=None,prev_instance=None,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=Product,action_type='created',location_group_obj=None,prev_instance=None,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
 
 
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
                 dealshub_product_obj = DealsHubProduct.objects.create(product_name=product_obj.product_name, product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
                 render_value = 'DealsHubProduct {} is created'.format(dealshub_product_obj.product_name)
-                activitylog(user=request.user,table_name=DealsHubProduct,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render=render_value)
+                activitylog(user=request.user,table_name=DealsHubProduct,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
             response["product_pk"] = product_obj.pk
             response['status'] = 200
 
@@ -278,12 +278,12 @@ class CreateNewProductAPI(APIView):
                                             base_product=base_product_obj,
                                             dynamic_form_attributes=json.dumps(dynamic_form_attributes))
             render_value = 'Product {} is created'.format(product_obj.product_name)
-            activitylog(user=request.user,table_name=Product,action_type='created',location_group_obj=None,prev_instance=None,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=Product,action_type='created',location_group_obj=None,prev_instance=None,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
                 dealshub_product_obj = DealsHubProduct.objects.create(product_name=product_obj.product_name, product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
                 render_value = 'DealsHubProduct {} is created'.format(dealshub_product_obj.product_name)
-                activitylog(user=request.user,table_name=DealsHubProduct,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render=render_value)
+                activitylog(user=request.user,table_name=DealsHubProduct,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
 
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -1201,7 +1201,7 @@ class UpdateDealshubProductAPI(APIView):
 
             dh_product_obj.save()
             render_value = 'DealsHubProduct {} is updated'.format(dealshub_product_obj.product_name)
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
             
 
             response['status'] = 200
@@ -1258,7 +1258,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,filename,location_group_obj,"price",))
             p1.start()
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
-            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
             response['approved'] = True
@@ -1314,7 +1314,7 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_price , args=(oc_report_obj.uuid,path,filename,location_group_obj))
             p1.start()
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
-            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
 
@@ -1370,7 +1370,7 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_moq , args=(oc_report_obj.uuid,path,filename,location_group_obj,))
             p1.start()
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
-            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             
             response['status'] = 200
@@ -1427,7 +1427,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path,filename, location_group_obj, "stock",))
             p1.start()
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
-            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
             response['approved'] = True
@@ -1486,7 +1486,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                         render_value = 'DealsHubProduct {} is published'.format(dh_product_obj.product_name)
                     else:
                         render_value = 'DealsHubProduct {} is not published'.format(dh_product_obj.product_name)
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.pk,render=render_value)
+                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
 
 
                 except Exception as e:
@@ -1778,7 +1778,7 @@ class SaveProductAPI(APIView):
                 product_obj.atp_threshold = atp_threshold
                 product_obj.holding_threshold = holding_threshold
             render_value = 'Product {} is updated'.format(product_obj.product_name)
-            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             
 
             product_obj.save()
@@ -2571,7 +2571,7 @@ class UploadProductImageAPI(APIView):
                     ProductImage.objects.create(image=image_obj, product=product_obj, number=number)
                     product_obj.save()
                     render_value = "In product {} images are added".format(product_obj.product_name)        
-                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -4311,7 +4311,7 @@ class VerifyProductAPI(APIView):
                 product_obj.partially_verified = verify
                 render_value = "Product {} is verified".format(product_obj.product_name)
             product_obj.save()
-            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
 
             response['status'] = 200
 
@@ -4462,7 +4462,7 @@ class RemoveImageAPI(APIView):
                 
             product_obj.save()
             render_value = 'Images are removed from product {}'.format(product_obj.product_name)
-            activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)            
+            activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)            
             response['status'] = 200
 
         except Exception as e:
@@ -5431,7 +5431,7 @@ class CreateRequestHelpAPI(APIView):
             
             requesthelp_obj = RequestHelp.objects.create(message=message, page=page, user=request.user)
             render_value = 'Help request created.'
-            activitylog(user=request.user,table_name=RequestHelp,action_type='created',location_group_obj=None,prev_instance=None,current_instance=requesthelp_obj,table_item_pk=requesthelp_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=RequestHelp,action_type='created',location_group_obj=None,prev_instance=None,current_instance=requesthelp_obj,table_item_pk=requesthelp_obj.uuid,render=render_value)
 
             response['status'] = 200
         
@@ -6390,7 +6390,7 @@ class CreateOCReportAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
-            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
                 for brand_obj in brand_objs:
@@ -6502,7 +6502,7 @@ class CreateSEOReportAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_name, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=organization_obj)
             render_value = 'OCReport {} is created.'.format(oc_report_obj.name)
-            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             if seo_type=="product":
                 p1 = threading.Thread(target=bulk_download_product_seo_details_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
@@ -6633,7 +6633,7 @@ class CreateContentReportAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title="Content Health", created_by=oc_user_obj, note="", filename=filename, organization=organization_obj)
             render_value = 'OCReport {} is created.'.format(oc_report_obj.name)
-            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=None,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=None,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             filter_parameters = data["filter_parameters"]
 
@@ -6803,7 +6803,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
 
             channel_product.save()
             render_value = 'For product {}, channel product stocks and price are updated.'.format(product_obj.product_name)
-            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
 
             response['status'] = 200
 
@@ -7153,14 +7153,14 @@ class SaveDealshubProductDetailsAPI(APIView):
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
                     render_value = 'Promotion {} is created.'.format(promotion_obj.promotional_tag)
-                    activitylog(user=request.user,table_name=Promotion,action_type='created',location_group_obj=None,prev_instance=None,current_instance=promotion_obj,table_item_pk=promotion_obj.pk,render=render_value)
+                    activitylog(user=request.user,table_name=Promotion,action_type='created',location_group_obj=None,prev_instance=None,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
                 else:
                     promotion_obj.promotion_tag = promotional_tag
                     promotion_obj.start_time = start_date
                     promotion_obj.end_time = end_date
                     promotion_obj.save()
                     render_value = 'Promotion {} is updated.'.format(promotion_obj.promotional_tag)
-                    activitylog(user=request.user,table_name=Promotion,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.pk,render=render_value)
+                    activitylog(user=request.user,table_name=Promotion,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
 
                 dealshub_product_obj.is_promotional = True
             else:
@@ -7186,7 +7186,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.sub_category = sub_category_obj
             dealshub_product_obj.save()
             render_value = 'Dealshub product {} details updated.'.format(dealshub_product_obj.product_name)
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
             response["status"] = 200
 
         except Exception as e:
@@ -7268,7 +7268,7 @@ class CreateExportTemplateAPI(APIView):
 
             export_template_obj.save()
             render_value = 'Export Template {} is created'.format(export_template_obj.name)
-            activitylog(user=request.user,table_name=ExportTemplate,action_type='created',location_group_obj=None,prev_instance=None,current_instance=export_template_obj,table_item_pk=export_template_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=ExportTemplate,action_type='created',location_group_obj=None,prev_instance=None,current_instance=export_template_obj,table_item_pk=export_template_obj.uuid,render=render_value)
             response["uuid"] = export_template_obj.uuid
             response["status"] = 200
 
@@ -7298,7 +7298,7 @@ class DeleteExportTemplateAPI(APIView):
             export_template_obj = ExportTemplate.objects.get(uuid=uuid)
             prev_instance = deepcopy(export_template_obj)
             render_value = 'Export Template {} is deleted.'.format(export_template_obj.name)
-            activitylog(user=request.user,table_name=ExportTemplate,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=None,table_item_pk=export_template_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=ExportTemplate,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=None,table_item_pk=export_template_obj.uuid,render=render_value)
             export_template_obj.delete()
             response["status"] = 200
 
@@ -7351,12 +7351,12 @@ class SecureDeleteProductAPI(APIView):
             product_obj.is_deleted = True
             product_obj.save()
             render_value = 'Product {} is deleted'.format(product_obj.product_name)
-            activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_product_instance,current_instance=product_obj,table_item_pk=product_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_product_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
 
             dealshub_product_objs.update(is_deleted=True)
             for dealshub_product_obj in dealshub_product_objs:
                 render_value = 'Dealshub Product {} is deleted'.format(dealshub_product_obj.product_name)
-                activitylog(user=request.user,table_name=DealsHubProduct,action_type='deleted',location_group_obj=None,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.pk,render=render_value)
+                activitylog(user=request.user,table_name=DealsHubProduct,action_type='deleted',location_group_obj=None,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
 
             if Product.objects.filter(base_product=base_product_obj).exists()==False:
                 base_product_obj.is_deleted = True
