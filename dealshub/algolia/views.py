@@ -144,6 +144,8 @@ class SearchWIG3API(APIView):
                 response["short_description"] = ""
                 response["long_description"] = ""
 
+            search = {}
+
             dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj,product__base_product__seller_sku__contains=search_string,is_published=True).exclude(now_price=0).exclude(stock=0)
             if dealshub_product_objs.count() != 0:
                 products = get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj)
@@ -176,7 +178,6 @@ class SearchWIG3API(APIView):
             search_data["brands"] = data.get("brand_filter", [])
             search_data["page"] = int(data.get("page", 1)) - 1
             search_data["pageSize"] = 50
-            search = {}
 
             # Ranking
             search_data["ranking"] = 0
