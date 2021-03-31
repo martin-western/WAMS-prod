@@ -34,7 +34,7 @@ class UnPublishedWIGmeProductReportAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            location_group_objs = LocationGroup.objects.filter(name__in=["WIGMe - UAE", "WIGme - KWT"])
+            location_group_objs = LocationGroup.objects.filter(name__in=["WIGme - Dubai", "WIGme - KWT"])
 
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M"))+"_unpublished-products-report.xlsx"
 
