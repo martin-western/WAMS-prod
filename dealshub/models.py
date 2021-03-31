@@ -11,7 +11,9 @@ from WAMSApp.models import *
 from dealshub.core_utils import *
 from WAMSApp.SAP_constants import *
 from django.core.cache import cache
-from dealshub.algolia.utils import *
+#from dealshub.algolia.utils import *
+from algoliasearch.search_client import SearchClient
+from dealshub.algolia.constants import *
 
 logger = logging.getLogger(__name__)
 
@@ -136,6 +138,33 @@ class Voucher(models.Model):
             self.uuid = str(uuid.uuid4())
 
         super(Voucher, self).save(*args, **kwargs)
+
+
+def add_product_to_index(dealshub_product_obj):
+
+    client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
+    index = client.init_index('DealsHubProduct')
+    
+    try:
+        # logger.info("add_product_to_index: %s", str(dealshub_product_obj.__dict__))
+        dealshub_product_dict = {}
+        dealshub_product_dict["locationGroup"] = dealshub_product_obj.location_group.uuid
+        dealshub_product_dict["objectID"] = dealshub_product_obj.uuid
+        dealshub_product_dict["productName"] = dealshub_product_obj.get_name()
+        dealshub_product_dict["category"] = dealshub_product_obj.get_category()
+        dealshub_product_dict["superCategory"] = dealshub_product_obj.get_super_category()
+        dealshub_product_dict["subCategory"] = dealshub_product_obj.get_sub_category()
+        dealshub_product_dict["brand"] = dealshub_product_obj.get_brand()
+        dealshub_product_dict["sellerSKU"] = dealshub_product_obj.get_seller_sku()
+        dealshub_product_dict["isPublished"] = dealshub_product_obj.is_published
+        dealshub_product_dict["price"] = dealshub_product_obj.now_price
+        dealshub_product_dict["stock"] = dealshub_product_obj.stock
+        dealshub_product_dict["pk"] = dealshub_product_obj.pk
+        
+        index.save_object(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 class DealsHubProductManager(models.Manager):
@@ -359,7 +388,7 @@ class DealsHubProduct(models.Model):
             return 0
         return self.now_price
 
-    def get_was_price(self,dealshub_user_obj):
+    def get_was_price(self,dealshub_user_obj=None):
         if self.location_group.is_b2b==True:
             if dealshub_user_obj == None:
                 return 0
@@ -564,6 +593,7 @@ class DealsHubProduct(models.Model):
             logger.info("Update DealsHubProduct to Index: %s",str(self))
             p1 = threading.Thread(target = add_product_to_index, args=(self,))
             p1.start()
+            logger.info("Update DealsHubProduct P1 STARTED: %s",str(self))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))

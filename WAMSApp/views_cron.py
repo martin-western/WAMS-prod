@@ -1,4 +1,4 @@
-from WAMSApp.models import *
+from dealshub.models import *
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
@@ -14,6 +14,7 @@ import json
 import pandas as pd
 import threading
 import datetime
+import xlsxwriter
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,13 @@ class UnPublishedWIGmeProductReportAPI(APIView):
                 worksheet.write(cnt, colnum, k)
                 colnum += 1
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(location_group_obj__in=location_group_objs, product__no_of_images_for_filter=0, is_published=False)
+
+            total_brand_objs = Brand.objects.none()
+            for location_group_obj in location_group_objs:
+                total_brand_objs |= location_group_obj.website_group.brands.all()
+            total_brand_objs = total_brand_objs.distinct()
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(location_group__in=location_group_objs, product__base_product__brand__in=total_brand_objs, product__no_of_images_for_filter=0, is_published=False)
             for dealshub_product_obj in dealshub_product_objs:
                 try:
                     cnt += 1
@@ -82,7 +89,7 @@ class UnPublishedWIGmeProductReportAPI(APIView):
                     email = EmailMessage(subject='UnPublished Products Report Generated', 
                                          body='This is to inform you that your requested report has been generated on Omnycomm',
                                          from_email='nisarg@omnycomm.com',
-                                         to=["nisarg@omnycomm.com"],
+                                         to=["fathimasamah@westernint.com", "hari.pk@westernint.com"],
                                          connection=connection)
                     email.attach_file(filename)
                     email.send(fail_silently=True)

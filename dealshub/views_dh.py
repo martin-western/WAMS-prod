@@ -8204,18 +8204,15 @@ class PlaceOnlineOrderAPI(APIView):
 
             if online_payment_mode.strip().lower()=="spotii":
                 if on_approve_capture_order(merchant_reference)==False:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH!")
                     return Response(data=response)
             elif online_payment_mode.strip().lower()=="tap":
                 if get_charge_status(data["charge_id"])!="CAPTURED":
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PlaceOnlineOrderAPI: TAP STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("PlaceOnlineOrderAPI: TAP STATUS MISMATCH!")
                     return Response(data=response)
             else:
                 if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")
                     return Response(data=response)
             
 

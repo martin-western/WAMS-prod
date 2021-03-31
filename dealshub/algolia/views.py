@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import AllowAny
 
+from dealshub.models import *
 from dealshub.constants import *
 from dealshub.utils import *
 from dealshub.algolia.utils import *
@@ -143,6 +144,20 @@ class SearchWIG3API(APIView):
                 response["short_description"] = ""
                 response["long_description"] = ""
 
+            search = {}
+
+            dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj,product__base_product__seller_sku=search_string,is_published=True).exclude(now_price=0).exclude(stock=0)
+            if dealshub_product_objs.count() != 0:
+                products = get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj)
+                is_available = False
+                response["is_available"] = is_available
+                response["totalPages"] = 1
+                response["total_products"] = len(products)
+                search['products'] = products
+                response['search'] = search
+                response["is_user_authenticated"] = is_user_authenticated
+                response['status'] = 200
+                return Response(data=response)
 
             search_data = {}
             search_data["search_string"] = search_string
@@ -163,7 +178,6 @@ class SearchWIG3API(APIView):
             search_data["brands"] = data.get("brand_filter", [])
             search_data["page"] = int(data.get("page", 1)) - 1
             search_data["pageSize"] = 50
-            search = {}
 
             # Ranking
             search_data["ranking"] = 0
@@ -190,38 +204,10 @@ class SearchWIG3API(APIView):
             dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
             dealshub_product_objs = list(dealshub_product_objs)
             dealshub_product_objs.sort(key=lambda t: temp_pk_list.index(t.pk))
-            products = []
+
+            products = get_dealshub_product_details(dealshub_product_objs, dealshub_user_obj)
             currency = location_group_obj.location.currency
 
-            for dealshub_product_obj in dealshub_product_objs:
-                try:
-                    if dealshub_product_obj.now_price==0:
-                        continue
-                    temp_dict = {}
-                    temp_dict["name"] = dealshub_product_obj.get_name()
-                    temp_dict["brand"] = dealshub_product_obj.get_brand()
-                    temp_dict["seller_sku"] = dealshub_product_obj.get_seller_sku()
-                    temp_dict["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
-                    temp_dict["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
-                    temp_dict["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
-                    temp_dict["moq"] = dealshub_product_obj.get_moq(dealshub_user_obj)
-                    temp_dict["stock"] = dealshub_product_obj.stock
-                    temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
-                    temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
-                    temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
-                    temp_dict["isStockAvailable"] = dealshub_product_obj.stock>0
-                    product_promotion_details = get_product_promotion_details(dealshub_product_obj)
-                    for key in product_promotion_details.keys():
-                        temp_dict[key]=product_promotion_details[key]
-                    temp_dict["currency"] = currency
-                    temp_dict["uuid"] = dealshub_product_obj.uuid
-                    temp_dict["link"] = dealshub_product_obj.url
-                    temp_dict["id"] = dealshub_product_obj.uuid
-                    temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
-                    products.append(temp_dict)
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("SearchWIG3API: %s at %s", e, str(exc_tb.tb_lineno))
             is_available = True
             if search_result["page"] == search_result["nbPages"]-1:
                 is_available = False

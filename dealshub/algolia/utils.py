@@ -1,4 +1,4 @@
-from dealshub.models import *
+from dealshub.utils import *
 from algoliasearch.search_client import SearchClient
 from dealshub.algolia.constants import *
 import json
@@ -15,30 +15,30 @@ import time
 
 logger = logging.getLogger(__name__)
 
-def add_product_to_index(dealshub_product_obj):
+# def add_product_to_index(dealshub_product_obj):
 
-    client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
-    index = client.init_index('DealsHubProduct')
+#     client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
+#     index = client.init_index('DealsHubProduct')
     
-    try:
-        logger.info("add_product_to_index: %s", str(dealshub_product_obj.__dict__))
-        dealshub_product_dict = {}
-        dealshub_product_dict["locationGroup"] = dealshub_product_obj.location_group.uuid
-        dealshub_product_dict["objectID"] = dealshub_product_obj.uuid
-        dealshub_product_dict["productName"] = dealshub_product_obj.get_name()
-        dealshub_product_dict["category"] = dealshub_product_obj.get_category()
-        dealshub_product_dict["superCategory"] = dealshub_product_obj.get_super_category()
-        dealshub_product_dict["subCategory"] = dealshub_product_obj.get_sub_category()
-        dealshub_product_dict["brand"] = dealshub_product_obj.get_brand()
-        dealshub_product_dict["sellerSKU"] = dealshub_product_obj.get_seller_sku()
-        dealshub_product_dict["isPublished"] = dealshub_product_obj.is_published
-        dealshub_product_dict["price"] = dealshub_product_obj.now_price
-        dealshub_product_dict["stock"] = dealshub_product_obj.stock
+#     try:
+#         logger.info("add_product_to_index: %s", str(dealshub_product_obj.__dict__))
+#         dealshub_product_dict = {}
+#         dealshub_product_dict["locationGroup"] = dealshub_product_obj.location_group.uuid
+#         dealshub_product_dict["objectID"] = dealshub_product_obj.uuid
+#         dealshub_product_dict["productName"] = dealshub_product_obj.get_name()
+#         dealshub_product_dict["category"] = dealshub_product_obj.get_category()
+#         dealshub_product_dict["superCategory"] = dealshub_product_obj.get_super_category()
+#         dealshub_product_dict["subCategory"] = dealshub_product_obj.get_sub_category()
+#         dealshub_product_dict["brand"] = dealshub_product_obj.get_brand()
+#         dealshub_product_dict["sellerSKU"] = dealshub_product_obj.get_seller_sku()
+#         dealshub_product_dict["isPublished"] = dealshub_product_obj.is_published
+#         dealshub_product_dict["price"] = dealshub_product_obj.now_price
+#         dealshub_product_dict["stock"] = dealshub_product_obj.stock
         
-        index.save_objects(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
+#         index.save_objects(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
+#     except Exception as e:
+#         exc_type, exc_obj, exc_tb = sys.exc_info()
+#         logger.error("add_product_to_index: %s at %s", e, str(exc_tb.tb_lineno))
 
 def search_algolia_index(data):
     try:
