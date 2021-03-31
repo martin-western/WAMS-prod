@@ -1302,7 +1302,7 @@ class SelectOfflineAddressAPI(APIView):
             cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
             cart_obj.save()
             
-            render_value =  "Shipping Address updated offline for " + username
+            render_value =  "Shipping Address selected offline for " + username
             activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, cart_obj.location_group, render_value)
             response["status"] = 200
         except Exception as e:
@@ -3138,7 +3138,7 @@ class DeleteB2BDocumentImageAPI(APIView):
             b2b_location_group_obj = None
             if LocationGroup.objects.filter(is_b2b=True).exists():
                 b2b_location_group_obj = LocationGroup.objects.filter(is_b2b=True)[0]
-            render_value = "B2B document image" + image_url + "deleted"
+            render_value = "B2B document image " + image_url + " deleted"
             activitylog(request.user, Image, "deleted", pk, image_obj, None, b2b_location_group_obj, render_value)
             response["status"] = 200
         except Exception as e:
@@ -4841,9 +4841,9 @@ class UpdateReviewAdminAPI(APIView):
             response['review_uuid'] = review_obj.uuid
             response['review_content_uuid'] = review_content_obj.uuid
 
-            render_value_1 = "Review of product" + review_obj.product.product_name + "updated"
+            render_value_1 = "Review of product " + review_obj.product.product_name + " updated"
             activitylog(request.user, Review, "updated", review_obj.uuid, prev_review_obj, review_obj, review_obj.product.location_group, render_value_1)
-            render_value_2 = "Review Content of product" + review_obj.product.product_name + "updated"
+            render_value_2 = "Review Content of product " + review_obj.product.product_name + " updated"
             activitylog(request.user, ReviewContent, "updated", review_content_obj.uuid, prev_review_content_obj, review_content_obj, review_obj.product.location_group, render_value_2)
 
             response['status'] = 200
@@ -4946,7 +4946,7 @@ class AddAdminCommentAPI(APIView):
                 prev_review_content_obj = deepcopy(review_content_obj)
                 review_content_obj.admin_comment = None
                 review_content_obj.save()
-                render_value = "Admin comment for product" + review_obj.product.product_name +" deleted"
+                render_value = "Admin comment for product " + review_obj.product.product_name +" deleted"
                 activitylog(user=omnycomm_user_obj,table_name=ReviewContent,action_type='deleted',location_group_obj=review_obj.product.location_group, prev_instance=prev_review_content_obj,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render=render_value)
                 response["status"] = 200
                 return Response(data=response)
@@ -4958,11 +4958,11 @@ class AddAdminCommentAPI(APIView):
                 admin_comment_obj.comment = comment
                 admin_comment_obj.user = omnycomm_user_obj
                 admin_comment_obj.save()
-                render_value = "Admin comment for product" + review_obj.product.product_name +" updated"
+                render_value = "Admin comment for product " + review_obj.product.product_name +" updated"
                 activitylog(user=omnycomm_user_obj,table_name=AdminReviewComment,action_type='updated',location_group_obj=review_obj.product.location_group,prev_instance=prev_admin_comment_obj,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render=render_value)
             else:
                 admin_comment_obj = AdminReviewComment.objects.create(user=omnycomm_user_obj, comment=comment)
-                render_value = "Admin comment for product" + review_obj.product.product_name +" created"
+                render_value = "Admin comment for product " + review_obj.product.product_name +" created"
                 activitylog(user=omnycomm_user_obj,table_name=AdminReviewComment,action_type='created',location_group_obj=review_obj.product.location_group,prev_instance=None,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render=render_value)
                 review_content_obj = review_obj.content
                 review_content_obj.admin_comment = admin_comment_obj
@@ -5531,7 +5531,7 @@ class UpdateReviewPublishStatusAPI(APIView):
             prev_review_obj = deepcopy(review_obj)
             review_obj.is_published = is_published
             review_obj.save()
-            render_value = "Review of product " + review_obj.product.product_name + "by user " + (review_obj.dealshub_user.username if review_obj.dealshub_user!=None else "") + " is published"
+            render_value = "Review of product " + review_obj.product.product_name + "by user " + (review_obj.dealshub_user.username if review_obj.dealshub_user!=None else "") + " is " + ("published" if is_published==True else "unpublished")  
             activitylog(user=request.user,table_name=Review,action_type='update',location_group_obj=review_obj.product.location_group,prev_instance=prev_review_obj,current_instance=review_obj,table_item_pk=review_obj.uuid,render=render_value)
             response['status'] = 200
 
