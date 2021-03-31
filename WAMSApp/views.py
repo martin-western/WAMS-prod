@@ -1498,7 +1498,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
 
 class BulkUpdateDealshubProductPublishStatusAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1560,6 +1560,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
 
 class BulkUpdateDealshubProductStatusAPI(APIView):
+    # format of file required :- https://docs.google.com/spreadsheets/d/1ibmo15E3nj9VIZWxdggK9nS6y5_icNUBlVfnn-p_w8w/edit?usp=sharing
 
     def post(self, request, *args, **kwargs):
 
