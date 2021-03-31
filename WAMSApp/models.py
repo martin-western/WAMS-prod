@@ -284,6 +284,33 @@ class LocationGroup(models.Model):
         verbose_name_plural = "LocationGroup"
 
 
+class ActivityLog(models.Model):
+    user = models.ForeignKey(User, null=True)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True) #auto
+    table_name = models.CharField(max_length=256, blank=True, default='') #model name
+    table_item_pk = models.CharField(max_length=256, blank=True, default='') # item pk is id of change in that item 
+    action_type = models.CharField(max_length=64,blank=True,default='') # created updated deleted 
+    prev_instance = models.TextField(blank = True,default='{}')
+    current_instance = models.TextField(blank = True,default='{}')
+    render =  models.TextField(default='',blank = True) #messages
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(ActivityLog, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "ActivityLog"
+        verbose_name_plural = "ActivityLog"
+
+
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)

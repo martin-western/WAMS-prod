@@ -590,10 +590,11 @@ class DealsHubProduct(models.Model):
                 pass
 
         try:
-            logger.info("Update DealsHubProduct to Index: %s",str(self))
-            p1 = threading.Thread(target = add_product_to_index, args=(self,))
-            p1.start()
-            logger.info("Update DealsHubProduct P1 STARTED: %s",str(self))
+            if self.location_group.name in ["WIGMe - UAE"]:
+                logger.info("Update DealsHubProduct to Index: %s",str(self))
+                p1 = threading.Thread(target = add_product_to_index, args=(self,))
+                p1.start()
+                logger.info("Update DealsHubProduct P1 STARTED: %s",str(self))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
