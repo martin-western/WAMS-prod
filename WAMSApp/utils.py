@@ -2749,7 +2749,7 @@ def activitylog(user,table_name,action_type,table_item_pk='',prev_instance=None,
         ActivityLog.objects.create(
             user=user,
             location_group = location_group_obj,
-            table_name = table_name,
+            table_name = table_name._meta.object_name,
             table_item_pk = table_item_pk,
             action_type = action_type,
             prev_instance = json.dumps(prev_instance),
