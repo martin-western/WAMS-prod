@@ -291,10 +291,10 @@ class ActivityLog(models.Model):
     created_date = models.DateTimeField(auto_now_add=True) #auto
     table_name = models.CharField(max_length=256, blank=True, default='') #model name
     table_item_pk = models.CharField(max_length=256, blank=True, default='') # item pk is id of change in that item 
-    action_type = models.CharField(max_length=64,null=True,blank=True) # created updated deleted 
-    prev_instance = models.TextField(null = True,blank = True,default='')
-    current_instance = models.TextField(null = True,blank = True,default='')
-    render =  models.TextField(null = True,blank = True) #messages
+    action_type = models.CharField(max_length=64,blank=True,default='') # created updated deleted 
+    prev_instance = models.TextField(blank = True,default='{}')
+    current_instance = models.TextField(blank = True,default='{}')
+    render =  models.TextField(default='',blank = True) #messages
 
     def __str__(self):
         return str(self.uuid)
