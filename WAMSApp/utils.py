@@ -2468,7 +2468,8 @@ def is_oc_user(user_obj):
         return True
     return False
 
-def bulk_update_dealshub_product_price_or_stock(oc_uuid,path,filename, location_group_obj, update_type):
+
+def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename, location_group_obj, update_type):
     try:
         
         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
@@ -2514,8 +2515,57 @@ def bulk_update_dealshub_product_price_or_stock(oc_uuid,path,filename, location_
                         dh_product_obj.now_price = now_price
                         dh_product_obj.was_price = was_price
                         dh_product_obj.save()
+                    elif update_type == "status":
+                        is_cod_allowed = str(dfs.iloc[i][1]).strip().lower()
+                        is_promo_restricted = str(dfs.iloc[i][2]).strip().lower()
+                        is_new_arrival = str(dfs.iloc[i][3]).strip().lower()
+                        is_on_sale = str(dfs.iloc[i][4]).strip().lower()
+                        is_promotional = str(dfs.iloc[i][5]).strip().lower()
+                        if is_cod_allowed =='true':
+                            is_cod_allowed = True
+                        elif is_cod_allowed =='false':
+                            is_cod_allowed=False
+                        else:
+                            common_row[2]='fail'
+                            continue
+                        if is_promo_restricted =='true':
+                            is_promo_restricted = True
+                        elif is_promo_restricted =='false':
+                            is_promo_restricted=False
+                        else:
+                            common_row[2]='fail'
+                            continue
+                        if is_new_arrival =='true':
+                            is_new_arrival = True
+                        elif is_new_arrival =='false':
+                            is_new_arrival=False
+                        else:
+                            common_row[2]='fail'
+                            continue
+                        if is_on_sale =='true':
+                            is_on_sale = True
+                        elif is_on_sale =='false':
+                            is_on_sale=False
+                        else:
+                            common_row[2]='fail'
+                            continue
+                        if is_promotional =='true':
+                            is_promotional = True
+                        elif is_promotional =='false':
+                            is_promotional=False
+                        else:
+                            common_row[2]='fail'
+                            continue
+                        dh_product_obj.is_cod_allowed = is_cod_allowed
+                        dh_product_obj.is_promo_restricted = is_promo_restricted
+                        dh_product_obj.is_new_arrival = is_new_arrival
+                        dh_product_obj.is_on_sale = is_on_sale
+                        dh_product_obj.is_promotional = is_promotional
+                        dh_product_obj.save()
+                    print("success")
                     common_row[2] = "success"
                 else:
+                    print("fail")
                     common_row[2] = "fail"
     
                 colnum = 0
@@ -2525,7 +2575,7 @@ def bulk_update_dealshub_product_price_or_stock(oc_uuid,path,filename, location_
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("bulk_update_dealshub_product_price_or_stock: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("bulk_update_dealshub_product_price_or_stock_or_status: %s at %s", e, str(exc_tb.tb_lineno))
             
         workbook.close()
 
@@ -2536,7 +2586,12 @@ def bulk_update_dealshub_product_price_or_stock(oc_uuid,path,filename, location_
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("bulk_update_dealshub_product_price_or_stock: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.error("bulk_update_dealshub_product_price_or_stock_or_status: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+
+
+
 
 def bulk_update_b2b_dealshub_product_price(oc_uuid,path,filename, location_group_obj):
     try:
