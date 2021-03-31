@@ -2233,7 +2233,7 @@ class UnPublishAdminCategoryAPI(APIView):
             #cache.set(location_group_uuid, "has_expired")
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            render_value = "Section" + section_obj.name + " is unpublished"
+            render_value = "Section " + section_obj.name + " is unpublished"
             activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, render_value)
             response['status'] = 200
         except Exception as e:
@@ -2334,7 +2334,7 @@ class SectionBulkUploadAPI(APIView):
             response["unsuccessful_count"] = unsuccessful_count
             response["filepath"] = path
 
-            render_value = "Products bulk uploaded to section"+ section_obj.name
+            render_value = "Products bulk uploaded to section "+ section_obj.name
             activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, location_group_obj, render_value)
             response['status'] = 200
             
@@ -2621,7 +2621,7 @@ class CreateBannerAPI(APIView):
             response['uuid'] = banner_obj.uuid
             response["limit"] = banner_type_obj.limit
             response['status'] = 200
-            render_value = "Banner " + banner_obj.name + "is created"
+            render_value = "Banner " + banner_obj.name + " is created"
             activitylog(request.user, Banner, "created", banner_obj.uuid, None, banner_obj, location_group_obj,render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2654,7 +2654,7 @@ class UpdateBannerNameAPI(APIView):
             banner_obj.save()
             
             response['status'] = 200
-            render_value = "Banner " + banner_obj.name + "is updated"
+            render_value = "Banner " + banner_obj.name + " is updated"
             activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, banner_obj.location_group, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2872,7 +2872,7 @@ class DeleteBannerAPI(APIView):
             banner_obj.delete()
             
             response['status'] = 200
-            render_value = "Banner " + prev_banner_obj.name + "is deleted"
+            render_value = "Banner " + prev_banner_obj.name + " is deleted"
             activitylog(request.user, Banner, "deleted", "", prev_banner_obj, None, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -3176,7 +3176,7 @@ class UnPublishDealsHubProductsAPI(APIView):
                 location_group_obj = dealshub_product_obj.location_group
 
             response['status'] = 200
-            render_value = str(len(product_uuid_list)) + " products published on " + location_group_obj.name
+            render_value = str(len(product_uuid_list)) + " products unpublished on " + location_group_obj.name
             activitylog(request.user, DealsHubProduct, "updated", '', None, None, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4704,7 +4704,7 @@ class AddUnitBannerHoveringImageAPI(APIView):
             response['uuid'] = image_obj.pk
             response['url'] = image_obj.image.url
             response['status'] = 200
-            render_value = "Added hovering image for " + unit_banner_image_obj.banner.name + " on " + unit_banner_image_obj.banner.location_group.name
+            render_value = "Added banner hovering image for " + unit_banner_image_obj.banner.name + " on " + unit_banner_image_obj.banner.location_group.name
             activitylog(request.user, UnitBannerImage, "updated", unit_banner_image_obj.uuid, prev_unit_banner_image_obj, unit_banner_image_obj, unit_banner_image_obj.banner.location_group, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4772,7 +4772,7 @@ class AddSectionHoveringImageAPI(APIView):
             response['uuid'] = image_obj.pk
             response['url'] = image_obj.image.url
             response['status'] = 200
-            render_value = "Added hovering image for " + section_obj.name + " on " + section_obj.location_group.name
+            render_value = "Added section hovering image for " + section_obj.name + " on " + section_obj.location_group.name
             activitylog(request.user, Section, "updated", section_obj.uuid, prev_section_obj, section_obj, section_obj.location_group, render_value)
 
         except Exception as e:
@@ -4932,8 +4932,7 @@ class UpdateUnitBannerAPI(APIView):
             unit_banner_obj.save()
 
             response['status'] = 200
-            activitylog(request.user, UnitBannerImage, "updated", unit_banner_obj.uuid, prev_banner_obj, unit_banner_obj, None, "Promotion in UnitBannerImage updated")
-            activitylog(request.user, DealsHubProduct, "updated", "", None, None, None, "Promotion in DealsHubProducts updated")
+            activitylog(request.user, UnitBannerImage, "updated", unit_banner_obj.uuid, prev_banner_obj, unit_banner_obj, unit_banner_obj.banner.location_group, "Promotion in UnitBannerImage updated")
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -5989,7 +5988,7 @@ class UpdateSalesTargetAPI(APIView):
             sales_target_obj.save()
             
             response['status'] = 200
-            render_value = "Sales Target updated for " + sales_person_obj.username + " for " + location_group_obj.name
+            render_value = "Sales Target updated for " + sales_target_obj.user.username + " for " + location_group_obj.name
             activitylog(request.user, SalesTarget, "updated", sales_target_obj.uuid, prev_sales_target_obj, sales_target_obj, location_group_obj, render_value)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

@@ -1319,7 +1319,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,filename,location_group_obj,"price",))
             p1.start()
-            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            render_value = 'Bulk update products price with report {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
@@ -1380,7 +1380,7 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_price , args=(oc_report_obj.uuid,path,filename,location_group_obj))
             p1.start()
-            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            render_value = 'Bulk update b2b products price with report  {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
@@ -1441,7 +1441,7 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_moq , args=(oc_report_obj.uuid,path,filename,location_group_obj,))
             p1.start()
-            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            render_value = 'Bulk update b2b products moq with report  {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             
@@ -1503,7 +1503,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path,filename, location_group_obj, "stock",))
             p1.start()
-            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            render_value = 'Bulk update products stock with report  {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
@@ -1548,7 +1548,8 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
             
             rows = len(dfs.iloc[:])
             excel_errors = []
-
+            publish_count = 0
+            unpublish_count = 0
             for i in range(rows):
                 try:
                     product_id = str(dfs.iloc[i][0]).strip()
@@ -1564,18 +1565,21 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                     prev_instance = deepcopy(dh_product_obj)
                     dh_product_obj.is_published = is_published
                     dh_product_obj.save()
-                    if is_published ==True:
-                        render_value = 'DealsHubProduct {} is published'.format(dh_product_obj.product_name)
+
+                    if is_published:
+                        publish_count += 1
                     else:
-                        render_value = 'DealsHubProduct {} is not published'.format(dh_product_obj.product_name)
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
-
-
+                        unpublish_count += 1
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
             
             response['excel_errors'] = excel_errors
+
+            render_value = 'Bulk publish products {} are published and {} are not published'.format(publish_count,unpublish_count)
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
+
+
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2656,41 +2660,60 @@ class UploadProductImageAPI(APIView):
                     else:
                         render_value = 'subimage is updated'
                         activitylog(user=request.user,table_name=SubImages,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
-
-
             
             elif data["image_category"] == "pfl_images":
                 for image_obj in image_objs:
                     product_obj.pfl_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "white_background_images":
                 for image_obj in image_objs:
                     product_obj.no_of_images_for_filter += 1
                     product_obj.white_background_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "lifestyle_images":
                 for image_obj in image_objs:
                     product_obj.no_of_images_for_filter += 1
                     product_obj.lifestyle_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "certificate_images":
                 for image_obj in image_objs:
                     product_obj.certificate_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "giftbox_images":
                 for image_obj in image_objs:
                     product_obj.giftbox_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "diecut_images":
                 for image_obj in image_objs:
                     product_obj.diecut_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "aplus_content_images":
                 for image_obj in image_objs:
                     product_obj.aplus_content_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "ads_images":
                 for image_obj in image_objs:
                     product_obj.ads_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "unedited_images":
                 for image_obj in image_objs:
                     product_obj.base_product.unedited_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "transparent_images":
                 for image_obj in image_objs:
                     product_obj.transparent_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
+
             elif data["image_category"] == "best_images":
                 number = 0
                 if product_obj.best_images.count()>0:
@@ -2702,7 +2725,7 @@ class UploadProductImageAPI(APIView):
                     number += 1
                     ProductImage.objects.create(image=image_obj, product=product_obj, number=number)
                     product_obj.save()
-                    render_value = "In product {} images are added".format(product_obj.product_name)        
+                    render_value = "In product {} best image {} are added".format(product_obj.product_name,image_obj.image.url)        
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             response['status'] = 200
 
