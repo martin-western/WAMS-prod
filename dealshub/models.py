@@ -159,6 +159,7 @@ def add_product_to_index(dealshub_product_obj):
         dealshub_product_dict["isPublished"] = dealshub_product_obj.is_published
         dealshub_product_dict["price"] = dealshub_product_obj.now_price
         dealshub_product_dict["stock"] = dealshub_product_obj.stock
+        dealshub_product_dict["pk"] = dealshub_product_obj.pk
         
         index.save_object(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
     except Exception as e:
