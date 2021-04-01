@@ -210,7 +210,7 @@ class FetchShippingAddressListAPI(APIView):
         
         return Response(data=response)
 
-
+#API with activity log
 class EditShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -249,6 +249,7 @@ class EditShippingAddressAPI(APIView):
             emirates = data.get("emirates", "")
 
             address_obj = Address.objects.get(uuid=uuid)
+            prev_address_obj = deepcopy(address_obj)
             address_obj.first_name = first_name
             address_obj.last_name = last_name
             address_obj.address_lines = json.dumps(address_lines)
@@ -258,6 +259,8 @@ class EditShippingAddressAPI(APIView):
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
 
+            render_value =  "Shipping Address updated offline for " + username
+            activitylog(request.user, Address, "updated", address_obj.uuid, prev_address_obj, address_obj, address_obj.location_group, render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -1295,15 +1298,12 @@ class SelectOfflineAddressAPI(APIView):
             address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
-            prev_cart_obj = deepcopy(cart_obj)
             
             cart_obj.shipping_address = address_obj
             cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
             cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
             cart_obj.save()
             
-            render_value =  "Shipping Address selected offline for " + username
-            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, cart_obj.location_group, render_value)
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
