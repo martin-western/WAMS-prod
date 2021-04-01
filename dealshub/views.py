@@ -2969,7 +2969,7 @@ class PublishDealsHubProductAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            prev_product_obj = dealshub_product_obj
+            prev_product_obj = deepcopy(dealshub_product_obj)
             
             # if dealshub_product_obj.product.no_of_images_for_filter==0:
             #     response['status'] = 407
@@ -3006,7 +3006,7 @@ class UnPublishDealsHubProductAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            prev_product_obj = dealshub_product_obj
+            prev_product_obj = deepcopy(dealshub_product_obj)
             dealshub_product_obj.is_published = False
             dealshub_product_obj.save()
 
@@ -3037,7 +3037,7 @@ class ActivateCODDealsHubProductAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            prev_product_obj = dealshub_product_obj
+            prev_product_obj = deepcopy(dealshub_product_obj)
             dealshub_product_obj.is_cod_allowed = True
             dealshub_product_obj.save()
 
@@ -3068,7 +3068,7 @@ class DeactivateCODDealsHubProductAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            prev_product_obj = dealshub_product_obj
+            prev_product_obj = deepcopy(dealshub_product_obj)
             dealshub_product_obj.is_cod_allowed = False
             dealshub_product_obj.save()
 
@@ -3102,7 +3102,7 @@ class DeleteProductFromSectionAPI(APIView):
 
             section_obj = Section.objects.get(uuid=section_uuid)
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
-            prev_product_obj = dealshub_product_obj
+            prev_product_obj = deepcopy(dealshub_product_obj)
             dealshub_product_obj.promotion = None
             dealshub_product_obj.save()
             
