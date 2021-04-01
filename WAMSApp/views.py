@@ -183,7 +183,7 @@ class CreateNewBaseProductAPI(APIView):
                                               manufacturer=manufacturer,
                                               manufacturer_part_number=manufacturer_part_number,
                                               dimensions=base_dimensions)
-            render_value = 'BaseProduct {} is created'.format(product_name)
+            render_value = 'BaseProduct {} is created'.format(base_product_obj.seller_sku)
             activitylog(user=request.user,table_name=BaseProduct,action_type='created',location_group_obj=None,prev_instance=None,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render=render_value)
             
             dynamic_form_attributes = {}
@@ -195,20 +195,20 @@ class CreateNewBaseProductAPI(APIView):
                         "type": "dropdown",
                         "labelText": prop_data["key"].title(),
                         "value": "",
-                        "options": prop_data["values"]
+                        "options": prop_data["values"]base_product_obj
                     }
             except Exception as e:
                 pass
 
             product_obj = Product.objects.create(product_name=product_name, base_product=base_product_obj, dynamic_form_attributes=json.dumps(dynamic_form_attributes))
-            render_value = 'Product {} is created'.format(product_name)
+            render_value = 'Product {} is created'.format(product_obj.base_product.seller_sku)
             activitylog(user=request.user,table_name=Product,action_type='created',location_group_obj=None,prev_instance=None,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
 
 
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
                 dealshub_product_obj = DealsHubProduct.objects.create(product_name=product_obj.product_name, product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
-                render_value = 'DealsHubProduct {} is created'.format(dealshub_product_obj.product_name)
+                render_value = 'DealsHubProduct {} is created'.format(dealshub_product_obj.get_seller_sku())
                 activitylog(user=request.user,table_name=DealsHubProduct,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
             response["product_pk"] = product_obj.pk
             response['status'] = 200
@@ -288,12 +288,12 @@ class CreateNewProductAPI(APIView):
                                             pfl_product_name=product_name,
                                             base_product=base_product_obj,
                                             dynamic_form_attributes=json.dumps(dynamic_form_attributes))
-            render_value = 'Product {} is created'.format(product_obj.product_name)
+            render_value = 'Product {} is created'.format(product_obj.base_product.seller_sku)
             activitylog(user=request.user,table_name=Product,action_type='created',location_group_obj=None,prev_instance=None,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             location_group_objs = LocationGroup.objects.filter(website_group__brands__in=[brand_obj])
             for location_group_obj in location_group_objs:
                 dealshub_product_obj = DealsHubProduct.objects.create(product_name=product_obj.product_name, product=product_obj, location_group=location_group_obj, category=base_product_obj.category, sub_category=base_product_obj.sub_category)
-                render_value = 'DealsHubProduct {} is created'.format(dealshub_product_obj.product_name)
+                render_value = 'DealsHubProduct {} is created'.format(dealshub_product_obj.get_seller_sku())
                 activitylog(user=request.user,table_name=DealsHubProduct,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
 
             response["product_pk"] = product_obj.pk
@@ -306,7 +306,7 @@ class CreateNewProductAPI(APIView):
 
         return Response(data=response)
 
-class SaveNoonChannelProductAPI(APIView):
+class SaveNoonChannelProformat(product_objductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -1257,7 +1257,7 @@ class UpdateDealshubProductAPI(APIView):
                     dh_product_obj.stock = stock
 
             dh_product_obj.save()
-            render_value = 'DealsHubProduct {} is updated'.format(dealshub_product_obj.product_name)
+            render_value = 'DealsHubProduct {} is updated'.format(dealshub_product_obj.get_seller_sku())
             activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
             
 
@@ -1565,9 +1565,9 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                     dh_product_obj.is_published = is_published
                     dh_product_obj.save()
                     if is_published ==True:
-                        render_value = 'DealsHubProduct {} is published'.format(dh_product_obj.product_name)
+                        render_value = 'DealsHubProduct {} is published'.format(dh_product_obj.get_seller_sku())
                     else:
-                        render_value = 'DealsHubProduct {} is not published'.format(dh_product_obj.product_name)
+                        render_value = 'DealsHubProduct {} is not published'.format(dh_product_obj.get_seller_sku())
                     activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
 
 
@@ -1679,7 +1679,7 @@ class SaveBaseProductAPI(APIView):
             base_product_obj.category = category_obj
             base_product_obj.sub_category = sub_category_obj
             base_product_obj.dimensions = dimensions
-            render_value = 'BaseProduct {} is updated'.format(base_product_obj.base_product_name)
+            render_value = 'BaseProduct {} is updated'.format(base_product_obj.seller_sku)
             activitylog(user=request.user,table_name=BaseProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render=render_value)
             
             base_product_obj.save()
@@ -1869,7 +1869,7 @@ class SaveProductAPI(APIView):
 
                 product_obj.atp_threshold = atp_threshold
                 product_obj.holding_threshold = holding_threshold
-            render_value = 'Product {} is updated'.format(product_obj.product_name)
+            render_value = 'Product {} is updated'.format(product_obj.base_product.seller_sku)
             activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             
 
@@ -2702,7 +2702,7 @@ class UploadProductImageAPI(APIView):
                     number += 1
                     ProductImage.objects.create(image=image_obj, product=product_obj, number=number)
                     product_obj.save()
-                    render_value = "In product {} images are added".format(product_obj.product_name)        
+                    render_value = "In product {} images are added".format(product_obj.base_product.seller_sku)        
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             response['status'] = 200
 
@@ -4483,10 +4483,10 @@ class VerifyProductAPI(APIView):
             prev_instance = deepcopy(product_obj)
             verify = data["verify"]
             product_obj.verified = verify
-            render_value = "Product {} is not verified".format(product_obj.product_name)
+            render_value = "Product {} is not verified".format(product_obj.base_product.seller_sku)
             if verify:
                 product_obj.partially_verified = verify
-                render_value = "Product {} is verified".format(product_obj.product_name)
+                render_value = "Product {} is verified".format(product_obj.base_product.seller_sku)
             product_obj.save()
             activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
 
@@ -4648,12 +4648,12 @@ class RemoveImageAPI(APIView):
                 productimage_obj = ProductImage.objects.get(product=product_obj, image=image_obj)
                 prev_productimage_instance = deepcopy(productimage_obj)
                 productimage_obj.delete()
-                render_value = 'Best images are deleted from product {}'.format(product_obj.product_name)
+                render_value = 'Best images are deleted from product {}'.format(product_obj.base_product.seller_sku)
                 activitylog(user=request.user,table_name=ProductImage,action_type='deleted',location_group_obj=None,prev_instance=productimage_obj,current_instance=None,table_item_pk=productimage_obj.pk,render=render_value)            
 
                 
             product_obj.save()
-            render_value = 'Images are removed from product {}'.format(product_obj.product_name)
+            render_value = 'Images are removed from product {}'.format(product_obj.base_product.seller_sku)
             activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)            
             response['status'] = 200
 
@@ -4774,7 +4774,7 @@ class RemoveProductFromExportListAPI(APIView):
             prev_instance = deepcopy(export_obj)
             export_obj.products.remove(product_obj)
             export_obj.save()
-            render_value = 'Product {} is removed from export list {}'.format(product_obj.product_name,export_obj.title)
+            render_value = 'Product {} is removed from export list {}'.format(product_obj.base_product.seller_sku,export_obj.title)
             activitylog(user=request.user,table_name=ExportList,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=export_obj,table_item_pk=export_obj.pk,render=render_value)
 
             response['status'] = 200
@@ -7144,7 +7144,7 @@ class UpdateChannelProductStockandPriceAPI(APIView):
             channel_product = assign_channel_product_json(channel_name,channel_product,channel_product_dict)
 
             channel_product.save()
-            render_value = 'For product {}, channel product stocks and price are updated.'.format(product_obj.product_name)
+            render_value = 'For product {}, channel product stocks and price are updated.'.format(product_obj.base_product.seller_sku)
             activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
 
             response['status'] = 200
@@ -7552,7 +7552,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.category = category_obj
             dealshub_product_obj.sub_category = sub_category_obj
             dealshub_product_obj.save()
-            render_value = 'Dealshub product {} details updated.'.format(dealshub_product_obj.product_name)
+            render_value = 'Dealshub product {} details updated.'.format(dealshub_product_obj.get_seller_sku())
             activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dealshub_product_obj.location_group,prev_instance=prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
             response["status"] = 200
 
@@ -7737,18 +7737,18 @@ class SecureDeleteProductAPI(APIView):
 
             product_obj.is_deleted = True
             product_obj.save()
-            render_value = 'Product {} is deleted'.format(product_obj.product_name)
+            render_value = 'Product {} is deleted'.format(product_obj.base_product.seller_sku)
             activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_product_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
 
             dealshub_product_objs.update(is_deleted=True)
             for dealshub_product_obj in dealshub_product_objs:
-                render_value = 'Dealshub Product {} is deleted'.format(dealshub_product_obj.product_name)
+                render_value = 'Dealshub Product {} is deleted'.format(dealshub_product_obj.get_seller_sku())
                 activitylog(user=request.user,table_name=DealsHubProduct,action_type='deleted',location_group_obj=dealshub_product_obj.location_group,prev_instance=None,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
 
             if Product.objects.filter(base_product=base_product_obj).exists()==False:
                 base_product_obj.is_deleted = True
                 base_product_obj.save()
-                render_value = 'BaseProduct {} is deleted'.format(base_product_obj.base_product_name)
+                render_value = 'BaseProduct {} is deleted'.format(base_product_obj.seller_sku)
                 activitylog(user=request.user,table_name=BaseProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance_base_product,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render=render_value)
 
 
