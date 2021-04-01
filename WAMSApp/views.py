@@ -2576,8 +2576,6 @@ class UploadProductImageAPI(APIView):
             image_count = int(data["image_count"])
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
-                render_value = 'Image {} is created'.format(image_obj)
-                activitylog(user=request.user,table_name=Image,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_obj,table_item_pk=image_obj.pk,render=render_value)
                 image_objs.append(image_obj)
 
             if data["image_category"] == "main_images":
@@ -4606,7 +4604,7 @@ class CopyBestImagesAPI(APIView):
                     continue
                 number += 1
                 productimage_obj = ProductImage.objects.create(image=image_obj, product=product_obj, number=number)
-                render_value = 'ProductImage {} is created'.format(productimage_obj.image)
+                render_value = 'Best Image {} is created for product {}'.format(productimage_obj.image,product_obj.base_product.seller_sku)
                 activitylog(user=request.user,table_name=ProductImage,action_type='created',location_group_obj=None,prev_instance=None,current_instance=productimage_obj,table_item_pk=productimage_obj.pk,render=render_value)
 
 
@@ -5316,7 +5314,7 @@ class EditUserProfileAPI(APIView):
             omnycomm_user.email = email
             omnycomm_user.designation = designation
             omnycomm_user.save()
-            render_value = 'User details updated.'
+            render_value = 'User details updated for user {}'.format(omnycomm_user.username)
             activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=omnycomm_user,table_item_pk=omnycomm_user.pk,render=render_value)
             response['status'] = 200
         except Exception as e:
