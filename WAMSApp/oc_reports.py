@@ -2949,7 +2949,7 @@ def nesto_image_bucket_report(filename, uuid):
                 common_row = ["" for i in range(len(row))]
                 sku = "8042-"+(18-len(p.article_number))*"0" +p.article_number
                 if uom!="nan":
-                    sku += "-"+uom
+                    sku += "-"+p.uom
                 image_obj = p.front_images.all()[0]
                 common_row[0] = str(sku)
                 common_row[1] = str("")
