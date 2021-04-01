@@ -2620,13 +2620,13 @@ def bulk_download_nesto_ecommerce_report(filename, uuid):
 
                 related_article_nos = ""
                 for substitute_product in nesto_product_obj.substitute_products.all():
-                    related_article_nos += str(substitute_product.article_number) + ", "
+                    related_article_nos += str(substitute_product.barcode) + ", "
                 upsell_article_nos = ""
                 for upsell_product in nesto_product_obj.upselling_products.all():
-                    upsell_article_nos += str(upsell_product.article_number) + ", "
+                    upsell_article_nos += str(upsell_product.barcode) + ", "
                 crosssell_article_nos = ""
                 for crosssell_product in nesto_product_obj.cross_selling_products.all():
-                    crosssell_article_nos += str(crosssell_product.article_number) + ", "
+                    crosssell_article_nos += str(crosssell_product.barcode) + ", "
                 
                 # nutrition_facts = json.loads(nesto_product_obj.nutrition_facts)
                 # nutrition_facts_string = ""
