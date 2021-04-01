@@ -7476,7 +7476,7 @@ class SaveDealshubProductDetailsAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            prev_instance = deepcopy(dealshub_product_obj)
+            dh_product_prev_instance = deepcopy(dealshub_product_obj)
             is_b2b = False
             location_group_uuid = data.get("locationGroupUuid","")
             if location_group_uuid != "":
@@ -7588,7 +7588,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.sub_category = sub_category_obj
             dealshub_product_obj.save()
             render_value = 'Dealshub product {} details updated.'.format(dealshub_product_obj.get_seller_sku())
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dealshub_product_obj.location_group,prev_instance=prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dealshub_product_obj.location_group,prev_instance=dh_product_prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
             response["status"] = 200
 
         except Exception as e:
