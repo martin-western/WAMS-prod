@@ -4651,7 +4651,7 @@ class RemoveImageAPI(APIView):
             product_obj = Product.objects.get(pk=int(data["product_pk"]))
             image_pk = data["image_pk"]
             prev_instance = deepcopy(product_obj)
-            print(Image.objects.first().pk)
+            #print(Image.objects.first().pk)
             image_obj = Image.objects.get(pk=int(image_pk))
             # {"product_pk":1,"image_pk":1,"image_category":"pfl_images","locationGroupUuid":5466}
             if data["image_category"] == "pfl_images":
@@ -4678,13 +4678,14 @@ class RemoveImageAPI(APIView):
                 productimage_obj = ProductImage.objects.get(product=product_obj, image=image_obj)
                 prev_productimage_instance = deepcopy(productimage_obj)
                 productimage_obj.delete()
-                render_value = 'Best images are deleted from product {}'.format(product_obj.base_product.seller_sku)
-                activitylog(user=request.user,table_name=ProductImage,action_type='deleted',location_group_obj=None,prev_instance=productimage_obj,current_instance=None,table_item_pk=productimage_obj.pk,render=render_value)            
-
-                
+                render_value = 'Best image {} is deleted from product {}'.format(image_obj.image.url,product_obj.base_product.seller_sku)
+                activitylog(user=request.user,table_name=ProductImage,action_type='deleted',location_group_obj=None,prev_instance=prev_productimage_instance,current_instance=None,table_item_pk=productimage_obj.pk,render=render_value)   
+            
             product_obj.save()
-            render_value = 'Images are removed from product {}'.format(product_obj.base_product.seller_sku)
-            activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)            
+
+            if data["image_category"] != "best_images":
+                render_value = '{} image {} is deleted from product {}'.format(data["image_category"],image_obj.image.url,product_obj.base_product.seller_sku)
+                activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=None,table_item_pk=product_obj.pk,render=render_value)            
             response['status'] = 200
 
         except Exception as e:
