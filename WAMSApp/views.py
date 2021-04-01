@@ -2623,10 +2623,10 @@ class UploadProductImageAPI(APIView):
                         main_images_obj.main_images.add(image_bucket_obj)
                         main_images_obj.save()
                         if created:
-                            render_value = 'MainImages {} is created'.format(main_images_obj)
+                            render_value = 'MainImage {} is created for product {}'.format(main_images_obj,product_obj.base_product.seller_sku)
                             activitylog(user=request.user,table_name=MainImages,action_type='created',location_group_obj=None,prev_instance=None,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render=render_value)
                         else:
-                            render_value = 'MainImages {} is updated'.format(main_images_obj)
+                            render_value = 'MainImage {} is updated for product {}'.format(main_images_obj,product_obj.base_product.seller_sku)
                             activitylog(user=request.user,table_name=MainImages,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=main_images_obj,table_item_pk=main_images_obj.pk,render=render_value)
                         
 
@@ -2656,15 +2656,13 @@ class UploadProductImageAPI(APIView):
                     image_bucket_obj = ImageBucket.objects.create(image=image_obj,
                                                                   is_sub_image=is_sub_image,
                                                                   sub_image_index=sub_image_index)
-                    render_value = 'ImageBucket is created'
-                    activitylog(user=request.user,table_name=ImageBucket,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render=render_value)
                     sub_images_obj.sub_images.add(image_bucket_obj)
                     sub_images_obj.save()
                     if created:
-                        render_value = 'subimage is created'
+                        render_value = 'subimage {} is created for product {}'.format(image_obj.image.url,product_obj.base_product.seller_sku)
                         activitylog(user=request.user,table_name=SubImages,action_type='created',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
                     else:
-                        render_value = 'subimage is updated'
+                        render_value = 'subimage {} is updated for product {}'.format(image_obj.image.url,product_obj.base_product.seller_sku)
                         activitylog(user=request.user,table_name=SubImages,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
             
             elif data["image_category"] == "pfl_images":
@@ -2781,8 +2779,6 @@ class UpdateMainImageAPI(APIView):
                 pk=int(data["checked_pk"]))
             prev_instance = deepcopy(image_bucket_obj)
             image_bucket_obj.is_main_image = True
-            render_value = 'ImageBucket is set as main image.'
-            activitylog(user=request.user,table_name=ImageBucket,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render=render_value)
             image_bucket_obj.save()
 
             try:
@@ -2790,7 +2786,7 @@ class UpdateMainImageAPI(APIView):
                 prev_instance = deepcopy(pfl_obj)
                 if pfl_obj.product_image == None:
                     pfl_obj.product_image = image_bucket_obj.image
-                    render_value = 'pfl image is updated'
+                    render_value = 'pfl image {} is updated for product {}'.format(image_bucket_obj.image,product_obj.base_product.seller_sku)
                     activitylog(user=request.user,table_name=PFL,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=pfl_obj,table_item_pk=pfl_obj.pk,render=render_value)
                     pfl_obj.save()
             except Exception as e:
