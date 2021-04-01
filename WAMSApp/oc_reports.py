@@ -2946,9 +2946,8 @@ def nesto_image_bucket_report(filename, uuid):
         for p in pp:
             try:
                 cnt += 1
-                print("Cnt=", cnt)
                 common_row = ["" for i in range(len(row))]
-                sku = "8042-"+18-len(p.article_number) +p.article_number
+                sku = "8042-"+(18-len(p.article_number))*"0" +p.article_number
                 image_obj = p.front_images.all()[0]
                 common_row[0] = str(sku)
                 common_row[1] = str("")
@@ -2969,7 +2968,8 @@ def nesto_image_bucket_report(filename, uuid):
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
             except Exception as e:
-                print("Error", str(e))
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error nesto_image_bucket_report %s %s", e, str(exc_tb.tb_lineno))
 
         workbook.close()
 
