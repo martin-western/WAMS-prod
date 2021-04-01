@@ -35,6 +35,7 @@ class OmnyCommUserAdmin(admin.ModelAdmin):
         self.exclude = ('image',)
         return super(OmnyCommUserAdmin, self).change_view(request, object_id, extra_context)
 
+admin.site.register(ActivityLog)
 admin.site.register(OmnyCommUser, OmnyCommUserAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ExportList)
