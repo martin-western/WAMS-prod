@@ -7882,7 +7882,7 @@ class FetchOmnyCommUserDetailsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class CreateOmnyCommUserAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7921,9 +7921,14 @@ class CreateOmnyCommUserAPI(APIView):
                                                         email=email,
                                                         designation=designation)
             organization_obj = Organization.objects.get(name="WIG")
+            render_value = 'Omnycomm user with username {} is created.'.format(username)
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='created',location_group_obj=None,prev_instance=None,current_instance=omnycomm_user_obj,table_item_pk=omnycomm_user_obj.pk,render=render_value)
+
             custom_permission_obj = CustomPermission.objects.create(user=omnycomm_user_obj,
                                                                     organization=organization_obj)
-            
+            render_value = 'Custom Permission is created.'
+            activitylog(user=request.user,table_name=CustomPermission,action_type='created',location_group_obj=None,prev_instance=None,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value)
+
             response["password"] = password
             response['status'] = 200
         except Exception as e:
@@ -7932,7 +7937,7 @@ class CreateOmnyCommUserAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveOmnyCommUserDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7956,11 +7961,13 @@ class SaveOmnyCommUserDetailsAPI(APIView):
             is_active = data["is_active"]
 
             omnycomm_user_obj = OmnyCommUser.objects.get(username=username)
-
+            prev_instance = deepcopy(omnycomm_user_obj)
             profile_image = data.get("user_image",None)
 
             if profile_image!=None:
                 image_obj = Image.objects.create(image=profile_image)
+                render_value = 'Profile image {} is created.'.format(image_obj)
+                activitylog(user=request.user,table_name=Image,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_obj,table_item_pk=image_obj.pk,render=render_value)
                 omnycomm_user_obj.image=image_obj
             
             omnycomm_user_obj.first_name = first_name
@@ -7971,6 +7978,8 @@ class SaveOmnyCommUserDetailsAPI(APIView):
             omnycomm_user_obj.is_active = is_active
 
             omnycomm_user_obj.save()
+            render_value = 'Omnycomm user with username {} is updated.'.format(username)
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='created',location_group_obj=None,prev_instance=prev_instance,current_instance=omnycomm_user_obj,table_item_pk=omnycomm_user_obj.pk,render=render_value)
 
             response["status"] = 200
         except Exception as e:
@@ -7979,7 +7988,7 @@ class SaveOmnyCommUserDetailsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class SaveOmnyCommUserPermissionsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -8007,6 +8016,7 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
             
             omnycomm_user_obj = OmnyCommUser.objects.get(username=username)
             custom_permission_obj = CustomPermission.objects.get(user=omnycomm_user_obj)
+            prev_custom_permission_instance = deepcopy(custom_permission_obj)
 
             for location_group_uuid in location_group_uuid_list:
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -8025,6 +8035,9 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
             custom_permission_obj.misc = json.dumps(misc)
 
             custom_permission_obj.save()
+            
+            render_value = '{} location groups, {} brands are added and custom permission is updated.'.format(len(location_group_uuid_list),len(brand_name_list))
+            activitylog(user=request.user,table_name=CustomPermission,action_type='created',location_group_obj=None,prev_instance=prev_custom_permission_instance,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value)
 
             response["status"] = 200
         except Exception as e:
@@ -8033,7 +8046,7 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
 
         return Response(data=response)
 
-
+#API with active log
 class ResetOmnyCommUserPasswordAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -8051,8 +8064,11 @@ class ResetOmnyCommUserPasswordAPI(APIView):
             username = data["username"]
 
             omnycomm_user_obj = OmnyCommUser.objects.get(username=username)
+            prev_instance = deepcopy(omnycomm_user_obj)
             password = generate_random_password(length=8)
             omnycomm_user_obj.set_password(password)
+            render_value = 'Password for username {} is reset.'.format(username)
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=omnycomm_user_obj,table_item_pk=omnycomm_user_obj.pk,render=render_value)
 
             response["password"] = password
             response["status"] = 200
