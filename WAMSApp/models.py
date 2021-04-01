@@ -316,6 +316,7 @@ class Image(models.Model):
     description = models.TextField(null=True, blank=True)
     image = models.ImageField(upload_to='')
     thumbnail = models.ImageField(upload_to='thumbnails', null=True, blank=True)
+    small_image = models.ImageField(upload_to='small_image', null=True, blank=True)
     mid_image = models.ImageField(upload_to='midsize', null=True, blank=True)
     webp_image = models.ImageField(upload_to='webp', null=True, blank=True)
 
@@ -374,6 +375,19 @@ class Image(models.Model):
 
                 thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
                 self.thumbnail = thumb_file
+
+            if self.small_image == None:
+                size = 350, 350
+                thumb = IMAGE.open(self.image)
+                infile = self.image.file.name
+                im_type = thumb.format
+                thumb.thumbnail(size)
+                thumb_io = BytesIO()
+                thumb = rotate_image(thumb)
+                thumb.save(thumb_io, im_type)
+
+                thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
+                self.small_image = thumb_file
 
             if self.mid_image == None:
                 size2 = 512, 512

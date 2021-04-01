@@ -1370,7 +1370,7 @@ class UnitOrder(models.Model):
     grn_filename_exists = models.BooleanField(default=False)
 
     def get_subtotal(self):
-        return float(self.price)*float(self.quantity)
+        return round(float(self.price)*float(self.quantity), 2)
 
     def get_price_without_vat(self):
         vat_divider = 1 + (self.order.location_group.vat/100)

@@ -10,6 +10,8 @@ from auditlog.models import *
 
 from WAMSApp.utils import *
 
+from django.db.models import Count
+
 logger = logging.getLogger(__name__)
 
 
@@ -2913,3 +2915,70 @@ def nesto_products_summary_report(filename, uuid):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error nesto_products_summary_report %s %s", e, str(exc_tb.tb_lineno))
+
+def nesto_image_bucket_report(filename, uuid):
+
+    try:
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["sku",
+               "store_view_code",
+               "attribute_set_code",
+               "product_type",
+               "product_websites",
+               "base_image",
+               "base_image_label",
+               "small_image",
+               "small_image_label",
+               "thumbnail_image",
+               "thumbnail_image_label",
+               "swatch_image",
+               "swatch_image_label"]
+
+        cnt = 0
+        colnum = 0
+        for k in row:
+            worksheet.write(cnt, colnum, k)
+            colnum += 1
+        
+        pp = NestoProduct.objects.all().annotate(img_cnt=Count('front_images')).exclude(img_cnt=0)
+        for p in pp:
+            try:
+                cnt += 1
+                print("Cnt=", cnt)
+                common_row = ["" for i in range(len(row))]
+                sku = "8042-"+18-len(p.article_number) +p.article_number
+                image_obj = p.front_images.all()[0]
+                common_row[0] = str(sku)
+                common_row[1] = str("")
+                common_row[2] = str("Default")
+                common_row[3] = str("simple")
+                common_row[4] = str("ajman")
+                common_row[5] = str(image_obj.image.url)
+                common_row[6] = str("Image")
+                common_row[7] = str(image_obj.mid_image.url)
+                common_row[8] = str("Image")
+                common_row[9] = str(image_obj.small_image.url)
+                common_row[10] = str("Image")
+                common_row[11] = str(image_obj.thumbnail.url)
+                common_row[12] = str("Image")
+
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+            except Exception as e:
+                print("Error", str(e))
+
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error nesto_image_bucket_report %s %s", e, str(exc_tb.tb_lineno))
