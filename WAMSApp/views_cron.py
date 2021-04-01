@@ -89,7 +89,7 @@ class UnPublishedWIGmeProductReportAPI(APIView):
                     email = EmailMessage(subject='UnPublished Products Report Generated', 
                                          body='This is to inform you that your requested report has been generated on Omnycomm',
                                          from_email='nisarg@omnycomm.com',
-                                         to=["nisarg@omnycomm.com"],
+                                         to=["fathimasamah@westernint.com", "hari.pk@westernint.com"],
                                          connection=connection)
                     email.attach_file(filename)
                     email.send(fail_silently=True)

@@ -175,6 +175,7 @@ urlpatterns = [
     url(r'^create-omnycomm-user/$',views.CreateOmnyCommUser),
     url(r'^save-omnycomm-user-details/$',views.SaveOmnyCommUserDetails),
     url(r'^save-omnycomm-user-permissions/$',views.SaveOmnyCommUserPermissions),
+    url(r'^fetch-default-permissions-list/$', views.FetchDefaultPermissionsList),
     url(r'^reset-omnycomm-user-password/$',views.ResetOmnyCommUserPassword),
     url(r'^logout-ocuser/$',views.LogoutOCUser),
 

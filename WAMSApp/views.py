@@ -1319,7 +1319,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,filename,location_group_obj,"price",))
             p1.start()
-            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            render_value = 'Bulk update products price with report {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
@@ -1380,7 +1380,7 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_price , args=(oc_report_obj.uuid,path,filename,location_group_obj))
             p1.start()
-            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            render_value = 'Bulk update b2b products price with report  {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
@@ -1441,7 +1441,7 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_b2b_dealshub_product_moq , args=(oc_report_obj.uuid,path,filename,location_group_obj,))
             p1.start()
-            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            render_value = 'Bulk update b2b products moq with report  {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             
@@ -1503,7 +1503,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path,filename, location_group_obj, "stock",))
             p1.start()
-            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            render_value = 'Bulk update products stock with report  {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
@@ -1548,7 +1548,8 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
             
             rows = len(dfs.iloc[:])
             excel_errors = []
-
+            publish_count = 0
+            unpublish_count = 0
             for i in range(rows):
                 try:
                     product_id = str(dfs.iloc[i][0]).strip()
@@ -1564,18 +1565,27 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                     prev_instance = deepcopy(dh_product_obj)
                     dh_product_obj.is_published = is_published
                     dh_product_obj.save()
+                    
                     if is_published ==True:
                         render_value = 'DealsHubProduct {} is published'.format(dh_product_obj.get_seller_sku())
                     else:
                         render_value = 'DealsHubProduct {} is not published'.format(dh_product_obj.get_seller_sku())
                     activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
 
-
+                    if is_published:
+                        publish_count += 1
+                    else:
+                        unpublish_count += 1
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
             
             response['excel_errors'] = excel_errors
+
+            render_value = 'Bulk publish products {} are published and {} are not published'.format(publish_count,unpublish_count)
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
+
+
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2656,41 +2666,60 @@ class UploadProductImageAPI(APIView):
                     else:
                         render_value = 'subimage is updated'
                         activitylog(user=request.user,table_name=SubImages,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
-
-
             
             elif data["image_category"] == "pfl_images":
                 for image_obj in image_objs:
                     product_obj.pfl_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "white_background_images":
                 for image_obj in image_objs:
                     product_obj.no_of_images_for_filter += 1
                     product_obj.white_background_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "lifestyle_images":
                 for image_obj in image_objs:
                     product_obj.no_of_images_for_filter += 1
                     product_obj.lifestyle_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "certificate_images":
                 for image_obj in image_objs:
                     product_obj.certificate_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "giftbox_images":
                 for image_obj in image_objs:
                     product_obj.giftbox_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "diecut_images":
                 for image_obj in image_objs:
                     product_obj.diecut_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "aplus_content_images":
                 for image_obj in image_objs:
                     product_obj.aplus_content_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "ads_images":
                 for image_obj in image_objs:
                     product_obj.ads_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "unedited_images":
                 for image_obj in image_objs:
                     product_obj.base_product.unedited_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "transparent_images":
                 for image_obj in image_objs:
                     product_obj.transparent_images.add(image_obj)
+                    render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
+                    activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
+
             elif data["image_category"] == "best_images":
                 number = 0
                 if product_obj.best_images.count()>0:
@@ -2702,7 +2731,8 @@ class UploadProductImageAPI(APIView):
                     number += 1
                     ProductImage.objects.create(image=image_obj, product=product_obj, number=number)
                     product_obj.save()
-                    render_value = "In product {} images are added".format(product_obj.base_product.seller_sku)        
+
+                    render_value = "In product {} best image {} are added".format(product_obj.product_name,image_obj.image.url)        
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             response['status'] = 200
 
@@ -5570,6 +5600,7 @@ class FetchAdminActivityLogsAPI(APIView):
 
             location_group_uuid = data.get("locationGroupUuid","")
             page = data.get("page",1)
+            page = int(page)
             from_date = data.get("from_date","")
             to_date = data.get("to_date","")
 
@@ -5592,6 +5623,8 @@ class FetchAdminActivityLogsAPI(APIView):
             # filter by action
             # filter by tag( search )
             
+            activity_log_objs = activity_log_objs.order_by("-pk")
+
             total_activities = activity_log_objs.count()
             paginator  = Paginator(activity_log_objs,50)
             total_pages = int(paginator.num_pages)
@@ -5606,18 +5639,22 @@ class FetchAdminActivityLogsAPI(APIView):
 
             activity_log_list = []
             for activity_log_obj in activity_log_objs:
-                temp_dict = {}
-                temp_dict["username"] =  activity_log_obj.user.username
-                temp_dict["first_name"] =  activity_log_obj.user.first_name
-                temp_dict["last_name"] =  activity_log_obj.user.last_name
-                temp_dict["date"] = str(timezone.localtime(activity_log_obj.created_date).strftime("%d %b, %Y"))
-                temp_dict["time"] = str(timezone.localtime(activity_log_obj.created_date).strftime("%I:%M %p"))
-                temp_dict["table_name"] = activity_log_obj.table_name
-                temp_dict["action_type"] = activity_log_obj.action_type
-                temp_dict["render"] = activity_log_obj.render
-                temp_dict["prev_instance"] = activity_log_obj.prev_instance
-                temp_dict["current_instance"] = activity_log_obj.current_instance
-                activity_log_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["username"] =  activity_log_obj.user.username
+                    temp_dict["first_name"] =  activity_log_obj.user.first_name
+                    temp_dict["last_name"] =  activity_log_obj.user.last_name
+                    temp_dict["date"] = str(timezone.localtime(activity_log_obj.created_date).strftime("%d %b, %Y"))
+                    temp_dict["time"] = str(timezone.localtime(activity_log_obj.created_date).strftime("%I:%M %p"))
+                    temp_dict["table_name"] = activity_log_obj.table_name
+                    temp_dict["action_type"] = activity_log_obj.action_type
+                    temp_dict["render"] = activity_log_obj.render
+                    temp_dict["prev_instance"] = json.loads(activity_log_obj.prev_instance)
+                    temp_dict["current_instance"] = json.loads(activity_log_obj.current_instance)
+                    activity_log_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchAdminActivityLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))      
 
             is_available = True
             if int(paginator.num_pages) == int(page):
@@ -7857,6 +7894,7 @@ class FetchOmnyCommUserDetailsAPI(APIView):
             for brand_obj in custom_permission_obj.brands.all():
                 temp_dict = {}
                 temp_dict["name"] = brand_obj.name
+                temp_dict["pk"] = brand_obj.pk
                 brand_list.append(temp_dict)
             response["brand_list"] = brand_list
             response["sap_functions"] = json.loads(custom_permission_obj.sap_functions)
@@ -8005,7 +8043,7 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
             
             username = data["username"]
             location_group_uuid_list = data["LocationGroupUuidList"]
-            brand_name_list = data["brandNameList"]
+            brand_pk_list = data["brandPkList"]
             sap_functions = data["sap_functions"]
             price = data["price"]
             stock = data["stock"]
@@ -8022,8 +8060,8 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 custom_permission_obj.location_groups.add(location_group_obj)
 
-            for brand_name in brand_name_list:
-                brand_obj = Brand.objects.get(name=brand_name)
+            for brand_pk in brand_pk_list:
+                brand_obj = Brand.objects.get(pk=brand_pk)
                 custom_permission_obj.brands.add(brand_obj)
             
             custom_permission_obj.sap_functions = json.dumps(sap_functions)
@@ -8046,7 +8084,44 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
+class FetchDefaultPermissionsListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            logger.info("FetchDefaultPermissionsListAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            organization = data.get("organization","WIG")
+            organization_obj = Organization.objects.get(name=organization)
+
+            default_permissions = json.loads(organization_obj.default_permissions)
+
+            brand_list = []
+            brand_objs = Brand.objects.filter(organization=organization_obj)
+            for brand_obj in brand_objs:
+                temp_dict = {}
+                temp_dict["name"] = brand_obj.name
+                temp_dict["pk"] = brand_obj.pk
+                brand_list.append(temp_dict)
+
+            response["brand_list"] = brand_list
+            response["default_permissions"] = default_permissions
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDefaultPermissionsListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class ResetOmnyCommUserPasswordAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -8056,7 +8131,7 @@ class ResetOmnyCommUserPasswordAPI(APIView):
 
         try:
             data = request.data
-            logger.info("LogoutUserAPI: %s", str(data))
+            logger.info("ResetOmnyCommUserPasswordAPI: %s", str(data))
             
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -8074,7 +8149,7 @@ class ResetOmnyCommUserPasswordAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("LogoutUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("ResetOmnyCommUserPasswordAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -8308,6 +8383,8 @@ CreateOmnyCommUser = CreateOmnyCommUserAPI.as_view()
 SaveOmnyCommUserDetails = SaveOmnyCommUserDetailsAPI.as_view()
 
 SaveOmnyCommUserPermissions = SaveOmnyCommUserPermissionsAPI.as_view()
+
+FetchDefaultPermissionsList = FetchDefaultPermissionsListAPI.as_view()
 
 ResetOmnyCommUserPassword = ResetOmnyCommUserPasswordAPI.as_view()
 
