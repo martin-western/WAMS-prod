@@ -195,7 +195,7 @@ class CreateNewBaseProductAPI(APIView):
                         "type": "dropdown",
                         "labelText": prop_data["key"].title(),
                         "value": "",
-                        "options": prop_data["values"]base_product_obj
+                        "options": prop_data["values"]
                     }
             except Exception as e:
                 pass
@@ -306,7 +306,7 @@ class CreateNewProductAPI(APIView):
 
         return Response(data=response)
 
-class SaveNoonChannelProformat(product_objductAPI(APIView):
+class SaveNoonChannelProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -7926,7 +7926,7 @@ class CreateOmnyCommUserAPI(APIView):
 
             custom_permission_obj = CustomPermission.objects.create(user=omnycomm_user_obj,
                                                                     organization=organization_obj)
-            render_value = 'Custom Permission is created.'
+            render_value = 'Permission is created for user {}.'.format(username)
             activitylog(user=request.user,table_name=CustomPermission,action_type='created',location_group_obj=None,prev_instance=None,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value)
 
             response["password"] = password
@@ -7966,7 +7966,7 @@ class SaveOmnyCommUserDetailsAPI(APIView):
 
             if profile_image!=None:
                 image_obj = Image.objects.create(image=profile_image)
-                render_value = 'Profile image {} is created.'.format(image_obj)
+                render_value = 'Profile image {} is created for user {}.'.format(image_obj,username)
                 activitylog(user=request.user,table_name=Image,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_obj,table_item_pk=image_obj.pk,render=render_value)
                 omnycomm_user_obj.image=image_obj
             
@@ -7979,7 +7979,7 @@ class SaveOmnyCommUserDetailsAPI(APIView):
 
             omnycomm_user_obj.save()
             render_value = 'Omnycomm user with username {} is updated.'.format(username)
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='created',location_group_obj=None,prev_instance=prev_instance,current_instance=omnycomm_user_obj,table_item_pk=omnycomm_user_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=omnycomm_user_obj,table_item_pk=omnycomm_user_obj.pk,render=render_value)
 
             response["status"] = 200
         except Exception as e:
@@ -8036,7 +8036,7 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
 
             custom_permission_obj.save()
             
-            render_value = '{} location groups, {} brands are added and custom permission is updated.'.format(len(location_group_uuid_list),len(brand_name_list))
+            render_value = 'Permission is updated for user {}.'.format(username)
             activitylog(user=request.user,table_name=CustomPermission,action_type='created',location_group_obj=None,prev_instance=prev_custom_permission_instance,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value)
 
             response["status"] = 200
