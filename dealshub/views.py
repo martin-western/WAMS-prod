@@ -74,7 +74,7 @@ class FetchProductDetailsAPI(APIView):
             base_product_obj = product_obj.base_product
 
             dealshub_user_obj = None
-            if request.user != None and str(request.user)!="AnonymousUser":
+            if request.user != None and str(request.user)!="AnonymousUser" and DealsHubUser.objects.filter(username=request.user.username).exists():
                 logger.info("FetchProductDetailsAPI REQUEST USER: %s", str(request.user))
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
