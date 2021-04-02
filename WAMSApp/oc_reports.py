@@ -2922,7 +2922,7 @@ def nesto_image_bucket_report(filename, uuid):
         workbook = xlsxwriter.Workbook('./'+filename)
         worksheet = workbook.add_worksheet()
 
-        row = ["sku",
+        row = ["Barcode",
                "store_view_code",
                "attribute_set_code",
                "product_type",
@@ -2947,11 +2947,11 @@ def nesto_image_bucket_report(filename, uuid):
             try:
                 cnt += 1
                 common_row = ["" for i in range(len(row))]
-                sku = "8042-"+(18-len(p.article_number))*"0" +p.article_number
-                if p.uom!="":
-                    sku += "-"+p.uom
+                #sku = "8042-"+(18-len(p.article_number))*"0" +p.article_number
+                # if p.uom!="":
+                #     sku += "-"+p.uom
                 image_obj = p.front_images.all()[0]
-                common_row[0] = str(sku)
+                common_row[0] = str(p.barcode)
                 common_row[1] = str("")
                 common_row[2] = str("Default")
                 common_row[3] = str("simple")
