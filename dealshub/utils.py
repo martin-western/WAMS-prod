@@ -1264,3 +1264,35 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
             logger.error("get_dealshub_product_details: %s at %s", e, str(exc_tb.tb_lineno))
 
     return products
+
+def send_b2b_user_status_change_mail(b2b_user_obj):
+    try:
+        logger.info("send_b2b_user_status_change_mail started!")
+
+        website_group_obj = b2b_user_obj.website_group
+        location_group_obj = LocationGroup.objects.get(website_group=website_group)
+
+        subject = b2b_user_obj.company_name + " - Change in Account Status! "
+        body = 'Hi ' + b2b_user_obj.first_name + ',\n' + 'Your Account Status has been changed. \n Happy Shopping \n Team WIGMe'
+
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(),
+            username=location_group_obj.get_order_from_email_id(),
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject=subject,
+                        body=body,
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[b2b_user_obj.email],
+                        connection=connection
+                    )
+            email.send(fail_silently=False)
+            logger.info("send_b2b_user_status_change_mail")
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_b2b_user_status_change_mail: %s at %s", e, str(exc_tb.tb_lineno))
