@@ -1270,7 +1270,7 @@ def send_b2b_user_status_change_mail(b2b_user_obj):
         logger.info("send_b2b_user_status_change_mail started!")
 
         website_group_obj = b2b_user_obj.website_group
-        location_group_obj = LocationGroup.objects.get(website_group=website_group)
+        location_group_obj = LocationGroup.objects.get(website_group=website_group_obj)
 
         subject = b2b_user_obj.company_name + " - Change in Account Status! "
         body = 'Hi ' + b2b_user_obj.first_name + ',\n' + 'Your Account Status has been changed. \n Happy Shopping \n Team WIGMe'
