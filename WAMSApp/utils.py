@@ -2557,8 +2557,6 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                             common_row[2]='Promotional value is not proper.'
                             continue
                         
-                        logger.info("test after %s",str(dh_product_obj.__dict__))
-
                         dh_product_obj.is_cod_allowed = is_cod_allowed
                         dh_product_obj.is_promo_restricted = is_promo_restricted
                         dh_product_obj.is_new_arrival = is_new_arrival
@@ -2595,7 +2593,6 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                                 dh_product_obj.is_promotional = False
                         dh_product_obj.promotion = promotion_obj
                         dh_product_obj.save()
-                        logger.info("test after %s",str(dh_product_obj.__dict__))
                     common_row[2] = "success"
                 else:
                     common_row[2] = "Product {} not exists.".format(product_id)
