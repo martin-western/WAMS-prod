@@ -1023,6 +1023,8 @@ def get_recommended_products(dealshub_product_objs,language_code):
             temp_dict["uuid"] = dealshub_product_obj.uuid
             temp_dict["id"] = dealshub_product_obj.uuid
             temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+            temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+            temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
             product_list.append(temp_dict)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
