@@ -210,7 +210,7 @@ class FetchShippingAddressListAPI(APIView):
         
         return Response(data=response)
 
-
+#API with activity log
 class EditShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -249,6 +249,7 @@ class EditShippingAddressAPI(APIView):
             emirates = data.get("emirates", "")
 
             address_obj = Address.objects.get(uuid=uuid)
+            prev_address_obj = deepcopy(address_obj)
             address_obj.first_name = first_name
             address_obj.last_name = last_name
             address_obj.address_lines = json.dumps(address_lines)
@@ -258,6 +259,8 @@ class EditShippingAddressAPI(APIView):
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
 
+            render_value =  "Shipping Address updated offline for " + address_obj.user.username
+            activitylog(request.user, Address, "updated", address_obj.uuid, prev_address_obj, address_obj, address_obj.location_group, render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -1295,15 +1298,12 @@ class SelectOfflineAddressAPI(APIView):
             address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
-            prev_cart_obj = deepcopy(cart_obj)
             
             cart_obj.shipping_address = address_obj
             cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
             cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
             cart_obj.save()
             
-            render_value =  "Shipping Address selected offline for " + username
-            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, cart_obj.location_group, render_value)
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2286,7 +2286,7 @@ class FetchOrderDetailsAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order=order_obj)
 
             enable_order_edit = False
-            if order_obj.payment_status=="cod" and unit_order_objs.filter(current_status_admin="pending").exists():
+            if order_obj.payment_status=="cod": # and unit_order_objs.filter(current_status_admin="pending").exists():
                 enable_order_edit = True
 
             response["enableOrderEdit"] = enable_order_edit
@@ -2789,6 +2789,9 @@ class FetchCustomerListAPI(APIView):
                 if filter_parameters["is_feedback_available"]==True:
                     pass
 
+            if location_group_obj.name in ["WIGme - B2B"]:
+                dealshub_user_objs = dealshub_user_objs.filter(b2buser__is_signup_completed=True)
+
             if "is_cart_empty" in filter_parameters:
                 if filter_parameters["is_cart_empty"]==True:
                     cart_objs = UnitCart.objects.all().values("cart")
@@ -3055,6 +3058,10 @@ class UpdateB2BCustomerStatusAPI(APIView):
             trade_license_type = data["tradeLicenseType"]
             passport_copy_type = data["passportCopyType"]
 
+            is_notify = False
+            if vat_certificate_status != b2b_user_obj.vat_certificate_status or trade_license_status != b2b_user_obj.trade_license_status or passport_copy_status != b2b_user_obj.passport_copy_status:
+                is_notify = True
+
             if vat_certificate_type == "IMG":
                 image_count = int(data.get("vatCertificateImageCount",0))
                 for i in range(image_count):
@@ -3105,6 +3112,11 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.trade_license_id = trade_license_id
             b2b_user_obj.passport_copy_id = passport_copy_id
             b2b_user_obj.save()
+
+            if is_notify == True:
+                #threading send a mail
+                 p1 = threading.Thread(target = send_b2b_user_status_change_mail, args=(b2b_user_obj,))
+                 p1.start()
 
             b2b_location_group_obj = None
             if LocationGroup.objects.filter(is_b2b=True).exists():

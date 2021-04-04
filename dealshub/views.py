@@ -74,7 +74,7 @@ class FetchProductDetailsAPI(APIView):
             base_product_obj = product_obj.base_product
 
             dealshub_user_obj = None
-            if request.user != None and str(request.user)!="AnonymousUser":
+            if request.user != None and str(request.user)!="AnonymousUser" and DealsHubUser.objects.filter(username=request.user.username).exists():
                 logger.info("FetchProductDetailsAPI REQUEST USER: %s", str(request.user))
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
@@ -369,6 +369,8 @@ class FetchOnSaleProductsAPI(APIView):
                 temp_dict2["link"] = dealshub_product_obj.url
                 temp_dict2["id"] = dealshub_product_obj.uuid
                 temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+                temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
                 products.append(temp_dict2)
             
             is_available = True
@@ -2969,7 +2971,7 @@ class PublishDealsHubProductAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            prev_product_obj = dealshub_product_obj
+            prev_product_obj = deepcopy(dealshub_product_obj)
             
             # if dealshub_product_obj.product.no_of_images_for_filter==0:
             #     response['status'] = 407
@@ -3006,7 +3008,7 @@ class UnPublishDealsHubProductAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            prev_product_obj = dealshub_product_obj
+            prev_product_obj = deepcopy(dealshub_product_obj)
             dealshub_product_obj.is_published = False
             dealshub_product_obj.save()
 
@@ -3037,7 +3039,7 @@ class ActivateCODDealsHubProductAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            prev_product_obj = dealshub_product_obj
+            prev_product_obj = deepcopy(dealshub_product_obj)
             dealshub_product_obj.is_cod_allowed = True
             dealshub_product_obj.save()
 
@@ -3068,7 +3070,7 @@ class DeactivateCODDealsHubProductAPI(APIView):
 
             uuid = data["product_uuid"]
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
-            prev_product_obj = dealshub_product_obj
+            prev_product_obj = deepcopy(dealshub_product_obj)
             dealshub_product_obj.is_cod_allowed = False
             dealshub_product_obj.save()
 
@@ -3102,7 +3104,7 @@ class DeleteProductFromSectionAPI(APIView):
 
             section_obj = Section.objects.get(uuid=section_uuid)
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
-            prev_product_obj = dealshub_product_obj
+            prev_product_obj = deepcopy(dealshub_product_obj)
             dealshub_product_obj.promotion = None
             dealshub_product_obj.save()
             
