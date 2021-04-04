@@ -2577,15 +2577,11 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                                 continue
                             if promotion_obj==None:
                                 promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
-                                render_value = 'Promotion {} is created.'.format(promotion_obj.promotional_tag)
-                                activitylog(user=request.user,table_name=Promotion,action_type='created',location_group_obj=None,prev_instance=None,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
                             else:
                                 promotion_obj.promotion_tag = promotional_tag
                                 promotion_obj.start_time = start_date
                                 promotion_obj.end_time = end_date
                                 promotion_obj.save()
-                                render_value = 'Promotion {} is updated.'.format(promotion_obj.promotional_tag)
-                                activitylog(user=request.user,table_name=Promotion,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
                             dh_product_obj.is_promotional = True
                             dh_product_obj.promotional_price = promotional_price
                         else:
