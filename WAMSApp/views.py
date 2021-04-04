@@ -1638,6 +1638,8 @@ class BulkUpdateDealshubProductStatusAPI(APIView):
 
             p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock_or_status , args=(oc_report_obj.uuid, path,filename, location_group_obj, "status",))
             p1.start()
+            render_value = 'Bulk update products status with report  {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
             response['approved'] = True
