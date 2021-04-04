@@ -21,7 +21,7 @@ import sys
 import xlsxwriter
 import pandas as pd
 import string
-
+import datetime
 def my_jwt_response_handler(token, user=None, request=None):
     
     return {
@@ -2526,48 +2526,77 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         elif is_cod_allowed =='false':
                             is_cod_allowed=False
                         else:
-                            common_row[2]='fail'
+                            common_row[2]='COD value is not proper.'
                             continue
                         if is_promo_restricted =='true':
                             is_promo_restricted = True
                         elif is_promo_restricted =='false':
                             is_promo_restricted=False
                         else:
-                            common_row[2]='fail'
+                            common_row[2]='Promo restricted value is not proper.'
                             continue
                         if is_new_arrival =='true':
                             is_new_arrival = True
                         elif is_new_arrival =='false':
                             is_new_arrival=False
                         else:
-                            common_row[2]='fail'
+                            common_row[2]='New arrival value is not proper.'
                             continue
                         if is_on_sale =='true':
                             is_on_sale = True
                         elif is_on_sale =='false':
                             is_on_sale=False
                         else:
-                            common_row[2]='fail'
+                            common_row[2]='On sale value is not proper.'
                             continue
                         if is_promotional =='true':
                             is_promotional = True
                         elif is_promotional =='false':
                             is_promotional=False
                         else:
-                            common_row[2]='fail'
+                            common_row[2]='Promotional value is not proper.'
                             continue
                         dh_product_obj.is_cod_allowed = is_cod_allowed
                         dh_product_obj.is_promo_restricted = is_promo_restricted
                         dh_product_obj.is_new_arrival = is_new_arrival
                         dh_product_obj.is_on_sale = is_on_sale
-                        dh_product_obj.is_promotional = is_promotional
+                        
+                        promotion_obj = dh_product_obj.promotion
+                        prev_instance = deepcopy(promotion_obj)
+                        if is_promotional:
+                            start_date = datetime.datetime.strptime(str(dfs.iloc[i][6]), "%b %d, %Y")
+                            end_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%b %d, %Y")
+                            promotional_tag = str(dfs.iloc[i][8]).strip()
+                            try :
+                                promotional_price = float(str(dfs.iloc[i][9]))
+                                if promotional_price <=0:
+                                    common_row[2]='Promotional price cannot be 0.'
+                                    continue
+                            except :
+                                common_row[2]='Promotional price is not proper.'
+                                continue
+                            if promotion_obj==None:
+                                promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
+                                render_value = 'Promotion {} is created.'.format(promotion_obj.promotional_tag)
+                                activitylog(user=request.user,table_name=Promotion,action_type='created',location_group_obj=None,prev_instance=None,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
+                            else:
+                                promotion_obj.promotion_tag = promotional_tag
+                                promotion_obj.start_time = start_date
+                                promotion_obj.end_time = end_date
+                                promotion_obj.save()
+                                render_value = 'Promotion {} is updated.'.format(promotion_obj.promotional_tag)
+                                activitylog(user=request.user,table_name=Promotion,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
+                            dh_product_obj.is_promotional = True
+                            dh_product_obj.promotional_price = promotional_price
+                        else:
+                            if dh_product_obj.is_promotional==True:
+                                promotion_obj = None
+                            dh_product_obj.is_promotional = False
+                        dh_product_obj.promotion = promotion_obj
                         dh_product_obj.save()
-                    print("success")
                     common_row[2] = "success"
                 else:
-                    print("fail")
-                    common_row[2] = "fail"
-    
+                    common_row[2] = "Product {} not exists.".format(product_id)
                 colnum = 0
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
