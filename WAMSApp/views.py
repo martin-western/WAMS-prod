@@ -7451,6 +7451,7 @@ class FetchDealshubProductDetailsAPI(APIView):
                 temp_dict["category_uuid"] = sub_category_obj.category.uuid
                 temp_dict["super_category"] = sub_category_obj.category.super_category
                 temp_dict["super_category_uuid"] = sub_category_obj.category.super_category.uuid
+                additional_sub_category_list.append(temp_dict)
 
             response["additional_sub_categories"] = additional_sub_category_list
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
