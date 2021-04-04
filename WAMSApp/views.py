@@ -1257,7 +1257,7 @@ class UpdateDealshubProductAPI(APIView):
                     dh_product_obj.stock = stock
 
             dh_product_obj.save()
-            render_value = 'DealsHubProduct {} is updated'.format(dealshub_product_obj.get_seller_sku())
+            render_value = 'DealsHubProduct {} is updated'.format(dh_product_obj.get_seller_sku())
             activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
             
 
