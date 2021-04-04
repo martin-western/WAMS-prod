@@ -2567,8 +2567,8 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                                 continue
                         if is_promotional:
                             promotional_tag = str(dfs.iloc[i][6])
-                            start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%b %d, %Y")
-                            end_date = datetime.datetime.strptime(str(dfs.iloc[i][8]), "%b %d, %Y")
+                            start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%d/%m/%Y")
+                            end_date = datetime.datetime.strptime(str(dfs.iloc[i][8]), "%d/%m/%Y")
                             try :
                                 promotional_price = float(str(dfs.iloc[i][9]))
                                 if promotional_price <=0:
@@ -2614,10 +2614,6 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("bulk_update_dealshub_product_price_or_stock_or_status: %s at %s", e, str(exc_tb.tb_lineno))
-
-
-
-
 
 
 def bulk_update_b2b_dealshub_product_price(oc_uuid,path,filename, location_group_obj):
