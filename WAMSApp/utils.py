@@ -2567,8 +2567,8 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                                 continue
                         if is_promotional:
                             promotional_tag = str(dfs.iloc[i][6])
-                            start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%d/%m/%Y")
-                            end_date = datetime.datetime.strptime(str(dfs.iloc[i][8]), "%d/%m/%Y")
+                            start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%Y-%m-%d %H:%M:%S")
+                            end_date = datetime.datetime.strptime(str(dfs.iloc[i][8]), "%Y-%m-%d %H:%M:%S")
                             try :
                                 promotional_price = float(str(dfs.iloc[i][9]))
                                 if promotional_price <=0:
