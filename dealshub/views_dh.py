@@ -2790,7 +2790,7 @@ class FetchCustomerListAPI(APIView):
                     pass
 
             if location_group_obj.name in ["WIGme - B2B"]:
-                dealshub_user_objs = dealshub_product_objs.filter(b2buser__is_signup_completed=True)
+                dealshub_user_objs = dealshub_user_objs.filter(b2buser__is_signup_completed=True)
 
             if "is_cart_empty" in filter_parameters:
                 if filter_parameters["is_cart_empty"]==True:
