@@ -199,6 +199,7 @@ class DealsHubProduct(models.Model):
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     category = models.ForeignKey(Category, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
+    additional_sub_categories = models.ManyToManyField(SubCategory, related_name="additional_sub_categories", blank=True)
     url = models.CharField(max_length=200, default="")
     uuid = models.CharField(max_length=200, default="")
     page_description = models.TextField(default="")

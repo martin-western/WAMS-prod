@@ -7442,6 +7442,17 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["super_category"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.super_category)
             response["super_category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.super_category.uuid)
 
+            additional_sub_category_list = []
+            for sub_category_obj in dealshub_product_obj.additional_sub_categories.all():
+                temp_dict = {}
+                temp_dict["sub_category"] = sub_category_obj
+                temp_dict["sub_category_uuid"] = sub_category_obj.uuid
+                temp_dict["category"] = sub_category_obj.category
+                temp_dict["category_uuid"] = sub_category_obj.category.uuid
+                temp_dict["super_category"] = sub_category_obj.category.super_category
+                temp_dict["super_category_uuid"] = sub_category_obj.category.super_category.uuid
+
+            response["additional_sub_categories"] = additional_sub_category_list
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
             response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
 
@@ -7495,6 +7506,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             is_promotional = data.get("is_promotional",False)
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
+            other_sub_category_uuid_list = data["other_sub_category_uuid_list",[]]
 
             product_name = data.get("product_name", "")
             product_name_ar = data.get("product_name_ar","")
@@ -7583,6 +7595,15 @@ class SaveDealshubProductDetailsAPI(APIView):
                 sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
             except Exception as e:
                 pass
+            
+            for other_sub_category_uuid in other_sub_category_uuid_list:
+                other_sub_category_obj = None
+                try:
+                    other_sub_category_obj = SubCategory.objects.get(uuid=other_sub_category_uuid)
+                except Exception as e:
+                    pass
+                if other_sub_category_obj!=None:
+                    dealshub_product_obj.additional_sub_categories.add(other_sub_category_obj)
 
             dealshub_product_obj.category = category_obj
             dealshub_product_obj.sub_category = sub_category_obj
