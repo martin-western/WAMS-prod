@@ -2562,6 +2562,9 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         dh_product_obj.is_on_sale = is_on_sale
                         
                         promotion_obj = dh_product_obj.promotion
+                        if dh_product_obj.is_promotional == False and promotion_obj != None:
+                                common_row[2] = "Already in Promotion"
+                                continue
                         if is_promotional:
                             promotional_tag = str(dfs.iloc[i][6])
                             start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%b %d, %Y")
@@ -2586,7 +2589,7 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         else:
                             if dh_product_obj.is_promotional==True:
                                 promotion_obj = None
-                            dh_product_obj.is_promotional = False
+                                dh_product_obj.is_promotional = False
                         dh_product_obj.promotion = promotion_obj
                         dh_product_obj.save()
                     common_row[2] = "success"
