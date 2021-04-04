@@ -159,6 +159,7 @@ def add_product_to_index(dealshub_product_obj):
         dealshub_product_dict["isPublished"] = dealshub_product_obj.is_published
         dealshub_product_dict["price"] = dealshub_product_obj.now_price
         dealshub_product_dict["stock"] = dealshub_product_obj.stock
+        dealshub_product_dict["pk"] = dealshub_product_obj.pk
         
         index.save_object(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
     except Exception as e:
@@ -589,10 +590,11 @@ class DealsHubProduct(models.Model):
                 pass
 
         try:
-            logger.info("Update DealsHubProduct to Index: %s",str(self))
-            p1 = threading.Thread(target = add_product_to_index, args=(self,))
-            p1.start()
-            logger.info("Update DealsHubProduct P1 STARTED: %s",str(self))
+            if self.location_group.name in ["WIGMe - UAE"]:
+                logger.info("Update DealsHubProduct to Index: %s",str(self))
+                p1 = threading.Thread(target = add_product_to_index, args=(self,))
+                p1.start()
+                logger.info("Update DealsHubProduct P1 STARTED: %s",str(self))
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1368,7 +1370,7 @@ class UnitOrder(models.Model):
     grn_filename_exists = models.BooleanField(default=False)
 
     def get_subtotal(self):
-        return float(self.price)*float(self.quantity)
+        return round(float(self.price)*float(self.quantity), 2)
 
     def get_price_without_vat(self):
         vat_divider = 1 + (self.order.location_group.vat/100)

@@ -284,11 +284,39 @@ class LocationGroup(models.Model):
         verbose_name_plural = "LocationGroup"
 
 
+class ActivityLog(models.Model):
+    user = models.ForeignKey(User, null=True)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True) #auto
+    table_name = models.CharField(max_length=256, blank=True, default='') #model name
+    table_item_pk = models.CharField(max_length=256, blank=True, default='') # item pk is id of change in that item 
+    action_type = models.CharField(max_length=64,blank=True,default='') # created updated deleted 
+    prev_instance = models.TextField(blank = True,default='{}')
+    current_instance = models.TextField(blank = True,default='{}')
+    render =  models.TextField(default='',blank = True) #messages
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(ActivityLog, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "ActivityLog"
+        verbose_name_plural = "ActivityLog"
+
+
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
     image = models.ImageField(upload_to='')
     thumbnail = models.ImageField(upload_to='thumbnails', null=True, blank=True)
+    small_image = models.ImageField(upload_to='small_image', null=True, blank=True)
     mid_image = models.ImageField(upload_to='midsize', null=True, blank=True)
     webp_image = models.ImageField(upload_to='webp', null=True, blank=True)
 
@@ -346,6 +374,19 @@ class Image(models.Model):
 
                 thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
                 self.thumbnail = thumb_file
+
+            if self.small_image == None:
+                size = 350, 350
+                thumb = IMAGE.open(self.image)
+                infile = self.image.file.name
+                im_type = thumb.format
+                thumb.thumbnail(size)
+                thumb_io = BytesIO()
+                thumb = rotate_image(thumb)
+                thumb.save(thumb_io, im_type)
+
+                thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
+                self.small_image = thumb_file
 
             if self.mid_image == None:
                 size2 = 512, 512
