@@ -1273,7 +1273,7 @@ def send_b2b_user_status_change_mail(b2b_user_obj):
         location_group_obj = LocationGroup.objects.get(website_group=website_group_obj)
 
         subject = b2b_user_obj.company_name + " - Change in Account Status! "
-        body = 'Hi ' + b2b_user_obj.first_name + ',\n\n' + 'Your Account Status has been changed. \n\nHappy Shopping \n Team WIGMe'
+        body = 'Hi ' + b2b_user_obj.first_name + ',\n\n' + 'Your Account Status has been changed. \n\nHappy Shopping! \nTeam WIGMe'
 
 
         with get_connection(
