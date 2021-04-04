@@ -3115,7 +3115,7 @@ class UpdateB2BCustomerStatusAPI(APIView):
 
             if is_notify == True:
                 #threading send a mail
-                 p1 = threading.Thread(target = send_b2b_status_change_mail, args=(b2b_user_obj,))
+                 p1 = threading.Thread(target = send_b2b_user_status_change_mail, args=(b2b_user_obj,))
                  p1.start()
 
             b2b_location_group_obj = None
