@@ -3058,6 +3058,10 @@ class UpdateB2BCustomerStatusAPI(APIView):
             trade_license_type = data["tradeLicenseType"]
             passport_copy_type = data["passportCopyType"]
 
+            is_notify = False
+            if vat_certificate_status != b2b_user_obj.vat_certificate_status or trade_license_status != b2b_user_obj.trade_license_status or passport_copy_status != b2b_user_obj.passport_copy_status:
+                is_notify = True
+
             if vat_certificate_type == "IMG":
                 image_count = int(data.get("vatCertificateImageCount",0))
                 for i in range(image_count):
@@ -3108,6 +3112,11 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.trade_license_id = trade_license_id
             b2b_user_obj.passport_copy_id = passport_copy_id
             b2b_user_obj.save()
+
+            if is_notify == True:
+                #threading send a mail
+                 p1 = threading.Thread(target = send_b2b_status_change_mail, args=(b2b_user_obj,))
+                 p1.start()
 
             b2b_location_group_obj = None
             if LocationGroup.objects.filter(is_b2b=True).exists():
