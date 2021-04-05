@@ -2565,7 +2565,7 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                             common_row[2]+='Promotional value is not proper.'
                             any_error = True
 
-                        
+                        promotion_obj = dh_product_obj.promotion
                         if dh_product_obj.is_promotional == False and promotion_obj != None:
                             common_row[2] += "Already in Promotion"
                             any_error = True
@@ -2584,7 +2584,6 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                             dh_product_obj.is_promo_restricted = is_promo_restricted
                             dh_product_obj.is_new_arrival = is_new_arrival
                             dh_product_obj.is_on_sale = is_on_sale
-                            promotion_obj = dh_product_obj.promotion
                             if is_promotional:
                                 promotional_tag = str(dfs.iloc[i][6])
                                 start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%Y-%m-%d %H:%M:%S")
