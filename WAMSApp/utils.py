@@ -2521,6 +2521,7 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         is_new_arrival = str(dfs.iloc[i][3]).strip().lower()
                         is_on_sale = str(dfs.iloc[i][4]).strip().lower()
                         is_promotional = str(dfs.iloc[i][5]).strip().lower()
+                        logger.debug("DH Product Obj", is_cod_allowed, is_promo_restricted, is_new_arrival, is_on_sale, is_promotional)
                         if is_cod_allowed =='true':
                             is_cod_allowed = True
                         elif is_cod_allowed =='false':
@@ -2593,7 +2594,6 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         #         dh_product_obj.is_promotional = False
                         #dh_product_obj.promotion = promotion_obj
                         dh_product_obj.save()
-                        logger.debug("DH Product Obj", dh_product_obj.__dict__)
                     common_row[2] = "success"
                 else:
                     common_row[2] = "Product {} not exists.".format(product_id)
