@@ -2506,9 +2506,15 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                 if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
                     dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     if update_type == "stock":
-                        stock = float(dfs.iloc[i][1])
-                        dh_product_obj.stock = stock
-                        dh_product_obj.save()
+                        #stock = float(dfs.iloc[i][1])
+                        is_cod_allowed = str(dfs.iloc[i][1]).strip().lower()
+                        is_promo_restricted = str(dfs.iloc[i][2]).strip().lower()
+                        is_new_arrival = str(dfs.iloc[i][3]).strip().lower()
+                        is_on_sale = str(dfs.iloc[i][4]).strip().lower()
+                        is_promotional = str(dfs.iloc[i][5]).strip().lower()
+                        #dh_product_obj.stock = stock
+                        logger.info("DH Product Obj", is_cod_allowed, is_promo_restricted, is_new_arrival, is_on_sale, is_promotional)
+                        #dh_product_obj.save()
                     elif update_type == "price":
                         now_price = float(dfs.iloc[i][1])
                         was_price = float(dfs.iloc[i][2])
