@@ -2521,7 +2521,7 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         is_new_arrival = str(dfs.iloc[i][3]).strip().lower()
                         is_on_sale = str(dfs.iloc[i][4]).strip().lower()
                         is_promotional = str(dfs.iloc[i][5]).strip().lower()
-                        logger.debug("DH Product Obj", is_cod_allowed, is_promo_restricted, is_new_arrival, is_on_sale, is_promotional)
+                        logger.info("DH Product Obj", is_cod_allowed, is_promo_restricted, is_new_arrival, is_on_sale, is_promotional)
                         if is_cod_allowed =='true':
                             is_cod_allowed = True
                         elif is_cod_allowed =='false':
