@@ -2474,7 +2474,7 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
         
         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
         dfs.fillna("")
-        rows = len(dfs.index)
+        rows = dfs[dfs.columns[0]].count()
 
         workbook = xlsxwriter.Workbook('./'+filename)
         worksheet = workbook.add_worksheet()
