@@ -2513,7 +2513,8 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         is_on_sale = str(dfs.iloc[i][4]).strip().lower()
                         is_promotional = str(dfs.iloc[i][5]).strip().lower()
                         #dh_product_obj.stock = stock
-                        logger.info("DH Product Obj", is_cod_allowed, is_promo_restricted, is_new_arrival, is_on_sale, is_promotional)
+                        logger.error("DH Product Obj", is_cod_allowed, is_promo_restricted, is_new_arrival, is_on_sale, is_promotional)
+                        common_row[2] = str(is_cod_allowed)
                         #dh_product_obj.save()
                     elif update_type == "price":
                         now_price = float(dfs.iloc[i][1])
