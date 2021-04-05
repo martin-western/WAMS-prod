@@ -2527,35 +2527,35 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                             is_cod_allowed=False
                         else:
                             common_row[2]='COD value is not proper.'
-                            continue
+                            #continue
                         if is_promo_restricted =='true':
                             is_promo_restricted = True
                         elif is_promo_restricted =='false':
                             is_promo_restricted=False
                         else:
                             common_row[2]='Promo restricted value is not proper.'
-                            continue
+                            #continue
                         if is_new_arrival =='true':
                             is_new_arrival = True
                         elif is_new_arrival =='false':
                             is_new_arrival=False
                         else:
                             common_row[2]='New arrival value is not proper.'
-                            continue
+                            #continue
                         if is_on_sale =='true':
                             is_on_sale = True
                         elif is_on_sale =='false':
                             is_on_sale=False
                         else:
                             common_row[2]='On sale value is not proper.'
-                            continue
+                            #continue
                         if is_promotional =='true':
                             is_promotional = True
                         elif is_promotional =='false':
                             is_promotional=False
                         else:
                             common_row[2]='Promotional value is not proper.'
-                            continue
+                            #continue
                         
                         dh_product_obj.is_cod_allowed = is_cod_allowed
                         dh_product_obj.is_promo_restricted = is_promo_restricted
@@ -2565,7 +2565,7 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         promotion_obj = dh_product_obj.promotion
                         if dh_product_obj.is_promotional == False and promotion_obj != None:
                                 common_row[2] = "Already in Promotion"
-                                continue
+                                #continue
                         if is_promotional:
                             promotional_tag = str(dfs.iloc[i][6])
                             start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%Y-%m-%d %H:%M:%S")
@@ -2574,10 +2574,10 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                                 promotional_price = float(str(dfs.iloc[i][9]))
                                 if promotional_price <=0:
                                     common_row[2]='Promotional price cannot be 0.'
-                                    continue
+                                    #continue
                             except :
                                 common_row[2]='Promotional price is not proper.'
-                                continue
+                                #continue
                             if promotion_obj==None:
                                 promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
                             else:
