@@ -2506,16 +2506,9 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                 if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
                     dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     if update_type == "stock":
-                        #stock = float(dfs.iloc[i][1])
-                        is_cod_allowed = str(dfs.iloc[i][1]).strip().lower()
-                        is_promo_restricted = str(dfs.iloc[i][2]).strip().lower()
-                        is_new_arrival = str(dfs.iloc[i][3]).strip().lower()
-                        is_on_sale = str(dfs.iloc[i][4]).strip().lower()
-                        is_promotional = str(dfs.iloc[i][5]).strip().lower()
-                        #dh_product_obj.stock = stock
-                        logger.error("DH Product Obj", is_cod_allowed, is_promo_restricted, is_new_arrival, is_on_sale, is_promotional)
-                        common_row[2] = str(is_cod_allowed)
-                        #dh_product_obj.save()
+                        stock = float(dfs.iloc[i][1])
+                        dh_product_obj.stock = stock
+                        dh_product_obj.save()
                     elif update_type == "price":
                         now_price = float(dfs.iloc[i][1])
                         was_price = float(dfs.iloc[i][2])
@@ -2528,80 +2521,79 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         is_new_arrival = str(dfs.iloc[i][3]).strip().lower()
                         is_on_sale = str(dfs.iloc[i][4]).strip().lower()
                         is_promotional = str(dfs.iloc[i][5]).strip().lower()
-                        logger.info("DH Product Obj", is_cod_allowed, is_promo_restricted, is_new_arrival, is_on_sale, is_promotional)
-                        if is_cod_allowed =='true':
+                        if is_cod_allowed =='yes':
                             is_cod_allowed = True
-                        elif is_cod_allowed =='false':
+                        elif is_cod_allowed =='no':
                             is_cod_allowed=False
                         else:
                             common_row[2]='COD value is not proper.'
-                            #continue
-                        if is_promo_restricted =='true':
+                            continue
+                        if is_promo_restricted =='yes':
                             is_promo_restricted = True
-                        elif is_promo_restricted =='false':
+                        elif is_promo_restricted =='no':
                             is_promo_restricted=False
                         else:
                             common_row[2]='Promo restricted value is not proper.'
-                            #continue
-                        if is_new_arrival =='true':
+                            continue
+                        if is_new_arrival =='yes':
                             is_new_arrival = True
-                        elif is_new_arrival =='false':
+                        elif is_new_arrival =='no':
                             is_new_arrival=False
                         else:
                             common_row[2]='New arrival value is not proper.'
-                            #continue
-                        if is_on_sale =='true':
+                            continue
+                        if is_on_sale =='yes':
                             is_on_sale = True
-                        elif is_on_sale =='false':
+                        elif is_on_sale =='no':
                             is_on_sale=False
                         else:
                             common_row[2]='On sale value is not proper.'
-                            #continue
-                        if is_promotional =='true':
+                            continue
+                        if is_promotional =='yes':
                             is_promotional = True
-                        elif is_promotional =='false':
+                        elif is_promotional =='no':
                             is_promotional=False
                         else:
                             common_row[2]='Promotional value is not proper.'
-                            #continue
+                            continue
                         
                         dh_product_obj.is_cod_allowed = is_cod_allowed
                         dh_product_obj.is_promo_restricted = is_promo_restricted
                         dh_product_obj.is_new_arrival = is_new_arrival
                         dh_product_obj.is_on_sale = is_on_sale
                         
-                        # promotion_obj = dh_product_obj.promotion
-                        # if dh_product_obj.is_promotional == False and promotion_obj != None:
-                        #         common_row[2] = "Already in Promotion"
-                        #         #continue
-                        # if is_promotional:
-                        #     promotional_tag = str(dfs.iloc[i][6])
-                        #     start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%Y-%m-%d %H:%M:%S")
-                        #     end_date = datetime.datetime.strptime(str(dfs.iloc[i][8]), "%Y-%m-%d %H:%M:%S")
-                        #     try :
-                        #         promotional_price = float(str(dfs.iloc[i][9]))
-                        #         if promotional_price <=0:
-                        #             common_row[2]='Promotional price cannot be 0.'
-                        #             #continue
-                        #     except :
-                        #         common_row[2]='Promotional price is not proper.'
-                        #         #continue
-                        #     if promotion_obj==None:
-                        #         promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
-                        #     else:
-                        #         promotion_obj.promotion_tag = promotional_tag
-                        #         promotion_obj.start_time = start_date
-                        #         promotion_obj.end_time = end_date
-                        #         promotion_obj.save()
-                        #     dh_product_obj.is_promotional = True
-                        #     dh_product_obj.promotional_price = promotional_price
-                        # else:
-                        #     if dh_product_obj.is_promotional==True:
-                        #         promotion_obj = None
-                        #         dh_product_obj.is_promotional = False
-                        #dh_product_obj.promotion = promotion_obj
+                        promotion_obj = dh_product_obj.promotion
+                        if dh_product_obj.is_promotional == False and promotion_obj != None:
+                                common_row[2] = "Already in Promotion"
+                                continue
+                        if is_promotional:
+                            promotional_tag = str(dfs.iloc[i][6])
+                            start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%Y-%m-%d %H:%M:%S")
+                            end_date = datetime.datetime.strptime(str(dfs.iloc[i][8]), "%Y-%m-%d %H:%M:%S")
+                            try :
+                                promotional_price = float(str(dfs.iloc[i][9]))
+                                if promotional_price <=0:
+                                    common_row[2]='Promotional price cannot be 0.'
+                                    continue
+                            except :
+                                common_row[2]='Promotional price is not proper.'
+                                continue
+                            if promotion_obj==None:
+                                promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
+                            else:
+                                promotion_obj.promotion_tag = promotional_tag
+                                promotion_obj.start_time = start_date
+                                promotion_obj.end_time = end_date
+                                promotion_obj.save()
+                            dh_product_obj.is_promotional = True
+                            dh_product_obj.promotional_price = promotional_price
+                        else:
+                            if dh_product_obj.is_promotional==True:
+                                promotion_obj = None
+                                dh_product_obj.is_promotional = False
+                        dh_product_obj.promotion = promotion_obj
                         dh_product_obj.save()
-                    #common_row[2] = "success"
+                    common_row[2] = "success"
                 else:
                     common_row[2] = "Product {} not exists.".format(product_id)
                 colnum = 0
