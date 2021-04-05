@@ -1583,7 +1583,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
             response['excel_errors'] = excel_errors
 
             render_value = 'Bulk publish products {} are published and {} are not published'.format(publish_count,unpublish_count)
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
+            #activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
 
 
             response['status'] = 200
