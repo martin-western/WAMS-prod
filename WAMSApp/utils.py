@@ -2475,7 +2475,6 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
         dfs.fillna("")
         rows = len(dfs.iloc[:])
-        logger.error("ROWS COUNT",rows)
 
         workbook = xlsxwriter.Workbook('./'+filename)
         worksheet = workbook.add_worksheet()
@@ -2594,7 +2593,7 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                                 dh_product_obj.is_promotional = False
                         dh_product_obj.promotion = promotion_obj
                         dh_product_obj.save()
-                    common_row[2] = "success"
+                    common_row[2] = rows
                 else:
                     common_row[2] = "Product {} not exists.".format(product_id)
                 colnum = 0
