@@ -4815,6 +4815,8 @@ class UpdateReviewAdminAPI(APIView):
             fake_customer_name = data.get("customerName","")
             rating = int(data["rating"])
             review_content = json.loads(data["review_content"])
+            created_date = str(data["created_at"])+"T00:00:00+04:00"
+            modified_date = str(data["created_at"])+"T00:00:00+04:00"
 
             subject = str(review_content["subject"])
             content = str(review_content["content"])
@@ -4847,6 +4849,7 @@ class UpdateReviewAdminAPI(APIView):
             review_content_obj.save()
 
             review_obj.content = review_content_obj
+            review_obj.created_date = created_date
             review_obj.save()
             
             response['image_url_list'] = image_url_list
