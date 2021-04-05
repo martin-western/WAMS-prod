@@ -6956,8 +6956,22 @@ class SetOrdersStatusBulkAPI(APIView):
             for order_uuid in order_uuid_list:
                 try:
                     order_obj = Order.objects.get(uuid=order_uuid)
+                    first_unit_order_obj = None
                     for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         set_order_status(unit_order_obj, order_status)
+                        first_unit_order_obj = unit_order_obj
+                    omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+                    order_status_change_information = {
+                        "event": "order_status",
+                        "information": {
+                            "old_status": first_unit_order_obj.current_status_admin if first_unit_order_obj!=None else "",
+                            "new_status": order_status
+                        }
+                    }
+
+                    VersionOrder.objects.create(order=order_obj,
+                                                user= omnycomm_user,
+                                                change_information=json.dumps(order_status_change_information))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SetOrdersStatusBulkAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -6997,15 +7011,31 @@ class UpdateOrderStatusAPI(APIView):
                 return Response(data = response)
 
             unit_order_objs = UnitOrder.objects.filter(order = order_obj)
-
+            valid_transition_flag = 0
+            first_unit_order_obj = None
             for unit_order_obj in unit_order_objs:
+                first_unit_order_obj = unit_order_obj
                 if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":          
                     set_order_status(unit_order_obj, "dispatched")
                 elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
                     set_order_status(unit_order_obj, "delivered")
                 else:
                     logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
+                    valid_transition_flag = 1
                     break
+            if valid_transition_flag==0:
+                omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+                order_status_change_information = {
+                    "event": "order_status",
+                    "information": {
+                        "old_status": first_unit_order_obj.current_status_admin if first_unit_order_obj!=None else "",
+                        "new_status": order_status
+                    }
+                }
+
+                VersionOrder.objects.create(order=order_obj,
+                                            user= omnycomm_user,
+                                            change_information=json.dumps(order_status_change_information))
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -7199,8 +7229,18 @@ class ApproveCancellationRequestAPI(APIView):
             
             if unit_order_objs.exists():
                 order_obj = unit_order_objs[0].order
+                omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+                order_cancel_information = {
+                    "event" : "order_cancel",
+                    "information" : {}
+                }
+                VersionOrder.objects.create(order=order_obj,
+                                            user= omnycomm_user_obj,
+                                            change_information=json.dumps(order_cancel_information))
                 order_obj.real_to_pay = order_obj.get_total_amount(is_real=True)
                 order_obj.save()
+
+
 
             response['status'] = 200
 

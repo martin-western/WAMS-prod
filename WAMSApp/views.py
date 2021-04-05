@@ -7995,6 +7995,11 @@ class CreateOmnyCommUserAPI(APIView):
             email = data["email"]
             contact_no = data["contact_number"]
             designation = data["designation"]
+
+            if username=="" or first_name=="" or last_name=="" or email=="" or contact_number=="":
+                response["status"] = 402
+                response["message"] = "some compulsory fields are empty"
+                return Response(data=response)
             
             password = generate_random_password(length=8)
 
