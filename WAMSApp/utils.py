@@ -2585,8 +2585,8 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                             promotion_obj = dh_product_obj.promotion
                             if is_promotional:
                                 promotional_tag = str(dfs.iloc[i][6])
-                                start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%b %d, %Y")
-                                end_date = datetime.datetime.strptime(str(dfs.iloc[i][8]), "%b %d, %Y")
+                                start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%Y-%m-%d %H:%M:%S")
+                                end_date = datetime.datetime.strptime(str(dfs.iloc[i][8]), "%Y-%m-%d %H:%M:%S")
                                 if promotion_obj==None:
                                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
                                 else:
