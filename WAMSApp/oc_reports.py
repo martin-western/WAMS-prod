@@ -327,7 +327,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
 
     for product in product_objs:
         try:
-            common_row = ["" for i in range(211)]
+            common_row = ["" for i in range(266)]
             cnt += 1
             common_row[0] = str(cnt)
             common_row[1] = product.product_id
