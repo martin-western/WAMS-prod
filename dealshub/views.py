@@ -6158,6 +6158,49 @@ class NotifyOrderStatusAPI(APIView):
         return Response(data=response)
 
 
+class AskProductReviewsAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AskProductReviewsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            time_delta = datetime.timedelta(days=1)
+            now_time = datetime.datetime.now()
+            start_time = now_time - time_delta*10
+            end_time = now_time - time_delta*9
+
+            order_objs = UnitOrderStatus.objects.filter(date_created__range=(start_time,end_time),status_admin="delivered").values_list('unit_order__order').distinct()
+
+            for order_obj in order_objs:
+
+                #send a mail
+                try:
+                    p1 = threading.Thread(target=send_order_review_mail, args=(unit_order_obj,))
+                    p1.start()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
+                return
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AskProductReviewsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
