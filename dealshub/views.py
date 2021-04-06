@@ -3671,14 +3671,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["displayId"] = dealshub_product_obj.get_product_id()
                     temp_dict2["uuid"] = dealshub_product_obj.uuid
                     temp_dict2["link"] = dealshub_product_obj.url
-                    dealshub_product_obj_base_product = dealshub_product_obj.product.base_product
-                    dealshub_same_baseproduct_objs = DealsHubProduct.objects.filter(product__base_product = dealshub_product_obj_base_product)
-                    temp_dict2["color_list"] = []
-                    if dealshub_same_baseproduct_objs.count()>1:
-                        for dealshubproduct_obj in dealshub_same_baseproduct_objs:
-                            dealshubproduct_color = dealshubproduct_obj.product.color
-                            temp_dict2["color_list"].append({"color":"{}".format(dealshubproduct_color),"uuid":"{}".format(dealshubproduct_obj.uuid)})
-                    
+
                     if is_dealshub==True:
                         temp_dict2["category"] = dealshub_product_obj.get_category(language_code)
                         temp_dict2["currency"] = dealshub_product_obj.get_currency()
