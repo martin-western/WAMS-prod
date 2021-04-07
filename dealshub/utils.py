@@ -775,6 +775,7 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
         website_logo = order_obj.get_email_website_logo()
         product_list = []
         for unit_order_obj in unit_order_objs:
+            temp_dict = {}
             temp_dict["name"] = unit_order_obj.product.get_name()
             temp_dict["quantity"] = unit_order_obj.quantity
             temp_dict["image"] = unit_order_obj.product.get_display_image_url()
