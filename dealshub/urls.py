@@ -259,6 +259,9 @@ urlpatterns = [
     url(r'^update-user-name-and-email/$',views.UpdateUserNameAndEmail),
 
     url(r'^send-new-product-email-notification/$',views.SendNewProductEmailNotification),
+    url(r'^ask-product-reviews-cron/$',views.AskProductReviewsCron),
+    url(r'^fetch-product-review-mail/$',views.FetchProductReviewMail),
+    url(r'^submit-product-review-mail/$',views.SubmitProductReviewMail),
 
     url(r'^fetch-b2b-user-profile/$',views.FetchB2BUserProfile),
     url(r'^upload-b2b-document/$',views.UploadB2BDocument),

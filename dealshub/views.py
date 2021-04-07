@@ -6192,13 +6192,13 @@ class AskProductReviewsCronAPI(APIView):
                     dh_user_obj.save()
                 user_token = dh_user_obj.user_token
 
-                for unit_order_obj in UnitOrder.objects.filter(order=order_obj)
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
                     if UnitOrderStatus.objects.get(unit_order=unit_order_obj).status_admin=="delivered":
                         if Review.objects.filter(dealshub_user=dh_user_obj,product=unit_order_obj.product).exists()==False:
                             unit_orders_for_mail.append(unit_order_obj)
 
                 try:                   
-                    p1 = threading.Thread(target=send_order_review_mail, args=(unit_orders_for_mail,user_token))
+                    p1 = threading.Thread(target=send_order_review_mail, args=(order_obj, unit_orders_for_mail,user_token))
                     p1.start()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6224,7 +6224,7 @@ class FetchProductReviewMailAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("SubmitProductReviewMailAPI: %s", str(data))
+            logger.info("FetchProductReviewMailAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -6249,7 +6249,7 @@ class FetchProductReviewMailAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SubmitProductReviewMailAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+            logger.error("FetchProductReviewMailAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6270,7 +6270,10 @@ class SubmitProductReviewMailAPI(APIView):
                 data = json.loads(data)
             
             rating = data["rating"]
-            # more things to add.
+            review_content = json.loads(data["review_content"])
+
+            subject = str(review_content["subject"])
+            content = str(review_content["content"])
 
             user_token = data["user_token"]
             product_uuid = data["product_uuid"]
@@ -6279,7 +6282,17 @@ class SubmitProductReviewMailAPI(APIView):
             dh_user_obj = DealsHubUser.objects.get(user_token=user_token)
 
             review_obj = Review.objects.create(dealshub_user=dh_user_obj, product=dh_product_obj, rating=rating)
+            review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+            
+            image_count = int(data.get("image_count", 0))
+            for i in range(image_count):
+                image_obj = Image.objects.create(image=data["image_"+str(i)])
+                review_content_obj.images.add(image_obj)
+            review_content_obj.save()
 
+            review_obj.content = review_content_obj
+            review_obj.save()
+            response["uuid"] = review_obj.uuid
             response['status'] = 200
 
         except Exception as e:
@@ -6458,3 +6471,9 @@ NotifyOrderStatus = NotifyOrderStatusAPI.as_view()
 UpdateOrderCharges = UpdateOrderChargesAPI.as_view()
 
 FetchLogixShippingStatus = FetchLogixShippingStatusAPI.as_view()
+
+AskProductReviewsCron = AskProductReviewsCronAPI.as_view()
+
+FetchProductReviewMail = FetchProductReviewMailAPI.as_view()
+
+SubmitProductReviewMail = SubmitProductReviewMailAPI.as_view()

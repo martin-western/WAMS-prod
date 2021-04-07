@@ -763,6 +763,66 @@ def notify_order_cancel_status_to_user(unit_order_obj, status):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("notify_order_cancel_status_to_user: %s at %s", e, str(exc_tb.tb_lineno))
 
+def send_order_review_mail(order_obj, unit_order_objs, user_token):
+    try:
+        if order_obj.owner.email_verified == False:
+            return
+        
+        customer_name = order_obj.get_customer_first_name()
+
+        address_lines = json.loads(order_obj.shipping_address.address_lines)
+        full_name = order_obj.get_customer_full_name()
+        website_logo = order_obj.get_email_website_logo()
+        product_list = []
+        for unit_order_obj in unit_order_objs:
+            temp_dict["name"] = unit_order_obj.product.get_name()
+            temp_dict["quantity"] = unit_order_obj.quantity
+            temp_dict["review_url"] = WIGME_IP + "/"+unit_order_obj.product.uuid + "/" + user_token
+            temp_dict["image"] = unit_order_obj.product.get_display_image_url()
+            product_list.append(temp_dict)
+
+        if not product_list:
+            return
+
+        html_message = loader.render_to_string(
+            os.getcwd()+'/dealshub/templates/send-order-review.html',
+            {
+                "website_logo": website_logo,
+                "customer_name": customer_name,
+                "order_id": order_obj.bundleid,
+                "product_list": product_list,
+                "full_name": full_name,
+                "address_lines": address_lines,
+                "website_order_link": order_obj.get_website_link()+"/orders/"+order_obj.uuid
+            }
+        )
+
+        location_group_obj = order_obj.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Feedback', 
+                        body='Order Feedback',
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[order_obj.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_review_mail")
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_review_mail: %s at %s", e, str(exc_tb.tb_lineno))
+    
 
 def contact_us_send_email(your_email, message, to_email, password):
     try:
