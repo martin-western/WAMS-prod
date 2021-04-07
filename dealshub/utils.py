@@ -777,7 +777,6 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
         for unit_order_obj in unit_order_objs:
             temp_dict["name"] = unit_order_obj.product.get_name()
             temp_dict["quantity"] = unit_order_obj.quantity
-            temp_dict["review_url"] = WIGME_IP + "/"+unit_order_obj.product.uuid + "/" + user_token
             temp_dict["image"] = unit_order_obj.product.get_display_image_url()
             product_list.append(temp_dict)
 
@@ -791,6 +790,7 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
                 "customer_name": customer_name,
                 "order_id": order_obj.bundleid,
                 "product_list": product_list,
+                "review_url" : WIGME_IP + "/?" + order_obj.uuid + "&" + user_token,
                 "full_name": full_name,
                 "address_lines": address_lines,
                 "website_order_link": order_obj.get_website_link()+"/orders/"+order_obj.uuid

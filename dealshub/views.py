@@ -6366,20 +6366,36 @@ class FetchProductReviewMailAPI(APIView):
                 data = json.loads(data)
             
             user_token = data["user_token"]
-            product_uuid = data["product_uuid"]
+            order_uuid = data["order_uuid"]
 
-            dh_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+            order_obj = Order.objects.get(uuid=order_uuid)
+            unit_orders_for_mail = []
+            
             dh_user_obj = DealsHubUser.objects.get(user_token=user_token)
 
-            if Review.objects.filter(product=dh_product_obj, dealshub_user=dh_user_obj).exists():
-                response['status'] = 502
-                response['message'] = "You have already given review for this product"
-                return Response(data=response)
+            for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                if UnitOrderStatus.objects.get(unit_order=unit_order_obj).status_admin=="delivered":
+                    if Review.objects.filter(dealshub_user=dh_user_obj,product=unit_order_obj.product).exists()==False:
+                        unit_orders_for_mail.append(unit_order_obj)
 
-            response["product_name"] = dh_product_obj.get_name()
-            response["product_id"] = dh_product_obj.get_product_id()
-            response["seller_sku"] = dh_product_obj.get_seller_sku()
-            response["product_image"] = dh_product_obj.get_main_image_url()
+            products_for_review = []
+            for unit_order_obj in unit_orders_for_mail:
+                temp_dict = {}
+                dh_product_obj = unit_order_obj.product
+                if Review.objects.filter(product=dh_product_obj, dealshub_user=dh_user_obj).exists():
+                    temp_dict['status'] = "invalid"
+                    products_for_review.append(temp_dict)
+                    continue
+
+                temp_dict["product_name"] = dh_product_obj.get_name()
+                temp_dict["product_id"] = dh_product_obj.get_product_id()
+                temp_dict["seller_sku"] = dh_product_obj.get_seller_sku()
+                temp_dict["product_image"] = dh_product_obj.get_main_image_url()
+                temp_dict["product_uuid"] = dh_product_obj.uuid
+                temp_dict["status"] = "valid"
+                products_for_review.append(temp_dict)
+            
+            response["products"] = products_for_review
             response["username"] = dh_user_obj.username
             response['status'] = 200
 
