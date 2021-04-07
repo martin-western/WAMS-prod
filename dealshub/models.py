@@ -1298,10 +1298,10 @@ class Order(models.Model):
             return CUSTOMER_ID_FINAL_BILLING_WIG_COD
         if shipping_method=="wig fleet" and self.payment_status.lower()=="paid":
             return CUSTOMER_ID_FINAL_BILLING_WIG_ONLINE
-        if shipping_method=="postaplus" and self.payment_status.lower()=="cod":
-            return CUSTOMER_ID_FINAL_BILLING_POSTAPLUS_COD
-        if shipping_method=="postaplus" and self.payment_status.lower()=="paid":
-            return CUSTOMER_ID_FINAL_BILLING_POSTAPLUS_ONLINE
+        if shipping_method=="grand gaadi" and self.payment_status.lower()=="cod":
+            return CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_COD
+        if shipping_method=="grand gaadi" and self.payment_status.lower()=="paid":
+            return CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_ONLINE
         if shipping_method=="sendex" and self.payment_status.lower()=="cod":
             return CUSTOMER_ID_FINAL_BILLING_SENDEX_COD
         if shipping_method=="sendex" and self.payment_status.lower()=="paid":
