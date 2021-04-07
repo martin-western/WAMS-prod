@@ -784,7 +784,7 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
             return
 
         html_message = loader.render_to_string(
-            os.getcwd()+'/dealshub/templates/send-order-review.html',
+            os.getcwd()+'/dealshub/templates/order-review.html',
             {
                 "website_logo": website_logo,
                 "customer_name": customer_name,

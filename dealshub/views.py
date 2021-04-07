@@ -6312,8 +6312,8 @@ class AskProductReviewsCronAPI(APIView):
             
             time_delta = datetime.timedelta(days=1)
             now_time = datetime.datetime.now()
-            start_time = now_time - time_delta*10
-            end_time = now_time - time_delta*9
+            start_time = now_time - time_delta
+            end_time = now_time + time_delta
 
             order_uuid_list = list(UnitOrderStatus.objects.filter(date_created__gte=start_time, date_created__lte=end_time, status_admin="delivered").values_list('unit_order__order__uuid').distinct())
 
