@@ -7507,7 +7507,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             is_promotional = data.get("is_promotional",False)
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
-            other_sub_category_uuid_list = data["other_sub_category_uuid_list",[]]
+            other_sub_category_uuid_list = data.get("other_sub_category_uuid_list",[])
 
             product_name = data.get("product_name", "")
             product_name_ar = data.get("product_name_ar","")
