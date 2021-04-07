@@ -6329,7 +6329,7 @@ class AskProductReviewsCronAPI(APIView):
                 user_token = dh_user_obj.user_token
 
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                    if UnitOrderStatus.objects.get(unit_order=unit_order_obj).status_admin=="delivered":
+                    if UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status_admin="delivered").exists():
                         if Review.objects.filter(dealshub_user=dh_user_obj,product=unit_order_obj.product).exists()==False:
                             unit_orders_for_mail.append(unit_order_obj)
 
@@ -6374,7 +6374,7 @@ class FetchProductReviewMailAPI(APIView):
             dh_user_obj = DealsHubUser.objects.get(user_token=user_token)
 
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                if UnitOrderStatus.objects.get(unit_order=unit_order_obj).status_admin=="delivered":
+                if UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status_admin="delivered").exists():
                     if Review.objects.filter(dealshub_user=dh_user_obj,product=unit_order_obj.product).exists()==False:
                         unit_orders_for_mail.append(unit_order_obj)
 
