@@ -171,10 +171,7 @@
                                                                                 cellspacing="0" align="center"
                                                                                 width="100%" role="module"
                                                                                 data-type="columns" style="
-                                                                                        padding: 30px
-                                                                                            20px
-                                                                                            40px
-                                                                                            30px;
+                                                                                        padding: 30px;
                                                                                     " bgcolor="white">
                                                                                 <tbody>
                                                                                     <tr role="module-content">
@@ -258,10 +255,7 @@
                                                                                                                 <tbody>
                                                                                                                     <tr>
                                                                                                                         <td style="
-                                                                                                                                    padding: 100px
-                                                                                                                                        0px
-                                                                                                                                        18px
-                                                                                                                                        0px;
+                                                                                                                                    padding: 10px;
                                                                                                                                     line-height: 36px;
                                                                                                                                     text-align: inherit;
                                                                                                                                 "
@@ -282,6 +276,7 @@
                                                                                                                                                 font-family: inherit;
                                                                                                                                             ">Hi
                                                                                                                                         {{customer_name}}!
+                                                                                                                                        <br/>
                                                                                                                                         <br/>
                                                                                                                                         Your
                                                                                                                                         Review
@@ -529,7 +524,7 @@
                                                                                 </tbody>
                                                                             </table>
                                                                             {% for product in product_list %}
-                                                                            <table class="module" role="module"
+                                                                            <!-- <table class="module" role="module"
                                                                                 data-type="text" border="0"
                                                                                 cellpadding="0" cellspacing="0"
                                                                                 width="100%" style="
@@ -562,7 +557,7 @@
                                                                                         </td>
                                                                                     </tr>
                                                                                 </tbody>
-                                                                            </table>
+                                                                            </table> -->
 
                                                                             <!-- one product -->
                                                                             <table border="0" cellpadding="0"
@@ -576,7 +571,7 @@
                                                                                     " bgcolor="#FFFFFF">
                                                                                 <tbody>
                                                                                     <tr role="module-content">
-                                                                                        <td height="100%" valign="top">
+                                                                                        <td height="100%" valign="top" style="display: flex; align-items: center;">
                                                                                             <table class="column"
                                                                                                 width="137" style="
                                                                                                         width: 137px;
@@ -693,6 +688,7 @@
                                                                                                                                     style="
                                                                                                                                             font-family: inherit;
                                                                                                                                             text-align: inherit;
+                                                                                                                                            padding: 5px 0px;
                                                                                                                                         ">
                                                                                                                                     {{product.name}}
                                                                                                                                 </div>
@@ -701,6 +697,7 @@
                                                                                                                                             font-family: inherit;
                                                                                                                                             text-align: inherit;
                                                                                                                                             color: #da3e2b;
+                                                                                                                                            padding: 5px 0px
                                                                                                                                         ">
                                                                                                                                     Quantity
                                                                                                                                     :
@@ -714,13 +711,14 @@
                                                                                                                                     style="
                                                                                                                                             font-family: inherit;
                                                                                                                                             text-align: inherit;
+                                                                                                                                            padding: 5px 0px;
                                                                                                                                         ">
-                                                                                                                                    <a href="{{review_url}}">
-                                                                                                                                        <span style='font-size:20px;'>&#9734;</span>
-                                                                                                                                        <span style='font-size:20px;'>&#9734;</span>
-                                                                                                                                        <span style='font-size:20px;'>&#9734;</span>
-                                                                                                                                        <span style='font-size:20px;'>&#9734;</span>
-                                                                                                                                        <span style='font-size:20px;'>&#9734;</span>
+                                                                                                                                    <a href="{{review_url}}" style="text-decoration: none; color: #000;">
+                                                                                                                                        <span style='font-size:30px;'>&#9734;</span>
+                                                                                                                                        <span style='font-size:30px;'>&#9734;</span>
+                                                                                                                                        <span style='font-size:30px;'>&#9734;</span>
+                                                                                                                                        <span style='font-size:30px;'>&#9734;</span>
+                                                                                                                                        <span style='font-size:30px;'>&#9734;</span>
                                                                                                                                     </a>
                                                                                                                                 </div>
                                                                                                                             </div>
