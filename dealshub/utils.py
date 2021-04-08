@@ -792,8 +792,6 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
                 "order_id": order_obj.bundleid,
                 "product_list": product_list,
                 "review_url" : WIGME_IP + "/?" + order_obj.uuid + "&" + user_token,
-                "full_name": full_name,
-                "address_lines": address_lines,
                 "website_order_link": order_obj.get_website_link()+"/orders/"+order_obj.uuid
             }
         )
@@ -808,7 +806,7 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
             use_tls=True) as connection:
 
             email = EmailMultiAlternatives(
-                        subject='Order Feedback', 
+                        subject='Hi ' + customer_name + ' we would really appreciate your feedback on your recent order', 
                         body='Order Feedback',
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[order_obj.owner.email],
