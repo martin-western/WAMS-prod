@@ -151,16 +151,21 @@ def add_product_to_index(dealshub_product_obj):
         dealshub_product_dict["locationGroup"] = dealshub_product_obj.location_group.uuid
         dealshub_product_dict["objectID"] = dealshub_product_obj.uuid
         dealshub_product_dict["productName"] = dealshub_product_obj.get_name()
-        dealshub_product_dict["category"] = dealshub_product_obj.get_category()
-        dealshub_product_dict["superCategory"] = dealshub_product_obj.get_super_category()
-        dealshub_product_dict["subCategory"] = dealshub_product_obj.get_sub_category()
+        dealshub_product_dict["category"] = [dealshub_product_obj.get_category()]
+        dealshub_product_dict["superCategory"] = [dealshub_product_obj.get_super_category()]
+        dealshub_product_dict["subCategory"] = [dealshub_product_obj.get_sub_category()]
         dealshub_product_dict["brand"] = dealshub_product_obj.get_brand()
         dealshub_product_dict["sellerSKU"] = dealshub_product_obj.get_seller_sku()
         dealshub_product_dict["isPublished"] = dealshub_product_obj.is_published
         dealshub_product_dict["price"] = dealshub_product_obj.now_price
         dealshub_product_dict["stock"] = dealshub_product_obj.stock
         dealshub_product_dict["pk"] = dealshub_product_obj.pk
-        
+
+        additional_category_hierarchy = dealshub_product_obj.get_additional_category_hierarchy()
+        dealshub_product_dict["subCategory"].extend(additional_category_hierarchy["additional_sub_categories"])
+        dealshub_product_dict["category"].extend(additional_category_hierarchy["additional_categories"])
+        dealshub_product_dict["superCategory"].extend(additional_category_hierarchy["additional_super_categories"])
+
         index.save_object(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -272,6 +277,28 @@ class DealsHubProduct(models.Model):
             else:
                 return str(self.sub_category.name_ar)
         return ""
+
+    def get_additional_category_hierarchy(self):
+        temp_dict = {}
+        additional_sub_categories = []
+        additional_categories = []
+        additional_super_categories = []
+
+        additional_sub_categories_objs = self.additional_sub_categories.select_related('category').select_related('super_category')
+        for additional_sub_category_obj in additional_sub_categories_objs:
+            if additional_sub_category_obj != None:
+                additional_sub_categories.append(str(additional_sub_category_obj))
+                additional_category_obj = additional_sub_category_obj.category
+                if additional_category_obj != None:
+                    additional_categories.append(str(additional_category_obj))
+                    additional_super_category_obj = additional_category_obj.super_category
+                    if additional_super_category_obj != None:
+                        additional_super_categories.append(str(additional_super_category_obj))
+        temp_dict["additional_sub_categories"] = additional_sub_categories
+        temp_dict["additional_categories"] = additional_categories
+        temp_dict["additional_super_categories"] = additional_super_categories
+
+        return temp_dict
 
     def get_name(self,language = "en"):
         if language == "ar":
