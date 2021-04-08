@@ -417,7 +417,6 @@ def send_order_request_approval_mail(order_request_obj):
         logger.error("send_order_request_approval_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
 
-
 def send_order_request_deleted_mail(order_request_obj):
     try:
         logger.info("send_order_request_deleted_mail started!")
