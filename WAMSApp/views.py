@@ -7454,6 +7454,8 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["is_published"] = dealshub_product_obj.is_published
             response["is_new_arrival"] = dealshub_product_obj.is_new_arrival
             response["is_on_sale"] = dealshub_product_obj.is_on_sale
+            response["is_on_bestseller"] = dealshub_product_obj.is_bestseller
+            response["is_on_featured"] = dealshub_product_obj.is_featured
             if dealshub_product_obj.is_promotional and check_valid_promotion(dealshub_product_obj.promotion)==False:
                 dealshub_product_obj.promotion = None
                 dealshub_product_obj.is_promotional = False
@@ -7560,6 +7562,8 @@ class SaveDealshubProductDetailsAPI(APIView):
             is_cod_allowed = data["is_cod_allowed"]
             is_new_arrival = data.get("is_new_arrival", False)
             is_on_sale = data.get("is_on_sale", False)
+            is_on_featured = data.get("is_on_featured",False)
+            is_on_bestseller = data.get("is_on_bestseller",False)
             is_promotional = data.get("is_promotional",False)
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
@@ -7585,6 +7589,8 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.is_new_arrival = is_new_arrival
             dealshub_product_obj.is_on_sale = is_on_sale
             dealshub_product_obj.is_promo_restricted = is_promo_restricted
+            dealshub_product_obj.is_bestseller = is_on_bestseller
+            delahub_product_obj.is_featured = is_on_featured
 
             dealshub_product_obj.product_name = product_name
             dealshub_product_obj.product_name_ar = product_name_ar
