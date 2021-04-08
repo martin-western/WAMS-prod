@@ -3864,7 +3864,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
             try:
                 if location_group_obj.name == "WIGme - Dubai":
-                    logger.info("Inside para john loop 1")
+                    #logger.info("Inside para john loop 1")
                     temp_dict = {}
                     temp_dict["tiled_product_index"] = location_group_obj.tiled_product_index
                     
@@ -3886,7 +3886,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                         temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
                         new_arrival_product.append(temp_dict2)
 
-                    logger.info("Inside para john loop 2 - 14 products done")
+                    #logger.info("Inside para john loop 2 - 14 products done")
 
                     temp_dict["best_products"] = best_seller_product
                     temp_dict["featured_products"] = featured_products
@@ -3900,13 +3900,13 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     website_group_obj = location_group_obj.website_group
                     category_objs = website_group_obj.categories.all()
                     
-                    logger.info("Inside para john loop 3 - before category loop")
+                    #logger.info("Inside para john loop 3 - before category loop")
                     for category_obj in category_objs:
                         temp_dict_category_products = []
                         dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True,category = category_obj).exclude(now_price=0).exclude(stock=0)[:3]
-                        logger.info("Inside para john loop 3 - in category loop iiiiii")
+                        #logger.info("Inside para john loop 3 - in category loop iiiiii")
                         for dealshub_product_obj in dealshub_product_objs:
-                            logger.info("Inside para john loop 3 - in dealshub product loop!!!")
+                            #logger.info("Inside para john loop 3 - in dealshub product loop!!!")
                             temp_dict4 = {}
                             temp_dict4 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
                             temp_dict_category_products.append(temp_dict4)
