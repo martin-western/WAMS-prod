@@ -1689,6 +1689,7 @@ class DeleteOrderRequestAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
+
             if order_request_obj.owner == dealshub_user_obj:
                 # Trigger Email
                 try:
@@ -2215,7 +2216,7 @@ class FetchOrderRequestListAPI(APIView):
 
 
 class UpdateUnitOrderRequestAdminAPI(APIView):
-    # One can use this API for fetching a order_request's details also.
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2223,7 +2224,6 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
         try:
             data = request.data
             logger.info("UpdateUnitOrderRequestAdminAPI: %s", str(data))
-            language_code = data.get("language","en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -2239,7 +2239,6 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
                 unit_order_request_obj.save()
                 render_value = "unit order request {} of order request {} is updated.".format(unit_order_request_obj.order_req_id,order_request_obj.uuid)
                 activitylog(user=request.user,table_name=UnitOrderRequest,action_type='updated',location_group_obj=unit_order_request_obj.order_request.location_group,prev_instance=prev_instance,current_instance=unit_order_request_obj,table_item_pk=unit_order_request_obj.uuid,render=render_value)
-              
 
             order_request = []
             if order_request_obj != "":
@@ -2272,7 +2271,7 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
                     temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
                     temp_dict2["finalPrice"] = unit_order_request_obj.final_price
                     temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
-                    temp_dict2["productName"] = unit_order_request_obj.product.get_name(language_code)
+                    temp_dict2["productName"] = unit_order_request_obj.product.get_name()
                     temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_display_image_url()
                     if unit_order_request_obj.request_status == "Approved" and temp_dict2["initialQuantity"] != temp_dict2["finalQuantity"]:
                         temp_dict["requestStatus"] = "Partially Approved"
