@@ -2236,7 +2236,7 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
                 prev_instance = deepcopy(unit_order_request_obj)
                 unit_order_request_obj.final_quantity = data.get("finalQuantity",unit_order_request_obj.final_quantity)
                 unit_order_request_obj.final_price = data.get("finalPrice",unit_order_request_obj.final_price)
-                unit_order_request_obj.request_status = data.get("finalPrice",unit_order_request_obj.request_status)
+                unit_order_request_obj.request_status = data.get("requestStatus",unit_order_request_obj.request_status)
                 unit_order_request_obj.save()
                 render_value = "unit order request {} of order request {} is updated.".format(unit_order_request_obj.order_req_id,order_request_obj.uuid)
                 activitylog(user=request.user,table_name=UnitOrderRequest,action_type='updated',location_group_obj=unit_order_request_obj.order_request.location_group,prev_instance=prev_instance,current_instance=unit_order_request_obj,table_item_pk=unit_order_request_obj.uuid,render=render_value)
