@@ -3863,12 +3863,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
             response["circular_category_index"] = location_group_obj.circular_category_index
 
             try:
-<<<<<<< HEAD
                 if location_group_obj.name == "WIGme - Dubai":
-                    
-=======
-                if location_group_obj.name == "PARA JOHN - UAE":
->>>>>>> 4b56ecc352b471e26958186804acbef72e56b1ae
                     temp_dict = {}
                     temp_dict["tiled_product_index"] = location_group_obj.tiled_product_index
                     dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True).exclude(now_price=0).exclude(stock=0)
