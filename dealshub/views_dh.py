@@ -2240,9 +2240,11 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
                 unit_order_request_obj.save()
                 render_value = "unit order request {} of order request {} is updated.".format(unit_order_request_obj.order_req_id,order_request_obj.uuid)
                 activitylog(user=request.user,table_name=UnitOrderRequest,action_type='updated',location_group_obj=unit_order_request_obj.order_request.location_group,prev_instance=prev_instance,current_instance=unit_order_request_obj,table_item_pk=unit_order_request_obj.uuid,render=render_value)
-            
+
             update_order_request_bill(order_request_obj,cod=True)
-            temp_dict["uuid"] = order_request_obj.uuid
+            unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)   
+            
+            response["uuid"] = order_request_obj.uuid
             response["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").count()
             response["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
             response["totalAmount"] = order_request_obj.get_subtotal()
