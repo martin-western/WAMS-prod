@@ -3571,7 +3571,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 if cached_value!="has_expired":
                     response["sections_list"] = json.loads(cached_value)["sections_list"]
                     response["circular_category_index"] = json.loads(cached_value)["circular_category_index"]
-                    if location_group_obj.name == "PARA JOHN - UAE":
+                    if location_group_obj.name == "WIGme - Dubai":
                         response['category_tab_products'] = json.loads(cached_value)["category_tab_products"]
                         response['tiled_products'] = json.loads(cached_value)["tiled_products"]
                     response['status'] = 200
