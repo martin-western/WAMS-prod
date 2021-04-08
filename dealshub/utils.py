@@ -806,7 +806,7 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
             use_tls=True) as connection:
 
             email = EmailMultiAlternatives(
-                        subject='Hi ' + customer_name + ' we would really appreciate your feedback on your recent order', 
+                        subject='Hi ' + customer_name + '! We would really appreciate your feedback', 
                         body='Order Feedback',
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[order_obj.owner.email],
