@@ -1688,8 +1688,8 @@ class DeleteOrderRequestAPI(APIView):
                 data = json.loads(data)
             location_group_uuid = data["locationGroupUuid"]
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
-            
+            order_request_obj = OrderRequest.objects.get(location_group__uuid=location_group_uuid, uuid = data["OrderRequestUuid"])
+
             if order_request_obj.owner == dealshub_user_obj:
                 order_request_obj_copy = deepcopy(order_request_obj)
                 # Trigger Email
@@ -2243,8 +2243,8 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
 
             update_order_request_bill(order_request_obj,cod=True)
             unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)   
-            
-            response["uuid"] = order_request_obj.uuid
+
+            response["OrderRequestUuid"] = order_request_obj.uuid
             response["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").count()
             response["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
             response["totalAmount"] = order_request_obj.get_subtotal()
