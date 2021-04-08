@@ -3866,24 +3866,28 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 if location_group_obj.name == "PARA JOHN - UAE":
                     temp_dict = {}
                     temp_dict["tiled_product_index"] = location_group_obj.tiled_product_index
-                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True).exclude(now_price=0).exclude(stock=0)
+                    
                     best_seller_product = []
-                    featured_products = []
-                    new_arrival_product = []
+                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True, is_bestseller=True).exclude(now_price=0).exclude(stock=0)[:14]
                     for dealshub_product_obj in dealshub_product_objs:
-                        if dealshub_product_obj.is_bestseller or dealshub_product_obj.is_featured or dealshub_product_obj.is_new_arrival :
-                            # later modify:- add count of each obj so that when 14 of all is get then break loop
-                            temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
-                            if dealshub_product_obj.is_bestseller:
-                                best_seller_product.append(temp_dict2)
-                            if dealshub_product_obj.is_featured:
-                                featured_products.append(temp_dict2)
-                            if dealshub_product_obj.is_new_arrival:
-                                new_arrival_product.append(temp_dict2)
+                        temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                        best_seller_product.append(temp_dict2)
 
-                    temp_dict["best_products"] = best_seller_product[:14]
-                    temp_dict["featured_products"] = featured_products[:14]
-                    temp_dict["new_arrival"] = new_arrival_product[:14]
+                    featured_products = []
+                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True, is_featured=True).exclude(now_price=0).exclude(stock=0)[:14]
+                    for dealshub_product_obj in dealshub_product_objs:
+                        temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                        featured_products.append(temp_dict2)
+
+                    new_arrival_product = []
+                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True, is_new_arrival=True).exclude(now_price=0).exclude(stock=0)[:14]
+                    for dealshub_product_obj in dealshub_product_objs:
+                        temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                        new_arrival_product.append(temp_dict2)
+
+                    temp_dict["best_products"] = best_seller_product
+                    temp_dict["featured_products"] = featured_products
+                    temp_dict["new_arrival"] = new_arrival_product
                     response['tiled_products'] = temp_dict
 
                     temp_dict_category = {}
@@ -3895,7 +3899,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     
                     for category_obj in category_objs:
                         temp_dict_category_products = []
-                        dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True,category = category_obj).exclude(now_price=0).exclude(stock=0)
+                        dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True,category = category_obj).exclude(now_price=0).exclude(stock=0)[:3]
                         for dealshub_product_obj in dealshub_product_objs:
                             temp_dict4 = {}
                             temp_dict4 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
