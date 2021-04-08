@@ -425,7 +425,7 @@ def send_order_request_deleted_mail(order_request_obj):
             return
         location_group_obj = order_request_obj.location_group
         subject = 'Your Order Request dated ' + order_request_obj.get_date_created() + ' has been cancelled.'
-        body = 'Dear ' + order_request_obj.get_customer_full_name() + '\n' + 'Your Order has been cancelled.'
+        body = 'Dear ' + order_request_obj.get_customer_full_name() + '\n' + 'Your Order Request has been cancelled.'
 
         with get_connection(
             host=location_group_obj.get_email_host(),
@@ -449,8 +449,6 @@ def send_order_request_deleted_mail(order_request_obj):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_order_request_deleted_mail: %s at %s", e, str(exc_tb.tb_lineno))
-
-
 
 
 def send_order_confirmation_mail(order_obj):

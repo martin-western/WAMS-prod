@@ -2227,14 +2227,12 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            order_request_obj = OrderRequest.objects.get(uuid=data.get("OrderRequestUuid",""))
+            order_request_obj = OrderRequest.objects.get(uuid=data["OrderRequestUuid"])
             unit_order_request_obj_uuid = data.get("UnitOrderRequestUuid","")
 
             if unit_order_request_obj_uuid != "":
-                unit_order_request_obj = UnitOrderRequest.objects.get(uuid = unit_order_request_obj_uuid)
+                unit_order_request_obj = UnitOrderRequest.objects.get(order_request = order_request_obj,uuid = unit_order_request_obj_uuid)
                 prev_instance = deepcopy(unit_order_request_obj)
-                unit_order_request_obj.initial_quantity = data.get("initialQuantity",unit_order_request_obj.initial_quantity)
-                unit_order_request_obj.initial_price = data.get("initialPrice",unit_order_request_obj.initial_price)
                 unit_order_request_obj.final_quantity = data.get("finalQuantity",unit_order_request_obj.final_quantity)
                 unit_order_request_obj.final_price = data.get("finalPrice",unit_order_request_obj.final_price)
                 unit_order_request_obj.request_status = data.get("finalPrice",unit_order_request_obj.request_status)
