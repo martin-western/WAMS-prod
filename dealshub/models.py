@@ -1077,7 +1077,7 @@ class OrderRequest(models.Model):
         if cod==False:
             return 0
         return float(self.location_group.cod_charge)
-    
+
     def get_vat(self, cod=False):
         total_amount = self.get_total_amount(cod)
         if self.location_group.vat==0:
