@@ -1341,9 +1341,8 @@ def dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj):
                 dealshubproduct_color = dealshubproduct_obj.product.color
                 temp_dict["color_list"].append({"color":"{}".format(dealshubproduct_color),"uuid":"{}".format(dealshubproduct_obj.uuid)})
         
-        if is_dealshub==True:
-            temp_dict["category"] = dealshub_product_obj.get_category()
-            temp_dict["currency"] = dealshub_product_obj.get_currency()
+        temp_dict["category"] = dealshub_product_obj.get_category()
+        temp_dict["currency"] = dealshub_product_obj.get_currency()
         
         temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
         temp_dict["now_price"] = dealshub_product_obj.now_price
@@ -1351,10 +1350,9 @@ def dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj):
         temp_dict["stock"] = dealshub_product_obj.stock
         temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
         temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
-        if promotion_obj==None:
-            product_promotion_details = get_product_promotion_details(dealshub_product_obj)
-            for key in product_promotion_details.keys():
-                temp_dict[key]=product_promotion_details[key]
+        product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+        for key in product_promotion_details.keys():
+            temp_dict[key]=product_promotion_details[key]
         temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
         if dealshub_product_obj.stock>0:
             temp_dict["isStockAvailable"] = True
