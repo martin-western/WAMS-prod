@@ -3866,7 +3866,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 if location_group_obj.name == "WIGme - Dubai":
                     
                     temp_dict = {}
-                    is_dealshub = data["is_dealshub"]
                     temp_dict["tiled_product_index"] = location_group_obj.tiled_product_index
                     dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True).exclude(now_price=0).exclude(stock=0)
                     best_seller_product = []
@@ -3888,7 +3887,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["new_arrival"] = new_arrival_product[:14]
                     response['tiled_products'] = temp_dict
 
-                    # part2
                     temp_dict_category = {}
                     temp_dict_category["category_tab_product_index"] = location_group_obj.category_tab_product_index
                     temp_dict_category["category_tabs"] = []
