@@ -171,7 +171,7 @@
                                                                                 cellspacing="0" align="center"
                                                                                 width="100%" role="module"
                                                                                 data-type="columns" style="
-                                                                                        padding: 30px;
+                                                                                        padding: 30px 30px 0px;
                                                                                     " bgcolor="white">
                                                                                 <tbody>
                                                                                     <tr role="module-content">
@@ -279,7 +279,7 @@
                                                                                                                                         Opinion
                                                                                                                                         is
                                                                                                                                         valuable
-                                                                                                                                        for
+                                                                                                                                        to
                                                                                                                                         us!</span>
                                                                                                                                         <br/>
                                                                                                                                         <span style="
@@ -287,7 +287,7 @@
                                                                                                                                             font-size: 15px;
                                                                                                                                             font-family: inherit;
                                                                                                                                         ">
-                                                                                                                                            Hi {{customer_name}}, Please take some time to review your past order.
+                                                                                                                                            Hi {{customer_name}}, Please take some time to review your recent order.
                                                                                                                                         </span>
                                                                                                                                 </div>
                                                                                                                                 <div>
@@ -435,7 +435,7 @@
                                                                                 </tbody>
                                                                             </table>
 
-                                                                            <table class="module" role="module"
+                                                                            <!-- <table class="module" role="module"
                                                                                 data-type="text" border="0"
                                                                                 cellpadding="0" cellspacing="0"
                                                                                 width="100%" style="
@@ -480,7 +480,7 @@
                                                                                         </td>
                                                                                     </tr>
                                                                                 </tbody>
-                                                                            </table>
+                                                                            </table> -->
 
                                                                             <!-- <table class="module" role="module"
                                                                                 data-type="divider" border="0"
@@ -692,21 +692,19 @@
                                                                                                                                             text-align: inherit;
                                                                                                                                             padding: 5px 0px;
                                                                                                                                         ">
-                                                                                                                                    {{product.name}}
+                                                                                                                                        <a href="{{review_url}}" style="color: #000; text-decoration: none;">
+                                                                                                                                            {{product.name}}
+                                                                                                                                        </a>
                                                                                                                                 </div>
                                                                                                                                 <div
                                                                                                                                     style="
                                                                                                                                             font-family: inherit;
                                                                                                                                             text-align: inherit;
-                                                                                                                                            color: #da3e2b;
                                                                                                                                             padding: 5px 0px
                                                                                                                                         ">
-                                                                                                                                    Quantity
-                                                                                                                                    :
-                                                                                                                                    &nbsp;&nbsp;<span
-                                                                                                                                        style="
-                                                                                                                                                color: #da3e2b;
-                                                                                                                                            ">{{product.quantity}}
+                                                                                                                                        <a href="{{review_url}}" style="color: #000; text-decoration: none;">
+                                                                                                                                            Review this product
+                                                                                                                                        </a>
                                                                                                                                     </span>
                                                                                                                                 </div>
                                                                                                                                 <div
