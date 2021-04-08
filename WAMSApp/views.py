@@ -7590,7 +7590,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.is_on_sale = is_on_sale
             dealshub_product_obj.is_promo_restricted = is_promo_restricted
             dealshub_product_obj.is_bestseller = is_on_bestseller
-            delahub_product_obj.is_featured = is_on_featured
+            dealshub_product_obj.is_featured = is_on_featured
 
             dealshub_product_obj.product_name = product_name
             dealshub_product_obj.product_name_ar = product_name_ar
