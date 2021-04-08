@@ -215,6 +215,9 @@ class DealsHubProduct(models.Model):
     is_on_sale = models.BooleanField(default=False)
     is_promotional = models.BooleanField(default=False)
 
+    is_bestseller = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
+
     is_deleted = models.BooleanField(default=False)
     objects = DealsHubProductManager()
     recovery = DealsHubProductRecoveryManager()
@@ -1074,13 +1077,6 @@ class OrderRequest(models.Model):
         if cod==False:
             return 0
         return float(self.location_group.cod_charge)
-
-    def get_vat(self, cod=False):
-        total_amount = self.get_total_amount(cod)
-        if self.location_group.vat==0:
-            return 0
-        vat_divider = 1+(self.location_group.vat/100)
-        return round((total_amount - total_amount/vat_divider), 2)
 
     class Meta:
         verbose_name = "Order Request"
