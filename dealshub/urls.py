@@ -118,6 +118,10 @@ urlpatterns = [
     url(r'^checkout/cancel-order/$', views.CancelOrder),
     url(r'^checkout/place-order-request/$',views.PlaceOrderRequest),
     url(r'^order/fetch-order-request-list/$', views.FetchOrderRequestList),
+
+    url(r'^order/delete-order-request/$', views.DeleteOrderRequest),
+    url(r'^order/update-unit-order-request-admin/$', views.UpdateUnitOrderRequestAdmin),
+
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^order/fetch-order-details/$', views.FetchOrderDetails),

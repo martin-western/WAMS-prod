@@ -1675,6 +1675,39 @@ class ProcessOrderRequestAPI(APIView):
         return Response(data=response)
 
 
+class DeleteOrderRequestAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("DeleteOrderRequestAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            location_group_uuid = data["locationGroupUuid"]
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            order_request_obj = OrderRequest.objects.get(location_group__uuid=location_group_uuid, uuid = data["OrderRequestUuid"])
+
+            if order_request_obj.owner == dealshub_user_obj:
+                order_request_obj_copy = deepcopy(order_request_obj)
+                # Trigger Email
+                try:
+                    p1 = threading.Thread(target=send_order_request_deleted_mail, args=(order_request_obj_copy,))
+                    p1.start()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("DeleteOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                order_request_obj.delete()
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class PlaceB2BOnlineOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2181,6 +2214,59 @@ class FetchOrderRequestListAPI(APIView):
             logger.error("FetchOrderRequestListAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
+
+
+class UpdateUnitOrderRequestAdminAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("UpdateUnitOrderRequestAdminAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            order_request_obj = OrderRequest.objects.get(uuid=data["OrderRequestUuid"])
+            unit_order_request_uuid = data.get("UnitOrderRequestUuid","")
+
+            if unit_order_request_uuid != "":
+                unit_order_request_obj = UnitOrderRequest.objects.get(order_request = order_request_obj,uuid = unit_order_request_uuid)
+                prev_instance = deepcopy(unit_order_request_obj)
+                unit_order_request_obj.final_quantity = data.get("finalQuantity",unit_order_request_obj.final_quantity)
+                unit_order_request_obj.final_price = data.get("finalPrice",unit_order_request_obj.final_price)
+                unit_order_request_obj.request_status = data.get("requestStatus",unit_order_request_obj.request_status)
+                unit_order_request_obj.save()
+                render_value = "unit order request {} of order request {} is updated.".format(unit_order_request_obj.order_req_id,order_request_obj.uuid)
+                activitylog(user=request.user,table_name=UnitOrderRequest,action_type='updated',location_group_obj=unit_order_request_obj.order_request.location_group,prev_instance=prev_instance,current_instance=unit_order_request_obj,table_item_pk=unit_order_request_obj.uuid,render=render_value)
+
+            update_order_request_bill(order_request_obj,cod=True)
+            unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)   
+
+            response["OrderRequestUuid"] = order_request_obj.uuid
+            response["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").count()
+            response["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
+
+            subtotal = order_request_obj.get_subtotal()
+            delivery_fee = order_request_obj.get_delivery_fee()
+            cod_fee = order_request_obj.get_cod_charge()
+            to_pay = order_request_obj.to_pay
+            vat = order_request_obj.get_vat()
+
+            response["subtotal"] = str(subtotal)
+            response["deliveryFee"] = str(delivery_fee)
+            response["codFee"] = str(cod_fee)
+            response["vat"] = str(vat)
+            response["toPay"] = str(to_pay)
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateUnitOrderRequestAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
 
 
 class FetchOrderListAdminAPI(APIView):
@@ -6305,18 +6391,16 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     subtotal = order_request_obj.get_subtotal()
                     delivery_fee = order_request_obj.get_delivery_fee()
                     cod_fee = order_request_obj.get_cod_charge()
-
+                    vat = order_request_obj.get_vat()
                     to_pay = order_request_obj.get_total_amount()
 
                     temp_dict["subtotal"] = str(subtotal)
-                    if order_request_obj.request_status == "Approved":
-                        temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
-                    else:
-                        temp_dict["totalQuantity"] = unit_order_request_objs.aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
+                    temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
                     temp_dict["deliveryFee"] = str(delivery_fee)
                     temp_dict["codFee"] = str(cod_fee)
                     temp_dict["toPay"] = str(to_pay)
                     temp_dict["currency"] = currency
+                    temp_dict["vat"] = str(vat)
 
                     temp_dict["unitOrderRequestList"] = unit_order_request_list
 
@@ -9077,6 +9161,10 @@ SelectPaymentMode = SelectPaymentModeAPI.as_view()
 FetchActiveOrderDetails = FetchActiveOrderDetailsAPI.as_view()
 
 PlaceOrderRequest = PlaceOrderRequestAPI.as_view()
+
+DeleteOrderRequest = DeleteOrderRequestAPI.as_view()
+
+UpdateUnitOrderRequestAdmin = UpdateUnitOrderRequestAdminAPI.as_view()
 
 PlaceB2BOnlineOrder = PlaceB2BOnlineOrderAPI.as_view()
 
