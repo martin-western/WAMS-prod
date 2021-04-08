@@ -3535,111 +3535,6 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
         
         return Response(data=response)
 
-def dealshubproduct_detail_in_dict(location_group_obj,dealshub_product_obj):
-    temp_dict = {}
-    temp_dict["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
-    temp_dict["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
-    temp_dict["name"] = dealshub_product_obj.get_name()
-    temp_dict["sellerSku"] = dealshub_product_obj.get_seller_sku()
-    temp_dict["brand"] = dealshub_product_obj.get_brand()
-    temp_dict["displayId"] = dealshub_product_obj.get_product_id()
-    temp_dict["uuid"] = dealshub_product_obj.uuid
-    temp_dict["link"] = dealshub_product_obj.url
-    dealshub_product_obj_base_product = dealshub_product_obj.product.base_product
-    dealshub_same_baseproduct_objs = DealsHubProduct.objects.filter(location_group=location_group_obj,product__base_product = dealshub_product_obj_base_product,is_published=True).exclude(now_price=0).exclude(stock=0)
-    temp_dict["color_list"] = []
-    if dealshub_same_baseproduct_objs.count()>1:
-        for dealshubproduct_obj in dealshub_same_baseproduct_objs:
-            dealshubproduct_color = dealshubproduct_obj.product.color
-            temp_dict["color_list"].append({"color":"{}".format(dealshubproduct_color),"uuid":"{}".format(dealshubproduct_obj.uuid)})
-    
-    if is_dealshub==True:
-        temp_dict["category"] = dealshub_product_obj.get_category()
-        temp_dict["currency"] = dealshub_product_obj.get_currency()
-    
-    temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
-    temp_dict["now_price"] = dealshub_product_obj.now_price
-    temp_dict["was_price"] = dealshub_product_obj.was_price
-    temp_dict["stock"] = dealshub_product_obj.stock
-    temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
-    temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
-    if promotion_obj==None:
-        product_promotion_details = get_product_promotion_details(dealshub_product_obj)
-        for key in product_promotion_details.keys():
-            temp_dict[key]=product_promotion_details[key]
-    temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
-    if dealshub_product_obj.stock>0:
-        temp_dict["isStockAvailable"] = True
-    else:
-        temp_dict["isStockAvailable"] = False
-
-    return temp_dict
-
-class FetchTiledProductsAPI(APIView):
-
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            location_group_uuid = data["LocationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid = location_group_uuid)
-            if location_group_obj.name == "PARA JOHN - UAE":
-                
-                temp_dict = {}
-                is_dealshub = data["is_dealshub"]
-                temp_dict["tiled_product_index"] = location_group_obj.tiled_product_index
-                dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True).exclude(now_price=0).exclude(stock=0)
-                best_seller_product = []
-                featured_products = []
-                new_arrival_product = []
-                for dealshub_product_obj in dealshub_product_objs:
-                    if dealshub_product_obj.is_bestseller or dealshub_product_obj.is_featured or dealshub_product_obj.is_new_arrival :
-                        # later modify:- add count of each obj so that when 14 of all is get then break loop
-                        temp_dict2 = dealshubproduct_detail_in_dict(location_group_obj,dealshub_product_obj)
-                        if dealshub_product_obj.is_bestseller:
-                            best_seller_product.append(temp_dict2)
-                        if dealshub_product_obj.is_featured:
-                            featured_products.append(temp_dict2)
-                        if dealshub_product_obj.is_new_arrival:
-                            new_arrival_product.append(temp_dict2)
-
-                temp_dict["best_products"] = best_seller_product[:14]
-                temp_dict["featured_products"] = featured_products[:14]
-                temp_dict["new_arrival"] = new_arrival_product[:14]
-                response['tiled_products'] = temp_dict
-
-                # part2
-                temp_dict_category = {}
-                temp_dict_category["category_tab_product_index"] = location_group_obj.category_tab_product_index
-                temp_dict_category["category_tabs"] = []
-                                
-                website_group_obj = location_group_obj.website_group
-                category_objs = website_group_obj.categories.all()
-                
-                for category_obj in category_objs:
-                    temp_dict_category_products = []
-                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True,category = category_obj).exclude(now_price=0).exclude(stock=0)
-                    for dealshub_product_obj in dealshub_product_objs:
-                        temp_dict4 = {}
-                        temp_dict4 = dealshubproduct_detail_in_dict(location_group_obj,dealshub_product_obj)
-                        temp_dict_category_products.append(temp_dict4)
-                    temp_dict_category["category_tabs"].append({"name":category_obj.get_name(),"products":temp_dict_category_products[:14]})
-
-                response['category_tab_products'] = temp_dict_category
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchTiledProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
-        return Response(data=response)
-  
-
-
 
 class FetchDealshubAdminSectionsAPI(APIView):
 
@@ -3966,8 +3861,56 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
             response["sections_list"] = dealshub_admin_sections
             response["circular_category_index"] = location_group_obj.circular_category_index
-            response['status'] = 200
 
+            try:
+                if location_group_obj.name == "PARA JOHN - UAE":
+                    
+                    temp_dict = {}
+                    is_dealshub = data["is_dealshub"]
+                    temp_dict["tiled_product_index"] = location_group_obj.tiled_product_index
+                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True).exclude(now_price=0).exclude(stock=0)
+                    best_seller_product = []
+                    featured_products = []
+                    new_arrival_product = []
+                    for dealshub_product_obj in dealshub_product_objs:
+                        if dealshub_product_obj.is_bestseller or dealshub_product_obj.is_featured or dealshub_product_obj.is_new_arrival :
+                            # later modify:- add count of each obj so that when 14 of all is get then break loop
+                            temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                            if dealshub_product_obj.is_bestseller:
+                                best_seller_product.append(temp_dict2)
+                            if dealshub_product_obj.is_featured:
+                                featured_products.append(temp_dict2)
+                            if dealshub_product_obj.is_new_arrival:
+                                new_arrival_product.append(temp_dict2)
+
+                    temp_dict["best_products"] = best_seller_product[:14]
+                    temp_dict["featured_products"] = featured_products[:14]
+                    temp_dict["new_arrival"] = new_arrival_product[:14]
+                    response['tiled_products'] = temp_dict
+
+                    # part2
+                    temp_dict_category = {}
+                    temp_dict_category["category_tab_product_index"] = location_group_obj.category_tab_product_index
+                    temp_dict_category["category_tabs"] = []
+                                    
+                    website_group_obj = location_group_obj.website_group
+                    category_objs = website_group_obj.categories.all()
+                    
+                    for category_obj in category_objs:
+                        temp_dict_category_products = []
+                        dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True,category = category_obj).exclude(now_price=0).exclude(stock=0)
+                        for dealshub_product_obj in dealshub_product_objs:
+                            temp_dict4 = {}
+                            temp_dict4 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                            temp_dict_category_products.append(temp_dict4)
+                        temp_dict_category["category_tabs"].append({"name":category_obj.get_name(),"products":temp_dict_category_products[:14]})
+
+                    response['category_tab_products'] = temp_dict_category
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchTiledProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
