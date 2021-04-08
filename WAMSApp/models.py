@@ -231,6 +231,8 @@ class LocationGroup(models.Model):
     monthly_sales_target = models.FloatField(default=0)
     today_orders_target = models.IntegerField(default=0)
     monthly_orders_target = models.IntegerField(default=0)
+    tiled_product_index = models.IntegerField(default=0)
+    category_tab_product_index = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.name)

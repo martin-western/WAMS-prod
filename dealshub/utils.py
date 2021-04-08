@@ -1322,6 +1322,50 @@ def remove_stopwords(string):
     cleaned_string = " ".join(cleaned_words)
     return cleaned_string
 
+def dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj):
+    temp_dict = {}
+    try:
+        temp_dict["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+        temp_dict["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
+        temp_dict["name"] = dealshub_product_obj.get_name()
+        temp_dict["sellerSku"] = dealshub_product_obj.get_seller_sku()
+        temp_dict["brand"] = dealshub_product_obj.get_brand()
+        temp_dict["displayId"] = dealshub_product_obj.get_product_id()
+        temp_dict["uuid"] = dealshub_product_obj.uuid
+        temp_dict["link"] = dealshub_product_obj.url
+        dealshub_product_obj_base_product = dealshub_product_obj.product.base_product
+        dealshub_same_baseproduct_objs = DealsHubProduct.objects.filter(location_group=location_group_obj,product__base_product = dealshub_product_obj_base_product,is_published=True).exclude(now_price=0).exclude(stock=0)
+        temp_dict["color_list"] = []
+        if dealshub_same_baseproduct_objs.count()>1:
+            for dealshubproduct_obj in dealshub_same_baseproduct_objs:
+                dealshubproduct_color = dealshubproduct_obj.product.color
+                temp_dict["color_list"].append({"color":"{}".format(dealshubproduct_color),"uuid":"{}".format(dealshubproduct_obj.uuid)})
+        
+        if is_dealshub==True:
+            temp_dict["category"] = dealshub_product_obj.get_category()
+            temp_dict["currency"] = dealshub_product_obj.get_currency()
+        
+        temp_dict["promotional_price"] = dealshub_product_obj.promotional_price
+        temp_dict["now_price"] = dealshub_product_obj.now_price
+        temp_dict["was_price"] = dealshub_product_obj.was_price
+        temp_dict["stock"] = dealshub_product_obj.stock
+        temp_dict["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+        temp_dict["is_on_sale"] = dealshub_product_obj.is_on_sale
+        if promotion_obj==None:
+            product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+            for key in product_promotion_details.keys():
+                temp_dict[key]=product_promotion_details[key]
+        temp_dict["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+        if dealshub_product_obj.stock>0:
+            temp_dict["isStockAvailable"] = True
+        else:
+            temp_dict["isStockAvailable"] = False
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("dealshub_product_detail_in_dict: %s at %s", e, str(exc_tb.tb_lineno))
+    return temp_dict
+
 def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
     products = []
 

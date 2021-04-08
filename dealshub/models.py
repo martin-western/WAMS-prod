@@ -215,6 +215,9 @@ class DealsHubProduct(models.Model):
     is_on_sale = models.BooleanField(default=False)
     is_promotional = models.BooleanField(default=False)
 
+    is_bestseller = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
+
     is_deleted = models.BooleanField(default=False)
     objects = DealsHubProductManager()
     recovery = DealsHubProductRecoveryManager()
