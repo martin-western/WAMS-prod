@@ -7503,11 +7503,11 @@ class FetchDealshubProductDetailsAPI(APIView):
             additional_sub_category_list = []
             for sub_category_obj in dealshub_product_obj.additional_sub_categories.all():
                 temp_dict = {}
-                temp_dict["sub_category"] = sub_category_obj
+                temp_dict["sub_category"] = str(sub_category_obj)
                 temp_dict["sub_category_uuid"] = sub_category_obj.uuid
-                temp_dict["category"] = sub_category_obj.category
+                temp_dict["category"] = str(sub_category_obj.category)
                 temp_dict["category_uuid"] = sub_category_obj.category.uuid
-                temp_dict["super_category"] = sub_category_obj.category.super_category
+                temp_dict["super_category"] = str(sub_category_obj.category.super_category)
                 temp_dict["super_category_uuid"] = sub_category_obj.category.super_category.uuid
                 additional_sub_category_list.append(temp_dict)
 
