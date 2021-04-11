@@ -369,6 +369,8 @@ class FetchOnSaleProductsAPI(APIView):
                 temp_dict2["link"] = dealshub_product_obj.url
                 temp_dict2["id"] = dealshub_product_obj.uuid
                 temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+                temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
                 products.append(temp_dict2)
             
             is_available = True
@@ -3567,8 +3569,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
             if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(cache_key, "has_expired")
                 if cached_value!="has_expired":
-                    response["sections_list"] = json.loads(cached_value)
-                    response["circular_category_index"] = location_group_obj.circular_category_index
+                    response["sections_list"] = json.loads(cached_value)["sections_list"]
+                    response["circular_category_index"] = json.loads(cached_value)["circular_category_index"]
                     response['status'] = 200
                     return Response(data=response)
 
@@ -3669,7 +3671,14 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["displayId"] = dealshub_product_obj.get_product_id()
                     temp_dict2["uuid"] = dealshub_product_obj.uuid
                     temp_dict2["link"] = dealshub_product_obj.url
-
+                    dealshub_product_obj_base_product = dealshub_product_obj.product.base_product
+                    dealshub_same_baseproduct_objs = DealsHubProduct.objects.filter(location_group=location_group_obj,product__base_product = dealshub_product_obj_base_product,is_published=True).exclude(now_price=0).exclude(stock=0)
+                    temp_dict2["color_list"] = []
+                    if dealshub_same_baseproduct_objs.count()>1:
+                        for dealshubproduct_obj in dealshub_same_baseproduct_objs:
+                            dealshubproduct_color = dealshubproduct_obj.product.color
+                            temp_dict2["color_list"].append({"color":"{}".format(dealshubproduct_color),"uuid":"{}".format(dealshubproduct_obj.uuid)})
+                    
                     if is_dealshub==True:
                         temp_dict2["category"] = dealshub_product_obj.get_category(language_code)
                         temp_dict2["currency"] = dealshub_product_obj.get_currency()
@@ -3847,13 +3856,83 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
             dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
 
-            if is_dealshub==True:
-                cache.set(cache_key, json.dumps(dealshub_admin_sections))
+            response["circular_category_index"] = location_group_obj.circular_category_index
+
+            try:
+                if location_group_obj.name == "PARA JOHN - UAE":
+                    #logger.info("Inside para john loop 1")
+                    temp_dict = {}
+                    best_seller_product = []
+                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True, is_bestseller=True).exclude(now_price=0).exclude(stock=0)[:3]
+                    for dealshub_product_obj in dealshub_product_objs:
+                        temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                        best_seller_product.append(temp_dict2)
+
+                    featured_products = []
+                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True, is_featured=True).exclude(now_price=0).exclude(stock=0)[:3]
+                    for dealshub_product_obj in dealshub_product_objs:
+                        temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                        featured_products.append(temp_dict2)
+
+                    new_arrival_product = []
+                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True, is_new_arrival=True).exclude(now_price=0).exclude(stock=0)[:3]
+                    for dealshub_product_obj in dealshub_product_objs:
+                        temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                        new_arrival_product.append(temp_dict2)
+
+                    #logger.info("Inside para john loop 2 - 14 products done")
+                    temp_dict["type"] = "TiledProducts"
+                    temp_dict["best_products"] = best_seller_product
+                    temp_dict["featured_products"] = featured_products
+                    temp_dict["new_arrival"] = new_arrival_product
+
+                    tiled_product_index = location_group_obj.tiled_product_index
+                    temp_dict["orderIndex"] = tiled_product_index
+                            
+                    for section in dealshub_admin_sections[tiled_product_index:]:
+                        section["orderIndex"]+=1
+                    dealshub_admin_sections.append(temp_dict)
+                    dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
+
+                    temp_dict_category = {}
+                    temp_dict_category["category_tabs"] = []
+                                    
+                    website_group_obj = location_group_obj.website_group
+                    category_objs = website_group_obj.categories.all()
+                    
+                    #logger.info("Inside para john loop 3 - before category loop")
+                    for category_obj in category_objs:
+                        temp_dict_category_products = []
+                        dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True,category = category_obj).exclude(now_price=0).exclude(stock=0)[:14]
+                        #logger.info("Inside para john loop 3 - in category loop iiiiii")
+                        for dealshub_product_obj in dealshub_product_objs:
+                            #logger.info("Inside para john loop 3 - in dealshub product loop!!!")
+                            temp_dict4 = {}
+                            temp_dict4 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                            temp_dict_category_products.append(temp_dict4)
+                        temp_dict_category["category_tabs"].append({"name":category_obj.get_name(),"products":temp_dict_category_products[:14]})
+
+
+
+
+                    category_tab_product_index = location_group_obj.category_tab_product_index
+                    temp_dict_category["orderIndex"] = category_tab_product_index
+                    temp_dict_category["type"] = "CategoryTabProducts"    
+
+                    for section in dealshub_admin_sections[category_tab_product_index:]:
+                        section["orderIndex"]+=1 
+                    dealshub_admin_sections.append(temp_dict_category)
+                    dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
+            
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["sections_list"] = dealshub_admin_sections
-            response["circular_category_index"] = location_group_obj.circular_category_index
+            if is_dealshub==True:
+                cache.set(cache_key, json.dumps(response))
+            
             response['status'] = 200
-
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -6285,6 +6364,166 @@ class NotifyOrderStatusAPI(APIView):
         return Response(data=response)
 
 
+class AskProductReviewsCronAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AskProductReviewsCronAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            time_delta = datetime.timedelta(days=1)
+            now_time = datetime.datetime.now()
+            start_time = now_time - time_delta
+            end_time = now_time + time_delta
+
+            order_uuid_list = list(UnitOrderStatus.objects.filter(date_created__gte=start_time, date_created__lte=end_time, status_admin="delivered").values_list('unit_order__order__uuid').distinct())
+
+            for order_uuid in order_uuid_list:
+
+                unit_orders_for_mail = []
+                order_obj = Order.objects.get(uuid=order_uuid[0])
+
+                dh_user_obj = order_obj.owner
+                if dh_user_obj.user_token == "":
+                    dh_user_obj.user_token = str(uuid.uuid4())
+                    dh_user_obj.save()
+                user_token = dh_user_obj.user_token
+
+                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                    if UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status_admin="delivered").exists():
+                        if Review.objects.filter(dealshub_user=dh_user_obj,product=unit_order_obj.product).exists()==False:
+                            unit_orders_for_mail.append(unit_order_obj)
+
+                try:                   
+                    p1 = threading.Thread(target=send_order_review_mail, args=(order_obj, unit_orders_for_mail,user_token))
+                    p1.start()
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("AskProductReviewsCronAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AskProductReviewsCronAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class FetchProductReviewMailAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchProductReviewMailAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            user_token = data["user_token"]
+            order_uuid = data["order_uuid"]
+
+            order_obj = Order.objects.get(uuid=order_uuid)
+            unit_orders_for_mail = []
+            
+            dh_user_obj = DealsHubUser.objects.get(user_token=user_token)
+
+            for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+                if UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status_admin="delivered").exists():
+                    if Review.objects.filter(dealshub_user=dh_user_obj,product=unit_order_obj.product).exists()==False:
+                        unit_orders_for_mail.append(unit_order_obj)
+
+            products_for_review = []
+            for unit_order_obj in unit_orders_for_mail:
+                temp_dict = {}
+                dh_product_obj = unit_order_obj.product
+                if Review.objects.filter(product=dh_product_obj, dealshub_user=dh_user_obj).exists():
+                    temp_dict['status'] = "invalid"
+                    products_for_review.append(temp_dict)
+                    continue
+
+                temp_dict["product_name"] = dh_product_obj.get_name()
+                temp_dict["product_id"] = dh_product_obj.get_product_id()
+                temp_dict["seller_sku"] = dh_product_obj.get_seller_sku()
+                temp_dict["product_image"] = dh_product_obj.get_main_image_url()
+                temp_dict["product_uuid"] = dh_product_obj.uuid
+                temp_dict["status"] = "valid"
+                products_for_review.append(temp_dict)
+            
+            response["products"] = products_for_review
+            response["username"] = dh_user_obj.username
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchProductReviewMailAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class SubmitProductReviewMailAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SubmitProductReviewMailAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            rating = data["rating"]
+            review_content = json.loads(data["review_content"])
+
+            subject = str(review_content["subject"])
+            content = str(review_content["content"])
+
+            user_token = data["user_token"]
+            product_uuid = data["product_uuid"]
+
+            dh_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+            dh_user_obj = DealsHubUser.objects.get(user_token=user_token)
+
+            review_obj = Review.objects.create(dealshub_user=dh_user_obj, product=dh_product_obj, rating=rating)
+            review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+            
+            image_count = int(data.get("image_count", 0))
+            for i in range(image_count):
+                image_obj = Image.objects.create(image=data["image_"+str(i)])
+                review_content_obj.images.add(image_obj)
+            review_content_obj.save()
+
+            review_obj.content = review_content_obj
+            review_obj.save()
+            response["uuid"] = review_obj.uuid
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SubmitProductReviewMailAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
 FetchSimilarProducts = FetchSimilarProductsAPI.as_view()
@@ -6454,3 +6693,9 @@ NotifyOrderStatus = NotifyOrderStatusAPI.as_view()
 UpdateOrderCharges = UpdateOrderChargesAPI.as_view()
 
 FetchLogixShippingStatus = FetchLogixShippingStatusAPI.as_view()
+
+AskProductReviewsCron = AskProductReviewsCronAPI.as_view()
+
+FetchProductReviewMail = FetchProductReviewMailAPI.as_view()
+
+SubmitProductReviewMail = SubmitProductReviewMailAPI.as_view()

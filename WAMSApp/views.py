@@ -1317,7 +1317,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid,path,filename,location_group_obj,"price",))
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock_or_status , args=(oc_report_obj.uuid,path,filename,location_group_obj,"price",))
             p1.start()
             render_value = 'Bulk update products price with report {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
@@ -1501,7 +1501,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=custom_permission_obj.organization)
 
-            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock , args=(oc_report_obj.uuid, path,filename, location_group_obj, "stock",))
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock_or_status , args=(oc_report_obj.uuid, path,filename, location_group_obj, "stock",))
             p1.start()
             render_value = 'Bulk update products stock with report  {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
@@ -1516,7 +1516,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
 #API with active log
 class BulkUpdateDealshubProductPublishStatusAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -1583,7 +1583,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
             response['excel_errors'] = excel_errors
 
             render_value = 'Bulk publish products {} are published and {} are not published'.format(publish_count,unpublish_count)
-            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
+            #activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
 
 
             response['status'] = 200
@@ -1593,7 +1593,63 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+
+class BulkUpdateDealshubProductStatusAPI(APIView):
+    # format of file required :- https://docs.google.com/spreadsheets/d/1ibmo15E3nj9VIZWxdggK9nS6y5_icNUBlVfnn-p_w8w/edit?usp=sharing
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("BulkUpdateDealshubProductStatusAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUpdateDealshubProductStatusAPI Restricted Access!")
+                return Response(data=response)
+
+            location_group_uuid = data["locationGroupUuid"]
+
+            path = default_storage.save('tmp/bulk-upload-status.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+
+            report_type = "bulk upload product"
+            report_title = "bulk upload product status"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the status" 
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
+
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock_or_status , args=(oc_report_obj.uuid, path,filename, location_group_obj, "status",))
+            p1.start()
+            render_value = 'Bulk update products status with report  {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
+
+            response['status'] = 200
+            response['approved'] = True
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateDealshubProductStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class SaveBaseProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7398,6 +7454,8 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["is_published"] = dealshub_product_obj.is_published
             response["is_new_arrival"] = dealshub_product_obj.is_new_arrival
             response["is_on_sale"] = dealshub_product_obj.is_on_sale
+            response["is_bestseller"] = dealshub_product_obj.is_bestseller
+            response["is_featured"] = dealshub_product_obj.is_featured
             if dealshub_product_obj.is_promotional and check_valid_promotion(dealshub_product_obj.promotion)==False:
                 dealshub_product_obj.promotion = None
                 dealshub_product_obj.is_promotional = False
@@ -7442,6 +7500,18 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["super_category"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.super_category)
             response["super_category_uuid"] = "" if dealshub_product_obj.category==None else str(dealshub_product_obj.category.super_category.uuid)
 
+            additional_sub_category_list = []
+            for sub_category_obj in dealshub_product_obj.additional_sub_categories.all():
+                temp_dict = {}
+                temp_dict["sub_category"] = str(sub_category_obj)
+                temp_dict["sub_category_uuid"] = sub_category_obj.uuid
+                temp_dict["category"] = str(sub_category_obj.category)
+                temp_dict["category_uuid"] = sub_category_obj.category.uuid
+                temp_dict["super_category"] = str(sub_category_obj.category.super_category)
+                temp_dict["super_category_uuid"] = sub_category_obj.category.super_category.uuid
+                additional_sub_category_list.append(temp_dict)
+
+            response["additional_sub_categories"] = additional_sub_category_list
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
             response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
 
@@ -7492,9 +7562,12 @@ class SaveDealshubProductDetailsAPI(APIView):
             is_cod_allowed = data["is_cod_allowed"]
             is_new_arrival = data.get("is_new_arrival", False)
             is_on_sale = data.get("is_on_sale", False)
+            is_featured = data.get("is_featured",False)
+            is_bestseller = data.get("is_bestseller",False)
             is_promotional = data.get("is_promotional",False)
             category_uuid = data["category_uuid"]
             sub_category_uuid = data["sub_category_uuid"]
+            other_sub_category_uuid_list = data.get("other_sub_category_uuid_list",[])
 
             product_name = data.get("product_name", "")
             product_name_ar = data.get("product_name_ar","")
@@ -7516,6 +7589,8 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.is_new_arrival = is_new_arrival
             dealshub_product_obj.is_on_sale = is_on_sale
             dealshub_product_obj.is_promo_restricted = is_promo_restricted
+            dealshub_product_obj.is_bestseller = is_bestseller
+            dealshub_product_obj.is_featured = is_featured
 
             dealshub_product_obj.product_name = product_name
             dealshub_product_obj.product_name_ar = product_name_ar
@@ -7554,14 +7629,14 @@ class SaveDealshubProductDetailsAPI(APIView):
                 promotional_tag = promotion["promotional_tag"]
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
-                    render_value = 'Promotion {} is created for product {}'.format(promotion_obj.promotional_tag,dealshub_product_obj.get_seller_sku())
+                    render_value = 'Promotion {} is created for product {}'.format(promotion_obj.promotion_tag,dealshub_product_obj.get_seller_sku())
                     activitylog(user=request.user,table_name=Promotion,action_type='created',location_group_obj=None,prev_instance=None,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
                 else:
                     promotion_obj.promotion_tag = promotional_tag
                     promotion_obj.start_time = start_date
                     promotion_obj.end_time = end_date
                     promotion_obj.save()
-                    render_value = 'Promotion {} is updated for product {}'.format(promotion_obj.promotional_tag,dealshub_product_obj.get_seller_sku())
+                    render_value = 'Promotion {} is updated for product {}'.format(promotion_obj.promotion_tag,dealshub_product_obj.get_seller_sku())
                     activitylog(user=request.user,table_name=Promotion,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
 
                 dealshub_product_obj.is_promotional = True
@@ -7583,6 +7658,15 @@ class SaveDealshubProductDetailsAPI(APIView):
                 sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
             except Exception as e:
                 pass
+            
+            for other_sub_category_uuid in other_sub_category_uuid_list:
+                other_sub_category_obj = None
+                try:
+                    other_sub_category_obj = SubCategory.objects.get(uuid=other_sub_category_uuid)
+                except Exception as e:
+                    pass
+                if other_sub_category_obj!=None:
+                    dealshub_product_obj.additional_sub_categories.add(other_sub_category_obj)
 
             dealshub_product_obj.category = category_obj
             dealshub_product_obj.sub_category = sub_category_obj
@@ -7940,6 +8024,11 @@ class CreateOmnyCommUserAPI(APIView):
             contact_no = data["contact_number"]
             designation = data["designation"]
             
+            if username=="" or first_name=="" or last_name=="" or email=="" or contact_number=="":
+                response["status"] = 402
+                response["message"] = "some compulsory user fields are empty"
+                return Response(data=response)
+
             password = generate_random_password(length=8)
 
             if OmnyCommUser.objects.filter(username=username).exists():
@@ -8304,6 +8393,8 @@ BulkUpdateB2BDealshubProductPrice = BulkUpdateB2BDealshubProductPriceAPI.as_view
 BulkUpdateB2BDealshubProductMOQ = BulkUpdateB2BDealshubProductMOQAPI.as_view()
 
 BulkUpdateDealshubProductStock = BulkUpdateDealshubProductStockAPI.as_view()
+
+BulkUpdateDealshubProductStatus = BulkUpdateDealshubProductStatusAPI.as_view()
 
 BulkUpdateDealshubProductPublishStatus  = BulkUpdateDealshubProductPublishStatusAPI.as_view()
 

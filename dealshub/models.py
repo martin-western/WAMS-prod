@@ -199,6 +199,7 @@ class DealsHubProduct(models.Model):
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     category = models.ForeignKey(Category, null=True, blank=True, default=None, on_delete=models.SET_NULL)
     sub_category = models.ForeignKey(SubCategory, null=True, blank=True, default=None, on_delete=models.SET_NULL)
+    additional_sub_categories = models.ManyToManyField(SubCategory, related_name="additional_sub_categories", blank=True)
     url = models.CharField(max_length=200, default="")
     uuid = models.CharField(max_length=200, default="")
     page_description = models.TextField(default="")
@@ -213,6 +214,9 @@ class DealsHubProduct(models.Model):
     is_new_arrival = models.BooleanField(default=False)
     is_on_sale = models.BooleanField(default=False)
     is_promotional = models.BooleanField(default=False)
+
+    is_bestseller = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
 
     is_deleted = models.BooleanField(default=False)
     objects = DealsHubProductManager()
@@ -1074,6 +1078,13 @@ class OrderRequest(models.Model):
             return 0
         return float(self.location_group.cod_charge)
 
+    def get_vat(self, cod=False):
+        total_amount = self.get_total_amount(cod)
+        if self.location_group.vat==0:
+            return 0
+        vat_divider = 1+(self.location_group.vat/100)
+        return round((total_amount - total_amount/vat_divider), 2)
+
     class Meta:
         verbose_name = "Order Request"
         verbose_name_plural = "Order Requests"
@@ -1297,10 +1308,10 @@ class Order(models.Model):
             return CUSTOMER_ID_FINAL_BILLING_WIG_COD
         if shipping_method=="wig fleet" and self.payment_status.lower()=="paid":
             return CUSTOMER_ID_FINAL_BILLING_WIG_ONLINE
-        if shipping_method=="postaplus" and self.payment_status.lower()=="cod":
-            return CUSTOMER_ID_FINAL_BILLING_POSTAPLUS_COD
-        if shipping_method=="postaplus" and self.payment_status.lower()=="paid":
-            return CUSTOMER_ID_FINAL_BILLING_POSTAPLUS_ONLINE
+        if shipping_method=="grand gaadi" and self.payment_status.lower()=="cod":
+            return CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_COD
+        if shipping_method=="grand gaadi" and self.payment_status.lower()=="paid":
+            return CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_ONLINE
         if shipping_method=="sendex" and self.payment_status.lower()=="cod":
             return CUSTOMER_ID_FINAL_BILLING_SENDEX_COD
         if shipping_method=="sendex" and self.payment_status.lower()=="paid":
@@ -1567,6 +1578,7 @@ class DealsHubUser(User):
     is_pin_set = models.BooleanField(default=False)
     website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
     otp_attempts = models.IntegerField(default=0)
+    user_token = models.CharField(default="", max_length=200)
 
     class Meta:
         verbose_name = "DealsHubUser"
