@@ -1479,8 +1479,9 @@ class PlaceOrderRequestAPI(APIView):
 
                 unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
-                cart_obj.to_pay += cart_obj.location_group.cod_charge
-                cart_obj.save()
+                if payment_mode=="COD":
+                    cart_obj.to_pay += cart_obj.location_group.cod_charge
+                    cart_obj.save()
 
                 order_request_obj = OrderRequest.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
@@ -1620,13 +1621,14 @@ class ProcessOrderRequestAPI(APIView):
                     order_request_obj.voucher = None
                     order_request_obj.save()
 
-                update_order_request_bill(order_request_obj,cod=True)
+                update_order_request_bill(order_request_obj,cod=True if order_request_obj.payment_mode == "COD" else False)
 
                 order_obj = Order.objects.create(owner = order_request_obj.owner,
                                                  shipping_address=order_request_obj.shipping_address,
                                                  to_pay=order_request_obj.to_pay,
                                                  real_to_pay=order_request_obj.to_pay,
                                                  payment_mode = order_request_obj.payment_mode,
+                                                 payment_status = "cod" if order_request_obj.payment_mode == "COD" else "paid",
                                                  order_placed_date=timezone.now(),
                                                  voucher=order_request_obj.voucher,
                                                  location_group=order_request_obj.location_group,
@@ -2171,7 +2173,7 @@ class FetchOrderRequestListAPI(APIView):
                     temp_dict["additionalNote"] = order_request_obj.additional_note
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
-                    temp_dict["shippingAddress"] = order_request_obj.shipping_address.get_shipping_address()
+                    temp_dict["shippingAddressUuid"] = order_request_obj.shipping_address.uuid
 
                     unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
                     if order_request_obj.request_status == "Approved" and unit_order_request_objs.exclude(request_status="Rejected").count() != unit_order_request_objs.count():
@@ -2248,11 +2250,12 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
             response["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").count()
             response["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
 
+            is_cod = True if order_request_obj.payment_mode=="COD" else False
             subtotal = order_request_obj.get_subtotal()
-            delivery_fee = order_request_obj.get_delivery_fee()
-            cod_fee = order_request_obj.get_cod_charge()
-            to_pay = order_request_obj.to_pay
-            vat = order_request_obj.get_vat()
+            delivery_fee = order_request_obj.get_delivery_fee(cod=is_cod)
+            cod_fee = order_request_obj.get_cod_charge(cod=is_cod)
+            to_pay = order_request_obj.get_total_amount(cod=is_cod)
+            vat = order_request_obj.get_vat(cod=is_cod)
 
             response["subtotal"] = str(subtotal)
             response["deliveryFee"] = str(delivery_fee)
@@ -6387,12 +6390,13 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                         temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_main_image_url()
 
                         unit_order_request_list.append(temp_dict2)
-
+                    
+                    is_cod = True if order_request_obj.payment_mode=="COD" else False
                     subtotal = order_request_obj.get_subtotal()
-                    delivery_fee = order_request_obj.get_delivery_fee()
-                    cod_fee = order_request_obj.get_cod_charge()
-                    vat = order_request_obj.get_vat()
-                    to_pay = order_request_obj.get_total_amount()
+                    delivery_fee = order_request_obj.get_delivery_fee(cod=is_cod)
+                    cod_fee = order_request_obj.get_cod_charge(cod=is_cod)
+                    vat = order_request_obj.get_vat(cod=is_cod)
+                    to_pay = order_request_obj.get_total_amount(cod=is_cod)
 
                     temp_dict["subtotal"] = str(subtotal)
                     temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
