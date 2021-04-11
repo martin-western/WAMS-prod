@@ -3863,7 +3863,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
             response["circular_category_index"] = location_group_obj.circular_category_index
 
             try:
-                if location_group_obj.name == "PARA JOHN - UAE" && is_dealshub ==True:
+                if location_group_obj.name == "PARA JOHN - UAE" and is_dealshub ==True:
                     temp_dict = {}
                     is_dealshub = data["is_dealshub"]
                     temp_dict["tiled_product_index"] = location_group_obj.tiled_product_index
