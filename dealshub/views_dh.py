@@ -2171,7 +2171,7 @@ class FetchOrderRequestListAPI(APIView):
                     temp_dict["additionalNote"] = order_request_obj.additional_note
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
-                    temp_dict["shippingAddress"] = order_request_obj.shipping_address.get_shipping_address()
+                    temp_dict["shippingAddressUuid"] = order_request_obj.shipping_address.uuid
 
                     unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
                     if order_request_obj.request_status == "Approved" and unit_order_request_objs.exclude(request_status="Rejected").count() != unit_order_request_objs.count():
