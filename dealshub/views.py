@@ -3887,7 +3887,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict["new_arrival"] = new_arrival_product
 
                     tiled_product_index = location_group_obj.tiled_product_index
-                    temp_dict["orderIndex"] = tiled_product_index+1
+                    temp_dict["orderIndex"] = tiled_product_index
                             
                     for section in dealshub_admin_sections[tiled_product_index:]:
                         section["orderIndex"]+=1
@@ -3916,7 +3916,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
 
                     category_tab_product_index = location_group_obj.category_tab_product_index
-                    temp_dict_category["orderIndex"] = category_tab_product_index+1
+                    temp_dict_category["orderIndex"] = category_tab_product_index
                     temp_dict_category["type"] = "CategoryTabProducts"    
 
                     for section in dealshub_admin_sections[category_tab_product_index:]:
