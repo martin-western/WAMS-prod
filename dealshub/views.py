@@ -3571,9 +3571,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 if cached_value!="has_expired":
                     response["sections_list"] = json.loads(cached_value)["sections_list"]
                     response["circular_category_index"] = json.loads(cached_value)["circular_category_index"]
-                    if location_group_obj.name == "PARA JOHN - UAE":
-                        response['category_tab_products'] = json.loads(cached_value)["category_tab_products"]
-                        response['tiled_products'] = json.loads(cached_value)["tiled_products"]
                     response['status'] = 200
                     return Response(data=response)
 
@@ -3892,7 +3889,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     tiled_product_index = location_group_obj.tiled_product_index
                     temp_dict["orderIndex"] = tiled_product_index
                             
-                    for section in reversed(dealshub_admin_sections[tiled_product_index-1:]):
+                    for section in dealshub_admin_sections[tiled_product_index:]:
                         section["orderIndex"]+=1
                     dealshub_admin_sections.append(temp_dict)
                     dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
@@ -3922,7 +3919,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict_category["orderIndex"] = category_tab_product_index
                     temp_dict_category["type"] = "CategoryTabProducts"    
 
-                    for section in reversed(dealshub_admin_sections[category_tab_product_index-1:]):
+                    for section in dealshub_admin_sections[category_tab_product_index:]:
                         section["orderIndex"]+=1 
                     dealshub_admin_sections.append(temp_dict_category)
                     dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
