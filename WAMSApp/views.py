@@ -7971,7 +7971,7 @@ class FetchOmnyCommUserDetailsAPI(APIView):
                 response["image_url"] = image_obj.image.url
             response["contact_no"] = omnycomm_user_obj.contact_number
             response["designation"] = omnycomm_user_obj.designation
-            response["website_group"] = omnycomm_user_obj.website_group.name
+            response["website_group"] = omnycomm_user_obj.website_group.name if omnycomm_user_obj.website_group!=None else ""
             brand_list = []
             for brand_obj in custom_permission_obj.brands.all():
                 temp_dict = {}
