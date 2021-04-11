@@ -7629,14 +7629,14 @@ class SaveDealshubProductDetailsAPI(APIView):
                 promotional_tag = promotion["promotional_tag"]
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
-                    render_value = 'Promotion {} is created for product {}'.format(promotion_obj.promotional_tag,dealshub_product_obj.get_seller_sku())
+                    render_value = 'Promotion {} is created for product {}'.format(promotion_obj.promotion_tag,dealshub_product_obj.get_seller_sku())
                     activitylog(user=request.user,table_name=Promotion,action_type='created',location_group_obj=None,prev_instance=None,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
                 else:
                     promotion_obj.promotion_tag = promotional_tag
                     promotion_obj.start_time = start_date
                     promotion_obj.end_time = end_date
                     promotion_obj.save()
-                    render_value = 'Promotion {} is updated for product {}'.format(promotion_obj.promotional_tag,dealshub_product_obj.get_seller_sku())
+                    render_value = 'Promotion {} is updated for product {}'.format(promotion_obj.promotion_tag,dealshub_product_obj.get_seller_sku())
                     activitylog(user=request.user,table_name=Promotion,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
 
                 dealshub_product_obj.is_promotional = True
