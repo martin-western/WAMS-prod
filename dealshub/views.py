@@ -3569,8 +3569,11 @@ class FetchDealshubAdminSectionsAPI(APIView):
             if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(cache_key, "has_expired")
                 if cached_value!="has_expired":
-                    response["sections_list"] = json.loads(cached_value)
-                    response["circular_category_index"] = location_group_obj.circular_category_index
+                    response["sections_list"] = json.loads(cached_value)["sections_list"]
+                    response["circular_category_index"] = json.loads(cached_value)["circular_category_index"]
+                    if location_group_obj.name == "PARA JOHN - UAE":
+                        response['category_tab_products'] = json.loads(cached_value)["category_tab_products"]
+                        response['tiled_products'] = json.loads(cached_value)["tiled_products"]
                     response['status'] = 200
                     return Response(data=response)
 
@@ -3856,13 +3859,68 @@ class FetchDealshubAdminSectionsAPI(APIView):
 
             dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
 
-            if is_dealshub==True:
-                cache.set(cache_key, json.dumps(dealshub_admin_sections))
-
             response["sections_list"] = dealshub_admin_sections
             response["circular_category_index"] = location_group_obj.circular_category_index
-            response['status'] = 200
 
+            try:
+                if location_group_obj.name == "PARA JOHN - UAE":
+                    #logger.info("Inside para john loop 1")
+                    temp_dict = {}
+                    temp_dict["tiled_product_index"] = location_group_obj.tiled_product_index
+                    
+                    best_seller_product = []
+                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True, is_bestseller=True).exclude(now_price=0).exclude(stock=0)[:14]
+                    for dealshub_product_obj in dealshub_product_objs:
+                        temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                        best_seller_product.append(temp_dict2)
+
+                    featured_products = []
+                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True, is_featured=True).exclude(now_price=0).exclude(stock=0)[:14]
+                    for dealshub_product_obj in dealshub_product_objs:
+                        temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                        featured_products.append(temp_dict2)
+
+                    new_arrival_product = []
+                    dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True, is_new_arrival=True).exclude(now_price=0).exclude(stock=0)[:14]
+                    for dealshub_product_obj in dealshub_product_objs:
+                        temp_dict2 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                        new_arrival_product.append(temp_dict2)
+
+                    #logger.info("Inside para john loop 2 - 14 products done")
+
+                    temp_dict["best_products"] = best_seller_product
+                    temp_dict["featured_products"] = featured_products
+                    temp_dict["new_arrival"] = new_arrival_product
+                    response['tiled_products'] = temp_dict
+
+                    temp_dict_category = {}
+                    temp_dict_category["category_tab_product_index"] = location_group_obj.category_tab_product_index
+                    temp_dict_category["category_tabs"] = []
+                                    
+                    website_group_obj = location_group_obj.website_group
+                    category_objs = website_group_obj.categories.all()
+                    
+                    #logger.info("Inside para john loop 3 - before category loop")
+                    for category_obj in category_objs:
+                        temp_dict_category_products = []
+                        dealshub_product_objs = DealsHubProduct.objects.filter(location_group = location_group_obj,is_published = True,category = category_obj).exclude(now_price=0).exclude(stock=0)[:3]
+                        #logger.info("Inside para john loop 3 - in category loop iiiiii")
+                        for dealshub_product_obj in dealshub_product_objs:
+                            #logger.info("Inside para john loop 3 - in dealshub product loop!!!")
+                            temp_dict4 = {}
+                            temp_dict4 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                            temp_dict_category_products.append(temp_dict4)
+                        temp_dict_category["category_tabs"].append({"name":category_obj.get_name(),"products":temp_dict_category_products[:14]})
+
+                    response['category_tab_products'] = temp_dict_category
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            if is_dealshub==True:
+                cache.set(cache_key, json.dumps(response))
+            
+            response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
