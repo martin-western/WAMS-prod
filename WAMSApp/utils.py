@@ -2627,6 +2627,239 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
         logger.error("bulk_update_dealshub_product_price_or_stock_or_status: %s at %s", e, str(exc_tb.tb_lineno))
 
 
+
+def bulk_update_dealshub_product_details(oc_uuid,path,filename, location_group_obj, update_type):
+    try:
+        
+        dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+        dfs.fillna("")
+        rows = len(dfs.iloc[:])
+
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+        row = ["No.","Product ID", "Status"]
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        cnt=0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        df.columns = [str(x).strip().lower() for x in df.columns]
+        columns_list = list(df.columns)
+        
+        for i in range(rows):
+            try:
+                cnt += 1
+                product_id = str(dfs.iloc[i][0]).strip()
+                product_id = product_id.split(".")[0]
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = product_id
+                common_row[2] = ""
+                if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
+                    dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+
+                    if "stock" in columns_list:
+                        dh_product_obj.stock = float(dfs.iloc[i]["stock"])
+
+                    if "now price" in columns_list:
+                        dh_product_obj.now_price = float(dfs.iloc[i]["now price"])
+
+                    if "was price" in columns_list:
+                        dh_product_obj.was_price = float(dfs.iloc[i]["was price"])
+
+                    if "is cod allowed" in columns_list:
+                        is_cod_allowed = str(dfs.iloc[i]["is cod allowed"]).strip().lower()
+                        if is_cod_allowed =='yes':
+                            is_cod_allowed = True
+                            dh_product_obj.is_cod_allowed = is_cod_allowed
+                        elif is_cod_allowed =='no':
+                            is_cod_allowed=False
+                            dh_product_obj.is_cod_allowed = is_cod_allowed
+                        else:
+                            common_row[2]+='COD value is not proper.'
+                            any_error = True
+                    
+                    if "is promo restricted" in columns_list:
+                        is_promo_restricted = str(dfs.iloc[i]["is promo restricted"]).strip().lower()
+                        if is_promo_restricted =='yes':
+                            is_promo_restricted = True
+                            dh_product_obj.is_promo_restricted = is_promo_restricted
+                        elif is_promo_restricted =='no':
+                            is_promo_restricted=False
+                            dh_product_obj.is_promo_restricted = is_promo_restricted
+                        else:
+                            common_row[2]+='Promo restricted value is not proper.'
+                            any_error = True
+
+                    if "is new arrival" in columns_list:
+                        is_new_arrival = str(dfs.iloc[i]["is new arrival"]).strip().lower()
+                        if is_new_arrival =='yes':
+                            is_new_arrival = True
+                            dh_product_obj.is_new_arrival = is_new_arrival
+                        elif is_new_arrival =='no':
+                            is_new_arrival=False
+                            dh_product_obj.is_new_arrival = is_new_arrival
+                        else:
+                            common_row[2]+='New arrival value is not proper.'
+                            any_error = True
+
+                    if "is on sale" in columns_list:
+                        is_on_sale = str(dfs.iloc[i]["is on sale"]).strip().lower()
+                        if is_on_sale =='yes':
+                            is_on_sale = True
+                            dh_product_obj.is_on_sale = is_on_sale
+                        elif is_on_sale =='no':
+                            is_on_sale=False
+                            dh_product_obj.is_on_sale = is_on_sale
+                        else:
+                            common_row[2]+='COD value is not proper.'
+                            any_error = True
+
+                    if "is promotional" in columns_list:
+                        is_promotional = str(dfs.iloc[i]["is promotional"]).strip().lower()
+                        
+                        if is_promotional =='yes':
+                            is_promotional = True
+                            try :
+                                promotional_price = float(dfs.iloc[i]['promotional price'])
+                                if promotional_price <=0:
+                                    common_row[2]+='Promotional price cannot be 0.'
+                                    any_error = True
+                            except:
+                                common_row[2]+='Promotional price must be number.'
+                                any_error = True
+
+                        elif is_promotional =='no':
+                            is_promotional=False
+                        else:
+                            common_row[2]+='Promotional value is not proper.'
+                            any_error = True
+
+                        promotion_obj = dh_product_obj.promotion
+                        if dh_product_obj.is_promotional == False and promotion_obj != None:
+                            common_row[2] += "Already in Promotion"
+                            any_error = True
+                        
+                        if not any_error:
+                            if is_promotional:
+                                promotional_tag = str(dfs.iloc[i]["promotional tag"])
+                                start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%Y-%m-%d %H:%M:%S")
+                                end_date = datetime.datetime.strptime(str(dfs.iloc[i][8]), "%Y-%m-%d %H:%M:%S")
+                                if promotion_obj==None:
+                                    promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
+                                else:
+                                    promotion_obj.promotion_tag = promotional_tag
+                                    promotion_obj.start_time = start_date
+                                    promotion_obj.end_time = end_date
+                                    promotion_obj.save()
+                                dh_product_obj.is_promotional = True
+                                dh_product_obj.promotional_price = promotional_price
+                            else:
+                                if dh_product_obj.is_promotional==True:
+                                    promotion_obj = None
+                                    dh_product_obj.is_promotional = False
+                            dh_product_obj.promotion = promotion_obj    
+
+                    if "product name" in columns_list:
+                        dh_product_obj.product_name = str(dfs.iloc[i]["product name"]).strip().lower()   
+                    
+                    if "minimum order quantity" in columns_list:
+                        dh_product_obj.moq = int(dfs.iloc[i]["minimum order quantity"])
+
+                    if "allowed quantity" in columns_list:
+                        dh_product_obj.allowed_qty = float(dfs.iloc[i]["allowed quantity"])
+
+                    
+                    if "category" in columns_list:
+                        category_name = str(dfs.iloc[i]["category"]).strip()
+                        try:
+                            category_obj = Category.objects.get(name = str(dfs.iloc[i]["category"]))
+                            dh_product_obj.category = category_obj
+                        except:
+                            common_row[2]+='Category does not exists.'
+                            any_error = True
+
+                    if "sub category" in columns_list:
+                        sub_category_name = str(dfs.iloc[i]["sub category"]).strip()
+                        try:
+                            sub_category_obj = SubCategory.objects.get(name = str(dfs.iloc[i]["sub category"]))
+                            dh_product_obj.sub_category = sub_category_obj
+                        except:
+                            common_row[2]+='Sub category does not exists.'
+                            any_error = True
+                    
+                    if "product description" in columns_list:
+                        product_description = str(dfs.iloc[i]["product description"])
+                        dh_product_obj.product_description = product_description
+                    
+                    if "search keywords" in columns_list:
+                        search_keywords = str(dfs.iloc[i]["search keywords"])
+                        dh_product_obj.set_search_keywords(search_keywords)
+
+                    if "is bestseller" in columns_list:
+                        is_bestseller = str(dfs.iloc[i]["is bestseller"]).strip().lower()
+                        if is_bestseller =='yes':
+                            is_bestseller = True
+                            dh_product_obj.is_bestseller = is_bestseller
+                        elif is_bestseller =='no':
+                            is_bestseller=False
+                            dh_product_obj.is_bestseller = is_bestseller
+                        else:
+                            common_row[2]+='Bestseller value is not proper.'
+                            any_error = True
+
+                    if "is featured" in columns_list:
+                        is_featured = str(dfs.iloc[i]["is featured"]).strip().lower()
+                        if is_featured =='yes':
+                            is_featured = True
+                            dh_product_obj.is_featured = is_featured
+                        elif is_featured =='no':
+                            is_featured=False
+                            dh_product_obj.is_featured = is_featured
+                        else:
+                            common_row[2]+='Featured value is not proper.'
+                            any_error = True
+
+                    if not any_error:
+                        dh_product_obj.save()
+                        common_row[2] = "success"
+            
+                else:
+                    common_row[2] = "Product {} not exists.".format(product_id)
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("bulk_update_dealshub_product_details: %s at %s", e, str(exc_tb.tb_lineno))
+            
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=oc_uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("bulk_update_dealshub_product_details: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+
+
+
 def bulk_update_b2b_dealshub_product_price(oc_uuid,path,filename, location_group_obj):
     try:
         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
