@@ -1594,7 +1594,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
         return Response(data=response)
 
 
-class BulkUpdateDealshubProductAPI(APIView):
+class BulkUpdateDealshubProductDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -1604,14 +1604,14 @@ class BulkUpdateDealshubProductAPI(APIView):
         try:
             
             data = request.data
-            logger.info("BulkUpdateDealshubProductAPI: %s", str(data))
+            logger.info("BulkUpdateDealshubProductDetailsAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             if is_oc_user(request.user)==False:
                 response['status'] = 403
-                logger.warning("BulkUpdateDealshubProductAPI Restricted Access!")
+                logger.warning("BulkUpdateDealshubProductDetailsAPI Restricted Access!")
                 return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
@@ -1644,11 +1644,11 @@ class BulkUpdateDealshubProductAPI(APIView):
             response['approved'] = True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("BulkUpdateDealshubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("BulkUpdateDealshubProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-        
+
 class BulkUpdateDealshubProductStatusAPI(APIView):
     # format of file required :- https://docs.google.com/spreadsheets/d/1ibmo15E3nj9VIZWxdggK9nS6y5_icNUBlVfnn-p_w8w/edit?usp=sharing
 
@@ -8452,6 +8452,8 @@ BulkUpdateDealshubProductStock = BulkUpdateDealshubProductStockAPI.as_view()
 BulkUpdateDealshubProductStatus = BulkUpdateDealshubProductStatusAPI.as_view()
 
 BulkUpdateDealshubProductPublishStatus  = BulkUpdateDealshubProductPublishStatusAPI.as_view()
+
+BulkUpdateDealshubProductDetails = BulkUpdateDealshubProductDetailsAPI.as_view()
 
 FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 

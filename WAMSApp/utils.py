@@ -2665,6 +2665,7 @@ def bulk_update_dealshub_product_details(oc_uuid,path,filename, location_group_o
                 common_row[0] = str(cnt)
                 common_row[1] = product_id
                 common_row[2] = ""
+                any_error = False
                 if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
                     dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
 
@@ -2722,8 +2723,69 @@ def bulk_update_dealshub_product_details(oc_uuid,path,filename, location_group_o
                             is_on_sale=False
                             dh_product_obj.is_on_sale = is_on_sale
                         else:
-                            common_row[2]+='COD value is not proper.'
+                            common_row[2]+='On sale value is not proper.'
                             any_error = True
+
+                    if "is bestseller" in columns_list:
+                        is_bestseller = str(dfs.iloc[i]["is bestseller"]).strip().lower()
+                        if is_bestseller =='yes':
+                            is_bestseller = True
+                            dh_product_obj.is_bestseller = is_bestseller
+                        elif is_bestseller =='no':
+                            is_bestseller=False
+                            dh_product_obj.is_bestseller = is_bestseller
+                        else:
+                            common_row[2]+='Bestseller value is not proper.'
+                            any_error = True
+
+                    if "is featured" in columns_list:
+                        is_featured = str(dfs.iloc[i]["is featured"]).strip().lower()
+                        if is_featured =='yes':
+                            is_featured = True
+                            dh_product_obj.is_featured = is_featured
+                        elif is_featured =='no':
+                            is_featured=False
+                            dh_product_obj.is_featured = is_featured
+                        else:
+                            common_row[2]+='Featured value is not proper.'
+                            any_error = True
+
+                    if "product name" in columns_list:
+                        dh_product_obj.product_name = str(dfs.iloc[i]["product name"]).strip().lower()   
+                    
+                    if "minimum order quantity" in columns_list:
+                        dh_product_obj.moq = int(dfs.iloc[i]["minimum order quantity"])
+
+                    if "allowed quantity" in columns_list:
+                        dh_product_obj.allowed_qty = float(dfs.iloc[i]["allowed quantity"])
+                    
+                    if "sub category" in columns_list:
+                        sub_category_name = str(dfs.iloc[i]["sub category"]).strip()
+                        try:
+                            sub_category_obj = SubCategory.objects.get(name = str(dfs.iloc[i]["sub category"]))
+                            category_obj = Category.objects.get(name = str(dfs.iloc[i]["category"]))
+                            if category_obj == sub_category_obj.category:
+                                super_category_obj = SuperCategory.objects.get(name = str(dfs.iloc[i]["super category"]))
+                                if super_category_obj == category_obj.super_category:
+                                    dh_product_obj.sub_category = sub_category_obj
+                                    dh_product_obj.category = category_obj
+                                else:
+                                    common_row[2]+='Category is not present in super category.'
+                                    any_error = True
+                            else:
+                                common_row[2]+='Sub category is not present in category.'
+                                any_error = True
+                        except:
+                            common_row[2]+='Categories values are not proper.'
+                            any_error = True
+                    
+                    if "product description" in columns_list:
+                        product_description = str(dfs.iloc[i]["product description"])
+                        dh_product_obj.product_description = product_description
+                    
+                    if "search keywords" in columns_list:
+                        search_keywords = str(dfs.iloc[i]["search keywords"])
+                        dh_product_obj.set_search_keywords(search_keywords)
 
                     if "is promotional" in columns_list:
                         is_promotional = str(dfs.iloc[i]["is promotional"]).strip().lower()
@@ -2769,66 +2831,6 @@ def bulk_update_dealshub_product_details(oc_uuid,path,filename, location_group_o
                                     promotion_obj = None
                                     dh_product_obj.is_promotional = False
                             dh_product_obj.promotion = promotion_obj    
-
-                    if "product name" in columns_list:
-                        dh_product_obj.product_name = str(dfs.iloc[i]["product name"]).strip().lower()   
-                    
-                    if "minimum order quantity" in columns_list:
-                        dh_product_obj.moq = int(dfs.iloc[i]["minimum order quantity"])
-
-                    if "allowed quantity" in columns_list:
-                        dh_product_obj.allowed_qty = float(dfs.iloc[i]["allowed quantity"])
-
-                    
-                    if "category" in columns_list:
-                        category_name = str(dfs.iloc[i]["category"]).strip()
-                        try:
-                            category_obj = Category.objects.get(name = str(dfs.iloc[i]["category"]))
-                            dh_product_obj.category = category_obj
-                        except:
-                            common_row[2]+='Category does not exists.'
-                            any_error = True
-
-                    if "sub category" in columns_list:
-                        sub_category_name = str(dfs.iloc[i]["sub category"]).strip()
-                        try:
-                            sub_category_obj = SubCategory.objects.get(name = str(dfs.iloc[i]["sub category"]))
-                            dh_product_obj.sub_category = sub_category_obj
-                        except:
-                            common_row[2]+='Sub category does not exists.'
-                            any_error = True
-                    
-                    if "product description" in columns_list:
-                        product_description = str(dfs.iloc[i]["product description"])
-                        dh_product_obj.product_description = product_description
-                    
-                    if "search keywords" in columns_list:
-                        search_keywords = str(dfs.iloc[i]["search keywords"])
-                        dh_product_obj.set_search_keywords(search_keywords)
-
-                    if "is bestseller" in columns_list:
-                        is_bestseller = str(dfs.iloc[i]["is bestseller"]).strip().lower()
-                        if is_bestseller =='yes':
-                            is_bestseller = True
-                            dh_product_obj.is_bestseller = is_bestseller
-                        elif is_bestseller =='no':
-                            is_bestseller=False
-                            dh_product_obj.is_bestseller = is_bestseller
-                        else:
-                            common_row[2]+='Bestseller value is not proper.'
-                            any_error = True
-
-                    if "is featured" in columns_list:
-                        is_featured = str(dfs.iloc[i]["is featured"]).strip().lower()
-                        if is_featured =='yes':
-                            is_featured = True
-                            dh_product_obj.is_featured = is_featured
-                        elif is_featured =='no':
-                            is_featured=False
-                            dh_product_obj.is_featured = is_featured
-                        else:
-                            common_row[2]+='Featured value is not proper.'
-                            any_error = True
 
                     if not any_error:
                         dh_product_obj.save()
