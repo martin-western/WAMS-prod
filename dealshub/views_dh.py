@@ -2173,7 +2173,13 @@ class FetchOrderRequestListAPI(APIView):
                     temp_dict["additionalNote"] = order_request_obj.additional_note
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
-                    temp_dict["shippingAddressUuid"] = order_request_obj.shipping_address.uuid
+                    address_obj = order_request_obj.shipping_address
+                    temp_dict["shippingAddress"] = {
+                        "tag": address_obj.tags,
+                        "line1": json.loads(address_obj.address_lines)[0],
+                        "line2": json.loads(address_obj.address_lines)[1],
+                        "emirates": address_obj.emirates
+                    }
 
                     unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
                     if order_request_obj.request_status == "Approved" and unit_order_request_objs.exclude(request_status="Rejected").count() != unit_order_request_objs.count():
