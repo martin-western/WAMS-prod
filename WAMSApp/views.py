@@ -7659,6 +7659,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             except Exception as e:
                 pass
             
+            dealshub_product_obj.additional_sub_categories.clear()
             for other_sub_category_uuid in other_sub_category_uuid_list:
                 other_sub_category_obj = None
                 try:
