@@ -7503,11 +7503,11 @@ class FetchDealshubProductDetailsAPI(APIView):
             additional_sub_category_list = []
             for sub_category_obj in dealshub_product_obj.additional_sub_categories.all():
                 temp_dict = {}
-                temp_dict["sub_category"] = sub_category_obj
+                temp_dict["sub_category"] = str(sub_category_obj)
                 temp_dict["sub_category_uuid"] = sub_category_obj.uuid
-                temp_dict["category"] = sub_category_obj.category
+                temp_dict["category"] = str(sub_category_obj.category)
                 temp_dict["category_uuid"] = sub_category_obj.category.uuid
-                temp_dict["super_category"] = sub_category_obj.category.super_category
+                temp_dict["super_category"] = str(sub_category_obj.category.super_category)
                 temp_dict["super_category_uuid"] = sub_category_obj.category.super_category.uuid
                 additional_sub_category_list.append(temp_dict)
 
@@ -7629,14 +7629,14 @@ class SaveDealshubProductDetailsAPI(APIView):
                 promotional_tag = promotion["promotional_tag"]
                 if promotion_obj==None:
                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
-                    render_value = 'Promotion {} is created for product {}'.format(promotion_obj.promotional_tag,dealshub_product_obj.get_seller_sku())
+                    render_value = 'Promotion {} is created for product {}'.format(promotion_obj.promotion_tag,dealshub_product_obj.get_seller_sku())
                     activitylog(user=request.user,table_name=Promotion,action_type='created',location_group_obj=None,prev_instance=None,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
                 else:
                     promotion_obj.promotion_tag = promotional_tag
                     promotion_obj.start_time = start_date
                     promotion_obj.end_time = end_date
                     promotion_obj.save()
-                    render_value = 'Promotion {} is updated for product {}'.format(promotion_obj.promotional_tag,dealshub_product_obj.get_seller_sku())
+                    render_value = 'Promotion {} is updated for product {}'.format(promotion_obj.promotion_tag,dealshub_product_obj.get_seller_sku())
                     activitylog(user=request.user,table_name=Promotion,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=promotion_obj,table_item_pk=promotion_obj.uuid,render=render_value)
 
                 dealshub_product_obj.is_promotional = True
@@ -7971,7 +7971,7 @@ class FetchOmnyCommUserDetailsAPI(APIView):
                 response["image_url"] = image_obj.image.url
             response["contact_no"] = omnycomm_user_obj.contact_number
             response["designation"] = omnycomm_user_obj.designation
-            response["website_group"] = omnycomm_user_obj.website_group.name
+            response["website_group"] = omnycomm_user_obj.website_group.name if omnycomm_user_obj.website_group!=None else ""
             brand_list = []
             for brand_obj in custom_permission_obj.brands.all():
                 temp_dict = {}
