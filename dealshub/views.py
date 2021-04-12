@@ -4480,6 +4480,10 @@ class AddProductToSectionAPI(APIView):
                 logger.info("product is already in product promotion")
                 response['status'] = 403
                 return Response(data=response)
+            if dealshub_product_obj.promotion!=None:
+                logger.info("product is already promoted in other section")
+                response['status'] = 405
+                return Response(data=response)
             if section_obj.promotion!=None:
                 dealshub_product_obj.promotion = section_obj.promotion
                 dealshub_product_obj.save()
