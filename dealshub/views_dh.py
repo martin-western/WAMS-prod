@@ -2175,7 +2175,7 @@ class FetchOrderRequestListAPI(APIView):
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                     address_obj = order_request_obj.shipping_address
                     temp_dict["shippingAddress"] = {
-                        "tag": address_obj.tags,
+                        "tag": address_obj.tag,
                         "line1": json.loads(address_obj.address_lines)[0],
                         "line2": json.loads(address_obj.address_lines)[1],
                         "emirates": address_obj.emirates
