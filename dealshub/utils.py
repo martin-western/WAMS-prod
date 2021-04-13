@@ -1399,6 +1399,95 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
 
     return products
 
+def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_obj):
+    try:
+        
+        dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+        dfs.fillna("")
+        rows = len(dfs.iloc[:])
+
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+        row = ["No.","Product ID", "Status"]
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        cnt=0
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+
+        for i in range(rows):
+            cnt += 1
+            product_id = str(dfs.iloc[i][0]).strip()
+            product_id = product_id.split(".")[0]
+
+            common_row = ["" for i in range(len(row))]
+            common_row[0] = str(cnt)
+            common_row[1] = product_id
+            common_row[2] = ""
+
+            try:
+                product_id = str(dfs.iloc[i]["Product Code"]).strip()
+                product_id = product_id.split(".")[0]
+                any_error = False
+
+                if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
+                    dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    
+                    fake_customer_name = str(dfs.iloc[i]["Customer Name"]).strip()
+                    subject = str(dfs.iloc[i]["Subject"]).strip()
+                    content = str(dfs.iloc[i]["content"]).strip()
+                    rating = int(dfs.iloc[i]["Rating"])
+                    is_published = str(dfs.iloc[i]["Published"]).strip().lower()
+                    if is_published =='yes':
+                        is_published = True
+                    elif is_published =='no':
+                        is_published=False
+                    else:
+                        common_row[2]+='Published value is not proper.'
+                        any_error = True
+                    omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+                    if not any_error:
+                        review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+                        review_obj = Review.objects.create(is_fake=True,
+                                                        product=dealshub_product_obj,
+                                                        rating=rating,
+                                                        content=review_content_obj,
+                                                        fake_customer_name=fake_customer_name,
+                                                        fake_oc_user=omnycomm_user_obj,
+                                                        is_published = is_published)
+                        common_row[2] = "Success"
+
+                else:
+                    common_row[2] = "Product {} not exists.".format(product_id)
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                common_row[2] = "Enter proper values."
+                logger.error("bulk_upload_fake_review: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+                
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=oc_uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("bulk_upload_fake_review: %s at %s", e, str(exc_tb.tb_lineno))
+
 def send_b2b_user_status_change_mail(b2b_user_obj):
     try:
         logger.info("send_b2b_user_status_change_mail started!")

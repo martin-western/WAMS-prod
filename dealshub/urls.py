@@ -203,6 +203,7 @@ urlpatterns = [
     url(r'^add-review/$', views.AddReview),
     url(r'^add-fake-review-admin/$', views.AddFakeReviewAdmin),
     url(r'^update-review-admin/$', views.UpdateReviewAdmin),
+    url(r'^bulk-upload-fake-review-admin/$', views.BulkUploadFakeReviewAdmin),
     url(r'^add-rating/$', views.AddRating),
     url(r'^update-rating/$', views.UpdateRating),
     url(r'^add-admin-comment/$', views.AddAdminComment),
