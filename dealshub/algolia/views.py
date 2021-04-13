@@ -211,6 +211,8 @@ class SearchWIG3API(APIView):
             is_available = True
             if search_result["page"] == search_result["nbPages"]-1:
                 is_available = False
+
+            response["facets"] = search_result["facets"]
             response["is_available"] = is_available
             response["totalPages"] = search_result["nbPages"]
             response["total_products"] = search_result["nbHits"]
