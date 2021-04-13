@@ -1317,7 +1317,7 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
             temp_dict["uuid"] = dealshub_product_obj.uuid
             temp_dict["link"] = dealshub_product_obj.url
             temp_dict["id"] = dealshub_product_obj.uuid
-            temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+            temp_dict["heroImageUrl"] = dealshub_product_obj.display_image_url
             products.append(temp_dict)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

@@ -243,6 +243,8 @@ class DealsHubProduct(models.Model):
     promotional_price_cohort4 = models.FloatField(default=0)
     promotional_price_cohort5 = models.FloatField(default=0)
 
+    display_image_url = models.TextField(default="")
+
     class Meta:
         verbose_name = "DealsHub Product"
         verbose_name_plural = "DealsHub Products"
@@ -626,6 +628,8 @@ class DealsHubProduct(models.Model):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
+
+        self.display_image_url = self.get_display_image_url()
 
         super(DealsHubProduct, self).save(*args, **kwargs)
 
