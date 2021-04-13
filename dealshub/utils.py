@@ -1392,7 +1392,7 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
             temp_dict["link"] = dealshub_product_obj.url
             temp_dict["id"] = dealshub_product_obj.uuid
             t2 = timezone.now()
-            temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+            temp_dict["heroImageUrl"] = "https://cdn.omnycomm.com/midsize/OMSB2336_1_4.jpg" #dealshub_product_obj.get_display_image_url()
             t3 = timezone.now()
             total_seconds += (t3-t2).total_seconds()*1000
             logger.info("Time: %s", str((t3-t2).total_seconds()*1000))
