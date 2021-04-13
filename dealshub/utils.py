@@ -1394,13 +1394,13 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
             t2 = timezone.now()
             temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
             t3 = timezone.now()
-            logger.info("Time1: ", (t3-t2).total_seconds()*1000)
+            logger.info("Time1: %s", str((t3-t2).total_seconds()*1000))
             products.append(temp_dict)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("get_dealshub_product_details: %s at %s", e, str(exc_tb.tb_lineno))
         t4 = timezone.now()
-        logger.info("Time2: ", (t4-t1).total_seconds()*1000)
+        logger.info("Time2: %s", str((t4-t1).total_seconds()*1000))
     return products
 
 def send_b2b_user_status_change_mail(b2b_user_obj):
