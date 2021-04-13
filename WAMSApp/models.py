@@ -2027,3 +2027,52 @@ class BlackListToken(models.Model):
 
     def __str__(self):
         return str(self.token)
+
+
+class BlogPost(models.Model):
+
+    title = models.TextField(default="",blank=True)
+    body = models.TextField(default="")
+    date_created = models.DateTimeField(default=datetime.now())
+    is_published = models.BooleanField(default=False)
+    title_image = models.ForeignKey(Image,null=True,blank=True,related_name="title_image")
+    blog_images = models.ManyToManyField(Image,null=True,blank=True,related_name="blog_images")
+    uuid = models.CharField(max_length=200,unique=True)
+
+    def save(self):
+        if self.uuid==None self.uuid == "":
+            self.uuid = str(uuid.uuid4())[:8]
+
+        super(BlogPost,self).save(*args,**kwargs)
+
+
+class BlogSectionType(models.Model):
+
+    name = models.CharField(max_length=200,unique=True,default="")
+    display_name = models.CharField(max_length=200,default="")
+    limit = models.IntegerField(default=5)
+
+    def __str__(self):
+        return str(self.name)
+
+
+class BlogSection(models.Model):
+
+    name = models.CharField(max_length=200,blank=True,default="")
+    blog_posts = models.ManyToManyField(BlogPost, blank=True,null=True)
+    is_published = models.BooleanField(default=False)
+    order_index = models.IntegerField(default=1)
+    uuid = models.CharField(max_length=200,unique=True)
+    date_created = models.DateTimeField(default=timezone.now())
+    modified_date = models.DateTimeField(default=timezone.now())
+    blog_section_type = models.ForeignKey(BlogSectionType,on_delete=models.CASCADE)
+    section_image = models.ForeignKey(Image,null=True,blank=True)
+
+    def save(self):
+        if self.pk==None:
+            self.uuid = str(uuid.uuid4())
+        else:
+            self.modified_date = timezone.now()
+
+        super(Section,self).save(*args,**kwargs)
+
