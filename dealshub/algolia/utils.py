@@ -100,7 +100,7 @@ def search_algolia_index(data):
     return result
 
 
-def search_algolia_suggestions(search_string):
+def search_algolia_suggestions(data):
     try:
         logger.info("search_algolia_suggestions: %s",str(data))
         if not isinstance(data, dict):
@@ -108,8 +108,6 @@ def search_algolia_suggestions(search_string):
 
         search_string = data["search_string"]
         filters = {}
-        filters['hitsPerPage'] = data["pageSize"]
-        filters['page'] = data["page"]
 
         client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
         index = client.init_index('DealsHubProductQuerySuggestions')

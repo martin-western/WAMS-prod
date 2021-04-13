@@ -298,7 +298,7 @@ class SearchWIG3AutoCompleteAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SearchWIG3AutoCompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
