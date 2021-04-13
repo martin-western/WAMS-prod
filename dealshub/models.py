@@ -621,7 +621,7 @@ class DealsHubProduct(models.Model):
                 pass
 
         try:
-            if self.location_group.name in ["WIGMe - UAE"]:
+            if self.location_group.name in ["WIGMe - UAE","WIGme - Dubai"]:
                 logger.info("Update DealsHubProduct to Index: %s",str(self))
                 p1 = threading.Thread(target = add_product_to_index, args=(self,))
                 p1.start()
