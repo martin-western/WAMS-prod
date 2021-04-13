@@ -50,6 +50,7 @@ def search_algolia_index(data):
         filters = {}
         filters['hitsPerPage'] = data["pageSize"]
         filters['page'] = data["page"]
+        filters['facets'] = ['brand','category']
         filters['filters'] = ""
 
         filters['filters'] += "locationGroup: " + str(data["locationGroupUuid"]) + " "
