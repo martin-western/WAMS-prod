@@ -283,6 +283,8 @@ class SearchWIG3AutoCompleteAPI(APIView):
                 temp_dict["sellerSKU"] = hits[ind]["sellerSKU"]
                 temp_dict["brand"] = hits[ind]["brand"]
                 temp_dict["heroImageUrl"] = dealshub_product_obj.display_image_url
+                temp_dict["url"] = dealshub_product_obj.url
+                temp_dict["uuid"] = dealshub_product_obj.uuid
                 ind+=1
                 dealshub_product_list.append(temp_dict)
 
