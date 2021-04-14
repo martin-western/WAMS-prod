@@ -249,6 +249,7 @@ class SearchWIG3AutoCompleteAPI(APIView):
 
             search_data = {}
             search_data["search_string"] = search_string
+            search_data["locationGroupUuid"] = location_group_uuid
             search_data["pageSize"] = 5
             search_data["page"] = 0
 
