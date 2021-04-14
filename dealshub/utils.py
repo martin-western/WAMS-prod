@@ -730,7 +730,7 @@ def send_order_cancelled_mail(unit_order_obj):
         full_name = unit_order_obj.order.get_customer_full_name()
         website_logo = unit_order_obj.order.get_email_website_logo()
 
-        website_group_obj = order_obj.location_group.website_group
+        website_group_obj = unit_order_obj.order.location_group.website_group
         support_email = website_group_obj.email_info
         support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
 
