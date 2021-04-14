@@ -263,9 +263,10 @@ class SearchWIG3AutoCompleteAPI(APIView):
             if not isinstance(search_result, dict):
                 search_result = json.loads(search_result)
 
+            hits = search_result["hits"]
             temp_pk_list = []
             for hit in hits:
-                temp_pk_list.append(search_result["pk"])
+                temp_pk_list.append(hit["pk"])
             dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
             dealshub_product_objs = list(dealshub_product_objs)
             dealshub_product_objs.sort(key=lambda t: temp_pk_list.index(t.pk))
@@ -274,10 +275,10 @@ class SearchWIG3AutoCompleteAPI(APIView):
             dealshub_product_list = []
             for dealshub_product_obj in dealshub_product_objs:
                 temp_dict = {}
-                temp_dict["highlightResult"] = search_result[ind]["_highlightResult"]
-                temp_dict["name"] = search_result[ind]["productName"]
-                temp_dict["sellerSKU"] = search_result[ind]["sellerSKU"]
-                temp_dict["brand"] = search_result[ind]["brand"]
+                temp_dict["highlightResult"] = hits[ind]["_highlightResult"]
+                temp_dict["name"] = hits[ind]["productName"]
+                temp_dict["sellerSKU"] = hits[ind]["sellerSKU"]
+                temp_dict["brand"] = hits[ind]["brand"]
                 temp_dict["heroImageUrl"] = dealshub_product_obj.display_image_url
                 ind+=1
                 dealshub_product_list.append(temp_dict)
