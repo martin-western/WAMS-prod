@@ -99,3 +99,23 @@ def search_algolia_index(data):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("search_algolia_index: %s at %s", e, str(exc_tb.tb_lineno))
     return result
+
+
+def search_algolia_suggestions(data):
+    try:
+        logger.info("search_algolia_suggestions: %s",str(data))
+        if not isinstance(data, dict):
+            data = json.loads(data)
+
+        search_string = data["search_string"]
+        filters = {}
+
+        client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
+        index = client.init_index('DealsHubProductQuerySuggestions')
+
+        result = index.search(search_string,filters)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("search_algolia_suggestions: %s at %s", e, str(exc_tb.tb_lineno))
+    return result
