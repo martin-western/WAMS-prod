@@ -59,30 +59,30 @@ def search_algolia_index(data):
             filters['filters'] = filters['filters'] + "AND "
         filters['filters'] += "isPublished: true AND stock > 0 AND price > 0.0 "
 
-        if data["superCategory"] != "":
+        if data.get("superCategory","") != "":
             if filters['filters'] != "":
                 filters['filters'] = filters['filters'] + "AND "
             filters['filters'] += "superCategory:" + "'" + data["superCategory"] + "' "
 
-        if data["category"] !="":
+        if data.get("category","") !="":
             if filters['filters'] != "":
                 filters['filters'] = filters['filters'] + "AND "
             filters['filters'] += "category:" + "'" + data["category"] + "' "
 
-        if data["subCategory"] != "":
+        if data.get("subCategory","") != "":
             if filters['filters'] != "":
                 filters['filters'] = filters['filters'] + "AND "
             filters['filters'] += "subCategory:" + "'" +  data["subCategory"] + "' "
 
-        if len(data["brands"]) !=0:
+        if len(data.get("brands",[])) !=0:
             filters['filters'] += "AND " + "("
 
-        for brand in data["brands"]:
+        for brand in data.get("brands",[]):
             filters['filters'] += "brand:"  + "'" + brand + "' "
             if filters['filters'] != "":
                 filters['filters'] = filters['filters'] + "OR "
 
-        if len(data["brands"]) !=0:
+        if len(data.get("brands",[])) !=0:
             filters['filters'] = filters['filters'][:-3] +  ")"
 
         client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
