@@ -2035,9 +2035,19 @@ class BlogPost(models.Model):
     body = models.TextField(default="")
     date_created = models.DateTimeField(default=datetime.now())
     is_published = models.BooleanField(default=False)
-    title_image = models.ForeignKey(Image,null=True,blank=True,related_name="title_image")
+    cover_image = models.ForeignKey(Image,null=True,blank=True,related_name="cover_image")
     blog_images = models.ManyToManyField(Image,null=True,blank=True,related_name="blog_images")
     uuid = models.CharField(max_length=200,unique=True)
+    views = models.IntegerField(default=0)
+    location_group = models.ForeignKey(LocationGroup,null=True, blank=True,on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return str(self.title)
+
+    def get_cover_image(self):
+        if self.cover_image!=None and self.cover_image!="":
+            return self.cover_image.url
+        return ""
 
     def save(self):
         if self.uuid==None self.uuid == "":
@@ -2067,6 +2077,7 @@ class BlogSection(models.Model):
     modified_date = models.DateTimeField(default=timezone.now())
     blog_section_type = models.ForeignKey(BlogSectionType,on_delete=models.CASCADE)
     section_image = models.ForeignKey(Image,null=True,blank=True)
+    location_group = models.ForeignKey(LocationGroup,null=True, blank=True,on_delete=models.SET_NULL)
 
     def save(self):
         if self.pk==None:
