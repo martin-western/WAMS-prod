@@ -1363,7 +1363,7 @@ class NestoProduct(models.Model):
     
     def get_details_of_stores_where_available(self):
         nesto_product_store_objs = NestoProductStore.objects.filter(product=self).exclude(stock = 0)  
-        seller_details = []
+        available_stores = []
         for nesto_product_store_obj in nesto_product_store_objs:
             temp_dict = {}
             temp_dict["store_uuid"] = nesto_product_store_obj.store.uuid
@@ -1373,8 +1373,8 @@ class NestoProduct(models.Model):
             temp_dict['special_price'] = nesto_product_store_obj.special_price
             temp_dict['strike_price'] = nesto_product_store_obj.strike_price
             temp_dict['stock'] = nesto_product_store_obj.stock
-            seller_details.append(temp_dict)
-        return seller_details
+            available_stores.append(temp_dict)
+        return available_stores
 
 
 class NestoStore(models.Model):

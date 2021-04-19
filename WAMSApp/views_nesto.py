@@ -190,7 +190,7 @@ class UpdateNestoProductAPI(APIView):
             is_verified = data["is_verified"]
             is_online = data["is_online"]
             
-            available_sellers = data["available_sellers"]
+            available_stores = data["available_stores"]
             
             vendor_category = data["vendor_category"]
 
@@ -235,14 +235,14 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.sub_category = sub_category_obj
             nesto_product_obj.save()
 
-            for available_seller in available_sellers:
+            for available_store in available_stores:
 
-                normal_price = round(float(available_seller['normal_price']))
-                special_price = round(float(available_seller['special_price']))
-                strike_price = round(float(available_seller['strike_price']))
-                stock = int(available_seller['stock'])
-                seller_sku = available_seller['seller_sku']
-                nesto_store_obj = NestoStore.objects.get(uuid = available_seller["uuid"])
+                normal_price = round(float(available_store['normal_price']))
+                special_price = round(float(available_store['special_price']))
+                strike_price = round(float(available_store['strike_price']))
+                stock = int(available_store['stock'])
+                seller_sku = available_store['seller_sku']
+                nesto_store_obj = NestoStore.objects.get(uuid = available_store["uuid"])
 
                 if NestoProductStore.objects.filter(product = nesto_product_obj,store = nesto_store_obj).exists():
                     nesto_product_store_obj = NestoProductStore.objects.get(product = nesto_product_obj,store = nesto_store_obj)
@@ -392,10 +392,10 @@ class FetchNestoProductDetailsAPI(APIView):
                 "supplier_images": supplier_images
             }
 
-            available_sellers = nesto_product_obj.get_details_of_stores_where_available()
+            available_stores = nesto_product_obj.get_details_of_stores_where_available()
 
             response["images"] = images
-            response["available_sellers"] = available_sellers
+            response["available_stores"] = available_stores
             response['status'] = 200
 
         except Exception as e:
