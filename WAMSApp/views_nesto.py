@@ -967,10 +967,10 @@ class UpdateNestoBrandAPI(APIView):
               
             organization_obj = Organization.objects.get(name="Nesto Group")
 
-            brand_obj = Brand.objects.get(pk = int(data["brand_pk"]) , organization = organization_obj)
-            brand_obj.name = str(data["brand_name"])
-            brand_obj.description = str(data["brand_description"])
-            image_obj = Image.objects.create(image = data["brand_logo"])
+            brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
+            brand_obj.name = str(data["name"])
+            brand_obj.description = str(data["description"])
+            image_obj = Image.objects.create(image = data["logo"])
             brand_obj.logo = image_obj            
             brand_obj.save()
 
@@ -999,12 +999,14 @@ class CreateNestoBrandAPI(APIView):
               
             organization_obj = Organization.objects.get(name="Nesto Group")
             custom_permission_obj = CustomPermission.objects.get(user__username = request.user.username)
-            image_obj = Image.objects.create(image = data["brand_logo"])
+            image_obj = Image.objects.create(image = data["logo"])
+            brand_name = str(data["name"])
+            brand_description = str(data["description"])
 
             brand_obj = Brand.objects.create(
                 organization = organization_obj,
-                name = str(data["brand_name"]),
-                description = str(data["brand_description"]),
+                name = brand_name,
+                description = brand_description,
                 logo = image_obj
                 )
 
@@ -1034,7 +1036,7 @@ class DeleteNestoBrandAPI(APIView):
                 data = json.loads(data)
 
             organization_obj = Organization.objects.get(name="Nesto Group")
-            brand_obj = Brand.objects.get(pk = int(data["brand_pk"]) , organization = organization_obj)
+            brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
             brand_obj.delete()
             response['status'] = 200
 
