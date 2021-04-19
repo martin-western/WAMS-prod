@@ -4886,6 +4886,62 @@ class AddFakeReviewAdminAPI(APIView):
         
         return Response(data=response)
 
+
+class BulkUploadFakeReviewAdminAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("BulkUploadFakeReviewAdminAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUploadFakeReviewAdminAPI Restricted Access!")
+                return Response(data=response)
+
+            location_group_uuid = data["locationGroupUuid"]
+
+            path = default_storage.save('tmp/bulk-upload-review.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+
+            report_type = "bulk upload review"
+            report_title = "bulk upload fake review"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the fake review" 
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
+
+            p1 =  threading.Thread(target=bulk_upload_fake_review , args=(path,filename, location_group_obj, oc_user_obj))
+            p1.start()
+            render_value = 'Bulk update fake reviews with report {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
+
+            response['status'] = 200
+            response['approved'] = True
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUploadFakeReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 #API with active log
 class UpdateReviewAdminAPI(APIView):
 
@@ -4963,7 +5019,6 @@ class UpdateReviewAdminAPI(APIView):
             logger.error("UpdateReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
 
 
 class AddRatingAPI(APIView):
@@ -9265,6 +9320,8 @@ AddReview = AddReviewAPI.as_view()
 AddFakeReviewAdmin = AddFakeReviewAdminAPI.as_view()
 
 UpdateReviewAdmin = UpdateReviewAdminAPI.as_view()
+
+BulkUploadFakeReviewAdmin = BulkUploadFakeReviewAdminAPI.as_view()
 
 AddRating = AddRatingAPI.as_view()
 
