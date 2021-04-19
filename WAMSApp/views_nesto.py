@@ -278,12 +278,11 @@ class FetchStoreListAPI(APIView):
     def post(self, request, *args, **kwargs):
 
         try:
-
             response = {}
             response['status'] = 500
-
             store_objs = Store.objects.all()
             stores_list = []
+
             for store_obj in store_objs:
                 temp_dict = {}
                 temp_dict["store_uuid"] = store_obj.uuid
@@ -291,11 +290,14 @@ class FetchStoreListAPI(APIView):
                 temp_dict['store_name'] = store_obj.store_name
                 stores_list.append(temp_dict)
 
+            response["stores_list"] = stores_list
+            response['status'] = 200
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchStoreListAPI get_images_list: %s at %s", e, str(exc_tb.tb_lineno))
         
-        return stores_list
+        return Response(data=response)
 
        
 class FetchNestoProductDetailsAPI(APIView):
