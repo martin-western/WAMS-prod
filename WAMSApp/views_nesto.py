@@ -190,11 +190,11 @@ class UpdateNestoProductAPI(APIView):
             is_verified = data["is_verified"]
             is_online = data["is_online"]
             
-            # format of "stores_details" = [ 
+            # format of "available_sellers" = [ 
             #     {"uuid": "789-5965" , "name":"xyz","seller_sku":"" ,"stock": 123,"normal_price":,"special_price":,"strike_price":}, 
             #     {"uuid": "789-5965" , "name":"xyz","seller_sku":"" ,"stock": 123,"normal_price":,"special_price":,"strike_price":}, 
             #     ]
-            stores_details = data["stores_details"]
+            available_sellers = data["available_sellers"]
             
             vendor_category = data["vendor_category"]
 
@@ -239,14 +239,14 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.sub_category = sub_category_obj
             nesto_product_obj.save()
 
-            for store_details in stores_details:
+            for available_seller in available_sellers:
 
-                normal_price = round(float(store_details['normal_price']))
-                special_price = round(float(store_details['special_price']))
-                strike_price = round(float(store_details['strike_price']))
-                stock = int(store_details['stock'])
-                seller_sku = store_details['seller_sku']
-                store_obj = NestoStore.objects.get(uuid = store_details["uuid"])
+                normal_price = round(float(available_seller['normal_price']))
+                special_price = round(float(available_seller['special_price']))
+                strike_price = round(float(available_seller['strike_price']))
+                stock = int(available_seller['stock'])
+                seller_sku = available_seller['seller_sku']
+                store_obj = NestoStore.objects.get(uuid = available_seller["uuid"])
 
                 if NestoProductStore.objects.filter(product = nesto_product_obj,store = store_obj).exists():
                     nesto_product_store = NestoProductStore.objects.get(product = nesto_product_obj,store = store_obj)
@@ -396,10 +396,10 @@ class FetchNestoProductDetailsAPI(APIView):
                 "supplier_images": supplier_images
             }
 
-            stores_details = nesto_product_obj.get_details_of_stores_where_available()
+            available_sellers = nesto_product_obj.get_details_of_stores_where_available()
 
             response["images"] = images
-            response["stores_details"] = stores_details
+            response["available_sellers"] = available_sellers
             response['status'] = 200
 
         except Exception as e:
