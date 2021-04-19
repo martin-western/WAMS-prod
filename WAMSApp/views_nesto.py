@@ -111,7 +111,7 @@ class CreateNestoProductAPI(APIView):
 
         return Response(data=response)
 
-# done
+
 class DeleteNestoProductStoreAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -142,7 +142,7 @@ class DeleteNestoProductStoreAPI(APIView):
 
         return Response(data=response)
 
-# done
+
 class UpdateNestoProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -275,7 +275,7 @@ class UpdateNestoProductAPI(APIView):
 
         return Response(data=response)
 
-# done
+
 class FetchNestoStoreListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
