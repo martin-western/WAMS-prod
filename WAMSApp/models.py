@@ -1361,6 +1361,30 @@ class NestoProduct(models.Model):
         
         super(NestoProduct, self).save(*args, **kwargs)
 
+class Store(models.Model):
+    store_name = models.CharField(default="", blank=True, max_length=250)
+    seller_sku = models.CharField(max_length=200) 
+
+    # is seller_sku attribute needed here?? and is user able to change value of seller_sku??
+    # currently as per given, we are considering that able to change from UI. 
+
+    uuid = models.CharField(default="", max_length=200, unique=True)
+
+    def __str__(self):
+        return str(self.store_name)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        super(Store, self).save(*args, **kwargs)
+
+class NestoProductStore(models.Model):
+    nesto_product = models.ForeignKey(NestoProduct, on_delete=models.CASCADE)
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    normal_price = models.FloatField(default=0)
+    special_price = models.FloatField(default=0)
+    strike_price = models.FloatField(default=0)
+    stock = models.IntegerField(default=0)
 
 class ProductImage(models.Model):
 
