@@ -129,10 +129,10 @@ class DeleteNestoProductStoreAPI(APIView):
             product_uuid = data["product_uuid"]
             nesto_product_obj = NestoProduct.objects.get(uuid=product_uuid)
             store_uuid = data["store_uuid"]
-            store_obj = NestoStore.objects.get(uuid=store_uuid)
+            nesto_store_obj = NestoStore.objects.get(uuid=store_uuid)
             
-            if NestoProductStore.objects.filter(product = nesto_product_obj,store = store_obj).exists():
-                nesto_product_store_obj = NestoProductStore.objects.get(product = nesto_product_obj,store = store_obj)
+            if NestoProductStore.objects.filter(product = nesto_product_obj,store = nesto_store_obj).exists():
+                nesto_product_store_obj = NestoProductStore.objects.get(product = nesto_product_obj,store = nesto_store_obj)
                 nesto_product_store_obj.delete()
             response['status'] = 200
 
@@ -190,10 +190,6 @@ class UpdateNestoProductAPI(APIView):
             is_verified = data["is_verified"]
             is_online = data["is_online"]
             
-            # format of "available_sellers" = [ 
-            #     {"uuid": "789-5965" , "name":"xyz","seller_sku":"" ,"stock": 123,"normal_price":,"special_price":,"strike_price":}, 
-            #     {"uuid": "789-5965" , "name":"xyz","seller_sku":"" ,"stock": 123,"normal_price":,"special_price":,"strike_price":}, 
-            #     ]
             available_sellers = data["available_sellers"]
             
             vendor_category = data["vendor_category"]
@@ -246,20 +242,20 @@ class UpdateNestoProductAPI(APIView):
                 strike_price = round(float(available_seller['strike_price']))
                 stock = int(available_seller['stock'])
                 seller_sku = available_seller['seller_sku']
-                store_obj = NestoStore.objects.get(uuid = available_seller["uuid"])
+                nesto_store_obj = NestoStore.objects.get(uuid = available_seller["uuid"])
 
-                if NestoProductStore.objects.filter(product = nesto_product_obj,store = store_obj).exists():
-                    nesto_product_store = NestoProductStore.objects.get(product = nesto_product_obj,store = store_obj)
-                    nesto_product_store.normal_price = normal_price
-                    nesto_product_store.special_price = special_price
-                    nesto_product_store.strike_price = strike_price
-                    nesto_product_store.seller_sku = seller_sku
-                    nesto_product_store.stock = stock
-                    nesto_product_store.save()
+                if NestoProductStore.objects.filter(product = nesto_product_obj,store = nesto_store_obj).exists():
+                    nesto_product_store_obj = NestoProductStore.objects.get(product = nesto_product_obj,store = nesto_store_obj)
+                    nesto_product_store_obj.normal_price = normal_price
+                    nesto_product_store_obj.special_price = special_price
+                    nesto_product_store_obj.strike_price = strike_price
+                    nesto_product_store_obj.seller_sku = seller_sku
+                    nesto_product_store_obj.stock = stock
+                    nesto_product_store_obj.save()
                 else:
                     NestoProductStore.objects.create(
                         product = nesto_product_obj,
-                        store = store_obj,
+                        store = nesto_store_obj,
                         normal_price = normal_price,
                         special_price = special_price,
                         strike_price = strike_price,
@@ -283,16 +279,16 @@ class FetchNestoStoreListAPI(APIView):
         try:
             response = {}
             response['status'] = 500
-            store_objs = NestoStore.objects.all()
-            stores_list = []
+            nesto_store_objs = NestoStore.objects.all()
+            nesto_stores_list = []
 
-            for store_obj in store_objs:
+            for nesto_store_obj in nesto_store_objs:
                 temp_dict = {}
-                temp_dict["uuid"] = store_obj.uuid
-                temp_dict['name'] = store_obj.name
-                stores_list.append(temp_dict)
+                temp_dict["uuid"] = nesto_store_obj.uuid
+                temp_dict['name'] = nesto_store_obj.name
+                nesto_stores_list.append(temp_dict)
 
-            response["stores_list"] = stores_list
+            response["stores_list"] = nesto_stores_list
             response['status'] = 200
 
         except Exception as e:
