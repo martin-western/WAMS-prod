@@ -3205,6 +3205,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
             is_dealshub = data.get("isDealshub", False)
 
             is_bot = data.get("isBot", False)
+            is_bot_cohort = data.get("isBotCohort","HIDE")
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -3219,10 +3220,13 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
             resolution = data.get("resolution", "low")
 
-            show_price = "HIDE"
-            if is_user_authenticated:
-                show_price = "SHOW"
-            cache_key = show_price+"-"+location_group_uuid
+            if is_bot:
+                cache_key = is_bot_cohort+"-"+location_group_uuid
+            else:
+                cache_key = "HIDE"+"-"+location_group_uuid
+                if is_user_authenticated:
+                    cohort = b2b_user_obj.cohort
+                    cache_key = "SHOW"+"-"+cohort+location_group_uuid
             if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(cache_key, "has_expired")
                 if cached_value!="has_expired":
