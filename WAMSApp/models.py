@@ -1362,7 +1362,7 @@ class NestoProduct(models.Model):
         super(NestoProduct, self).save(*args, **kwargs)
     
     def get_details_of_stores_where_available(self):
-        nesto_product_store_objs = NestoProductStore.objects.filter(nesto_product=self).exclude(stock = 0)  
+        nesto_product_store_objs = NestoProductStore.objects.filter(product=self).exclude(stock = 0)  
         seller_details = []
         for nesto_product_store_obj in nesto_product_store_objs:
             temp_dict = {}
