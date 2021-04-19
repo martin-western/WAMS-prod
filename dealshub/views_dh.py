@@ -9090,7 +9090,7 @@ class UploadB2BDocumentAPI(APIView):
 
         try:
             data = request.data
-            logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
+            logger.info("UploadB2BDocumentAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -9163,7 +9163,7 @@ class UpdateB2BCustomerDetailsAPI(APIView):
 
         try:
             data = request.data
-            logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
+            logger.info("UpdateB2BCustomerDetailsAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
