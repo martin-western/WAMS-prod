@@ -259,7 +259,7 @@ class FetchBlogSectionTypesAPI(APIView):
             blog_section_type_objs = BlogSectionType.objects.all()
 
             blog_section_types = blog_section_type_objs.values_list('display_name')
-
+            response["blogSectionTypes"] = blog_section_types
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
