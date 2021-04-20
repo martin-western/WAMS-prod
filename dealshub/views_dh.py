@@ -19,6 +19,7 @@ from dealshub.hyperpay_integration import *
 from dealshub.spotii_integration import *
 from dealshub.tap_integration import *
 from dealshub.postaplus import *
+from dealshub.views_blog import *
 
 from django.core.paginator import Paginator
 from django.db.models import Q
