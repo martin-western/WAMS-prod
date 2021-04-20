@@ -69,7 +69,7 @@ class EditBlogPostAPI(APIView):
         try:
             data = request.data
             logger.info("EditBlogPostAPI: %s",str(data))
-            if not isinstance(data,json):
+            if not isinstance(data,dict):
                 data = json.loads(data)
 
             title = data["title"]
@@ -108,7 +108,7 @@ class UploadBlogPostImageAPI(APIView):
         try:
             data = request.data
             logger.info("UploadBlogPostImageAPI: %s",str(data))
-            if not isinstance(data,json):
+            if not isinstance(data,dict):
                 data = json.loads(data)
 
             blog_post_image = data["blogPostImage"]
@@ -133,7 +133,7 @@ class ModifyBlogPostStatusAPI(APIView):
         try:
             data = request.data
             logger.info("ModifyBlogPostStatusAPI: %s",str(data))
-            if not isinstance(data,json):
+            if not isinstance(data,dict):
                 data = json.loads(data)
 
             blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
@@ -158,7 +158,7 @@ class AddProductToBlogPostAPI(APIView):
         try:
             data = request.data
             logger.info("AddProductToBlogPostAPI: %s",str(data))
-            if not isinstance(data,json):
+            if not isinstance(data,dict):
                 data = json.loads(data)
 
             blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
@@ -184,7 +184,7 @@ class RemoveProductFromBlogPostAPI(APIView):
         try:
             data = request.data
             logger.info("RemoveProductFromBlogPostAPI: %s",str(data))
-            if not isinstance(data,json):
+            if not isinstance(data,dict):
                 data = json.loads(data)
 
             blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
