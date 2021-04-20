@@ -1773,7 +1773,7 @@ class BlogPost(models.Model):
             return self.cover_image.url
         return ""
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.uuid==None or self.uuid == "":
             self.uuid = str(uuid.uuid4())[:8]
 
@@ -1803,7 +1803,7 @@ class BlogSection(models.Model):
     section_image = models.ForeignKey(Image,null=True,blank=True)
     location_group = models.ForeignKey(LocationGroup,null=True, blank=True,on_delete=models.SET_NULL)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.pk==None:
             self.uuid = str(uuid.uuid4())
             self.date_created = timezone.now()
