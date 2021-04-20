@@ -1749,6 +1749,7 @@ class Review(models.Model):
 
         super(Review, self).save(*args, **kwargs)
 
+
 class BlogPost(models.Model):
 
     title = models.TextField(default="",blank=True)
