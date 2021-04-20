@@ -162,7 +162,11 @@ class AddProductToBlogPostAPI(APIView):
                 data = json.loads(data)
 
             blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["uuid"])
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["dealsHubProductUuid"])
+            if dealshub_product_obj.location_group != blog_post_obj.location_group:
+                response["message"] = "different location group"
+                return Response(data=response)
+
             blog_post_obj.products.add(dealshub_product_obj)
             blog_post_obj.save()
 
@@ -212,7 +216,7 @@ class FetchBlogPostListAPI(APIView):
         try:
             data = request.data
             logger.info("FetchBlogPostListAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
@@ -249,7 +253,7 @@ class FetchBlogSectionTypesAPI(APIView):
         try:
             data = request.data
             logger.info("FetchBlogSectionTypesAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             blog_section_type_objs = BlogSectionType.objects.all()
@@ -273,7 +277,7 @@ class CreateBlogSectionAPI(APIView):
         try:
             data = request.data
             logger.info("CreateBlogSectionAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
@@ -305,7 +309,7 @@ class EditBlogSectionAPI(APIView):
         try:
             data = request.data
             logger.info("EditBlogSectionAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             section_image = data.get("sectionImage","")
@@ -335,7 +339,7 @@ class AddBlogPostToBlogSectionAPI(APIView):
         try:
             data = request.data
             logger.info("AddBlogPostToBlogSectionAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             blog_section_obj = BlogSection.objects.get(uuid=data["blogSectionUuid"])
@@ -360,7 +364,7 @@ class RemoveBlogPostFromBlogSectionAPI(APIView):
         try:
             data = request.data
             logger.info("RemoveBlogPostFromBlogSectionAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             blog_section_obj = BlogSection.objects.get(uuid=data["blogSectionUuid"])
@@ -385,7 +389,7 @@ class ModifyBlogSectionStatusAPI(APIView):
         try:
             data = request.data
             logger.info("ModifyBlogSectionStatusAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             blog_section_obj = BlogSection.objects.get(uuid=data["BlogSectionUuid"])
@@ -409,7 +413,7 @@ class SaveBlogSectionOrderIndexAPI(APIView):
         try:
             data = request.data
             logger.info("SaveBlogSectionOrderIndexAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             # blog_section_obj = BlogSection.objects.get(uuid=data["BlogSectionUuid"])
@@ -435,7 +439,7 @@ class FetchBlogSectionListAPI(APIView):
         try:
             data = request.data
             logger.info("FetchBlogSectionListAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
@@ -483,7 +487,7 @@ class SearchBlogPostAutoCompleteAPI(APIView):
         try:
             data = request.data
             logger.info("SearchBlogPostAutoCompleteAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
@@ -519,7 +523,7 @@ class FetchBlogSectionHomePageAPI(APIView):
         try:
             data = request.data
             logger.info("FetchBlogSectionHomePageAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
@@ -566,7 +570,7 @@ class FetchBlogPostDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchBlogPostDetailsAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
@@ -598,7 +602,7 @@ class FetchAllBlogPostsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchAllBlogPostsAPI: %s",str(data))
-            if not isinstance(data.json):
+            if not isinstance(data,json):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
