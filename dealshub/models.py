@@ -1773,7 +1773,7 @@ class BlogPost(models.Model):
         return ""
 
     def save(self):
-        if self.uuid==None self.uuid == "":
+        if self.uuid==None or self.uuid == "":
             self.uuid = str(uuid.uuid4())[:8]
 
         super(BlogPost,self).save(*args,**kwargs)
