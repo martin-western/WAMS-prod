@@ -1796,8 +1796,8 @@ class BlogSection(models.Model):
     is_published = models.BooleanField(default=False)
     order_index = models.IntegerField(default=1)
     uuid = models.CharField(max_length=200,unique=True)
-    date_created = models.DateTimeField(default=timezone.now())
-    modified_date = models.DateTimeField(default=timezone.now())
+    date_created = models.DateTimeField()
+    modified_date = models.DateTimeField()
     blog_section_type = models.ForeignKey(BlogSectionType,on_delete=models.CASCADE)
     section_image = models.ForeignKey(Image,null=True,blank=True)
     location_group = models.ForeignKey(LocationGroup,null=True, blank=True,on_delete=models.SET_NULL)
@@ -1805,6 +1805,8 @@ class BlogSection(models.Model):
     def save(self):
         if self.pk==None:
             self.uuid = str(uuid.uuid4())
+            self.date_created = timezone.now()
+            self.modified_date = timezone.now()
         else:
             self.modified_date = timezone.now()
 
