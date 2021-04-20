@@ -285,6 +285,7 @@ class CreateBlogSectionAPI(APIView):
             blog_section_type = data["BlogSectionType"]
             blog_section_type_obj = BlogSectionType.objects.filter(display_name=blog_section_type)[0]
             blog_section_name = data.get("blogSectionName","")
+            order_index = data["order_index"]
 
             blog_section_obj = BlogSection.objects.create(
                 name=blog_section_name,
