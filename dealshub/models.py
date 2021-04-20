@@ -1753,6 +1753,7 @@ class Review(models.Model):
 class BlogPost(models.Model):
 
     title = models.TextField(default="",blank=True)
+    headline = models.CharField(max_length=255,default="",blank=True)
     author = models.CharField(max_length=200,default="",blank=True)
     body = models.TextField(default="")
     date_created = models.DateTimeField(auto_now_add=True)

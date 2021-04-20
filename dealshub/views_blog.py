@@ -41,7 +41,7 @@ class CreateBlogPostAPI(APIView):
 
             title = data["title"]
             headline = data["headline"] 
-            body = data["headline"]
+            body = data["body"]
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
