@@ -114,7 +114,7 @@ class UploadBlogPostImageAPI(APIView):
             blog_post_image = data["blogPostImage"]
             image_obj = Image.objects.create(image=blog_post_image)
 
-            response["imageUrl"] = image_obj.url
+            response["imageUrl"] = image_obj.image.url
             response['status'] = 200
 
         except Exception as e:
@@ -446,7 +446,9 @@ class FetchBlogSectionListAPI(APIView):
                 temp_dict = {}
                 temp_dict["sectionName"] = blog_section_obj.name
                 temp_dict["sectionType"] = str(blog_section_obj.blog_section_type)
-                temp_dict["sectionImageUrl"] = blog_section_obj.section_image.url
+                temp_dict["sectionImageUrl"] = ""
+                if blog_section_obj.section_image!=None:
+                    temp_dict["sectionImageUrl"] = blog_section_obj.section_image.image.url
                 temp_dict["orderIndex"] = blog_section_obj.order_index
                 temp_dict["is_published"] = blog_section_obj.is_published
                 temp_dict["sectionBlogPosts"] = []
@@ -455,7 +457,9 @@ class FetchBlogSectionListAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["title"] = blog_post_obj.title
                     temp_dict2["author"] = blog_post_obj.author
-                    temp_dict2["coverImageUrl"] = blog_post_obj.cover_image.url
+                    temp_dict2["coverImageUrl"] = ""
+                    if blog_post_obj.cover_image!=None:
+                        temp_dict2["coverImageUrl"] = blog_post_obj.cover_image.image.url
                     temp_dict["sectionBlogPosts"].append(temp_dict2)
                 section_list.append(temp_dict)
 
@@ -526,7 +530,9 @@ class FetchBlogSectionHomePageAPI(APIView):
                 temp_dict = {}
                 temp_dict["sectionName"] = blog_section_obj.name
                 temp_dict["sectionType"] = str(blog_section_obj.blog_section_type)
-                temp_dict["sectionImageUrl"] = blog_post_obj.section_image.url
+                temp_dict["sectionImageUrl"] = ""
+                if blog_section_obj.section_image!=None:
+                    temp_dict["sectionImageUrl"] = blog_post_obj.section_image.image.url
                 temp_dict["sectionBlogPosts"] = []
                 blog_post_objs = blog_section_obj.products.filter(is_published=True)
                 for blog_post_obj in blog_post_objs:
@@ -534,7 +540,9 @@ class FetchBlogSectionHomePageAPI(APIView):
                     temp_dict2["title"] = blog_post_obj.title
                     temp_dict2["body"] = blog_post_obj.body
                     temp_dict2["author"] = blog_post_obj.author
-                    temp_dict2["coverImageUrl"] = blog_post_obj.cover_image.url
+                    temp_dict2["coverImageUrl"] = ""
+                    if blog_post_obj.section_image.cover_image!=None:
+                        temp_dict2["coverImageUrl"] = blog_post_obj.cover_image.image.url
                     temp_dict["sectionBlogPosts"].append(temp_dict2)
                 section_list.append(temp_dict)
 
