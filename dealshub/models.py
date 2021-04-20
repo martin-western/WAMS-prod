@@ -1811,5 +1811,5 @@ class BlogSection(models.Model):
         else:
             self.modified_date = timezone.now()
 
-        super(Section,self).save(*args,**kwargs)
+        super(BlogSection,self).save(*args,**kwargs)
 
