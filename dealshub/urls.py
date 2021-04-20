@@ -281,6 +281,7 @@ urlpatterns = [
     url(r'^add-product-to-blog-post/$',views.AddProductToBlogPost),
     url(r'^remove-product-from-blog-post/$',views.RemoveProductFromBlogPost),
     url(r'^fetch-blog-post-list/$',views.FetchBlogPostList),
+    url(r'^fetch-blog-section-types/$',views.FetchBlogSectionTypes),
     url(r'^create-blog-section/$',views.CreateBlogSection),
     url(r'^edit-blog-section/$',views.EditBlogSection),
     url(r'^add-blog-post-to-blog-section/$',views.AddBlogPostToBlogSection),
