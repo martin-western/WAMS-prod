@@ -192,7 +192,7 @@ class RemoveProductFromBlogPostAPI(APIView):
                 data = json.loads(data)
 
             blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["uuid"])
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["dealsHubProductUuid"])
             blog_post_obj.products.remove(dealshub_product_obj)
             blog_post_obj.save()
 
