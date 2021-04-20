@@ -21,6 +21,11 @@ from WAMSApp.utils import activitylog
 
 logger = logging.getLogger(__name__)
 
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return
+
 
 class CreateBlogPostAPI(APIView):
 
@@ -259,7 +264,7 @@ class FetchBlogSectionTypesAPI(APIView):
         return Response(data=response)
 
 
-def CreateBlogSectionAPI(APIView):
+class CreateBlogSectionAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
