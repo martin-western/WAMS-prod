@@ -87,7 +87,7 @@ class EditBlogPostAPI(APIView):
             if is_cover_image:
                 cover_image = data["coverImage"]
                 image_obj = Image.objects.create(image=cover_image)
-                blog_post_obj.cover_image = cover_image
+                blog_post_obj.cover_image = image_obj
             blog_post_obj.save()
 
             response['status'] = 200
