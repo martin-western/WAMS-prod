@@ -446,6 +446,7 @@ class FetchBlogSectionListAPI(APIView):
                 temp_dict = {}
                 temp_dict["sectionName"] = blog_section_obj.name
                 temp_dict["sectionType"] = str(blog_section_obj.blog_section_type)
+                temp_dict["sectionImageUrl"] = ""
                 if blog_section_obj.section_image!=None:
                     temp_dict["sectionImageUrl"] = blog_section_obj.section_image.image.url
                 temp_dict["orderIndex"] = blog_section_obj.order_index
@@ -456,6 +457,7 @@ class FetchBlogSectionListAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["title"] = blog_post_obj.title
                     temp_dict2["author"] = blog_post_obj.author
+                    temp_dict2["coverImageUrl"] = ""
                     if blog_post_obj.cover_image!=None:
                         temp_dict2["coverImageUrl"] = blog_post_obj.cover_image.image.url
                     temp_dict["sectionBlogPosts"].append(temp_dict2)
@@ -528,6 +530,7 @@ class FetchBlogSectionHomePageAPI(APIView):
                 temp_dict = {}
                 temp_dict["sectionName"] = blog_section_obj.name
                 temp_dict["sectionType"] = str(blog_section_obj.blog_section_type)
+                temp_dict["sectionImageUrl"] = ""
                 if blog_section_obj.section_image!=None:
                     temp_dict["sectionImageUrl"] = blog_post_obj.section_image.image.url
                 temp_dict["sectionBlogPosts"] = []
@@ -537,6 +540,7 @@ class FetchBlogSectionHomePageAPI(APIView):
                     temp_dict2["title"] = blog_post_obj.title
                     temp_dict2["body"] = blog_post_obj.body
                     temp_dict2["author"] = blog_post_obj.author
+                    temp_dict2["coverImageUrl"] = ""
                     if blog_post_obj.section_image.cover_image!=None:
                         temp_dict2["coverImageUrl"] = blog_post_obj.cover_image.image.url
                     temp_dict["sectionBlogPosts"].append(temp_dict2)
