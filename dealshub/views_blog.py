@@ -258,7 +258,7 @@ class FetchBlogSectionTypesAPI(APIView):
 
             blog_section_type_objs = BlogSectionType.objects.all()
 
-            blog_section_types = blog_section_type_objs.values_list('name')
+            blog_section_types = blog_section_type_objs.values_list('display_name')
 
             response['status'] = 200
         except Exception as e:
@@ -283,7 +283,8 @@ class CreateBlogSectionAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             blog_section_type = data["BlogSectionType"]
-            blog_section_type_obj = BlogSectionType.objects.filter(display_name=blog_section_type)
+            blog_section_type_obj = BlogSectionType.objects.filter(display_name=blog_section_type)[0]
+            blog_section_name = data.get("blogSectionName","")
 
             blog_section_obj = BlogSection.objects.create(
                 name=blog_section_name,
@@ -639,6 +640,8 @@ AddProductToBlogPost = AddProductToBlogPostAPI.as_view()
 RemoveProductFromBlogPost = RemoveProductFromBlogPostAPI.as_view()
 
 FetchBlogPostList = FetchBlogPostListAPI.as_view()
+
+FetchBlogSectionTypes = FetchBlogSectionTypesAPI.as_view()
 
 CreateBlogSection = CreateBlogSectionAPI.as_view()
 
