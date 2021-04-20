@@ -2027,3 +2027,4 @@ class BlackListToken(models.Model):
 
     def __str__(self):
         return str(self.token)
+
