@@ -1753,16 +1753,16 @@ class Review(models.Model):
 class BlogPost(models.Model):
 
     title = models.TextField(default="",blank=True)
-    author = models.CharField(default="",blank=True)
+    author = models.CharField(max_length=200,default="",blank=True)
     body = models.TextField(default="")
-    date_created = models.DateTimeField(default=datetime.now())
+    date_created = models.DateTimeField(auto_now_add=True)
     is_published = models.BooleanField(default=False)
     cover_image = models.ForeignKey(Image,null=True,blank=True,related_name="cover_image")
-    blog_images = models.ManyToManyField(Image,null=True,blank=True,related_name="blog_images")
+    blog_images = models.ManyToManyField(Image,blank=True,related_name="blog_images")
     uuid = models.CharField(max_length=200,unique=True)
     views = models.IntegerField(default=0)
     location_group = models.ForeignKey(LocationGroup,null=True, blank=True,on_delete=models.SET_NULL)
-    products = models.ManyToManyField(DealsHubProduct,null=True,blank=True,on_delete=models.SET_NULL)
+    products = models.ManyToManyField(DealsHubProduct,blank=True)
 
     def __str__(self):
         return str(self.title)
@@ -1792,7 +1792,7 @@ class BlogSectionType(models.Model):
 class BlogSection(models.Model):
 
     name = models.CharField(max_length=200,blank=True,default="")
-    blog_posts = models.ManyToManyField(BlogPost, blank=True,null=True)
+    blog_posts = models.ManyToManyField(BlogPost, blank=True)
     is_published = models.BooleanField(default=False)
     order_index = models.IntegerField(default=1)
     uuid = models.CharField(max_length=200,unique=True)
