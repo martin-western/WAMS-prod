@@ -94,7 +94,7 @@ class EditBlogPostAPI(APIView):
         return Response(data=response)
 
 
-class UploadBlogPostImagesAPI(APIView):
+class UploadBlogPostImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -102,7 +102,7 @@ class UploadBlogPostImagesAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("UploadBlogPostImagesAPI: %s",str(data))
+            logger.info("UploadBlogPostImageAPI: %s",str(data))
             if not isinstance(data,json):
                 data = json.loads(data)
 
@@ -114,7 +114,7 @@ class UploadBlogPostImagesAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UploadBlogPostImagesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UploadBlogPostImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -144,7 +144,7 @@ class ModifyBlogPostStatusAPI(APIView):
         return Response(data=response)
 
 
-class AddProducttoBlogPostAPI(APIView):
+class AddProductToBlogPostAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -152,7 +152,7 @@ class AddProducttoBlogPostAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("AddProducttoBlogPostAPI: %s",str(data))
+            logger.info("AddProductToBlogPostAPI: %s",str(data))
             if not isinstance(data,json):
                 data = json.loads(data)
 
@@ -165,12 +165,12 @@ class AddProducttoBlogPostAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddProducttoBlogPostAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddProductToBlogPostAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class DeleteProductFromBlogPostAPI(APIView):
+class RemoveProductFromBlogPostAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -178,7 +178,7 @@ class DeleteProductFromBlogPostAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("DeleteProductFromBlogPostAPI: %s",str(data))
+            logger.info("RemoveProductFromBlogPostAPI: %s",str(data))
             if not isinstance(data,json):
                 data = json.loads(data)
 
@@ -191,7 +191,7 @@ class DeleteProductFromBlogPostAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteProductFromBlogPostAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("RemoveProductFromBlogPostAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -259,7 +259,7 @@ class FetchBlogSectionTypesAPI(APIView):
         return Response(data=response)
 
 
-def CreateBlogSection(APIView):
+def CreateBlogSectionAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -267,7 +267,7 @@ def CreateBlogSection(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("CreateBlogSection: %s",str(data))
+            logger.info("CreateBlogSectionAPI: %s",str(data))
             if not isinstance(data.json):
                 data = json.loads(data)
 
@@ -286,7 +286,7 @@ def CreateBlogSection(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateBlogSection: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateBlogSectionAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -321,8 +321,7 @@ class EditBlogSectionAPI(APIView):
         return Response(data=response)
 
 
-#AddProducttoSection
-class AddProductToBlogSectionAPI(APIView):
+class AddBlogPostToBlogSectionAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -330,24 +329,24 @@ class AddProductToBlogSectionAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("AddProductToSectionAPI: %s",str(data))
+            logger.info("AddBlogPostToBlogSectionAPI: %s",str(data))
             if not isinstance(data.json):
                 data = json.loads(data)
 
-            blog_section_obj = BlogSection.objects.get(uuid=data["BlogSectionUuid"])
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["productUuid"])
-            blog_section_obj.products.add(dealshub_product_obj)
+            blog_section_obj = BlogSection.objects.get(uuid=data["blogSectionUuid"])
+            blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
+            blog_section_obj.blog_posts.add(blog_post_obj)
             blog_section_obj.save()
 
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddProductToSectionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddBlogPostToBlogSectionAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class DeleteProductFromBlogSectionAPI(APIView):
+class RemoveBlogPostFromBlogSectionAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -355,19 +354,19 @@ class DeleteProductFromBlogSectionAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("DeleteProductFromBlogSectionAPI: %s",str(data))
+            logger.info("RemoveBlogPostFromBlogSectionAPI: %s",str(data))
             if not isinstance(data.json):
                 data = json.loads(data)
 
-            blog_section_obj = BlogSection.objects.get(uuid=data["BlogSectionUuid"])
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=data["DealsHubProductUuid"])
-            blog_section_obj.products.remove(dealshub_product_obj)
+            blog_section_obj = BlogSection.objects.get(uuid=data["blogSectionUuid"])
+            blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
+            blog_section_obj.blog_posts.remove(blog_post_obj)
             blog_section_obj.save()
 
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteProductFromBlogSectionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("RemoveBlogPostFromBlogSectionAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -396,8 +395,7 @@ class ModifyBlogSectionStatusAPI(APIView):
         return Response(data=response)
 
 
-#SaveBlogSectionOrderIndex
-class SaveBlogSectionOrderIndex(APIView):
+class SaveBlogSectionOrderIndexAPI(APIView):
     
     def post(self, request, *args, **kwargs):
 
@@ -405,18 +403,18 @@ class SaveBlogSectionOrderIndex(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("SaveBlogSectionOrderIndex: %s",str(data))
+            logger.info("SaveBlogSectionOrderIndexAPI: %s",str(data))
             if not isinstance(data.json):
                 data = json.loads(data)
 
-            blog_section_obj = BlogSection.objects.get(uuid=data["BlogSectionUuid"])
-            blog_section_obj.is_published = data["is_published"]
-            blog_section_obj.save()
+            # blog_section_obj = BlogSection.objects.get(uuid=data["BlogSectionUuid"])
+            # blog_section_obj.is_published = data["is_published"]
+            # blog_section_obj.save()
 
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SaveBlogSectionOrderIndex: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SaveBlogSectionOrderIndexAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -475,7 +473,7 @@ class SearchBlogPostAutoCompleteAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchBlogSectionListingPageAPI: %s",str(data))
+            logger.info("SearchBlogPostAutoCompleteAPI: %s",str(data))
             if not isinstance(data.json):
                 data = json.loads(data)
 
@@ -496,7 +494,7 @@ class SearchBlogPostAutoCompleteAPI(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchBlogSectionListingPageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SearchBlogPostAutoCompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -511,7 +509,7 @@ class FetchBlogSectionHomePageAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchBlogSectionListingPageAPI: %s",str(data))
+            logger.info("FetchBlogSectionHomePageAPI: %s",str(data))
             if not isinstance(data.json):
                 data = json.loads(data)
 
@@ -539,7 +537,7 @@ class FetchBlogSectionHomePageAPI(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchBlogSectionListingPageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchBlogSectionHomePageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -611,5 +609,38 @@ class FetchAllBlogPostsAPI(APIView):
         return Response(data=response)
 
 
-#BlogSectionType => FullBannerImage, BlogSection, FullScaleBlog, FullSquareBlog,
+CreateBlogPost = CreateBlogPostAPI.as_view()
 
+EditBlogPost = EditBlogPostAPI.as_view()
+
+UploadBlogPostImage = UploadBlogPostImageAPI.as_view()
+
+ModifyBlogPostStatus = ModifyBlogPostStatusAPI.as_view()
+
+AddProductToBlogPost = AddProductToBlogPostAPI.as_view()
+
+RemoveProductFromBlogPost = RemoveProductFromBlogPostAPI.as_view()
+
+FetchBlogPostList = FetchBlogPostListAPI.as_view()
+
+CreateBlogSection = CreateBlogSectionAPI.as_view()
+
+EditBlogSection = EditBlogSectionAPI.as_view()
+
+AddBlogPostToBlogSection = AddBlogPostToBlogSectionAPI.as_view()
+
+RemoveBlogPostFromBlogSection = RemoveBlogPostFromBlogSectionAPI.as_view()
+
+ModifyBlogSectionStatus = ModifyBlogSectionStatusAPI.as_view()
+
+SaveBlogSectionOrderIndex = SaveBlogSectionOrderIndexAPI.as_view()
+
+FetchBlogSectionList = FetchBlogSectionListAPI.as_view()
+
+SearchBlogPostAutoComplete = SearchBlogPostAutoCompleteAPI.as_view()
+
+FetchBlogSectionHomePage = FetchBlogSectionHomePageAPI.as_view()
+
+FetchBlogPostDetails = FetchBlogPostDetailsAPI.as_view()
+
+FetchAllBlogPosts = FetchAllBlogPostsAPI.as_view()
