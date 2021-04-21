@@ -112,6 +112,37 @@ class CreateNestoProductAPI(APIView):
         return Response(data=response)
 
 
+class DeleteNestoProductStoreAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("DeleteNestoProductStoreAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_uuid = data["product_uuid"]
+            nesto_product_obj = NestoProduct.objects.get(uuid=product_uuid)
+            store_uuid = data["store_uuid"]
+            nesto_store_obj = NestoStore.objects.get(uuid=store_uuid)
+            
+            if NestoProductStore.objects.filter(product = nesto_product_obj,store = nesto_store_obj).exists():
+                nesto_product_store_obj = NestoProductStore.objects.get(product = nesto_product_obj,store = nesto_store_obj)
+                nesto_product_store_obj.delete()
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteNestoProductStoreAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class UpdateNestoProductAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -158,6 +189,9 @@ class UpdateNestoProductAPI(APIView):
             about_brand = data["about_brand"]
             is_verified = data["is_verified"]
             is_online = data["is_online"]
+            
+            available_stores = data["available_stores"]
+            
             vendor_category = data["vendor_category"]
 
             sub_category_uuid = data.get("sub_category_uuid","")
@@ -176,30 +210,58 @@ class UpdateNestoProductAPI(APIView):
                 custom_permission_obj.brands.add(brand_obj)
                 custom_permission_obj.save()
 
-            nesto_product_obj.article_number=article_number
-            nesto_product_obj.product_name=product_name
-            nesto_product_obj.product_name_ecommerce=product_name_ecommerce
-            nesto_product_obj.barcode=barcode
-            nesto_product_obj.uom=uom
-            nesto_product_obj.language_key=language_key
-            nesto_product_obj.brand=brand_obj
-            nesto_product_obj.weight_volume=weight_volume
-            nesto_product_obj.country_of_origin=country_of_origin
-            nesto_product_obj.highlights=highlights
-            nesto_product_obj.storage_condition=storage_condition
-            nesto_product_obj.preparation_and_usage=preparation_and_usage
-            nesto_product_obj.allergic_information=allergic_information
-            nesto_product_obj.product_description=product_description
-            nesto_product_obj.dimensions=json.dumps(dimensions)
-            nesto_product_obj.nutrition_facts=nutrition_facts
-            nesto_product_obj.ingredients=ingredients
-            nesto_product_obj.return_days=return_days
+            # nesto_product_obj.article_number = article_number
+            nesto_product_obj.product_name = product_name
+            nesto_product_obj.product_name_ecommerce = product_name_ecommerce
+            # nesto_product_obj.barcode = barcode
+            # nesto_product_obj.uom = uom
+            nesto_product_obj.language_key = language_key
+            nesto_product_obj.brand = brand_obj
+            nesto_product_obj.weight_volume = weight_volume
+            nesto_product_obj.country_of_origin = country_of_origin
+            nesto_product_obj.highlights = highlights
+            nesto_product_obj.storage_condition = storage_condition
+            nesto_product_obj.preparation_and_usage = preparation_and_usage
+            nesto_product_obj.allergic_information = allergic_information
+            nesto_product_obj.product_description = product_description
+            nesto_product_obj.dimensions = json.dumps(dimensions)
+            nesto_product_obj.nutrition_facts = nutrition_facts
+            nesto_product_obj.ingredients = ingredients
+            nesto_product_obj.return_days = return_days
             nesto_product_obj.product_status = product_status
             nesto_product_obj.vendor_category = vendor_category
             nesto_product_obj.is_online = is_online
             nesto_product_obj.is_verified = is_verified
             nesto_product_obj.sub_category = sub_category_obj
             nesto_product_obj.save()
+
+            for available_store in available_stores:
+
+                normal_price = round(float(available_store['normal_price']))
+                special_price = round(float(available_store['special_price']))
+                strike_price = round(float(available_store['strike_price']))
+                stock = int(available_store['stock'])
+                seller_sku = available_store['seller_sku']
+                nesto_store_obj = NestoStore.objects.get(uuid = available_store["store_uuid"])
+
+                if NestoProductStore.objects.filter(product = nesto_product_obj,store = nesto_store_obj).exists():
+                    nesto_product_store_obj = NestoProductStore.objects.get(product = nesto_product_obj,store = nesto_store_obj)
+                    nesto_product_store_obj.normal_price = normal_price
+                    nesto_product_store_obj.special_price = special_price
+                    nesto_product_store_obj.strike_price = strike_price
+                    nesto_product_store_obj.seller_sku = seller_sku
+                    nesto_product_store_obj.stock = stock
+                    nesto_product_store_obj.save()
+                else:
+                    NestoProductStore.objects.create(
+                        product = nesto_product_obj,
+                        store = nesto_store_obj,
+                        normal_price = normal_price,
+                        special_price = special_price,
+                        strike_price = strike_price,
+                        seller_sku = seller_sku,
+                        stock = stock
+                        )
 
             response['status'] = 200
 
@@ -210,6 +272,32 @@ class UpdateNestoProductAPI(APIView):
         return Response(data=response)
 
 
+class FetchNestoStoreListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        try:
+            response = {}
+            response['status'] = 500
+            nesto_store_objs = NestoStore.objects.all()
+            nesto_stores_list = []
+
+            for nesto_store_obj in nesto_store_objs:
+                temp_dict = {}
+                temp_dict["uuid"] = nesto_store_obj.uuid
+                temp_dict['name'] = nesto_store_obj.name
+                nesto_stores_list.append(temp_dict)
+
+            response["stores_list"] = nesto_stores_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchNestoStoreListAPI get_images_list: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+       
 class FetchNestoProductDetailsAPI(APIView):
 
     def get_images_list(self, image_objs):
@@ -256,6 +344,7 @@ class FetchNestoProductDetailsAPI(APIView):
             response["language_key"] = nesto_product_obj.language_key
             response["brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.name
             response["about_brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.description
+            response["logo"] = "" if (nesto_product_obj.brand==None or nesto_product_obj.brand.logo==None) else nesto_product_obj.brand.logo.image.url
             response["weight_volume"] = nesto_product_obj.weight_volume
             response["country_of_origin"] = nesto_product_obj.country_of_origin
             response["highlights"] = nesto_product_obj.highlights
@@ -304,7 +393,10 @@ class FetchNestoProductDetailsAPI(APIView):
                 "supplier_images": supplier_images
             }
 
+            available_stores = nesto_product_obj.get_details_of_stores_where_available()
+
             response["images"] = images
+            response["available_stores"] = available_stores
             response['status'] = 200
 
         except Exception as e:
@@ -838,24 +930,194 @@ class FetchNestoBrandsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            organization_obj = Organization.objects.get(name="Nesto Group")
-            brand_objs = Brand.objects.filter(organization=organization_obj)
+            organization_obj = Organization.objects.get(name = "Nesto Group")
+            brand_objs = Brand.objects.filter(organization = organization_obj)
+            brand_list = []
 
-            brand_name_list = []
+            page = int(data.get('page', 1))
+            paginator = Paginator(brand_objs, 20)
+            brand_objs = paginator.page(page)
+
             for brand_obj in brand_objs:
-                temp_dict = {}
-                temp_dict["name"] = brand_obj.name
-                temp_dict["about_brand"] = brand_obj.description
-                temp_dict["name_ar"] = brand_obj.name_ar
-                temp_dict["pk"] = brand_obj.pk
-                brand_name_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = brand_obj.name
+                    temp_dict["about_brand"] = brand_obj.description
+                    temp_dict["name_ar"] = brand_obj.name_ar
+                    temp_dict["pk"] = brand_obj.pk
+                    temp_dict["logo"] = "" if nesto_product_obj.brand.logo == None else nesto_product_obj.brand.logo.image.url
+                    temp_dict["created_date"] = str(brand_obj.created_date.strftime("%d %b, %Y"))
+                    brand_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchNestoBrandsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-            response['brand_list'] = brand_name_list
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
+            response['brand_list'] = brand_list
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchNestoBrandsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class UpdateNestoBrandAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("UpdateNestoBrandAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+              
+            organization_obj = Organization.objects.get(name = "Nesto Group")
+            brand_name = str(data["name"])
+            brand_description = str(data["description"])
+            
+            brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
+            brand_obj.name = brand_name
+            brand_obj.description = brand_description        
+            brand_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateNestoBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateNestoBrandAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("CreateNestoBrandAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+              
+            organization_obj = Organization.objects.get(name = "Nesto Group")
+            custom_permission_obj = CustomPermission.objects.get(user__username = request.user.username)
+            brand_name = str(data["name"])
+            brand_description = str(data["description"])
+
+            brand_obj = Brand.objects.create(
+                organization = organization_obj,
+                name = brand_name,
+                description = brand_description,
+                )
+
+            custom_permission_obj.brands.add(brand_obj)
+            custom_permission_obj.save()
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateNestoBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class DeleteNestoBrandAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("DeleteNestoBrandAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            organization_obj = Organization.objects.get(name = "Nesto Group")
+            brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
+            brand_obj.delete()
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteNestoBrandAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class AddNestoBrandImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("AddNestoBrandImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            organization_obj = Organization.objects.get(name = "Nesto Group")
+            brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
+            brand_logo = data["logo"]
+            if brand_logo != "":
+                image_obj = Image.objects.create(image = brand_logo)
+                brand_obj.logo = image_obj
+                brand_obj.save()
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddNestoBrandImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class RemoveNestoBrandImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("RemoveNestoBrandImageAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            organization_obj = Organization.objects.get(name = "Nesto Group")
+            brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
+            if brand_obj.logo != None:
+                image_pk = brand_obj.logo.pk
+                image_obj = Image.objects.get(pk = image_pk)
+                image_obj.delete()
+                brand_obj.save()
+
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("RemoveNestoBrandImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1009,7 +1271,11 @@ class BulkUploadNestoProductsAPI(APIView):
 
 CreateNestoProduct = CreateNestoProductAPI.as_view()
 
+DeleteNestoProductStore = DeleteNestoProductStoreAPI.as_view()
+
 UpdateNestoProduct = UpdateNestoProductAPI.as_view()
+
+FetchNestoStoreList = FetchNestoStoreListAPI.as_view()
 
 FetchNestoProductDetails = FetchNestoProductDetailsAPI.as_view()
 
@@ -1028,5 +1294,15 @@ LinkNestoProduct = LinkNestoProductAPI.as_view()
 UnLinkNestoProduct = UnLinkNestoProductAPI.as_view()
 
 FetchNestoBrands = FetchNestoBrandsAPI.as_view()
+
+UpdateNestoBrand = UpdateNestoBrandAPI.as_view()
+
+CreateNestoBrand = CreateNestoBrandAPI.as_view()
+
+DeleteNestoBrand = DeleteNestoBrandAPI.as_view()
+
+AddNestoBrandImage = AddNestoBrandImageAPI.as_view()
+
+RemoveNestoBrandImage = RemoveNestoBrandImageAPI.as_view()
 
 BulkUploadNestoProducts = BulkUploadNestoProductsAPI.as_view()

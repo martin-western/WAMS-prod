@@ -181,7 +181,9 @@ urlpatterns = [
     url(r'^logout-ocuser/$',views.LogoutOCUser),
 
     url(r'^create-nesto-product/$',views.CreateNestoProduct),
+    url(r'^delete-nesto-product-store/$',views.DeleteNestoProductStore),
     url(r'^update-nesto-product/$',views.UpdateNestoProduct),
+    url(r'^fetch-nesto-store-list/$',views.FetchNestoStoreList),
     url(r'^fetch-nesto-product-details/$',views.FetchNestoProductDetails),
     url(r'^fetch-nesto-product-list/$',views.FetchNestoProductList),
     url(r'^add-nesto-product-images/$',views.AddNestoProductImages),
@@ -191,6 +193,13 @@ urlpatterns = [
     url(r'^link-nesto-product/$',views.LinkNestoProduct),
     url(r'^unlink-nesto-product/$',views.UnLinkNestoProduct),
     url(r'^fetch-nesto-brands/$', views.FetchNestoBrands),
+
+    url(r'^update-nesto-brand/$', views.UpdateNestoBrand),
+    url(r'^create-nesto-brand/$', views.CreateNestoBrand),
+    url(r'^delete-nesto-brand/$', views.DeleteNestoBrand),
+    url(r'^add-nesto-brand-image/$', views.AddNestoBrandImage),
+    url(r'^remove-nesto-brand-image/$', views.RemoveNestoBrandImage),
+
     url(r'^bulk-upload-nesto-products/$', views.BulkUploadNestoProducts),
 
     url(r'^unpublished-wigme-product-report/$', views.UnPublishedWIGmeProductReport),
