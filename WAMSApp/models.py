@@ -839,8 +839,8 @@ class Brand(models.Model):
     seo_description = models.TextField(default="")
     short_description = models.TextField(default="")
     long_description = models.TextField(default="")
-    created_date = models.DateTimeField()
-    modified_date = models.DateTimeField()
+    created_date = models.DateTimeField(default=timezone.now())
+    modified_date = models.DateTimeField(default=timezone.now())
 
     class Meta:
         verbose_name = "Brand"
