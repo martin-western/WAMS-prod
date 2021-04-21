@@ -966,6 +966,35 @@ class FetchNestoBrandsAPI(APIView):
 
         return Response(data=response)
 
+class FetchNestoBrandDetailsAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("FetchNestoBrandDetailsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            brand_pk = data["pk"]
+            brand_obj = Brand.objects.get(pk=brand_pk)
+
+            response["name"] = brand_obj.name
+            response["name_ar"] = brand_obj.name_ar
+            response["about_brand"] = brand_obj.description
+            response["pk"] = brand_obj.pk
+            response["logo"] = "" if brand_obj.logo == None else brand_obj.logo.image.url
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchNestoBrandDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 class UpdateNestoBrandAPI(APIView):
     
@@ -1294,6 +1323,8 @@ LinkNestoProduct = LinkNestoProductAPI.as_view()
 UnLinkNestoProduct = UnLinkNestoProductAPI.as_view()
 
 FetchNestoBrands = FetchNestoBrandsAPI.as_view()
+
+FetchNestoBrandDetails = FetchNestoBrandDetailsAPI.as_view()
 
 UpdateNestoBrand = UpdateNestoBrandAPI.as_view()
 
