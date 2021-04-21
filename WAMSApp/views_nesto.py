@@ -235,12 +235,6 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.sub_category = sub_category_obj
             nesto_product_obj.save()
 
-            old_nesto_product_store_list =  list(NestoProductStore.objects.filter(product = nesto_product_obj).values_list("uuid", flat=True).distinct())
-            for old_nesto_product_store in old_nesto_product_store_list:
-                if old_nesto_product_store.uuid not in list(available_stores.uuid):
-                    nesto_product_store_obj = NestoProductStore.objects.get(product = old_nesto_product_store.product,store = old_nesto_product_store.store)
-                    nesto_product_store_obj.delete();
-
             for available_store in available_stores:
 
                 normal_price = round(float(available_store['normal_price']))
