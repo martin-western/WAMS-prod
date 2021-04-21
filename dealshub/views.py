@@ -2323,6 +2323,19 @@ class SectionBulkUploadAPI(APIView):
                     temp_dict["was_price"] = dealshub_product_obj.was_price
                     temp_dict["stock"] = dealshub_product_obj.stock
 
+                    if location_group_obj.is_b2b == True:                
+                        temp_dict["now_price_cohort1"] = dealshub_product_obj.now_price_cohort1
+                        temp_dict["now_price_cohort2"] = dealshub_product_obj.now_price_cohort2
+                        temp_dict["now_price_cohort3"] = dealshub_product_obj.now_price_cohort3
+                        temp_dict["now_price_cohort4"] = dealshub_product_obj.now_price_cohort4
+                        temp_dict["now_price_cohort5"] = dealshub_product_obj.now_price_cohort5
+
+                        temp_dict["promotional_price_cohort1"] = dealshub_product_obj.promotional_price_cohort1
+                        temp_dict["promotional_price_cohort2"] = dealshub_product_obj.promotional_price_cohort2
+                        temp_dict["promotional_price_cohort3"] = dealshub_product_obj.promotional_price_cohort3
+                        temp_dict["promotional_price_cohort4"] = dealshub_product_obj.promotional_price_cohort4
+                        temp_dict["promotional_price_cohort5"] = dealshub_product_obj.promotional_price_cohort5
+
                     products.append(temp_dict)
 
                 except Exception as e:
