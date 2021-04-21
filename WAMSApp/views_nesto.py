@@ -344,6 +344,7 @@ class FetchNestoProductDetailsAPI(APIView):
             response["language_key"] = nesto_product_obj.language_key
             response["brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.name
             response["about_brand"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.description
+            response["logo"] = "" if nesto_product_obj.brand==None else nesto_product_obj.brand.logo
             response["weight_volume"] = nesto_product_obj.weight_volume
             response["country_of_origin"] = nesto_product_obj.country_of_origin
             response["highlights"] = nesto_product_obj.highlights
@@ -929,18 +930,33 @@ class FetchNestoBrandsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            organization_obj = Organization.objects.get(name="Nesto Group")
-            brand_objs = Brand.objects.filter(organization=organization_obj)
+            organization_obj = Organization.objects.get(name = "Nesto Group")
+            brand_objs = Brand.objects.filter(organization = organization_obj)
             brand_list = []
 
-            for brand_obj in brand_objs:
-                temp_dict = {}
-                temp_dict["name"] = brand_obj.name
-                temp_dict["about_brand"] = brand_obj.description
-                temp_dict["name_ar"] = brand_obj.name_ar
-                temp_dict["pk"] = brand_obj.pk
-                brand_list.append(temp_dict)
+            page = int(data.get('page', 1))
+            paginator = Paginator(brand_objs, 20)
+            brand_objs = paginator.page(page)
 
+            for brand_obj in brand_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = brand_obj.name
+                    temp_dict["about_brand"] = brand_obj.description
+                    temp_dict["name_ar"] = brand_obj.name_ar
+                    temp_dict["pk"] = brand_obj.pk
+                    temp_dict["logo"] = brand_obj.logo
+                    temp_dict["created_date"] = brand_obj.created_date
+                    brand_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchNestoBrandsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
             response['brand_list'] = brand_list
             response['status'] = 200
 
@@ -969,7 +985,7 @@ class UpdateNestoBrandAPI(APIView):
 
             brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
             brand_obj.name = str(data["name"])
-            brand_obj.description = str(data["description"])
+            brand_obj.description = str(data["about_brand"])
             image_obj = Image.objects.create(image = data["logo"])
             brand_obj.logo = image_obj            
             brand_obj.save()

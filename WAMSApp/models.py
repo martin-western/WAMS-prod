@@ -833,14 +833,15 @@ class Brand(models.Model):
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     organization = models.ForeignKey(Organization, null=True, blank=True)
     description = models.TextField(default="")
-
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
     short_description = models.TextField(default="")
     long_description = models.TextField(default="")
- 
+    created_date = models.DateTimeField()
+    modified_date = models.DateTimeField()
+
     class Meta:
         verbose_name = "Brand"
         verbose_name_plural = "Brands"
@@ -853,6 +854,14 @@ class Brand(models.Model):
     def __str__(self):
         return str(self.name)
 
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.modified_date = timezone.now()
+        else:
+            self.modified_date = timezone.now()
+    
+        super(Brand, self).save(*args, **kwargs)
 
 class SEOBrand(models.Model):
 
@@ -1362,7 +1371,7 @@ class NestoProduct(models.Model):
         super(NestoProduct, self).save(*args, **kwargs)
     
     def get_details_of_stores_where_available(self):
-        nesto_product_store_objs = NestoProductStore.objects.filter(product=self).exclude(stock = 0)  
+        nesto_product_store_objs = NestoProductStore.objects.filter(product = self).exclude(stock = 0)  
         available_stores = []
         for nesto_product_store_obj in nesto_product_store_objs:
             temp_dict = {}
