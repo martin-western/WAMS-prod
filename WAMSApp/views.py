@@ -1176,8 +1176,8 @@ class FetchDealsHubProductsAPI(APIView):
             if paginator.num_pages == page:
                 is_available = False
 
-            response["active_products"] = DealsHubProduct.objects.filter(is_published=True).count()
-            response["inactive_products"] = DealsHubProduct.objects.filter(is_published=False).count()
+            response["active_products"] = DealsHubProduct.objects.filter(location_group=location_group_obj,is_published=True).count()
+            response["inactive_products"] = DealsHubProduct.objects.filter(location_group=location_group_obj,is_published=False).count()
 
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
