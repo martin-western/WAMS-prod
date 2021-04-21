@@ -532,7 +532,7 @@ class FetchBlogSectionHomePageAPI(APIView):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
-            blog_section_objs = BlogSection.objects.filter(location_group__uuid=location_group_uuid).filter(is_published=True).order_by(order_index)
+            blog_section_objs = BlogSection.objects.filter(location_group__uuid=location_group_uuid).filter(is_published=True).order_by('order_index')
 
             section_list = []
             for blog_section_obj in blog_section_objs:
@@ -565,7 +565,7 @@ class FetchBlogSectionHomePageAPI(APIView):
 
 
 class FetchBlogPostDetailsAPI(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -614,7 +614,7 @@ class FetchAllBlogPostsAPI(APIView):
             blog_post_objs = BlogPost.objects.filter(location_group__uuid=location_group_uuid,is_published=True).order_by('date_created')
 
             blog_post_list = []
-            for blog_post_obj in blog_section_objs:
+            for blog_post_obj in blog_post_objs:
                 temp_dict = {}
                 temp_dict["title"] = blog_post_obj.title
                 temp_dict["author"] = blog_post_obj.author
