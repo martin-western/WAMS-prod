@@ -119,7 +119,7 @@ class RemoveFromWishListAPI(APIView):
         return Response(data=response)
 
 
-class FetchWishListAPI(APIView):
+class FetchWishLFetchWishListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -7958,7 +7958,7 @@ class ApplyOfflineVoucherCodeAPI(APIView):
 
             cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
 
-            if voucher_obj.is_eligible(cart_obj.get_subtotal())==False:
+            if voucher_obj.is_eligible(cart_obj.get_subtotal(offline=True))==False:
                 response["error_message"] = "NOT APPLICABLE"
                 response["voucher_success"] = False
                 response["status"] = 200
