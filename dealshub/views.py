@@ -3431,6 +3431,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
                                     temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.info("FetchB2BDealshubAdminSectionsAPI: %s", str(unit_banner_image_obj.uuid))
                         logger.error("FetchB2BDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
                     temp_dict2["mobileUrl"] = ""
@@ -3767,7 +3768,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                                 temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
                                 temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
 
-
                     temp_dict2["mobileUrl"] = ""
                     temp_dict2["mobileUrl-ar"] = ""
                     if unit_banner_image_obj.mobile_image!=None:
@@ -3919,9 +3919,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict4 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
                             temp_dict_category_products.append(temp_dict4)
                         temp_dict_category["category_tabs"].append({"name":category_obj.get_name(),"products":temp_dict_category_products[:14]})
-
-
-
 
                     category_tab_product_index = location_group_obj.category_tab_product_index
                     temp_dict_category["orderIndex"] = category_tab_product_index
