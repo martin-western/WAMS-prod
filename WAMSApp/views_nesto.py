@@ -1078,9 +1078,10 @@ class AddNestoBrandImageAPI(APIView):
             organization_obj = Organization.objects.get(name = "Nesto Group")
             brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
             brand_logo = data["logo"]
-            image_obj = Image.objects.create(image = brand_logo)
-            brand_obj.logo = image_obj
-            brand_obj.save()
+            if brand_logo != "":
+                image_obj = Image.objects.create(image = brand_logo)
+                brand_obj.logo = image_obj
+                brand_obj.save()
             response['status'] = 200
 
         except Exception as e:
@@ -1106,10 +1107,11 @@ class RemoveNestoBrandImageAPI(APIView):
             
             organization_obj = Organization.objects.get(name = "Nesto Group")
             brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
-            image_pk = brand_obj.logo.pk
-            image_obj = Image.objects.get(pk = image_pk)
-            image_obj.delete()
-            brand_obj.save()
+            if brand_obj.logo != None:
+                image_pk = brand_obj.logo.pk
+                image_obj = Image.objects.get(pk = image_pk)
+                image_obj.delete()
+                brand_obj.save()
 
             response['status'] = 200
 
