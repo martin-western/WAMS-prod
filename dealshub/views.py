@@ -6153,7 +6153,7 @@ class AddProductToOrderAPI(APIView):
 
             order_obj = Order.objects.get(uuid=order_uuid)
 
-            if UnitOrder.objects.get(order=order_obj,product=dealshub_product_obj)==True:
+            if UnitOrder.objects.filter(order=order_obj,product=dealshub_product_obj)==True:
                 response["message"] = "Product Already Exists"
                 logger.info("AddProductToOrderAPI: Product Already Exists")
                 return Response(data=response)

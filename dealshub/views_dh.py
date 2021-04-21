@@ -2615,6 +2615,10 @@ class CreateOfflineCustomerAPI(APIView):
                     dealshub_user_obj = DealsHubUser.objects.get(username=b2b_user_obj.username)
                     b2b_user_obj.set_password(OTP)
                     b2b_user_obj.verification_code = OTP
+                    b2b_user_obj.is_signup_completed = True
+                    b2b_user_obj.passport_copy_status = "Approved"
+                    b2b_user_obj.vat_certificate_status = "Approved"
+                    b2b_user_obj.trade_license_status = "Approved"
                     b2b_user_obj.save()
                 else:
                     dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
