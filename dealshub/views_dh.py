@@ -119,7 +119,7 @@ class RemoveFromWishListAPI(APIView):
         return Response(data=response)
 
 
-class FetchWishLFetchWishListAPI(APIView):
+class FetchWishListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
