@@ -1624,7 +1624,7 @@ class DealsHubUser(User):
 
 
 class B2BUser(DealsHubUser):
-    company_name = models.CharField(default="Undefined",max_length=250)
+    company_name = models.CharField(default="None",max_length=250)
     interested_categories = models.ManyToManyField(Category,blank = True)
     vat_certificate = models.FileField(upload_to = 'vat_certificate',null=True, blank=True)
     trade_license = models.FileField(upload_to = 'trade_license',null=True,blank=True)
