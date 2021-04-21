@@ -2610,10 +2610,17 @@ class CreateOfflineCustomerAPI(APIView):
             website_group_name = website_group_obj.name
 
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
-                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
-                dealshub_user_obj.set_password(OTP)
-                dealshub_user_obj.verification_code = OTP
-                dealshub_user_obj.save()
+                if location_group_obj.is_b2b == True:
+                    b2b_user_obj = B2BUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
+                    dealshub_user_obj = DealsHubUser.objects.get(username=b2b_user_obj.username)
+                    b2b_user_obj.set_password(OTP)
+                    b2b_user_obj.verification_code = OTP
+                    b2b_user_obj.save()
+                else:
+                    dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
+                    dealshub_user_obj.set_password(OTP)
+                    dealshub_user_obj.verification_code = OTP
+                    dealshub_user_obj.save()
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj, offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
