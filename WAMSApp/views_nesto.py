@@ -1306,9 +1306,3 @@ AddNestoBrandImage = AddNestoBrandImageAPI.as_view()
 RemoveNestoBrandImage = RemoveNestoBrandImageAPI.as_view()
 
 BulkUploadNestoProducts = BulkUploadNestoProductsAPI.as_view()
-
-# strftime(created_date)
-# logo.image.url
-# check if logo is none or not
-# set varible for data[logo] and then assign it.
-# update and delete API for logo.
