@@ -193,6 +193,8 @@ urlpatterns = [
     url(r'^link-nesto-product/$',views.LinkNestoProduct),
     url(r'^unlink-nesto-product/$',views.UnLinkNestoProduct),
     url(r'^fetch-nesto-brands/$', views.FetchNestoBrands),
+    url(r'^fetch-nesto-brand-details/$', views.FetchNestoBrandDetails),
+
 
     url(r'^update-nesto-brand/$', views.UpdateNestoBrand),
     url(r'^create-nesto-brand/$', views.CreateNestoBrand),
