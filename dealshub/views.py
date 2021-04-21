@@ -6158,10 +6158,17 @@ class AddProductToOrderAPI(APIView):
                 logger.info("AddProductToOrderAPI: Product Already Exists")
                 return Response(data=response)
 
+            deaslshub_product_price = dealshub_product_obj.get_actual_price(dealshub_user_obj)
+
+            if deaslshub_product_price == 0.0:
+                response["message"] = "Product Price is 0 for the user"
+                logger.info("AddProductToOrderAPI: Product Price 0.0")
+                return Response(data=response)
+            
             unit_order_obj = UnitOrder.objects.create(order=order_obj, 
                                                       product=dealshub_product_obj, 
                                                       quantity=1,
-                                                      price=dealshub_product_obj.get_actual_price())
+                                                      price=deaslshub_product_price)
             UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
             omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)
