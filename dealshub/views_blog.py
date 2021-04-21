@@ -462,7 +462,7 @@ class FetchBlogSectionListAPI(APIView):
                 temp_dict["orderIndex"] = blog_section_obj.order_index
                 temp_dict["is_published"] = blog_section_obj.is_published
                 temp_dict["sectionBlogPosts"] = []
-                blog_post_objs = blog_section_obj.products.filter(is_published=True)
+                blog_post_objs = blog_section_obj.blog_posts.filter(is_published=True)
                 for blog_post_obj in blog_post_objs:
                     temp_dict2 = {}
                     temp_dict2["title"] = blog_post_obj.title
@@ -497,7 +497,6 @@ class SearchBlogPostAutoCompleteAPI(APIView):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
-            blog_section_objs = BlogSection.objects.filter(location_group__uuid=location_group_uuid).filter(is_published=True).order_by(order_index)
             search_string = data["search_string"]
 
             blog_post_objs = BlogPost.objects.filter(location_group__uuid=location_group_uuid,is_published=True).filter(Q(title__icontains=search_string) | Q(author__icontains=search_string))
