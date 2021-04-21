@@ -945,7 +945,7 @@ class FetchNestoBrandsAPI(APIView):
                     temp_dict["about_brand"] = brand_obj.description
                     temp_dict["name_ar"] = brand_obj.name_ar
                     temp_dict["pk"] = brand_obj.pk
-                    temp_dict["logo"] = "" if nesto_product_obj.brand.logo == None else nesto_product_obj.brand.logo.image.url
+                    temp_dict["logo"] = "" if brand_obj.logo == None else brand_obj.logo.image.url
                     temp_dict["created_date"] = str(brand_obj.created_date.strftime("%d %b, %Y"))
                     brand_list.append(temp_dict)
                 except Exception as e:
