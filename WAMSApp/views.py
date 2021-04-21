@@ -8025,7 +8025,7 @@ class CreateOmnyCommUserAPI(APIView):
             contact_no = data["contact_number"]
             designation = data["designation"]
             
-            if username=="" or first_name=="" or last_name=="" or email=="" or contact_number=="":
+            if username=="" or first_name=="" or last_name=="" or email=="" or contact_no=="":
                 response["status"] = 402
                 response["message"] = "some compulsory user fields are empty"
                 return Response(data=response)
