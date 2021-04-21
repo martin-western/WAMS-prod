@@ -2689,6 +2689,7 @@ class AddBannerImageAPI(APIView):
             unit_banner_image_obj = UnitBannerImage.objects.create(image=image_obj, banner=banner_obj)
 
             response['uuid'] = unit_banner_image_obj.uuid
+            response["imageUrl"] = image_obj.image.url
             response['status'] = 200
             render_value = "Image " + image_obj.image.url + " added to banner "+ banner_obj.name
             activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, banner_obj.location_group, render_value)
