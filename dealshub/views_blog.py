@@ -42,11 +42,13 @@ class CreateBlogPostAPI(APIView):
             title = data["title"]
             headline = data["headline"] 
             body = data["body"]
+            author = data["author"]
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             blog_post_obj = BlogPost.objects.create(
                 title=title,
+                author=author,
                 headline=headline,
                 location_group = location_group_obj,
                 body=body)
@@ -75,13 +77,15 @@ class EditBlogPostAPI(APIView):
             title = data["title"]
             headline = data["headline"]
             body = data["body"]
+            author = data["author"]
             blog_post_uuid = data["blogPostUuid"]
-            is_cover_image = data.get("isCoverImage",False)     
+            is_cover_image = data.get("isCoverImage",False)   
 
             blog_post_obj = BlogPost.objects.get(uuid=blog_post_uuid)
 
             blog_post_obj.title = title
             blog_post_obj.headline = headline
+            blog_post_obj.author = author
             blog_post_obj.body = body
 
             if is_cover_image:
@@ -314,8 +318,8 @@ class EditBlogSectionAPI(APIView):
             if not isinstance(data,dict):
                 data = json.loads(data)
 
-            section_image = data.get("sectionImage","")
-            section_name = data["sectionName"]
+            section_image = data.get("blogSectionImage","")
+            section_name = data["blogSectionName"]
 
             blog_section_obj = BlogSection.objects.get(uuid=data["BlogSectionUuid"])
             blog_section_obj.name = section_name
@@ -394,8 +398,8 @@ class ModifyBlogSectionStatusAPI(APIView):
             if not isinstance(data,dict):
                 data = json.loads(data)
 
-            blog_section_obj = BlogSection.objects.get(uuid=data["BlogSectionUuid"])
-            blog_section_obj.is_published = data["is_published"]
+            blog_section_obj = BlogSection.objects.get(uuid=data["blogSectionUuid"])
+            blog_section_obj.is_published = data["isPublished"]
             blog_section_obj.save()
 
             response['status'] = 200
@@ -445,7 +449,7 @@ class FetchBlogSectionListAPI(APIView):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
-            blog_section_objs = BlogSection.objects.filter(location_group__uuid=location_group_uuid).order_by(order_index)
+            blog_section_objs = BlogSection.objects.filter(location_group__uuid=location_group_uuid).order_by('order_index')
 
             section_list = []
             for blog_section_obj in blog_section_objs:
