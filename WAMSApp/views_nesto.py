@@ -1047,6 +1047,11 @@ class CreateNestoBrandAPI(APIView):
             brand_name = str(data["name"])
             brand_description = str(data["description"])
 
+            if Brand.objects.filter(name=brand_name).exists():
+                response["message"] = "Brand Name already exists"
+                response["status"] = 502
+                return Response(data=response)
+
             brand_obj = Brand.objects.create(
                 organization = organization_obj,
                 name = brand_name,
