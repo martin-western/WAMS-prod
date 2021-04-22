@@ -233,7 +233,6 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.is_online = is_online
             nesto_product_obj.is_verified = is_verified
             nesto_product_obj.sub_category = sub_category_obj
-            nesto_product_obj.save()
 
             for available_store in available_stores:
 
@@ -262,6 +261,7 @@ class UpdateNestoProductAPI(APIView):
                         seller_sku = seller_sku,
                         stock = stock
                         )
+            nesto_product_obj.save()
 
             response['status'] = 200
 
@@ -932,7 +932,7 @@ class FetchNestoBrandsAPI(APIView):
             
             is_pagination = data.get("is_pagination",False)
             organization_obj = Organization.objects.get(name = "Nesto Group")
-            brand_objs = Brand.objects.filter(organization = organization_obj)
+            brand_objs = Brand.objects.filter(organization = organization_obj).order_by('-modified_date')
             brand_list = []
 
             if is_pagination:
