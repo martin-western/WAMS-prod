@@ -1110,11 +1110,12 @@ class AddNestoBrandImageAPI(APIView):
                 data = json.loads(data)
 
             organization_obj = Organization.objects.get(name = "Nesto Group")
-            brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
+            brand_obj = Brand.objects.get(pk=data["pk"], organization = organization_obj)
             brand_logo = data["logo"]
-            if brand_logo != "":
+            if brand_logo != None:
                 image_obj = Image.objects.create(image = brand_logo)
                 brand_obj.logo = image_obj
+                response["logo_url"] = image_obj.image.url
                 brand_obj.save()
             response['status'] = 200
 
@@ -1139,12 +1140,12 @@ class RemoveNestoBrandImageAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             
+            brand_pk = data["pk"]
+
             organization_obj = Organization.objects.get(name = "Nesto Group")
-            brand_obj = Brand.objects.get(pk = int(data["pk"]) , organization = organization_obj)
+            brand_obj = Brand.objects.get(pk=brand_pk, organization = organization_obj)
             if brand_obj.logo != None:
-                image_pk = brand_obj.logo.pk
-                image_obj = Image.objects.get(pk = image_pk)
-                image_obj.delete()
+                brand_obj.logo.delete()
                 brand_obj.save()
 
             response['status'] = 200
