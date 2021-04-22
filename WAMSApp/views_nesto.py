@@ -236,10 +236,10 @@ class UpdateNestoProductAPI(APIView):
 
             for available_store in available_stores:
 
-                normal_price = round(float(available_store['normal_price']))
-                special_price = round(float(available_store['special_price']))
-                strike_price = round(float(available_store['strike_price']))
-                stock = int(available_store['stock'])
+                normal_price = round(float(available_store['normal_price'] if available_store['normal_price'] > 0 else 0))
+                special_price = round(float(available_store['special_price'] if available_store['special_price'] > 0 else 0))
+                strike_price = round(float(available_store['strike_price'] if available_store['strike_price'] > 0 else 0))
+                stock = int(available_store['stock'] if available_store['stock'] > 0 else 0)
                 seller_sku = available_store['seller_sku']
                 nesto_store_obj = NestoStore.objects.get(uuid = available_store["store_uuid"])
 
