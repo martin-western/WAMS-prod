@@ -932,7 +932,7 @@ class FetchNestoBrandsAPI(APIView):
             
             is_pagination = data.get("is_pagination",False)
             organization_obj = Organization.objects.get(name = "Nesto Group")
-            brand_objs = Brand.objects.filter(organization = organization_obj).order_by('-modified_date')
+            brand_objs = Brand.objects.filter(organization = organization_obj).order_by('-pk')
             brand_list = []
 
             if is_pagination:
