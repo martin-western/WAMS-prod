@@ -1146,7 +1146,6 @@ class RemoveNestoBrandImageAPI(APIView):
             brand_obj = Brand.objects.get(pk=brand_pk, organization = organization_obj)
             if brand_obj.logo != None:
                 brand_obj.logo.delete()
-                brand_obj.save()
 
             response['status'] = 200
 
