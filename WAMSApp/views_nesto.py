@@ -1075,6 +1075,7 @@ class CreateNestoBrandAPI(APIView):
 
             custom_permission_obj.brands.add(brand_obj)
             custom_permission_obj.save()
+            response['pk'] = brand_obj.pk
             response['status'] = 200
 
         except Exception as e:
