@@ -1770,7 +1770,7 @@ class BlogPost(models.Model):
 
     def get_cover_image(self):
         if self.cover_image!=None and self.cover_image!="":
-            return self.cover_image.url
+            return self.cover_image.image.url
         return ""
 
     def save(self, *args, **kwargs):
