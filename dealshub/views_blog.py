@@ -454,6 +454,7 @@ class FetchBlogSectionListAPI(APIView):
             section_list = []
             for blog_section_obj in blog_section_objs:
                 temp_dict = {}
+                temp_dict["sectionUuid"] = blog_section_obj.uuid
                 temp_dict["sectionName"] = blog_section_obj.name
                 temp_dict["sectionType"] = str(blog_section_obj.blog_section_type)
                 temp_dict["sectionImageUrl"] = ""
