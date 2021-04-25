@@ -286,7 +286,7 @@ class FetchNestoStoreListAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = nesto_store_obj.uuid
                 temp_dict['name'] = nesto_store_obj.name
-                temp_dict['id'] = nesto_store_obj.store_id
+                temp_dict['store_id'] = nesto_store_obj.store_id
                 nesto_stores_list.append(temp_dict)
 
             response["stores_list"] = nesto_stores_list

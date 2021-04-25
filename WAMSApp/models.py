@@ -1367,12 +1367,7 @@ class NestoProduct(models.Model):
             self.uuid = str(uuid.uuid4())
         else:
             self.modified_date = timezone.now()
-        
-        self.article_number = str(self.article_number).zfill(18)
-        # >>> ar = 4354384343
-        # >>> ar = str(ar).zfill(18)
-        # >>> ar
-        # '000000004354384343'
+
         super(NestoProduct, self).save(*args, **kwargs)
     
     def get_details_of_stores_where_available(self):
@@ -1414,7 +1409,8 @@ class NestoProductStore(models.Model):
     seller_sku = models.CharField(max_length=200) 
 
     def save(self, *args, **kwargs):
-        self.seller_sku = str(self.store.store_id) + "-" + str(self.product.article_number) + "-" + str(self.product.uom)
+        article_number = str(self.product.article_number).zfill(18)
+        self.seller_sku = str(self.store.store_id) + "-" + str(article_number) + "-" + str(self.product.uom)
         super(NestoProductStore, self).save(*args, **kwargs)  
   
 class ProductImage(models.Model):
