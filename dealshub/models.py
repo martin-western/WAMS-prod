@@ -143,7 +143,7 @@ class Voucher(models.Model):
 def add_product_to_index(dealshub_product_obj):
 
     client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
-    index = client.init_index('DealsHubProduct')
+    index = client.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX)
     
     try:
         # logger.info("add_product_to_index: %s", str(dealshub_product_obj.__dict__))
