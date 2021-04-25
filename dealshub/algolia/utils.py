@@ -87,11 +87,11 @@ def search_algolia_index(data):
 
         client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
         if data.get("ranking",0) == 0:
-            index = client.init_index('DealsHubProduct')
+            index = client.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX)
         elif data["ranking"] == 1:
-            index = client.init_index('DealsHubProductPriceDesc')
+            index = client.init_index(DEALSHUBPRODUCT_DESC_PRICE_ALGOLIA_INDEX)
         else:
-            index = client.init_index('DealsHubProductPriceAsc')
+            index = client.init_index(DEALSHUBPRODUCT_ASC_PRICE_ALGOLIA_INDEX)
 
         result = index.search(search_string,filters)
 

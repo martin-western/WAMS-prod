@@ -72,7 +72,7 @@ class EditBlogPostAPI(APIView):
             data = request.data
             logger.info("EditBlogPostAPI: %s",str(data))
             if not isinstance(data,dict):
-                data = json.loads(data)
+                data = json.loads(data) 
 
             title = data["title"]
             headline = data["headline"]
@@ -580,9 +580,9 @@ class FetchBlogPostDetailsAPI(APIView):
 
             blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
 
-            if blog_post_obj.is_published==False:
-                response["message"] = "Blog Unpublished"
-                return Response(data=response)
+            # if blog_post_obj.is_published==False:
+            #     response["message"] = "Blog Unpublished"
+            #     return Response(data=response)
             response["author"] = blog_post_obj.author
             response["title"] = blog_post_obj.title
             response["body"] = blog_post_obj.body
