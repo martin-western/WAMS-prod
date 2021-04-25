@@ -240,7 +240,6 @@ class UpdateNestoProductAPI(APIView):
                 special_price = round(float(available_store['special_price'] if available_store['special_price'] != "" else 0))
                 strike_price = round(float(available_store['strike_price'] if available_store['strike_price'] != "" else 0))
                 stock = int(available_store['stock'] if available_store['stock'] != "" else 0)
-                seller_sku = available_store['seller_sku']
                 nesto_store_obj = NestoStore.objects.get(uuid = available_store["store_uuid"])
 
                 if NestoProductStore.objects.filter(product = nesto_product_obj,store = nesto_store_obj).exists():
@@ -248,7 +247,6 @@ class UpdateNestoProductAPI(APIView):
                     nesto_product_store_obj.normal_price = normal_price
                     nesto_product_store_obj.special_price = special_price
                     nesto_product_store_obj.strike_price = strike_price
-                    nesto_product_store_obj.seller_sku = seller_sku
                     nesto_product_store_obj.stock = stock
                     nesto_product_store_obj.save()
                 else:
@@ -258,7 +256,6 @@ class UpdateNestoProductAPI(APIView):
                         normal_price = normal_price,
                         special_price = special_price,
                         strike_price = strike_price,
-                        seller_sku = seller_sku,
                         stock = stock
                         )
             nesto_product_obj.save()
@@ -286,6 +283,7 @@ class FetchNestoStoreListAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = nesto_store_obj.uuid
                 temp_dict['name'] = nesto_store_obj.name
+                temp_dict['store_id'] = nesto_store_obj.store_id
                 nesto_stores_list.append(temp_dict)
 
             response["stores_list"] = nesto_stores_list
