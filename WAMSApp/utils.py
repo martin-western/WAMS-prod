@@ -2761,11 +2761,13 @@ def bulk_update_dealshub_product_details(oc_uuid,path,filename, location_group_o
                     
                     if "sub category" in columns_list:
                         sub_category_name = str(dfs.iloc[i]["sub category"]).strip()
+                        super_category_name = str(dfs.iloc[i]["super category"]).strip()
+                        category_name = str(dfs.iloc[i]["category"]).strip()
                         try:
-                            sub_category_obj = SubCategory.objects.get(name = str(dfs.iloc[i]["sub category"]))
-                            category_obj = Category.objects.get(name = str(dfs.iloc[i]["category"]))
+                            sub_category_obj = SubCategory.objects.get(name = sub_category_name)
+                            category_obj = Category.objects.get(name = category_name)
                             if category_obj == sub_category_obj.category:
-                                super_category_obj = SuperCategory.objects.get(name = str(dfs.iloc[i]["super category"]))
+                                super_category_obj = SuperCategory.objects.get(name = super_category_name)
                                 if super_category_obj == category_obj.super_category:
                                     dh_product_obj.sub_category = sub_category_obj
                                     dh_product_obj.category = category_obj
@@ -2793,7 +2795,7 @@ def bulk_update_dealshub_product_details(oc_uuid,path,filename, location_group_o
                         if is_promotional =='yes':
                             is_promotional = True
                             try :
-                                promotional_price = float(dfs.iloc[i]['promotional price'])
+                                promotional_price = float(dfs.iloc[i]["promotional price"])
                                 if promotional_price <=0:
                                     common_row[2]+='Promotional price cannot be 0.'
                                     any_error = True
@@ -2815,8 +2817,8 @@ def bulk_update_dealshub_product_details(oc_uuid,path,filename, location_group_o
                         if not any_error:
                             if is_promotional:
                                 promotional_tag = str(dfs.iloc[i]["promotional tag"])
-                                start_date = datetime.datetime.strptime(str(dfs.iloc[i][7]), "%Y-%m-%d %H:%M:%S")
-                                end_date = datetime.datetime.strptime(str(dfs.iloc[i][8]), "%Y-%m-%d %H:%M:%S")
+                                start_date = datetime.datetime.strptime(str(dfs.iloc[i]["start date"]), "%Y-%m-%d %H:%M:%S")
+                                end_date = datetime.datetime.strptime(str(dfs.iloc[i]["end date"]), "%Y-%m-%d %H:%M:%S")
                                 if promotion_obj==None:
                                     promotion_obj = Promotion.objects.create(promotion_tag=promotional_tag, start_time=start_date, end_time=end_date)
                                 else:
