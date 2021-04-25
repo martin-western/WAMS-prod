@@ -321,7 +321,7 @@ class EditBlogSectionAPI(APIView):
             section_image = data.get("blogSectionImage","")
             section_name = data["blogSectionName"]
 
-            blog_section_obj = BlogSection.objects.get(uuid=data["BlogSectionUuid"])
+            blog_section_obj = BlogSection.objects.get(uuid=data["blogSectionUuid"])
             blog_section_obj.name = section_name
             if section_image!="":
                 image_obj = Image.objects.create(image=section_image)
