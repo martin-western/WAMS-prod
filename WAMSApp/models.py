@@ -1414,8 +1414,7 @@ class NestoProductStore(models.Model):
     seller_sku = models.CharField(max_length=200) 
 
     def save(self, *args, **kwargs):
-        if self.pk == None:
-            self.seller_sku = str(self.store.store_id) + "-" + str(self.product.article_number) + "-" + str(self.product.uom)
+        self.seller_sku = str(self.store.store_id) + "-" + str(self.product.article_number) + "-" + str(self.product.uom)
         super(NestoProductStore, self).save(*args, **kwargs)  
   
 class ProductImage(models.Model):
