@@ -174,6 +174,10 @@ class AddProductToBlogPostAPI(APIView):
             blog_post_obj.products.add(dealshub_product_obj)
             blog_post_obj.save()
 
+            response["productName"] = dealshub_product_obj.get_name()
+            response["productImageUrl"] = dealshub_product_obj.get_display_image_url()
+            response["sellerSKU"] = dealshub_product_obj.get_seller_sku()
+            response["productUuid"] = dealshub_product_obj.uuid 
             response['status'] = 200
 
         except Exception as e:
@@ -353,6 +357,7 @@ class AddBlogPostToBlogSectionAPI(APIView):
             blog_section_obj.blog_posts.add(blog_post_obj)
             blog_section_obj.save()
 
+            response["blogPostUuid"] = blog_post_obj.uuid
             response['blogPostTitle'] = blog_post_obj.title 
             response['blogPostAuthor'] = blog_post_obj.author
             response['blogPostImageUrl'] = ""
@@ -589,6 +594,7 @@ class FetchBlogPostDetailsAPI(APIView):
             # if blog_post_obj.is_published==False:
             #     response["message"] = "Blog Unpublished"
             #     return Response(data=response)
+            response["headline"] = blog_post_obj.headline
             response["author"] = blog_post_obj.author
             response["title"] = blog_post_obj.title
             response["body"] = blog_post_obj.body
