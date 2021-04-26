@@ -576,7 +576,7 @@ class FetchBlogSectionHomePageAPI(APIView):
                     temp_dict2["body"] = blog_post_obj.body
                     temp_dict2["author"] = blog_post_obj.author
                     temp_dict2["coverImageUrl"] = ""
-                    if blog_post_obj.section_image.cover_image!=None:
+                    if blog_post_obj.cover_image!=None:
                         temp_dict2["coverImageUrl"] = blog_post_obj.cover_image.image.url
                     temp_dict["sectionBlogPosts"].append(temp_dict2)
                 section_list.append(temp_dict)
