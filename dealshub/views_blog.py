@@ -520,7 +520,12 @@ class SearchBlogPostAutoCompleteAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             search_string = data["search_string"]
 
-            blog_post_objs = BlogPost.objects.filter(location_group__uuid=location_group_uuid,is_published=True).filter(Q(title__icontains=search_string) | Q(author__icontains=search_string))
+            filter_published = data.get("filterIsPublished","")
+
+            blog_post_objs = BlogPost.objects.filter(location_group__uuid=location_group_uuid).filter(Q(title__icontains=search_string) | Q(author__icontains=search_string))
+
+            if filter_published!="":
+                blog_post_objs = blog_post_objs.filter(is_published=True)
             blog_post_list = []
             for blog_post_obj in blog_post_objs:
                 temp_dict = {}
