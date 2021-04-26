@@ -353,6 +353,9 @@ class AddBlogPostToBlogSectionAPI(APIView):
             blog_section_obj.blog_posts.add(blog_post_obj)
             blog_section_obj.save()
 
+            response['blogPostTitle'] = blog_post_obj.title 
+            response['blogPostAuthor'] = blog_post_obj.author
+            response['blogPostImageUrl'] = blog_post_obj.cover_image.image.url
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
