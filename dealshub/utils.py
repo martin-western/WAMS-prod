@@ -1485,35 +1485,35 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
                 product_id = product_id.split(".")[0]
                 any_error = False
 
-                if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
-                    dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                # if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
+                #     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     
-                    fake_customer_name = str(dfs.iloc[i][1]).strip()
-                    subject = str(dfs.iloc[i][2]).strip()
-                    content = str(dfs.iloc[i][3]).strip()
-                    rating = int(dfs.iloc[i][4])
-                    is_published = str(dfs.iloc[i][5]).strip().lower()
-                    if is_published =='yes':
-                        is_published = True
-                    elif is_published =='no':
-                        is_published=False
-                    else:
-                        common_row[2]+='Published value is not proper.'
-                        any_error = True
-                    omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-                    if not any_error:
-                        review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
-                        review_obj = Review.objects.create(is_fake=True,
-                                                        product=dealshub_product_obj,
-                                                        rating=rating,
-                                                        content=review_content_obj,
-                                                        fake_customer_name=fake_customer_name,
-                                                        fake_oc_user=omnycomm_user_obj,
-                                                        is_published = is_published)
-                        common_row[2] = "Success"
+                #     fake_customer_name = str(dfs.iloc[i][1]).strip()
+                #     subject = str(dfs.iloc[i][2]).strip()
+                #     content = str(dfs.iloc[i][3]).strip()
+                #     rating = int(dfs.iloc[i][4])
+                #     is_published = str(dfs.iloc[i][5]).strip().lower()
+                #     if is_published =='yes':
+                #         is_published = True
+                #     elif is_published =='no':
+                #         is_published=False
+                #     else:
+                #         common_row[2]+='Published value is not proper.'
+                #         any_error = True
+                #     omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+                #     if not any_error:
+                #         review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+                #         review_obj = Review.objects.create(is_fake=True,
+                #                                         product=dealshub_product_obj,
+                #                                         rating=rating,
+                #                                         content=review_content_obj,
+                #                                         fake_customer_name=fake_customer_name,
+                #                                         fake_oc_user=omnycomm_user_obj,
+                #                                         is_published = is_published)
+                #         common_row[2] = "Success"
 
-                else:
-                    common_row[2] = "Product {} not exists.".format(product_id)
+                # else:
+                #     common_row[2] = "Product {} not exists.".format(product_id)
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
