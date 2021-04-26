@@ -4929,7 +4929,7 @@ class BulkUploadFakeReviewAdminAPI(APIView):
                 response['status'] = 200
                 return Response(data=response)
 
-            report_type = "bulk upload review"
+            report_type = "bulk upload product"
             report_title = "bulk upload fake review"
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
