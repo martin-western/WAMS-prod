@@ -1533,6 +1533,7 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
 
         oc_report_obj = OCReport.objects.get(uuid=oc_uuid)
         oc_report_obj.is_processed = True
+        logger.error("bulk_upload_fake_review 7")
         oc_report_obj.completion_date = timezone.now()
         oc_report_obj.save()
 
