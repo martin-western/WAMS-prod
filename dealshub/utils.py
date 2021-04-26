@@ -1527,14 +1527,17 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
             for k in common_row:
                 worksheet.write(cnt, colnum, k)
                 colnum += 1
+                logger.error("{}".format(str(k)))
                 
         workbook.close()
         logger.error("bulk_upload_fake_review 6")
 
         oc_report_obj = OCReport.objects.get(uuid=oc_uuid)
         oc_report_obj.is_processed = True
+        logger.error("bulk_upload_fake_review 7")
         oc_report_obj.completion_date = timezone.now()
         oc_report_obj.save()
+        logger.error("{}".format(str(oc_report_obj.is_processed)))
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
