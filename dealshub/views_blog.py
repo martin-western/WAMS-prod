@@ -485,6 +485,7 @@ class FetchBlogSectionListAPI(APIView):
                 blog_post_objs = blog_section_obj.blog_posts.filter(is_published=True)
                 for blog_post_obj in blog_post_objs:
                     temp_dict2 = {}
+                    temp_dict2["uuid"] = blog_post_obj.uuid
                     temp_dict2["title"] = blog_post_obj.title
                     temp_dict2["author"] = blog_post_obj.author
                     temp_dict2["coverImageUrl"] = ""
@@ -609,6 +610,18 @@ class FetchBlogPostDetailsAPI(APIView):
             response["body"] = blog_post_obj.body
             response["cover_image"] = blog_post_obj.get_cover_image()
 
+            dealshub_product_objs = blog_post_obj.products
+            product_list = []
+            for dealshub_product_obj in dealshub_product_objs:
+                temp_dict = {}
+                temp_dict["productName"] = dealshub_product_obj.get_name()
+                temp_dict["productImageUrl"] = dealshub_product_obj.get_display_image_url()
+                temp_dict["sellerSKU"] = dealshub_product_obj.get_seller_sku()
+                temp_dict["productUuid"] = dealshub_product_obj.uuid
+                temp_dict["productUrl"] = dealshub_product_obj.url
+                product_list.append(temp_dict)
+
+            response["productList"] = product_list
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
