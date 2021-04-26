@@ -355,6 +355,7 @@ class AddBlogPostToBlogSectionAPI(APIView):
 
             response['blogPostTitle'] = blog_post_obj.title 
             response['blogPostAuthor'] = blog_post_obj.author
+            response['blogPostImageUrl'] = ""
             if blog_post_obj.cover_image != None and blog_post_obj.cover_image!="":
                 response['blogPostImageUrl'] = blog_post_obj.cover_image.image.url
             response['status'] = 200
