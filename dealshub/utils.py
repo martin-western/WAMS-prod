@@ -1449,7 +1449,7 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
 
 def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_obj):
     try:
-        
+        logger.error("bulk_upload_fake_review 1")
         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
         dfs.fillna("")
         rows = len(dfs.iloc[:])
@@ -1469,6 +1469,8 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
         for k in row:
             worksheet.write(cnt,colomn,k,header_format)
             colomn += 1
+        
+        logger.error("bulk_upload_fake_review 2")
 
         for i in range(rows):
             cnt += 1
@@ -1481,13 +1483,14 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
             common_row[2] = ""
 
             try:
+                logger.error("bulk_upload_fake_review 3")
                 product_id = str(dfs.iloc[i][0]).strip()
                 product_id = product_id.split(".")[0]
                 any_error = False
 
                 if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
-                    
+                    logger.error("bulk_upload_fake_review 4")
                     fake_customer_name = str(dfs.iloc[i][1]).strip()
                     subject = str(dfs.iloc[i][2]).strip()
                     content = str(dfs.iloc[i][3]).strip()
@@ -1514,7 +1517,7 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
 
                 else:
                     common_row[2] = "Product {} not exists.".format(product_id)
-
+                logger.error("bulk_upload_fake_review 5")
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 common_row[2] = "Enter proper values."
@@ -1526,6 +1529,7 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
                 colnum += 1
                 
         workbook.close()
+        logger.error("bulk_upload_fake_review 6")
 
         oc_report_obj = OCReport.objects.get(uuid=oc_uuid)
         oc_report_obj.is_processed = True
