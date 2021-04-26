@@ -4940,7 +4940,7 @@ class BulkUploadFakeReviewAdminAPI(APIView):
 
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
 
-            p1 =  threading.Thread(target=bulk_upload_fake_review , args=(path,filename, location_group_obj, oc_user_obj))
+            p1 =  threading.Thread(target=bulk_upload_fake_review , args=(oc_report_obj.uuid, path, filename, location_group_obj, oc_user_obj))
             p1.start()
             render_value = 'Bulk update fake reviews with report {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
