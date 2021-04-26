@@ -1766,7 +1766,7 @@ class BlogPost(models.Model):
     uuid = models.CharField(max_length=200,unique=True)
     views = models.IntegerField(default=0)
     location_group = models.ForeignKey(LocationGroup,null=True, blank=True,on_delete=models.SET_NULL)
-    products = models.ManyToManyField(DealsHubProduct,blank=True)
+    products = models.ManyToManyField(DealsHubProduct,blank=True,related_name='products')
 
     def __str__(self):
         return str(self.title)
