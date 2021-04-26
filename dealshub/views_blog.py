@@ -615,7 +615,7 @@ class FetchBlogPostDetailsAPI(APIView):
             response["body"] = blog_post_obj.body
             response["cover_image"] = blog_post_obj.get_cover_image()
 
-            dealshub_product_objs = blog_post_obj.products
+            dealshub_product_objs = blog_post_obj.products.all()
             product_list = []
             for dealshub_product_obj in dealshub_product_objs:
                 temp_dict = {}
