@@ -72,7 +72,7 @@ class EditBlogPostAPI(APIView):
             data = request.data
             logger.info("EditBlogPostAPI: %s",str(data))
             if not isinstance(data,dict):
-                data = json.loads(data) 
+                data = json.loads(data)
 
             title = data["title"]
             headline = data["headline"]
@@ -88,10 +88,12 @@ class EditBlogPostAPI(APIView):
             blog_post_obj.author = author
             blog_post_obj.body = body
 
+            response["coverImageUrl"] = ""
             if is_cover_image:
                 cover_image = data["coverImage"]
                 image_obj = Image.objects.create(image=cover_image)
                 blog_post_obj.cover_image = image_obj
+                response["coverImageUrl"] = image_obj.image.url
             blog_post_obj.save()
 
             response['status'] = 200
