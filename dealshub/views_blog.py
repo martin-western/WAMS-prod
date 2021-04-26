@@ -230,6 +230,10 @@ class FetchBlogPostListAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             blog_post_objs = BlogPost.objects.filter(location_group__uuid=location_group_uuid)
 
+            page = data.get("page",1)
+            paginator = Paginator(blog_post_objs,20)
+            blog_post_objs = paginator.page(page)
+
             blog_post_list = []
 
             for blog_post_obj in blog_post_objs:
@@ -243,7 +247,12 @@ class FetchBlogPostListAPI(APIView):
 
                 blog_post_list.append(temp_dict)
 
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
             response["blogPostList"] = blog_post_list
+            response["isAvailable"] = is_available
             response['status'] = 200
 
         except Exception as e:
