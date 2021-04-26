@@ -4944,7 +4944,7 @@ class BulkUploadFakeReviewAdminAPI(APIView):
             p1.start()
             render_value = 'Bulk update fake reviews with report {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
-
+            logger.error("{}".format(oc_report_obj.is_processed))
             response['status'] = 200
             response['approved'] = True
         except Exception as e:
