@@ -1481,18 +1481,18 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
             common_row[2] = ""
 
             try:
-                product_id = str(dfs.iloc[i]["Product Code"]).strip()
+                product_id = str(dfs.iloc[i][0]).strip()
                 product_id = product_id.split(".")[0]
                 any_error = False
 
                 if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
                     
-                    fake_customer_name = str(dfs.iloc[i]["Customer Name"]).strip()
-                    subject = str(dfs.iloc[i]["Subject"]).strip()
-                    content = str(dfs.iloc[i]["content"]).strip()
-                    rating = int(dfs.iloc[i]["Rating"])
-                    is_published = str(dfs.iloc[i]["Published"]).strip().lower()
+                    fake_customer_name = str(dfs.iloc[i][1]).strip()
+                    subject = str(dfs.iloc[i][2]).strip()
+                    content = str(dfs.iloc[i][3]).strip()
+                    rating = int(dfs.iloc[i][4])
+                    is_published = str(dfs.iloc[i][5]).strip().lower()
                     if is_published =='yes':
                         is_published = True
                     elif is_published =='no':
