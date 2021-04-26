@@ -1503,7 +1503,6 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
                     else:
                         common_row[2]+='Published value is not proper.'
                         any_error = True
-                    omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
                     if not any_error:
                         review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
                         review_obj = Review.objects.create(is_fake=True,
@@ -1511,7 +1510,7 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
                                                         rating=rating,
                                                         content=review_content_obj,
                                                         fake_customer_name=fake_customer_name,
-                                                        fake_oc_user=omnycomm_user_obj,
+                                                        fake_oc_user=oc_user_obj,
                                                         is_published = is_published)
                         common_row[2] = "Success"
 
