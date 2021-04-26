@@ -1449,7 +1449,7 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
 
 def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_obj):
     try:
-        
+        logger.error("bulk_upload_fake_review: %s at %s", e, str(exc_tb.tb_lineno))
         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
         dfs.fillna("")
         rows = len(dfs.iloc[:])
