@@ -569,7 +569,7 @@ class FetchBlogSectionHomePageAPI(APIView):
                 if blog_section_obj.section_image!=None:
                     temp_dict["sectionImageUrl"] = blog_section_obj.section_image.image.url
                 temp_dict["sectionBlogPosts"] = []
-                blog_post_objs = blog_section_obj.products.filter(is_published=True)
+                blog_post_objs = blog_section_obj.blog_posts.filter(is_published=True)
                 for blog_post_obj in blog_post_objs:
                     temp_dict2 = {}
                     temp_dict2["title"] = blog_post_obj.title
