@@ -633,6 +633,9 @@ class DealsHubProduct(models.Model):
             logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
 
         self.display_image_url = self.get_display_image_url()
+        self.was_price = round(self.was_price, 2)
+        self.now_price = round(self.now_price, 2)
+        self.promotional_price = round(self.promotional_price, 2)
 
         super(DealsHubProduct, self).save(*args, **kwargs)
 
