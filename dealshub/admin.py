@@ -49,7 +49,7 @@ class BlogSectionTypeAdmin(admin.ModelAdmin):
 	list_display = ('name','limit')
 
 class BlogSectionAdmin(admin.ModelAdmin):
-	list_display = ('name','blog_section_type')
+	list_display = ('name','blog_section_type','order_index')
 
 
 admin.site.register(DealsHubProduct, DealsHubProductAdmin)
