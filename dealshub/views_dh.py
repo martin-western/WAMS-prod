@@ -5785,8 +5785,8 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
                 yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
                 
-                today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").count()
-                yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+                today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+                yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
                 today_pending_delivery = today_total_orders - today_done_delivery
                 yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
@@ -5807,8 +5807,8 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
                 prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
                 
-                month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
-                prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+                month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+                prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
                 month_pending_delivery = month_total_orders - month_done_delivery
                 prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
@@ -5921,8 +5921,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
             yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
             
-            today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").count()
-            yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+            yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
             today_pending_delivery = today_total_orders - today_done_delivery
             yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
@@ -5953,8 +5953,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
             prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
             
-            month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
-            prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+            prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
             month_pending_delivery = month_total_orders - month_done_delivery
             prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
@@ -6130,7 +6130,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             # exclusive of cancelled orders
             real_total_orders = UnitOrder.objects.filter(order__in=order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
             avg_order_value = 0 if real_total_orders==0 else round(float(total_sales/real_total_orders),2)
-            done_delivery_count = order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            done_delivery_count = order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
             pending_delivery_count = real_total_orders - done_delivery_count
 
             currency = location_group_obj.location.currency
