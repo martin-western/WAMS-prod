@@ -240,6 +240,7 @@ class FetchBlogPostListAPI(APIView):
 
             for blog_post_obj in blog_post_objs:
                 temp_dict = {}
+                temp_dict["uuid"] = blog_post_obj.uuid
                 temp_dict["title"] = blog_post_obj.title
                 temp_dict["headline"] = blog_post_obj.headline
                 temp_dict["body"] = blog_post_obj.body
