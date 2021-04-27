@@ -89,7 +89,7 @@ class EditBlogPostAPI(APIView):
             blog_post_obj.body = body
 
             response["coverImageUrl"] = ""
-            if is_cover_image:
+            if is_cover_image==True:
                 cover_image = data["coverImage"]
                 image_obj = Image.objects.create(image=cover_image)
                 blog_post_obj.cover_image = image_obj
