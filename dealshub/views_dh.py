@@ -152,6 +152,7 @@ class FetchWishListAPI(APIView):
                 temp_dict["link"] = unit_wish_list_obj.product.url
                 temp_dict["brand"] = unit_wish_list_obj.product.get_brand(language_code)
                 temp_dict["isStockAvailable"] = unit_wish_list_obj.product.stock > 0
+                temp_dict["category"] = unit_wish_list_obj.product.get_category(language_code)
                 unit_wish_list.append(temp_dict)
 
             response["unitWishList"] = unit_wish_list
