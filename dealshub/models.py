@@ -1776,6 +1776,9 @@ class BlogPost(models.Model):
             return self.cover_image.image.url
         return ""
 
+    def get_publish_date(self):
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
+
     def save(self, *args, **kwargs):
         if self.uuid==None or self.uuid == "":
             self.uuid = str(uuid.uuid4())[:8]

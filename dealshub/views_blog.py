@@ -588,7 +588,7 @@ class FetchBlogSectionHomePageAPI(APIView):
                     temp_dict2["body"] = blog_post_obj.body
                     temp_dict2["author"] = blog_post_obj.author
                     temp_dict2["headline"] = blog_post_obj.headline
-                    temp_dict2["publishDate"] = blog_post_obj.date_created
+                    temp_dict2["publishDate"] = blog_post_obj.get_publish_date()
                     temp_dict2["coverImageUrl"] = ""
                     if blog_post_obj.cover_image!=None:
                         temp_dict2["coverImageUrl"] = blog_post_obj.cover_image.image.url
