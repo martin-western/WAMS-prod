@@ -633,9 +633,19 @@ class DealsHubProduct(models.Model):
             logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
 
         self.display_image_url = self.get_display_image_url()
-        self.was_price = round(self.was_price, 2)
-        self.now_price = round(self.now_price, 2)
-        self.promotional_price = round(self.promotional_price, 2)
+        self.was_price = round(float(self.was_price), 2)
+        self.now_price = round(float(self.now_price), 2)
+        self.promotional_price = round(float(self.promotional_price), 2)
+        self.now_price_cohort1 = round(float(self.now_price_cohort1), 2)
+        self.now_price_cohort2 = round(float(self.now_price_cohort2), 2)
+        self.now_price_cohort3 = round(float(self.now_price_cohort3), 2)
+        self.now_price_cohort4 = round(float(self.now_price_cohort4), 2)
+        self.now_price_cohort5 = round(float(self.now_price_cohort5), 2)
+        self.promotional_price_cohort1 = round(float(self.promotional_price_cohort1), 2)
+        self.promotional_price_cohort2 = round(float(self.promotional_price_cohort2), 2)
+        self.promotional_price_cohort3 = round(float(self.promotional_price_cohort3), 2)
+        self.promotional_price_cohort4 = round(float(self.promotional_price_cohort4), 2)
+        self.promotional_price_cohort5 = round(float(self.promotional_price_cohort5), 2)
 
         super(DealsHubProduct, self).save(*args, **kwargs)
 
