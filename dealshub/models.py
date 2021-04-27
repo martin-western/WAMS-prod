@@ -636,6 +636,16 @@ class DealsHubProduct(models.Model):
         self.was_price = round(float(self.was_price), 2)
         self.now_price = round(float(self.now_price), 2)
         self.promotional_price = round(float(self.promotional_price), 2)
+        self.now_price_cohort1 = round(float(self.now_price_cohort1), 2)
+        self.now_price_cohort2 = round(float(self.now_price_cohort2), 2)
+        self.now_price_cohort3 = round(float(self.now_price_cohort3), 2)
+        self.now_price_cohort4 = round(float(self.now_price_cohort4), 2)
+        self.now_price_cohort5 = round(float(self.now_price_cohort5), 2)
+        self.promotional_price_cohort1 = round(float(self.promotional_price_cohort1), 2)
+        self.promotional_price_cohort2 = round(float(self.promotional_price_cohort2), 2)
+        self.promotional_price_cohort3 = round(float(self.promotional_price_cohort3), 2)
+        self.promotional_price_cohort4 = round(float(self.promotional_price_cohort4), 2)
+        self.promotional_price_cohort5 = round(float(self.promotional_price_cohort5), 2)
 
         super(DealsHubProduct, self).save(*args, **kwargs)
 
