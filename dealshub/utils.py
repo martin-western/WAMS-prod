@@ -1449,7 +1449,6 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
 
 def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_obj):
     try:
-        
         dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
         dfs.fillna("")
         rows = len(dfs.iloc[:])
@@ -1469,7 +1468,7 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
         for k in row:
             worksheet.write(cnt,colomn,k,header_format)
             colomn += 1
-
+        
         for i in range(rows):
             cnt += 1
             product_id = str(dfs.iloc[i][0]).strip()
@@ -1487,7 +1486,6 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
 
                 if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
                     dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
-                    
                     fake_customer_name = str(dfs.iloc[i][1]).strip()
                     subject = str(dfs.iloc[i][2]).strip()
                     content = str(dfs.iloc[i][3]).strip()
@@ -1500,7 +1498,6 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
                     else:
                         common_row[2]+='Published value is not proper.'
                         any_error = True
-                    omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
                     if not any_error:
                         review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
                         review_obj = Review.objects.create(is_fake=True,
@@ -1508,13 +1505,12 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
                                                         rating=rating,
                                                         content=review_content_obj,
                                                         fake_customer_name=fake_customer_name,
-                                                        fake_oc_user=omnycomm_user_obj,
+                                                        fake_oc_user=oc_user_obj,
                                                         is_published = is_published)
                         common_row[2] = "Success"
 
                 else:
                     common_row[2] = "Product {} not exists.".format(product_id)
-
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 common_row[2] = "Enter proper values."
