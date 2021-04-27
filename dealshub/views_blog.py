@@ -585,6 +585,7 @@ class FetchBlogSectionHomePageAPI(APIView):
                 blog_post_objs = blog_section_obj.blog_posts.filter(is_published=True)
                 for blog_post_obj in blog_post_objs:
                     temp_dict2 = {}
+                    temp_dict2["uuid"] = blog_post_obj.uuid
                     temp_dict2["title"] = blog_post_obj.title
                     temp_dict2["body"] = blog_post_obj.body
                     temp_dict2["author"] = blog_post_obj.author
