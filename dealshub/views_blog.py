@@ -443,9 +443,19 @@ class SaveBlogSectionOrderIndexAPI(APIView):
             if not isinstance(data,dict):
                 data = json.loads(data)
 
-            # blog_section_obj = BlogSection.objects.get(uuid=data["BlogSectionUuid"])
-            # blog_section_obj.is_published = data["is_published"]
-            # blog_section_obj.save()
+            section_uuid_list = data["blogSectionUuidList"]
+            location_group_uuid = data["locationGroupUuid"]
+
+            blog_section_objs = BlogSection.objects.filter(location_group__uuid=location_group_uuid,uuid__in=section_uuid_list)
+
+            blog_section_objs = list(blog_section_objs)
+            blog_section_objs.sort(key = lambda t:section_uuid_list.index(t.uuid))
+
+            cnt = 1
+            for blog_section_obj in blog_section_objs:
+                blog_section_obj.order_index = cnt
+                blog_section_obj.save()
+                cnt+=1
 
             response['status'] = 200
         except Exception as e:
@@ -577,6 +587,8 @@ class FetchBlogSectionHomePageAPI(APIView):
                     temp_dict2["title"] = blog_post_obj.title
                     temp_dict2["body"] = blog_post_obj.body
                     temp_dict2["author"] = blog_post_obj.author
+                    temp_dict["headline"] = blog_post_obj.headline
+                    temp_dict["publishDate"] = blog_post_obj.date_created
                     temp_dict2["coverImageUrl"] = ""
                     if blog_post_obj.cover_image!=None:
                         temp_dict2["coverImageUrl"] = blog_post_obj.cover_image.image.url
