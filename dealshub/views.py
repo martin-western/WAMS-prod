@@ -3700,7 +3700,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     if dealshub_same_baseproduct_objs.count()>1:
                         for dealshubproduct_obj in dealshub_same_baseproduct_objs:
                             dealshubproduct_color = dealshubproduct_obj.product.color
-                            temp_dict2["color_list"].append({"color":"{}".format(dealshubproduct_color),"uuid":"{}".format(dealshubproduct_obj.uuid)})
+                            temp_dict["color_list"].append({"color":str(dealshubproduct_color),"uuid":str(dealshubproduct_obj.uuid)})
                     
                     if is_dealshub==True:
                         temp_dict2["category"] = dealshub_product_obj.get_category(language_code)
