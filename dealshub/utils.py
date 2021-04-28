@@ -323,6 +323,10 @@ def send_order_request_placed_mail(order_request_obj):
 
         unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
 
+        website_group_obj = order_request_obj.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+
         custom_unit_order_list = []
         for unit_order_request_obj in unit_order_request_objs:
             temp_dict = {
@@ -351,7 +355,9 @@ def send_order_request_placed_mail(order_request_obj):
                 "full_name": full_name,
                 "address_lines": address_lines,
                 "website_order_link": order_request_obj.get_website_link()+"/orders/"+order_request_obj.uuid,
-                "email_content": email_content
+                "email_content": email_content,
+                "support_email": support_email,
+                "support_contact_number": support_contact_number
             }
         )
 
@@ -477,6 +483,10 @@ def send_order_confirmation_mail(order_obj):
         website_logo = order_obj.get_email_website_logo()
         email_content = order_obj.location_group.get_email_content()
 
+        website_group_obj = order_obj.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-confirmation.html',
             {
@@ -487,7 +497,9 @@ def send_order_confirmation_mail(order_obj):
                 "full_name": full_name,
                 "address_lines": address_lines,
                 "website_order_link": order_obj.get_website_link()+"/orders/"+order_obj.uuid,
-                "email_content": email_content
+                "email_content": email_content,
+                "support_email":support_email,
+                "support_contact_number":support_contact_number
             }
         )
 
@@ -531,6 +543,10 @@ def send_order_dispatch_mail(unit_order_obj):
         full_name = unit_order_obj.order.get_customer_full_name()
         website_logo = unit_order_obj.order.get_email_website_logo()
 
+        website_group_obj = unit_order_obj.order.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-dispatch.html',
             {
@@ -543,7 +559,9 @@ def send_order_dispatch_mail(unit_order_obj):
                 "order_dispatched_date": order_dispatched_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
+                "support_email": support_email,
+                "support_contact_number": support_contact_number
             }
         )
 
@@ -588,6 +606,10 @@ def send_order_delivered_mail(unit_order_obj):
         full_name = unit_order_obj.order.get_customer_full_name()
         website_logo = unit_order_obj.order.get_email_website_logo()
 
+        website_group_obj = unit_order_obj.order.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivered.html',
             {
@@ -600,7 +622,9 @@ def send_order_delivered_mail(unit_order_obj):
                 "order_delivered_date": order_delivered_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
+                "support_email": support_email,
+                "support_contact_number": support_contact_number
             }
         )
 
@@ -644,6 +668,10 @@ def send_order_delivery_failed_mail(unit_order_obj):
         full_name = unit_order_obj.order.get_customer_full_name()
         website_logo = unit_order_obj.order.get_email_website_logo()
 
+        website_group_obj = unit_order_obj.order.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivery-failed.html',
             {
@@ -656,7 +684,9 @@ def send_order_delivery_failed_mail(unit_order_obj):
                 "order_delivery_failed": order_delivery_failed,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
+                "support_email": support_email,
+                "support_contact_number": support_contact_number
             }
         )
 
@@ -700,6 +730,10 @@ def send_order_cancelled_mail(unit_order_obj):
         full_name = unit_order_obj.order.get_customer_full_name()
         website_logo = unit_order_obj.order.get_email_website_logo()
 
+        website_group_obj = unit_order_obj.order.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-cancelled.html',
             {
@@ -712,7 +746,9 @@ def send_order_cancelled_mail(unit_order_obj):
                 "order_cancelled_date": order_cancelled_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
+                "support_email": support_email,
+                "support_contact_number": support_contact_number
             }
         )
 
@@ -754,6 +790,10 @@ def notify_order_cancel_status_to_user(unit_order_obj, status):
         full_name = unit_order_obj.order.get_customer_full_name()
         website_logo = unit_order_obj.order.get_email_website_logo()
 
+        website_group_obj = unit_order_obj.order.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-cancel-status.html',
             {
@@ -766,7 +806,9 @@ def notify_order_cancel_status_to_user(unit_order_obj, status):
                 "status": status,
                 "full_name": full_name,
                 "address_lines": address_lines,
-                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
+                "support_email": support_email,
+                "support_contact_number": support_contact_number
             }
         )
 
@@ -806,6 +848,11 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
         address_lines = json.loads(order_obj.shipping_address.address_lines)
         full_name = order_obj.get_customer_full_name()
         website_logo = order_obj.get_email_website_logo()
+
+        website_group_obj = order_obj.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+
         product_list = []
         for unit_order_obj in unit_order_objs:
             temp_dict = {}
@@ -825,7 +872,9 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
                 "order_id": order_obj.bundleid,
                 "product_list": product_list,
                 "review_url" : WIGME_IP + "/?" + order_obj.uuid + "&" + user_token,
-                "website_order_link": order_obj.get_website_link()+"/orders/"+order_obj.uuid
+                "website_order_link": order_obj.get_website_link()+"/orders/"+order_obj.uuid,
+                "support_email": support_email,
+                "support_contact_number": support_contact_number
             }
         )
 
@@ -1391,13 +1440,97 @@ def get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj):
             temp_dict["uuid"] = dealshub_product_obj.uuid
             temp_dict["link"] = dealshub_product_obj.url
             temp_dict["id"] = dealshub_product_obj.uuid
-            temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
+            temp_dict["heroImageUrl"] = dealshub_product_obj.display_image_url
             products.append(temp_dict)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("get_dealshub_product_details: %s at %s", e, str(exc_tb.tb_lineno))
-
     return products
+
+def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_obj):
+    try:
+        dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
+        dfs.fillna("")
+        rows = len(dfs.iloc[:])
+
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+        row = ["No.","Product ID", "Status"]
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+        
+        cnt=0
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        for i in range(rows):
+            cnt += 1
+            product_id = str(dfs.iloc[i][0]).strip()
+            product_id = product_id.split(".")[0]
+
+            common_row = ["" for i in range(len(row))]
+            common_row[0] = str(cnt)
+            common_row[1] = product_id
+            common_row[2] = ""
+
+            try:
+                product_id = str(dfs.iloc[i][0]).strip()
+                product_id = product_id.split(".")[0]
+                any_error = False
+
+                if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
+                    dealshub_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    fake_customer_name = str(dfs.iloc[i][1]).strip()
+                    subject = str(dfs.iloc[i][2]).strip()
+                    content = str(dfs.iloc[i][3]).strip()
+                    rating = int(dfs.iloc[i][4])
+                    is_published = str(dfs.iloc[i][5]).strip().lower()
+                    if is_published =='yes':
+                        is_published = True
+                    elif is_published =='no':
+                        is_published=False
+                    else:
+                        common_row[2]+='Published value is not proper.'
+                        any_error = True
+                    if not any_error:
+                        review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+                        review_obj = Review.objects.create(is_fake=True,
+                                                        product=dealshub_product_obj,
+                                                        rating=rating,
+                                                        content=review_content_obj,
+                                                        fake_customer_name=fake_customer_name,
+                                                        fake_oc_user=oc_user_obj,
+                                                        is_published = is_published)
+                        common_row[2] = "Success"
+
+                else:
+                    common_row[2] = "Product {} not exists.".format(product_id)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                common_row[2] = "Enter proper values."
+                logger.error("bulk_upload_fake_review: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+                
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=oc_uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("bulk_upload_fake_review: %s at %s", e, str(exc_tb.tb_lineno))
 
 def send_b2b_user_status_change_mail(b2b_user_obj):
     try:

@@ -41,6 +41,17 @@ class OrderRequestAdmin(admin.ModelAdmin):
 	list_display = ('bundleid','owner','date_created')
 
 
+class BlogPostAdmin(admin.ModelAdmin):
+	list_display = ('title',)
+
+
+class BlogSectionTypeAdmin(admin.ModelAdmin):
+	list_display = ('name','limit')
+
+class BlogSectionAdmin(admin.ModelAdmin):
+	list_display = ('name','blog_section_type','order_index')
+
+
 admin.site.register(DealsHubProduct, DealsHubProductAdmin)
 admin.site.register(Section, SectionAdmin)
 admin.site.register(BannerType, BannerTypeAdmin)
@@ -61,3 +72,6 @@ admin.site.register(Voucher)
 admin.site.register(WishList,WishListAdmin)
 admin.site.register(UnitWishList)
 admin.site.register(B2BUser)
+admin.site.register(BlogPost,BlogPostAdmin)
+admin.site.register(BlogSectionType,BlogSectionTypeAdmin)
+admin.site.register(BlogSection,BlogSectionAdmin)

@@ -19,6 +19,7 @@ from dealshub.hyperpay_integration import *
 from dealshub.spotii_integration import *
 from dealshub.tap_integration import *
 from dealshub.postaplus import *
+from dealshub.views_blog import *
 
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -151,6 +152,7 @@ class FetchWishListAPI(APIView):
                 temp_dict["link"] = unit_wish_list_obj.product.url
                 temp_dict["brand"] = unit_wish_list_obj.product.get_brand(language_code)
                 temp_dict["isStockAvailable"] = unit_wish_list_obj.product.stock > 0
+                temp_dict["category"] = unit_wish_list_obj.product.get_category(language_code)
                 unit_wish_list.append(temp_dict)
 
             response["unitWishList"] = unit_wish_list
@@ -2173,7 +2175,13 @@ class FetchOrderRequestListAPI(APIView):
                     temp_dict["additionalNote"] = order_request_obj.additional_note
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
-                    temp_dict["shippingAddressUuid"] = order_request_obj.shipping_address.uuid
+                    address_obj = order_request_obj.shipping_address
+                    temp_dict["shippingAddress"] = {
+                        "tag": address_obj.tag,
+                        "line1": json.loads(address_obj.address_lines)[0],
+                        "line2": json.loads(address_obj.address_lines)[1],
+                        "emirates": address_obj.emirates
+                    }
 
                     unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
                     if order_request_obj.request_status == "Approved" and unit_order_request_objs.exclude(request_status="Rejected").count() != unit_order_request_objs.count():
@@ -2603,10 +2611,21 @@ class CreateOfflineCustomerAPI(APIView):
             website_group_name = website_group_obj.name
 
             if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
-                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
-                dealshub_user_obj.set_password(OTP)
-                dealshub_user_obj.verification_code = OTP
-                dealshub_user_obj.save()
+                if location_group_obj.is_b2b == True:
+                    b2b_user_obj = B2BUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
+                    dealshub_user_obj = DealsHubUser.objects.get(username=b2b_user_obj.username)
+                    b2b_user_obj.set_password(OTP)
+                    b2b_user_obj.verification_code = OTP
+                    b2b_user_obj.is_signup_completed = True
+                    b2b_user_obj.passport_copy_status = "Approved"
+                    b2b_user_obj.vat_certificate_status = "Approved"
+                    b2b_user_obj.trade_license_status = "Approved"
+                    b2b_user_obj.save()
+                else:
+                    dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
+                    dealshub_user_obj.set_password(OTP)
+                    dealshub_user_obj.verification_code = OTP
+                    dealshub_user_obj.save()
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
                     Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj, offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
@@ -4880,6 +4899,62 @@ class AddFakeReviewAdminAPI(APIView):
         
         return Response(data=response)
 
+
+class BulkUploadFakeReviewAdminAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("BulkUploadFakeReviewAdminAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkUploadFakeReviewAdminAPI Restricted Access!")
+                return Response(data=response)
+
+            location_group_uuid = data["locationGroupUuid"]
+
+            path = default_storage.save('tmp/bulk-upload-review.xlsx', data["import_file"])
+            path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
+
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+
+            report_type = "bulk upload product"
+            report_title = "bulk upload fake review"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the fake review" 
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
+
+            p1 =  threading.Thread(target=bulk_upload_fake_review , args=(oc_report_obj.uuid, path, filename, location_group_obj, oc_user_obj))
+            p1.start()
+            render_value = 'Bulk update fake reviews with report {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
+
+            response['status'] = 200
+            response['approved'] = True
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUploadFakeReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 #API with active log
 class UpdateReviewAdminAPI(APIView):
 
@@ -4957,7 +5032,6 @@ class UpdateReviewAdminAPI(APIView):
             logger.error("UpdateReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
 
 
 class AddRatingAPI(APIView):
@@ -5711,8 +5785,8 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
                 yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
                 
-                today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").count()
-                yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+                today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+                yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
                 today_pending_delivery = today_total_orders - today_done_delivery
                 yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
@@ -5733,8 +5807,8 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
                 prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
                 
-                month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
-                prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+                month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+                prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
                 month_pending_delivery = month_total_orders - month_done_delivery
                 prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
@@ -5847,8 +5921,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
             yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
             
-            today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").count()
-            yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+            yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
             today_pending_delivery = today_total_orders - today_done_delivery
             yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
@@ -5879,8 +5953,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
             prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
             
-            month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
-            prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+            prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
             month_pending_delivery = month_total_orders - month_done_delivery
             prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
@@ -6056,7 +6130,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             # exclusive of cancelled orders
             real_total_orders = UnitOrder.objects.filter(order__in=order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
             avg_order_value = 0 if real_total_orders==0 else round(float(total_sales/real_total_orders),2)
-            done_delivery_count = order_objs.filter(unitorder__current_status_admin = "delivered").count()
+            done_delivery_count = order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
             pending_delivery_count = real_total_orders - done_delivery_count
 
             currency = location_group_obj.location.currency
@@ -7885,7 +7959,7 @@ class ApplyOfflineVoucherCodeAPI(APIView):
 
             cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
 
-            if voucher_obj.is_eligible(cart_obj.get_subtotal())==False:
+            if voucher_obj.is_eligible(cart_obj.get_subtotal(offline=True))==False:
                 response["error_message"] = "NOT APPLICABLE"
                 response["voucher_success"] = False
                 response["status"] = 200
@@ -9029,7 +9103,7 @@ class UploadB2BDocumentAPI(APIView):
 
         try:
             data = request.data
-            logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
+            logger.info("UploadB2BDocumentAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -9102,7 +9176,7 @@ class UpdateB2BCustomerDetailsAPI(APIView):
 
         try:
             data = request.data
-            logger.info("SendNewProductEmailNotificationAPI: %s", str(data))
+            logger.info("UpdateB2BCustomerDetailsAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -9259,6 +9333,8 @@ AddReview = AddReviewAPI.as_view()
 AddFakeReviewAdmin = AddFakeReviewAdminAPI.as_view()
 
 UpdateReviewAdmin = UpdateReviewAdminAPI.as_view()
+
+BulkUploadFakeReviewAdmin = BulkUploadFakeReviewAdminAPI.as_view()
 
 AddRating = AddRatingAPI.as_view()
 

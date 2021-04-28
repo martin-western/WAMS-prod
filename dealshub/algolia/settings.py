@@ -21,10 +21,10 @@ settings = {
 	],
 	"attributesForFaceting":[
 		"filterOnly(locationGroup)",
-		"filterOnly(brand)",
-		"filterOnly(category)",
-		"filterOnly(subCategory)",
-		"filterOnly(superCategory)",
+		"searchable(brand)",
+		"searchable(category)",
+		"searchable(subCategory)",
+		"searchable(superCategory)",
 		"filterOnly(price)",
 		"filterOnly(isPublished)",
 		"filterOnly(stock)"

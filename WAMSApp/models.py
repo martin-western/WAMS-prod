@@ -833,14 +833,15 @@ class Brand(models.Model):
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     organization = models.ForeignKey(Organization, null=True, blank=True)
     description = models.TextField(default="")
-
     page_description = models.TextField(default="")
     seo_title = models.TextField(default="")
     seo_keywords = models.TextField(default="")
     seo_description = models.TextField(default="")
     short_description = models.TextField(default="")
     long_description = models.TextField(default="")
- 
+    created_date = models.DateTimeField(default=timezone.now)
+    modified_date = models.DateTimeField(default=timezone.now)
+
     class Meta:
         verbose_name = "Brand"
         verbose_name_plural = "Brands"
@@ -853,6 +854,14 @@ class Brand(models.Model):
     def __str__(self):
         return str(self.name)
 
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.modified_date = timezone.now()
+        else:
+            self.modified_date = timezone.now()
+    
+        super(Brand, self).save(*args, **kwargs)
 
 class SEOBrand(models.Model):
 
@@ -1358,10 +1367,52 @@ class NestoProduct(models.Model):
             self.uuid = str(uuid.uuid4())
         else:
             self.modified_date = timezone.now()
-        
+
         super(NestoProduct, self).save(*args, **kwargs)
+    
+    def get_details_of_stores_where_available(self):
+        nesto_product_store_objs = NestoProductStore.objects.filter(product = self).exclude(stock = 0)  
+        available_stores = []
+        for nesto_product_store_obj in nesto_product_store_objs:
+            temp_dict = {}
+            temp_dict["store_uuid"] = nesto_product_store_obj.store.uuid
+            temp_dict['seller_sku'] = nesto_product_store_obj.seller_sku
+            temp_dict['name'] = nesto_product_store_obj.store.name
+            temp_dict['normal_price'] = nesto_product_store_obj.normal_price
+            temp_dict['special_price'] = nesto_product_store_obj.special_price
+            temp_dict['strike_price'] = nesto_product_store_obj.strike_price
+            temp_dict['stock'] = nesto_product_store_obj.stock
+            available_stores.append(temp_dict)
+        return available_stores
 
 
+class NestoStore(models.Model):
+    name = models.CharField(default="", blank=True, max_length=250)
+    uuid = models.CharField(default="", max_length=200, unique=True)
+    store_id = models.CharField(default="", max_length=100)
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.uuid = str(uuid.uuid4())
+        super(NestoStore, self).save(*args, **kwargs)
+
+class NestoProductStore(models.Model):
+    product = models.ForeignKey(NestoProduct, on_delete=models.CASCADE)
+    store = models.ForeignKey(NestoStore, on_delete=models.CASCADE)
+    normal_price = models.FloatField(default=0)
+    special_price = models.FloatField(default=0)
+    strike_price = models.FloatField(default=0)
+    stock = models.IntegerField(default=0)
+    seller_sku = models.CharField(max_length=200) 
+
+    def save(self, *args, **kwargs):
+        article_number = str(self.product.article_number).zfill(18)
+        self.seller_sku = str(self.store.store_id) + "-" + str(article_number) + "-" + str(self.product.uom)
+        super(NestoProductStore, self).save(*args, **kwargs)  
+  
 class ProductImage(models.Model):
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -2027,3 +2078,4 @@ class BlackListToken(models.Model):
 
     def __str__(self):
         return str(self.token)
+

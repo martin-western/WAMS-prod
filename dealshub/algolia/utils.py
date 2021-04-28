@@ -50,6 +50,7 @@ def search_algolia_index(data):
         filters = {}
         filters['hitsPerPage'] = data["pageSize"]
         filters['page'] = data["page"]
+        filters['facets'] = ['brand','category']
         filters['filters'] = ""
 
         filters['filters'] += "locationGroup: " + str(data["locationGroupUuid"]) + " "
@@ -58,43 +59,63 @@ def search_algolia_index(data):
             filters['filters'] = filters['filters'] + "AND "
         filters['filters'] += "isPublished: true AND stock > 0 AND price > 0.0 "
 
-        if data["superCategory"] != "":
+        if data.get("superCategory","") != "":
             if filters['filters'] != "":
                 filters['filters'] = filters['filters'] + "AND "
             filters['filters'] += "superCategory:" + "'" + data["superCategory"] + "' "
 
-        if data["category"] !="":
+        if data.get("category","") !="":
             if filters['filters'] != "":
                 filters['filters'] = filters['filters'] + "AND "
             filters['filters'] += "category:" + "'" + data["category"] + "' "
 
-        if data["subCategory"] != "":
+        if data.get("subCategory","") != "":
             if filters['filters'] != "":
                 filters['filters'] = filters['filters'] + "AND "
             filters['filters'] += "subCategory:" + "'" +  data["subCategory"] + "' "
 
-        if len(data["brands"]) !=0:
+        if len(data.get("brands",[])) !=0:
             filters['filters'] += "AND " + "("
 
-        for brand in data["brands"]:
+        for brand in data.get("brands",[]):
             filters['filters'] += "brand:"  + "'" + brand + "' "
             if filters['filters'] != "":
                 filters['filters'] = filters['filters'] + "OR "
 
-        if len(data["brands"]) !=0:
+        if len(data.get("brands",[])) !=0:
             filters['filters'] = filters['filters'][:-3] +  ")"
 
         client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
-        if data["ranking"] == 0:
-            index = client.init_index('DealsHubProduct')
+        if data.get("ranking",0) == 0:
+            index = client.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX)
         elif data["ranking"] == 1:
-            index = client.init_index('DealsHubProductPriceDesc')
+            index = client.init_index(DEALSHUBPRODUCT_DESC_PRICE_ALGOLIA_INDEX)
         else:
-            index = client.init_index('DealsHubProductPriceAsc')
+            index = client.init_index(DEALSHUBPRODUCT_ASC_PRICE_ALGOLIA_INDEX)
 
         result = index.search(search_string,filters)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("search_algolia_index: %s at %s", e, str(exc_tb.tb_lineno))
+    return result
+
+
+def search_algolia_suggestions(data):
+    try:
+        logger.info("search_algolia_suggestions: %s",str(data))
+        if not isinstance(data, dict):
+            data = json.loads(data)
+
+        search_string = data["search_string"]
+        filters = {}
+
+        client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
+        index = client.init_index('DealsHubProductQuerySuggestions')
+
+        result = index.search(search_string,filters)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("search_algolia_suggestions: %s at %s", e, str(exc_tb.tb_lineno))
     return result

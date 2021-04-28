@@ -1176,8 +1176,8 @@ class FetchDealsHubProductsAPI(APIView):
             if paginator.num_pages == page:
                 is_available = False
 
-            response["active_products"] = DealsHubProduct.objects.filter(is_published=True).count()
-            response["inactive_products"] = DealsHubProduct.objects.filter(is_published=False).count()
+            response["active_products"] = DealsHubProduct.objects.filter(location_group=location_group_obj,is_published=True).count()
+            response["inactive_products"] = DealsHubProduct.objects.filter(location_group=location_group_obj,is_published=False).count()
 
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
@@ -7659,6 +7659,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             except Exception as e:
                 pass
             
+            dealshub_product_obj.additional_sub_categories.clear()
             for other_sub_category_uuid in other_sub_category_uuid_list:
                 other_sub_category_obj = None
                 try:
@@ -8024,7 +8025,7 @@ class CreateOmnyCommUserAPI(APIView):
             contact_no = data["contact_number"]
             designation = data["designation"]
             
-            if username=="" or first_name=="" or last_name=="" or email=="" or contact_number=="":
+            if username=="" or first_name=="" or last_name=="" or email=="" or contact_no=="":
                 response["status"] = 402
                 response["message"] = "some compulsory user fields are empty"
                 return Response(data=response)

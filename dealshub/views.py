@@ -2323,6 +2323,19 @@ class SectionBulkUploadAPI(APIView):
                     temp_dict["was_price"] = dealshub_product_obj.was_price
                     temp_dict["stock"] = dealshub_product_obj.stock
 
+                    if location_group_obj.is_b2b == True:
+                        temp_dict["now_price_cohort1"] = dealshub_product_obj.now_price_cohort1
+                        temp_dict["now_price_cohort2"] = dealshub_product_obj.now_price_cohort2
+                        temp_dict["now_price_cohort3"] = dealshub_product_obj.now_price_cohort3
+                        temp_dict["now_price_cohort4"] = dealshub_product_obj.now_price_cohort4
+                        temp_dict["now_price_cohort5"] = dealshub_product_obj.now_price_cohort5
+
+                        temp_dict["promotional_price_cohort1"] = dealshub_product_obj.promotional_price_cohort1
+                        temp_dict["promotional_price_cohort2"] = dealshub_product_obj.promotional_price_cohort2
+                        temp_dict["promotional_price_cohort3"] = dealshub_product_obj.promotional_price_cohort3
+                        temp_dict["promotional_price_cohort4"] = dealshub_product_obj.promotional_price_cohort4
+                        temp_dict["promotional_price_cohort5"] = dealshub_product_obj.promotional_price_cohort5
+
                     products.append(temp_dict)
 
                 except Exception as e:
@@ -2689,6 +2702,7 @@ class AddBannerImageAPI(APIView):
             unit_banner_image_obj = UnitBannerImage.objects.create(image=image_obj, banner=banner_obj)
 
             response['uuid'] = unit_banner_image_obj.uuid
+            response["imageUrl"] = image_obj.image.url
             response['status'] = 200
             render_value = "Image " + image_obj.image.url + " added to banner "+ banner_obj.name
             activitylog(request.user, Banner, "updated", banner_obj.uuid, prev_banner_obj, banner_obj, banner_obj.location_group, render_value)
@@ -3205,6 +3219,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
             is_dealshub = data.get("isDealshub", False)
 
             is_bot = data.get("isBot", False)
+            is_bot_cohort = data.get("isBotCohort","HIDE")
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -3219,10 +3234,13 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
             resolution = data.get("resolution", "low")
 
-            show_price = "HIDE"
-            if is_user_authenticated:
-                show_price = "SHOW"
-            cache_key = show_price+"-"+location_group_uuid
+            if is_bot:
+                cache_key = is_bot_cohort+"-"+location_group_uuid
+            else:
+                cache_key = "HIDE"+"-"+location_group_uuid
+                if is_user_authenticated:
+                    cohort = b2b_user_obj.cohort
+                    cache_key = "SHOW"+"-"+cohort+location_group_uuid
             if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(cache_key, "has_expired")
                 if cached_value!="has_expired":
@@ -3403,26 +3421,31 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
                     temp_dict2["httpLink"] = unit_banner_image_obj.http_link
                     temp_dict2["url"] = ""
                     temp_dict2["url-ar"] = ""
-                    if unit_banner_image_obj.image!=None:
-                        if resolution=="low":
-                            temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
-                            if unit_banner_image_obj.image_ar!=None:
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
-                            else:
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image.mid_image.url
-                        else:
-                            temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
-                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
-                            temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
-                            if unit_banner_image_obj.image_ar!=None:
-                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
-                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
-                            else:
-                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
-                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
 
+                    try:
+                        if unit_banner_image_obj.image!=None:
+                            if resolution=="low":
+                                temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
+                                if unit_banner_image_obj.image_ar!=None:
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
+                                else:
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image.mid_image.url
+                            else:
+                                temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
+                                if unit_banner_image_obj.image_ar!=None:
+                                    temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
+                                    temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
+                                else:
+                                    temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
+                                    temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.info("FetchB2BDealshubAdminSectionsAPI: %s", str(unit_banner_image_obj.uuid))
+                        logger.error("FetchB2BDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
                     temp_dict2["mobileUrl"] = ""
                     temp_dict2["mobileUrl-ar"] = ""
@@ -3758,7 +3781,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                                 temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
                                 temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
 
-
                     temp_dict2["mobileUrl"] = ""
                     temp_dict2["mobileUrl-ar"] = ""
                     if unit_banner_image_obj.mobile_image!=None:
@@ -3910,9 +3932,6 @@ class FetchDealshubAdminSectionsAPI(APIView):
                             temp_dict4 = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
                             temp_dict_category_products.append(temp_dict4)
                         temp_dict_category["category_tabs"].append({"name":category_obj.get_name(),"products":temp_dict_category_products[:14]})
-
-
-
 
                     category_tab_product_index = location_group_obj.category_tab_product_index
                     temp_dict_category["orderIndex"] = category_tab_product_index
@@ -4479,6 +4498,10 @@ class AddProductToSectionAPI(APIView):
             if section_obj.promotion!=None and dealshub_product_obj.is_promotional:
                 logger.info("product is already in product promotion")
                 response['status'] = 403
+                return Response(data=response)
+            if dealshub_product_obj.promotion!=None:
+                logger.info("product is already promoted in other section")
+                response['status'] = 405
                 return Response(data=response)
             if section_obj.promotion!=None:
                 dealshub_product_obj.promotion = section_obj.promotion
@@ -6141,10 +6164,23 @@ class AddProductToOrderAPI(APIView):
 
             order_obj = Order.objects.get(uuid=order_uuid)
 
+            if UnitOrder.objects.filter(order=order_obj,product=dealshub_product_obj).exists()==True:
+                response["message"] = "Product Already Exists"
+                logger.info("AddProductToOrderAPI: Product Already Exists")
+                return Response(data=response)
+
+            dealshub_user_obj = order_obj.owner
+            deaslshub_product_price = dealshub_product_obj.get_actual_price(dealshub_user_obj)
+
+            if deaslshub_product_price == 0.0:
+                response["message"] = "Product Price is 0 for the user"
+                logger.info("AddProductToOrderAPI: Product Price 0.0")
+                return Response(data=response)
+
             unit_order_obj = UnitOrder.objects.create(order=order_obj, 
                                                       product=dealshub_product_obj, 
                                                       quantity=1,
-                                                      price=dealshub_product_obj.get_actual_price())
+                                                      price=deaslshub_product_price)
             UnitOrderStatus.objects.create(unit_order=unit_order_obj)
 
             omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)

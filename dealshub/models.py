@@ -143,7 +143,7 @@ class Voucher(models.Model):
 def add_product_to_index(dealshub_product_obj):
 
     client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
-    index = client.init_index('DealsHubProduct')
+    index = client.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX)
     
     try:
         # logger.info("add_product_to_index: %s", str(dealshub_product_obj.__dict__))
@@ -151,16 +151,21 @@ def add_product_to_index(dealshub_product_obj):
         dealshub_product_dict["locationGroup"] = dealshub_product_obj.location_group.uuid
         dealshub_product_dict["objectID"] = dealshub_product_obj.uuid
         dealshub_product_dict["productName"] = dealshub_product_obj.get_name()
-        dealshub_product_dict["category"] = dealshub_product_obj.get_category()
-        dealshub_product_dict["superCategory"] = dealshub_product_obj.get_super_category()
-        dealshub_product_dict["subCategory"] = dealshub_product_obj.get_sub_category()
+        dealshub_product_dict["category"] = [dealshub_product_obj.get_category()]
+        dealshub_product_dict["superCategory"] = [dealshub_product_obj.get_super_category()]
+        dealshub_product_dict["subCategory"] = [dealshub_product_obj.get_sub_category()]
         dealshub_product_dict["brand"] = dealshub_product_obj.get_brand()
         dealshub_product_dict["sellerSKU"] = dealshub_product_obj.get_seller_sku()
         dealshub_product_dict["isPublished"] = dealshub_product_obj.is_published
         dealshub_product_dict["price"] = dealshub_product_obj.now_price
         dealshub_product_dict["stock"] = dealshub_product_obj.stock
         dealshub_product_dict["pk"] = dealshub_product_obj.pk
-        
+
+        additional_category_hierarchy = dealshub_product_obj.get_additional_category_hierarchy()
+        dealshub_product_dict["subCategory"].extend(additional_category_hierarchy["additional_sub_categories"])
+        dealshub_product_dict["category"].extend(additional_category_hierarchy["additional_categories"])
+        dealshub_product_dict["superCategory"].extend(additional_category_hierarchy["additional_super_categories"])
+
         index.save_object(dealshub_product_dict, {'autoGenerateObjectIDIfNotExist': False})
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -241,6 +246,8 @@ class DealsHubProduct(models.Model):
     promotional_price_cohort4 = models.FloatField(default=0)
     promotional_price_cohort5 = models.FloatField(default=0)
 
+    display_image_url = models.TextField(default="")
+
     class Meta:
         verbose_name = "DealsHub Product"
         verbose_name_plural = "DealsHub Products"
@@ -275,6 +282,28 @@ class DealsHubProduct(models.Model):
             else:
                 return str(self.sub_category.name_ar)
         return ""
+
+    def get_additional_category_hierarchy(self):
+        temp_dict = {}
+        additional_sub_categories = []
+        additional_categories = []
+        additional_super_categories = []
+
+        additional_sub_categories_objs = self.additional_sub_categories.prefetch_related('category').prefetch_related('category__super_category').all()
+        for additional_sub_category_obj in additional_sub_categories_objs:
+            if additional_sub_category_obj != None:
+                additional_sub_categories.append(str(additional_sub_category_obj))
+                additional_category_obj = additional_sub_category_obj.category
+                if additional_category_obj != None:
+                    additional_categories.append(str(additional_category_obj))
+                    additional_super_category_obj = additional_category_obj.super_category
+                    if additional_super_category_obj != None:
+                        additional_super_categories.append(str(additional_super_category_obj))
+        temp_dict["additional_sub_categories"] = additional_sub_categories
+        temp_dict["additional_categories"] = additional_categories
+        temp_dict["additional_super_categories"] = additional_super_categories
+
+        return temp_dict
 
     def get_name(self,language = "en"):
         if language == "ar":
@@ -594,7 +623,7 @@ class DealsHubProduct(models.Model):
                 pass
 
         try:
-            if self.location_group.name in ["WIGMe - UAE"]:
+            if self.location_group.name in ["WIGMe - UAE","WIGme - Dubai"]:
                 logger.info("Update DealsHubProduct to Index: %s",str(self))
                 p1 = threading.Thread(target = add_product_to_index, args=(self,))
                 p1.start()
@@ -602,6 +631,21 @@ class DealsHubProduct(models.Model):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
+
+        self.display_image_url = self.get_display_image_url()
+        self.was_price = round(float(self.was_price), 2)
+        self.now_price = round(float(self.now_price), 2)
+        self.promotional_price = round(float(self.promotional_price), 2)
+        self.now_price_cohort1 = round(float(self.now_price_cohort1), 2)
+        self.now_price_cohort2 = round(float(self.now_price_cohort2), 2)
+        self.now_price_cohort3 = round(float(self.now_price_cohort3), 2)
+        self.now_price_cohort4 = round(float(self.now_price_cohort4), 2)
+        self.now_price_cohort5 = round(float(self.now_price_cohort5), 2)
+        self.promotional_price_cohort1 = round(float(self.promotional_price_cohort1), 2)
+        self.promotional_price_cohort2 = round(float(self.promotional_price_cohort2), 2)
+        self.promotional_price_cohort3 = round(float(self.promotional_price_cohort3), 2)
+        self.promotional_price_cohort4 = round(float(self.promotional_price_cohort4), 2)
+        self.promotional_price_cohort5 = round(float(self.promotional_price_cohort5), 2)
 
         super(DealsHubProduct, self).save(*args, **kwargs)
 
@@ -902,7 +946,7 @@ class Cart(models.Model):
                 subtotal += float(unit_cart_obj.offline_price)*float(unit_cart_obj.quantity)
             else:
                 subtotal += float(unit_cart_obj.product.get_actual_price_for_customer(self.owner))*float(unit_cart_obj.quantity)
-        return subtotal
+        return round(subtotal, 2)
 
     def get_delivery_fee(self, cod=False, offline=False, calculate=True):
         if calculate==False:
@@ -915,13 +959,13 @@ class Cart(models.Model):
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
         if subtotal < self.location_group.free_delivery_threshold:
-            return self.location_group.delivery_fee
+            return round(self.location_group.delivery_fee,2)
         return 0
 
     def get_cod_charge(self, cod=False, offline=False):
         if cod==False:
             return 0
-        return float(self.offline_cod_charge) if offline==True else float(self.location_group.cod_charge)
+        return round(float(self.offline_cod_charge),2) if offline==True else round(float(self.location_group.cod_charge),2)
 
     def get_total_amount(self, cod=False, offline=False, delivery_fee_calculate=True):
         subtotal = self.get_subtotal(offline=offline)
@@ -1060,7 +1104,7 @@ class OrderRequest(models.Model):
                 return 0
             subtotal = self.voucher.get_discounted_price(subtotal)
         if subtotal < self.location_group.free_delivery_threshold:
-            return self.location_group.delivery_fee
+            return round(self.location_group.delivery_fee, 2)
         return 0
 
     def get_total_amount(self, cod=False):
@@ -1522,7 +1566,7 @@ class FastCart(models.Model):
 
     def get_subtotal(self):
         subtotal = float(self.product.get_actual_price_for_customer(self.owner))*float(self.quantity)
-        return subtotal
+        return round(subtotal, 2)
 
     def get_delivery_fee(self, cod=False):
         subtotal = self.get_subtotal()
@@ -1546,7 +1590,7 @@ class FastCart(models.Model):
         delivery_fee = self.get_delivery_fee(cod)
         if cod==True:
             subtotal += self.location_group.cod_charge
-        return subtotal+delivery_fee
+        return round(subtotal+delivery_fee, 2)
 
     def get_vat(self, cod=False):
         total_amount = self.get_total_amount(cod)
@@ -1593,7 +1637,7 @@ class DealsHubUser(User):
 
 
 class B2BUser(DealsHubUser):
-    company_name = models.CharField(default="",max_length=250)
+    company_name = models.CharField(default="None",max_length=250)
     interested_categories = models.ManyToManyField(Category,blank = True)
     vat_certificate = models.FileField(upload_to = 'vat_certificate',null=True, blank=True)
     trade_license = models.FileField(upload_to = 'trade_license',null=True,blank=True)
@@ -1717,3 +1761,71 @@ class Review(models.Model):
             self.uuid = str(uuid.uuid4())
 
         super(Review, self).save(*args, **kwargs)
+
+
+class BlogPost(models.Model):
+
+    title = models.TextField(default="",blank=True)
+    headline = models.CharField(max_length=255,default="",blank=True)
+    author = models.CharField(max_length=200,default="",blank=True)
+    body = models.TextField(default="")
+    date_created = models.DateTimeField(auto_now_add=True)
+    is_published = models.BooleanField(default=False)
+    cover_image = models.ForeignKey(Image,null=True,blank=True,related_name="cover_image")
+    blog_images = models.ManyToManyField(Image,blank=True,related_name="blog_images")
+    uuid = models.CharField(max_length=200,unique=True)
+    views = models.IntegerField(default=0)
+    location_group = models.ForeignKey(LocationGroup,null=True, blank=True,on_delete=models.SET_NULL)
+    products = models.ManyToManyField(DealsHubProduct,blank=True,related_name='products')
+
+    def __str__(self):
+        return str(self.title)
+
+    def get_cover_image(self):
+        if self.cover_image!=None and self.cover_image!="":
+            return self.cover_image.image.url
+        return ""
+
+    def get_publish_date(self):
+        return str(timezone.localtime(self.date_created).strftime("%d %b, %Y"))
+
+    def save(self, *args, **kwargs):
+        if self.uuid==None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())[:8]
+
+        super(BlogPost,self).save(*args,**kwargs)
+
+
+class BlogSectionType(models.Model):
+
+    name = models.CharField(max_length=200,unique=True,default="")
+    display_name = models.CharField(max_length=200,default="")
+    limit = models.IntegerField(default=5)
+
+    def __str__(self):
+        return str(self.name)
+
+
+class BlogSection(models.Model):
+
+    name = models.CharField(max_length=200,blank=True,default="")
+    blog_posts = models.ManyToManyField(BlogPost, blank=True)
+    is_published = models.BooleanField(default=False)
+    order_index = models.IntegerField(default=1)
+    uuid = models.CharField(max_length=200,unique=True)
+    date_created = models.DateTimeField()
+    modified_date = models.DateTimeField()
+    blog_section_type = models.ForeignKey(BlogSectionType,on_delete=models.CASCADE)
+    section_image = models.ForeignKey(Image,null=True,blank=True)
+    location_group = models.ForeignKey(LocationGroup,null=True, blank=True,on_delete=models.SET_NULL)
+
+    def save(self, *args, **kwargs):
+        if self.pk==None:
+            self.uuid = str(uuid.uuid4())
+            self.date_created = timezone.now()
+            self.modified_date = timezone.now()
+        else:
+            self.modified_date = timezone.now()
+
+        super(BlogSection,self).save(*args,**kwargs)
+

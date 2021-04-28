@@ -211,6 +211,8 @@ class SearchWIG3API(APIView):
             is_available = True
             if search_result["page"] == search_result["nbPages"]-1:
                 is_available = False
+
+            response["facets"] = search_result["facets"]
             response["is_available"] = is_available
             response["totalPages"] = search_result["nbPages"]
             response["total_products"] = search_result["nbHits"]
@@ -225,4 +227,87 @@ class SearchWIG3API(APIView):
         return Response(data=response)
 
 
+class SearchWIG3AutoCompleteAPI(APIView):
+
+    permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SearchWIG3AutoCompleteAPI: %s", str(data))
+
+            search_string = data.get("name", "").strip()
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            website_group_obj = location_group_obj.website_group
+            search = {}
+
+            search_data = {}
+            search_data["search_string"] = search_string
+            search_data["locationGroupUuid"] = location_group_uuid
+            search_data["pageSize"] = 5
+            search_data["page"] = 0
+
+            try:
+                search_result = search_algolia_index(search_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchWIG3AutoCompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            if not isinstance(search_result, dict):
+                search_result = json.loads(search_result)
+
+            hits = search_result["hits"]
+            temp_pk_list = []
+            for hit in hits:
+                temp_pk_list.append(hit["pk"])
+            dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
+            dealshub_product_objs = list(dealshub_product_objs)
+            dealshub_product_objs.sort(key=lambda t: temp_pk_list.index(t.pk))
+
+            ind=0
+            dealshub_product_list = []
+            for dealshub_product_obj in dealshub_product_objs:
+                temp_dict = {}
+                temp_dict["highlightResult"] = hits[ind]["_highlightResult"]
+                temp_dict["name"] = hits[ind]["productName"]
+                temp_dict["sellerSKU"] = hits[ind]["sellerSKU"]
+                temp_dict["brand"] = hits[ind]["brand"]
+                temp_dict["heroImageUrl"] = dealshub_product_obj.display_image_url
+                temp_dict["url"] = dealshub_product_obj.url
+                temp_dict["uuid"] = dealshub_product_obj.uuid
+                ind+=1
+                dealshub_product_list.append(temp_dict)
+
+            try:
+                suggestion_result = search_algolia_suggestions(search_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchWIG3AutoCompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                return Response(data=response)
+
+            if not isinstance(suggestion_result, dict):
+                search_result = json.loads(suggestion_result)
+
+            search['products'] = dealshub_product_list
+            response['search'] = search
+            response['suggestions'] =  suggestion_result["hits"]
+            response['facets'] = search_result["facets"]
+            response['total_products'] = search_result["nbHits"]
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SearchWIG3AutoCompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 SearchWIG3 = SearchWIG3API.as_view()
+
+SearchWIG3AutoComplete = SearchWIG3AutoCompleteAPI.as_view()
