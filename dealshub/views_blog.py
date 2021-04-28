@@ -630,6 +630,7 @@ class FetchBlogPostDetailsAPI(APIView):
             response["title"] = blog_post_obj.title
             response["body"] = blog_post_obj.body
             response["cover_image"] = blog_post_obj.get_cover_image()
+            response["publishDate"] = blog_post_obj.get_publish_date()
 
             dealshub_product_objs = blog_post_obj.products.all()
             product_list = []
