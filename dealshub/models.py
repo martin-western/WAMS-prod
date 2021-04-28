@@ -946,7 +946,7 @@ class Cart(models.Model):
                 subtotal += float(unit_cart_obj.offline_price)*float(unit_cart_obj.quantity)
             else:
                 subtotal += float(unit_cart_obj.product.get_actual_price_for_customer(self.owner))*float(unit_cart_obj.quantity)
-        return round(subtotal, 2) 
+        return round(subtotal, 2)
 
     def get_delivery_fee(self, cod=False, offline=False, calculate=True):
         if calculate==False:
