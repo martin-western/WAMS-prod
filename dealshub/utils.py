@@ -1388,7 +1388,7 @@ def dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj):
         if dealshub_same_baseproduct_objs.count()>1:
             for dealshubproduct_obj in dealshub_same_baseproduct_objs:
                 dealshubproduct_color = dealshubproduct_obj.product.color
-                temp_dict["color_list"].append({"color":"{}".format(dealshubproduct_color),"uuid":"{}".format(dealshubproduct_obj.uuid)})
+                temp_dict["color_list"].append({"color":str(dealshubproduct_color),"uuid":str(dealshubproduct_obj.uuid)})
         
         temp_dict["category"] = dealshub_product_obj.get_category()
         temp_dict["currency"] = dealshub_product_obj.get_currency()
