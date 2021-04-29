@@ -85,13 +85,13 @@ def search_algolia_index(data):
         if len(data.get("brands",[])) !=0:
             filters['filters'] = filters['filters'][:-3] +  ")"
 
-        client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
+        # client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
         if data.get("ranking",0) == 0:
-            index = client.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX)
+            index = ALGOLIA_CLIENT.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX)
         elif data["ranking"] == 1:
-            index = client.init_index(DEALSHUBPRODUCT_DESC_PRICE_ALGOLIA_INDEX)
+            index = ALGOLIA_CLIENT.init_index(DEALSHUBPRODUCT_DESC_PRICE_ALGOLIA_INDEX)
         else:
-            index = client.init_index(DEALSHUBPRODUCT_ASC_PRICE_ALGOLIA_INDEX)
+            index = ALGOLIA_CLIENT.init_index(DEALSHUBPRODUCT_ASC_PRICE_ALGOLIA_INDEX)
 
         result = index.search(search_string,filters)
 
@@ -110,9 +110,7 @@ def search_algolia_suggestions(data):
         search_string = data["search_string"]
         filters = {}
 
-        client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
-        index = client.init_index('DealsHubProductQuerySuggestions')
-
+        index = ALGOLIA_CLIENT.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX) 
         result = index.search(search_string,filters)
 
     except Exception as e:
