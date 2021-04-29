@@ -336,12 +336,12 @@ def send_inquiry_now_mail(message, to_email, password, dealshub_user_obj, dealsh
             auth_user=to_email,
             auth_password=password,
             recipient_list=[to_email],
-            fail_silently=False
+            fail_silently=False,
         )
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("send_inquiry_now_mail: %s at %s", e, str(exc_tb.tb_lineno)
+        logger.error("send_inquiry_now_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def send_order_request_placed_mail(order_request_obj):
