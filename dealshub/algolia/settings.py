@@ -4,12 +4,12 @@ import json
 
 
 client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
-index = client.init_index('DealsHubProduct')
+index = client.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX)
 
 settings = {
 	"replicas":[
-		'virtual(DealsHubProductPriceDesc)',
-		'virtual(DealsHubProductPriceAsc)'
+		'virtual(DealsHubProductQAPriceDesc)',
+		'virtual(DealsHubProductQAPriceAsc)'
 	],
 	"searchableAttributes":[
 		"productName",
@@ -31,19 +31,20 @@ settings = {
 	]
 }
 
-index.set_settings(settings,{"forwardToReplicas":True})
-
-replica_index_desc = client.init_index('DealsHubProductPriceDesc')
-replica_index_desc.set_settings({
-  'customRanking': [
-    'desc(price)'
-  ]
-})
+# replica_index_desc = client.init_index(DEALSHUBPRODUCT_DESC_PRICE_ALGOLIA_INDEX)
+# replica_index_desc.set_settings({
+#   'customRanking': [
+#     'desc(price)'
+#   ]
+# })
 
 
-replica_index_asc = client.init_index('DealsHubProductPriceAsc')
-replica_index_asc.set_settings({
-  'customRanking': [
-    'asc(price)'
-  ]
-})
+# replica_index_asc = client.init_index(DEALSHUBPRODUCT_ASC_PRICE_ALGOLIA_INDEX)
+# replica_index_asc.set_settings({
+#   'customRanking': [
+#     'asc(price)'
+#   ]
+# })
+
+index.set_settings(settings) #,{"forwardToReplicas":True})
+
