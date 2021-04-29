@@ -87,11 +87,11 @@ def search_algolia_index(data):
 
         client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
         if data.get("ranking",0) == 0:
-            index = client.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX)
+            index = ALGOLIA_CLIENT.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX)
         elif data["ranking"] == 1:
-            index = client.init_index(DEALSHUBPRODUCT_DESC_PRICE_ALGOLIA_INDEX)
+            index = ALGOLIA_CLIENT.init_index(DEALSHUBPRODUCT_DESC_PRICE_ALGOLIA_INDEX)
         else:
-            index = client.init_index(DEALSHUBPRODUCT_ASC_PRICE_ALGOLIA_INDEX)
+            index = ALGOLIA_CLIENT.init_index(DEALSHUBPRODUCT_ASC_PRICE_ALGOLIA_INDEX)
 
         result = index.search(search_string,filters)
 
@@ -110,7 +110,8 @@ def search_algolia_suggestions(data):
         search_string = data["search_string"]
         filters = {}
 
-        result = ALGOLIA_INDEX.search(search_string,filters)
+        index = ALGOLIA_CLIENT.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX) 
+        result = index.search(search_string,filters)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
