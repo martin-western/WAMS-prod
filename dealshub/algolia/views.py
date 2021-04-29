@@ -288,13 +288,15 @@ class SearchWIG3AutoCompleteAPI(APIView):
                 ind+=1
                 dealshub_product_list.append(temp_dict)
 
+            t1 = datetime.datetime.now()
             try:
                 suggestion_result = search_algolia_suggestions(search_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SearchWIG3AutoCompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 return Response(data=response)
-
+            t2 = datetime.datetime.now()
+            logger.info("SearchWIG3AutoCompleteAPI: %s", str((t2-t1).total_seconds()))
             if not isinstance(suggestion_result, dict):
                 search_result = json.loads(suggestion_result)
 
