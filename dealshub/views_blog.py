@@ -630,6 +630,7 @@ class FetchBlogPostDetailsAPI(APIView):
             response["title"] = blog_post_obj.title
             response["body"] = blog_post_obj.body
             response["cover_image"] = blog_post_obj.get_cover_image()
+            response["publishDate"] = blog_post_obj.get_publish_date()
 
             dealshub_product_objs = blog_post_obj.products.all()
             product_list = []
@@ -674,6 +675,7 @@ class FetchAllBlogPostsAPI(APIView):
                 temp_dict["uuid"] = blog_post_obj.uuid
                 temp_dict["title"] = blog_post_obj.title
                 temp_dict["author"] = blog_post_obj.author
+                temp_dict["headline"] = blog_post_obj.headline
                 temp_dict["body"] = blog_post_obj.body
                 temp_dict["cover_image"] = blog_post_obj.get_cover_image()
                 blog_post_list.append(temp_dict)
