@@ -318,17 +318,17 @@ def send_parajohn_order_status_sms(unit_order_obj,message):
 def send_inquiry_now_mail(message, to_email, password, dealshub_user_obj, dealshub_product_obj):
     try:
         body = """
-        Message: """+message+"""
-
         Customer Name:- """+dealshub_user_obj.first_name+"""
         Customer Email: """+dealshub_user_obj.email+"""
         Customer Number:- """+dealshub_user_obj.contact_number+"""
+
+        Message: """+message+"""
         
         Product ID: """+dealshub_product_obj.get_product_id()+"""
         Product Name: """+dealshub_product_obj.product_name+"""
         Product Description: """+dealshub_product_obj.product_description+"""
         """
-        
+
         send_mail(
             subject="Product Enquiry of " + str(dealshub_product_obj.product_name),
             message=body,
