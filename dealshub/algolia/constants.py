@@ -1,3 +1,4 @@
+from algoliasearch.search_client import SearchClient
 #QA
 # APPLICATION_KEY = "98URU17GUM"
 # ADMIN_KEY = "6effd1582283b180f285ee4671ac380c"
@@ -6,6 +7,10 @@ ADMIN_KEY = "8ca7dfd6c9a0fcb00a53259c5959ea67"
 DEALSHUBPRODUCT_ALGOLIA_INDEX = 'DealsHubProductQA'
 DEALSHUBPRODUCT_ASC_PRICE_ALGOLIA_INDEX = 'DealsHubProductQAPriceAsc'
 DEALSHUBPRODUCT_DESC_PRICE_ALGOLIA_INDEX = 'DealsHubProductQAPriceDesc'
+
+ALGOLIA_CLIENT = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
+ALGOLIA_INDEX = ALGOLIA_CLIENT.init_index('DealsHubProductQuerySuggestions')
+
 
 # PROD
 # APPLICATION_KEY = "RJCKO6EC3V"

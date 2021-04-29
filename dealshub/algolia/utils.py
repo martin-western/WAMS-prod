@@ -110,10 +110,7 @@ def search_algolia_suggestions(data):
         search_string = data["search_string"]
         filters = {}
 
-        client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
-        index = client.init_index('DealsHubProductQuerySuggestions')
-
-        result = index.search(search_string,filters)
+        result = ALGOLIA_INDEX.search(search_string,filters)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
