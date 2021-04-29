@@ -675,6 +675,7 @@ class FetchAllBlogPostsAPI(APIView):
                 temp_dict["uuid"] = blog_post_obj.uuid
                 temp_dict["title"] = blog_post_obj.title
                 temp_dict["author"] = blog_post_obj.author
+                temp_dict["headline"] = blog_post_obj.headline
                 temp_dict["body"] = blog_post_obj.body
                 temp_dict["cover_image"] = blog_post_obj.get_cover_image()
                 blog_post_list.append(temp_dict)
