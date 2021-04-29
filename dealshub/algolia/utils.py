@@ -85,7 +85,7 @@ def search_algolia_index(data):
         if len(data.get("brands",[])) !=0:
             filters['filters'] = filters['filters'][:-3] +  ")"
 
-        client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
+        # client = SearchClient.create(APPLICATION_KEY, ADMIN_KEY)
         if data.get("ranking",0) == 0:
             index = ALGOLIA_CLIENT.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX)
         elif data["ranking"] == 1:
