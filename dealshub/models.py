@@ -1213,6 +1213,7 @@ class Order(models.Model):
     reference_medium = models.CharField(max_length=200, default="")
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    cheque_images = models.ManyToManyField(Image, related_name="cheque_images", blank=True)
 
     sap_final_billing_info = models.TextField(default="{}")
     SAP_STATUS = (
