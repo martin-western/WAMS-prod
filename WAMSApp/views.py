@@ -1556,10 +1556,10 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                     product_id = product_id.split(".")[0]
                     is_published_str = str(dfs.iloc[i][1]).strip().lower()
                     
-                    if is_published_str!="true" and is_published_str!="false":
+                    if is_published_str!="yes" and is_published_str!="no":
                         excel_errors.append("status for "+product_id+" is not proper")
                         continue
-                    is_published = True if is_published_str=="true" else False
+                    is_published = True if is_published_str=="yes" else False
 
                     dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
                     prev_instance = deepcopy(dh_product_obj)
