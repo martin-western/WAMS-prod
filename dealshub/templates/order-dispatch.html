@@ -246,6 +246,16 @@
                                                 <div style="font-family: inherit; text-align: inherit"><span
                                                     style="color: #DA3E2B; font-size: 24px">Shipment Details</span>
                                                 </div>
+                                                <div style="font-family: inherit; text-align: inherit; color: white;">
+                                                  <br>
+                                                  {{full_name}}
+                                                  <br>
+                                                  {% for line in address_lines %}
+                                                  {{line}}
+                                                  <br>
+                                                  {% endfor %}
+
+                                                </div>
                                                 <div></div>
                                               </div>
                                             </td>
@@ -282,17 +292,6 @@
                                               <div>
                                                 <div style="font-family: inherit; text-align: inherit; color: white;">Order
                                                   Number: <a href="{{website_order_link}}" style="color: white;" >{{order_id}}</a></div>
-                                                <div style="font-family: inherit; text-align: inherit; color: white;">
-                                                  <br>
-                                                  {{full_name}}
-                                                  <br>
-                                                  {% for line in address_lines %}
-                                                  {{line}}
-                                                  <br>
-                                                  {% endfor %}
-
-                                                </div>
-                                                <div></div>
                                               </div>
                                             </td>
                                           </tr>
@@ -396,7 +395,7 @@
                                       <!-- till here -->
 
 
-                                      <table class="module" role="module" data-type="divider" border="0" cellpadding="0"
+                                      <!-- <table class="module" role="module" data-type="divider" border="0" cellpadding="0"
                                         cellspacing="0" width="100%" style="table-layout: fixed;"
                                         data-muid="f7373f10-9ba4-4ca7-9a2e-1a2ba700deb9.1">
                                         <tbody>
@@ -414,7 +413,7 @@
                                             </td>
                                           </tr>
                                         </tbody>
-                                      </table>
+                                      </table> -->
 
                                       <table border="0" cellpadding="0"
                                           cellspacing="0" align="center"
