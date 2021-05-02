@@ -1,6 +1,6 @@
 from dealshub.models import *
 from dealshub.core_utils import *
-from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
 
 import datetime
 from django.utils import timezone
@@ -20,7 +20,7 @@ from django.core.mail import EmailMessage
 from django.template import loader
 import threading
 from WAMSApp.utils import fetch_refresh_stock
-from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
 
 logger = logging.getLogger(__name__)
 

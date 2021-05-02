@@ -20,20 +20,20 @@ from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 
-from WAMSApp.views_sourcing import *
-from WAMSApp.views_mws_report import *
-from WAMSApp.views_mws_orders import *
-from WAMSApp.views_mws_amazon_uk import *
-from WAMSApp.views_mws_amazon_uae import *
-from WAMSApp.views_noon import *
-from WAMSApp.views_amazon_uae import *
-from WAMSApp.views_amazon_uk import *
-from WAMSApp.views_noon_integration import *
+from WAMSApp.sourcing.views_sourcing import *
+from WAMSApp.mws.views_mws_report import *
+from WAMSApp.mws.views_mws_orders import *
+from WAMSApp.mws.views_mws_amazon_uk import *
+from WAMSApp.mws.views_mws_amazon_uae import *
+from WAMSApp.stores.views_noon import *
+from WAMSApp.stores.views_amazon_uae import *
+from WAMSApp.stores.views_amazon_uk import *
+from WAMSApp.stores.views_noon_integration import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
 from WAMSApp.views_category_manager import *
-from WAMSApp.views_SAP_Integration import *
-from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.sap.views_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
 from WAMSApp.views_nesto import *
 from WAMSApp.views_cron import *
 
