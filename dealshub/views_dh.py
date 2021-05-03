@@ -1731,6 +1731,10 @@ class PlaceB2BOnlineOrderAPI(APIView):
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
 
+            if Order.objects.filter(merchant_reference=merchant_reference).exists():
+                logger.warning("PlaceB2BOnlineOrderAPI: Credentials for older order!")
+                return Response(data=response)
+
             if order_request_obj.request_status != "Approved":
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("PlaceB2BOnlineOrderAPI: Order Request Not Approved %s at %s", e, str(exc_tb.tb_lineno))
@@ -8446,6 +8450,10 @@ class PlaceOnlineOrderAPI(APIView):
 
             order_obj = None
 
+            if Order.objects.filter(merchant_reference=merchant_reference).exists():
+                logger.warning("PlaceOnlineOrderAPI: Credentials for older order!")
+                return Response(data=response)
+            
             if online_payment_mode.strip().lower()=="spotii":
                 if on_approve_capture_order(merchant_reference)==False:
                     logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH!")
