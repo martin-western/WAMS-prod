@@ -2505,11 +2505,13 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                 common_row[2] = ""
                 if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
                     dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    
                     if update_type == "stock":
                         stock = float(dfs.iloc[i][1])
                         dh_product_obj.stock = stock
                         dh_product_obj.save()
                         common_row[2] = "success"
+                    
                     elif update_type == "price":
                         now_price = float(dfs.iloc[i][1])
                         was_price = float(dfs.iloc[i][2])
@@ -2517,6 +2519,24 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         dh_product_obj.was_price = was_price
                         dh_product_obj.save()
                         common_row[2] = "success"
+                    
+                    elif update_type == "publish_status":
+                        any_error = False
+                        is_published = str(dfs.iloc[i][1]).strip().lower()
+                        if is_published =='yes':
+                            is_published = True
+                        elif is_published =='no':
+                            is_published = False
+                        else:
+                            common_row[2]+='Publish status value is not proper.'
+                            any_error = True
+                        
+                        if not any_error:
+                            dh_product_obj.is_published = is_published
+                            dh_product_obj.save()
+                            common_row[2] = "success"
+
+                    
                     elif update_type == "status":
                         is_cod_allowed = str(dfs.iloc[i][1]).strip().lower()
                         is_promo_restricted = str(dfs.iloc[i][2]).strip().lower()
