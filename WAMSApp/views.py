@@ -1541,7 +1541,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
             path = default_storage.save('tmp/bulk-upload-status.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
 
-            if OCReport.objects.filter(is_processed=False).count()>6:
+            if OCReport.objects.filter(is_processed=False).count()>15:
                 response["approved"] = False
                 response['status'] = 200
                 return Response(data=response)
