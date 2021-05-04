@@ -177,6 +177,27 @@ def set_order_status(unit_order_obj, order_status):
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
         return
 
+    if unit_order_obj.current_status_admin=="delivery failed" and order_status in ["returned"]:
+        unit_order_obj.current_status_admin = order_status
+        unit_order_obj.current_status = "returned"
+        unit_order_obj.save()
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status=status, status_admin=order_status)
+
+        # Trigger Email
+        try:
+            website_group = unit_order_obj.order.location_group.website_group.name
+            message = "Your order has been returned!"
+            if website_group=="parajohn":
+                p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
+                p2.start()
+            if website_group=="shopnesto":
+                p2 = threading.Thread(target=send_wigme_order_status_sms , args=(unit_order_obj,message,))
+                p2.start()
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
+        return
+
 
 def cancel_order_admin(unit_order_obj, cancelling_note):
 
