@@ -737,6 +737,68 @@ def send_order_delivery_failed_mail(unit_order_obj):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_order_delivery_failed_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
+def send_order_returned_mail(unit_order_obj):
+    try:
+
+        if unit_order_obj.order.owner.email_verified==False:
+            return
+
+        order_returned_date = UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status="returned")[0].date_created
+        order_returned_date = str(timezone.localtime(order_returned_date).strftime("%A, %B %d, %Y | %I:%M %p"))
+        customer_name = unit_order_obj.order.get_customer_first_name()
+
+        address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
+        full_name = unit_order_obj.order.get_customer_full_name()
+        website_logo = unit_order_obj.order.get_email_website_logo()
+
+        website_group_obj = unit_order_obj.order.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+
+        html_message = loader.render_to_string(
+            os.getcwd()+'/dealshub/templates/order-returned.html',
+            {
+                "website_logo": website_logo,
+                "customer_name": customer_name,
+                "order_id": unit_order_obj.orderid,
+                "product_name": unit_order_obj.product.get_name(),
+                "productImageUrl": unit_order_obj.product.get_display_image_url(),
+                "quantity": unit_order_obj.quantity,
+                "order_delivered_date": order_returned_date,
+                "full_name": full_name,
+                "address_lines": address_lines,
+                "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
+                "support_email": support_email,
+                "support_contact_number": support_contact_number
+            }
+        )
+
+        location_group_obj = unit_order_obj.order.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(), 
+            username=location_group_obj.get_order_from_email_id(), 
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Order Returned', 
+                        body='Order Returned', 
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[unit_order_obj.order.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
+            logger.info("send_order_returned_mail")
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_returned_mail: %s at %s", e, str(exc_tb.tb_lineno))
+
 
 def send_order_cancelled_mail(unit_order_obj):
     try:
