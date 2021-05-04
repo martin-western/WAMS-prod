@@ -2898,14 +2898,14 @@ def create_all_dealshub_products_report(filename, uuid, location_group_obj):
             common_row[8] = dealshub_product_obj.stock
             common_row[9] = dealshub_product_obj.moq
             common_row[10] = dealshub_product_obj.get_allowed_qty()
-            common_row[11] = dealshub_product_obj.is_published
-            common_row[12] = dealshub_product_obj.is_new_arrival
-            common_row[13] = dealshub_product_obj.is_on_sale
-            common_row[14] = dealshub_product_obj.is_cod_allowed
-            common_row[15] = dealshub_product_obj.is_promo_restricted
-            common_row[16] = dealshub_product_obj.is_bestseller
-            common_row[17] = dealshub_product_obj.is_featured
-            common_row[18] = dealshub_product_obj.is_notified
+            common_row[11] = "yes" if dealshub_product_obj.is_published else "no"
+            common_row[12] = "yes" if dealshub_product_obj.is_new_arrival else "no"
+            common_row[13] = "yes" if dealshub_product_obj.is_on_sale else "no"
+            common_row[14] = "yes" if dealshub_product_obj.is_cod_allowed else "no"
+            common_row[15] = "yes" if dealshub_product_obj.is_promo_restricted else "no"
+            common_row[16] = "yes" if dealshub_product_obj.is_bestseller else "no"
+            common_row[17] = "yes" if dealshub_product_obj.is_featured else "no"
+            common_row[18] = "yes" if dealshub_product_obj.is_notified else "no"
             common_row[19] = dealshub_product_obj.warranty
             common_row[20] = dealshub_product_obj.get_super_category()
             common_row[21] = dealshub_product_obj.get_category()
@@ -2915,7 +2915,7 @@ def create_all_dealshub_products_report(filename, uuid, location_group_obj):
                 dealshub_product_obj.promotion = None
                 dealshub_product_obj.is_promotional = False
                 dealshub_product_obj.save()
-            common_row[23] = dealshub_product_obj.is_promotional
+            common_row[23] = "yes" if dealshub_product_obj.is_promotional else "no"
             common_row[24] = ""
             common_row[25] = None
             common_row[26] = None
