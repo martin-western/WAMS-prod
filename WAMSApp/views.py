@@ -8121,10 +8121,12 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=omnycomm_user_obj)
             prev_custom_permission_instance = deepcopy(custom_permission_obj)
 
+            custom_permission_obj.location_groups.clear()
             for location_group_uuid in location_group_uuid_list:
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 custom_permission_obj.location_groups.add(location_group_obj)
 
+            custom_permission_obj.brands.clear()
             for brand_pk in brand_pk_list:
                 brand_obj = Brand.objects.get(pk=brand_pk)
                 custom_permission_obj.brands.add(brand_obj)
