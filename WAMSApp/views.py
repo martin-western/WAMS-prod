@@ -1655,6 +1655,9 @@ class BulkDownloadDealshubProductAPI(APIView):
             location_group_uuid = data.get("locationGroupUuid","")
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
+
+
+            #  have to add this report type in custom permission
             report_type = "download product details"
             report_title = "Products Details"
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"

@@ -2922,8 +2922,8 @@ def create_all_dealshub_products_report(filename, uuid, location_group_obj):
 
             if dealshub_product_obj.promotion!=None:
                 common_row[24] = dealshub_product_obj.promotion.promotion_tag
-                common_row[25] = dealshub_product_obj.promotion.start_time
-                common_row[26] = dealshub_product_obj.promotion.end_time
+                common_row[25] = str(dealshub_product_obj.promotion.start_time)
+                common_row[26] = str(dealshub_product_obj.promotion.end_time)
 
             colnum = 0
             for k in common_row:
