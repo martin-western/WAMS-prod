@@ -1514,6 +1514,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
         return Response(data=response)
 
+
 #API with active log
 class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
@@ -1521,8 +1522,9 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
         response = {}
         response['status'] = 500
-
+        
         try:
+            
             data = request.data
             logger.info("BulkUpdateDealshubProductPublishStatusAPI: %s", str(data))
 
@@ -1533,60 +1535,35 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                 response['status'] = 403
                 logger.warning("BulkUpdateDealshubProductPublishStatusAPI Restricted Access!")
                 return Response(data=response)
-            
+
             location_group_uuid = data["locationGroupUuid"]
 
-            path = default_storage.save('tmp/bulk-publish-product.xlsx', data["import_file"])
+            path = default_storage.save('tmp/bulk-upload-status.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
 
-            try:
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            except Exception as e:
-                response['status'] = 406
-                logger.warning("BulkUpdateDealshubProductPublishStatusAPI: UnSupported File Format or Sheet1 not found")
+            if OCReport.objects.filter(is_processed=False).count()>15:
+                response["approved"] = False
+                response['status'] = 200
                 return Response(data=response)
-            
-            rows = len(dfs.iloc[:])
-            excel_errors = []
-            publish_count = 0
-            unpublish_count = 0
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
-                    is_published_str = str(dfs.iloc[i][1]).strip().lower()
-                    
-                    if is_published_str!="yes" and is_published_str!="no":
-                        excel_errors.append("status for "+product_id+" is not proper")
-                        continue
-                    is_published = True if is_published_str=="yes" else False
 
-                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                    prev_instance = deepcopy(dh_product_obj)
-                    dh_product_obj.is_published = is_published
-                    dh_product_obj.save()
-                    
-                    if is_published ==True:
-                        render_value = 'DealsHubProduct {} is published'.format(dh_product_obj.get_seller_sku())
-                    else:
-                        render_value = 'DealsHubProduct {} is not published'.format(dh_product_obj.get_seller_sku())
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
+            report_type = "bulk upload product"
+            report_title = "bulk upload publish status"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the publish status" 
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-                    if is_published:
-                        publish_count += 1
-                    else:
-                        unpublish_count += 1
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
-            
-            response['excel_errors'] = excel_errors
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
 
-            render_value = 'Bulk publish products {} are published and {} are not published'.format(publish_count,unpublish_count)
-            #activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
-
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock_or_status , args=(oc_report_obj.uuid, path,filename, location_group_obj, "publish_status",))
+            p1.start()
+            render_value = 'Bulk update products status with report  {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
+            response['approved'] = True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -8144,10 +8121,12 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=omnycomm_user_obj)
             prev_custom_permission_instance = deepcopy(custom_permission_obj)
 
+            custom_permission_obj.location_groups.clear()
             for location_group_uuid in location_group_uuid_list:
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 custom_permission_obj.location_groups.add(location_group_obj)
 
+            custom_permission_obj.brands.clear()
             for brand_pk in brand_pk_list:
                 brand_obj = Brand.objects.get(pk=brand_pk)
                 custom_permission_obj.brands.add(brand_obj)
