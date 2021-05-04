@@ -185,7 +185,6 @@ def set_order_status(unit_order_obj, order_status):
 
         # Trigger Email
         try:
-            
             website_group = unit_order_obj.order.location_group.website_group.name
             message = "Your order has been returned!"
             if website_group=="parajohn":
