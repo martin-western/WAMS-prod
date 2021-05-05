@@ -23,7 +23,7 @@ def notify_user_for_report(oc_report_obj):
     try:
         body = """
             This is to inform you that your requested report has been generated on Omnycomm.
-            Report information: """+ str(oc_report_obj.note) +"""
+            Report note: """+ str(oc_report_obj.note) +"""
         """
         with get_connection(
             host="smtp.gmail.com",
