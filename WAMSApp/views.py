@@ -6825,8 +6825,8 @@ class CreateOCReportAPI(APIView):
                 "report_type": report_type,
                 "note":"-" if note=="" else note,
                 "brand_list":"all" if brand_list==[] else brand_list,
-                "from_date":from_date if from_date else "-",
-                "to_date":to_date if to_date else "-",
+                "from_date":from_date[:10] if from_date else "-",
+                "to_date":to_date[:10] if to_date else "-",
                 }
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
