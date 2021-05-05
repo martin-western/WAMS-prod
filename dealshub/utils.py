@@ -177,6 +177,13 @@ def set_order_status(unit_order_obj, order_status):
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
         return
 
+    if unit_order_obj.current_status_admin=="delivery failed" and order_status in ["returned"]:
+        unit_order_obj.current_status_admin = order_status
+        unit_order_obj.current_status = "returned"
+        unit_order_obj.save()
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status=status, status_admin=order_status)
+        return
+
 
 def cancel_order_admin(unit_order_obj, cancelling_note):
 
