@@ -1375,7 +1375,8 @@ class UnitOrder(models.Model):
         ("shipped", "shipped"),
         ("intransit", "intransit"),
         ("delivered", "delivered"),
-        ("cancelled", "cancelled")
+        ("cancelled", "cancelled"),
+        ("returned", "returned")
     )
     current_status = models.CharField(max_length=100, choices=CURRENT_STATUS, default="ordered")
 
@@ -1387,6 +1388,7 @@ class UnitOrder(models.Model):
         ("dispatched", "dispatched"),
         ("delivered", "delivered"),
         ("delivery failed", "delivery failed"),
+        ("returned", "returned")
     )
     current_status_admin = models.CharField(max_length=100, choices=CURRENT_STATUS_ADMIN, default="pending")
 
@@ -1493,7 +1495,8 @@ class UnitOrderStatus(models.Model):
         ("shipped", "shipped"),
         ("intransit", "intransit"),
         ("delivered", "delivered"),
-        ("cancelled", "cancelled")
+        ("cancelled", "cancelled"),
+        ("returned", "returned")
     )
     status = models.CharField(max_length=100, choices=STATUS, default="ordered")
 
@@ -1505,6 +1508,7 @@ class UnitOrderStatus(models.Model):
         ("dispatched", "dispatched"),
         ("delivered", "delivered"),
         ("delivery failed", "delivery failed"),
+        ("returned", "returned")
     )
     status_admin = models.CharField(max_length=100, choices=STATUS_ADMIN, default="pending")
 
