@@ -21,6 +21,10 @@ def notify_user_for_report(oc_report_obj):
         return
 
     try:
+        body = """
+            This is to inform you that your requested report has been generated on Omnycomm.
+            Report information: """+ str(oc_report_obj.note) +"""
+        """
         with get_connection(
             host="smtp.gmail.com",
             port=587, 
@@ -28,7 +32,7 @@ def notify_user_for_report(oc_report_obj):
             password="verjtzgeqareribg",
             use_tls=True) as connection:
             email = EmailMessage(subject='Omnycomm Report Generated', 
-                                 body='This is to inform you that your requested report has been generated on Omnycomm',
+                                 body=body,
                                  from_email='nisarg@omnycomm.com',
                                  to=[oc_report_obj.created_by.email],
                                  connection=connection)
