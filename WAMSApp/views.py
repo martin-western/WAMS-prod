@@ -7945,11 +7945,6 @@ class FetchOmnyCommUserListAPI(APIView):
 
             custom_permission_username_list = CustomPermission.objects.filter(organization__name=organization).order_by("-pk").values_list('user__username', flat=True)
             omnycomm_user_objs = OmnyCommUser.objects.filter(username__in= custom_permission_username_list)
-            # temp_omnycomm_objs_list = OmnyCommUser.objects.none()
-            # for custom_permission_obj in custom_permission_objs:
-            #     temp_dict = {}
-            #     temp_omnycomm_objs_list |= OmnyCommUser.objects.get(username=custom_permission_obj.user.username)
-            # omnycomm_user_objs = temp_omnycomm_objs_list.distinct()
             
             if "is_active" in filter_parameters:
                 if filter_parameters["is_active"] == True:
