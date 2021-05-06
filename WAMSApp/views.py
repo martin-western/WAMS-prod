@@ -7935,13 +7935,34 @@ class FetchOmnyCommUserListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            search_list = data.get("search_list", "[]")
+            filter_parameters = data.get("filter_parameters", "{}")
+            filter_parameters = json.loads(filter_parameters)
+            search_list = json.loads(search_list)
+            
             page = int(data.get("page", 1))
             organization = data.get("organization","WIG")
 
             custom_permission_objs = CustomPermission.objects.filter(organization__name=organization).order_by("-pk")
+            omnycomm_user_objs = OmnyCommUser.objects.none()
+            for custom_permission_obj in custom_permission_objs:
+                temp_dict = {}
+                omnycomm_user_objs |= OmnyCommUser.objects.get(username=custom_permission_obj.user.username)
 
-            user_count = custom_permission_objs.count()
-            paginator  = Paginator(custom_permission_objs,20)
+            if "is_active" in filter_parameters:
+                if filter_parameters["is_active"] == True:
+                    omnycomm_user_objs = omnycomm_user_objs.filter(is_active=True)
+                elif filter_parameters["is_active"] == False:
+                    omnycomm_user_objs = omnycomm_user_objs.filter(is_active=False)
+                    
+            if len(search_list)>0:
+                temp_omnycomm_objs_list = OmnyCommUser.objects.none()
+                for search_key in search_list:
+                    temp_omnycomm_objs_list |= omnycomm_user_objs.filter(Q(username__icontains=search_key) | Q(first_name__icontains=search_key) | Q(last_name__icontains=search_key) | Q(designation__icontains=search_key))
+                omnycomm_user_objs = temp_omnycomm_objs_list.distinct()
+            
+            user_count = omnycomm_user_objs.count()
+            paginator  = Paginator(omnycomm_user_objs,20)
             total_pages = int(paginator.num_pages)
 
             if page > total_pages:
@@ -7950,13 +7971,12 @@ class FetchOmnyCommUserListAPI(APIView):
                 logger.warning("FetchOmnyCommUserListAPI : Page number out of range")
                 return Response(data=response)            
 
-            custom_permission_objs = paginator.page(page)
+            omnycomm_user_objs = paginator.page(page)
 
             user_list = []
 
-            for custom_permission_obj in custom_permission_objs:
+            for omnycomm_user_obj in omnycomm_user_objs:
                 temp_dict = {}
-                omnycomm_user_obj = OmnyCommUser.objects.get(username=custom_permission_obj.user.username)
                 temp_dict["username"] = omnycomm_user_obj.username
                 temp_dict["first_name"] = omnycomm_user_obj.first_name
                 temp_dict["last_name"] = omnycomm_user_obj.last_name
