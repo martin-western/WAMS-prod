@@ -9292,6 +9292,8 @@ DeleteOrderRequest = DeleteOrderRequestAPI.as_view()
 
 UpdateUnitOrderRequestAdmin = UpdateUnitOrderRequestAdminAPI.as_view()
 
+AddChequeImage = AddChequeImageAPI.as_view()
+
 PlaceB2BOnlineOrder = PlaceB2BOnlineOrderAPI.as_view()
 
 ProcessOrderRequest = ProcessOrderRequestAPI.as_view()
