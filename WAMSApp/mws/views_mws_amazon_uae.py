@@ -1,6 +1,6 @@
 from WAMSApp.models import *
 from WAMSApp.utils import *
-from WAMSApp.xml_generators_uk import *
+from WAMSApp.mws.xml_generators_uae import *
 
 from MWS import mws,APIs
 
@@ -37,9 +37,9 @@ MWS_ACCESS_KEY = MWS_PARAMS["MWS_ACCESS_KEY"]
 MWS_SECRET_KEY = MWS_PARAMS["MWS_SECRET_KEY"]
 SELLER_ID = MWS_PARAMS["SELLER_ID"]
 
-marketplace_id = mws.Marketplaces["UK"].marketplace_id
+marketplace_id = mws.Marketplaces["AE"].marketplace_id
 
-class GetMatchingProductsAmazonUKAPI(APIView):
+class GetMatchingProductsAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -47,12 +47,12 @@ class GetMatchingProductsAmazonUKAPI(APIView):
         response['status'] = 500
         try:
             if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
-                logger.warning("GetMatchingProductsAmazonUKAPI Restricted Access!")
+                logger.warning("GetMatchingProductsAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("GetMatchingProductsAmazonUKAPI: %s", str(data))
+            logger.info("GetMatchingProductsAmazonUAEAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -60,21 +60,21 @@ class GetMatchingProductsAmazonUKAPI(APIView):
             product_pk_list = data["product_pk_list"]
 
             if(len(product_pk_list)>30):
-                logger.warning("GetMatchingProductsAmazonUKAPI More then 30 Products!")
+                logger.warning("GetMatchingProductsAmazonUAEAPI More then 30 Products!")
                 response['status'] = 429
                 return Response(data=response)
 
             permissible_channels = custom_permission_filter_channels(request.user)
-            channel_obj = Channel.objects.get(name="Amazon UK")
+            channel_obj = Channel.objects.get(name="Amazon UAE")
 
             if channel_obj not in permissible_channels:
                 logger.warning(
-                    "GetMatchingProductsAmazonUKAPI Restricted Access of UK Channel!")
+                    "GetMatchingProductsAmazonUAEAPI Restricted Access of UAE Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
             products_api = APIs.Products(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
-                                        region='UK')
+                                        region='AE')
 
             barcodes_list = []
             matched_products_list = []
@@ -149,7 +149,7 @@ class GetMatchingProductsAmazonUKAPI(APIView):
                             temp_dict["matched_ASIN"] = ""
                             if temp_dict["status"] == "Success":
                                 channel_product = Product.objects.get(pk=pk_list[j]).channel_product
-                                amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
+                                amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                                 parsed_products = products.parsed[j]["Products"]["Product"]
                                 if isinstance(parsed_products,list):
                                     temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
@@ -157,16 +157,16 @@ class GetMatchingProductsAmazonUKAPI(APIView):
                                 else:
                                     temp_dict["matched_ASIN"] = products.parsed[j]["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
                                     temp_dict["matched_product_title"] = products.parsed[j]["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
-                                amazon_uk_product["ASIN"] = temp_dict["matched_ASIN"]
-                                channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
+                                amazon_uae_product["ASIN"] = temp_dict["matched_ASIN"]
+                                channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
                                 channel_product.save()
                             else :
                                 temp_dict["status"] = "New Product"
                                 product_obj = Product.objects.get(pk=pk_list[j])
                                 channel_product = product_obj.channel_product
-                                amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
-                                amazon_uk_product["status"] = "New"
-                                channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
+                                amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
+                                amazon_uae_product["status"] = "New"
+                                channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
                                 channel_product.save()
 
                             matched_products_list.append(temp_dict)
@@ -179,7 +179,7 @@ class GetMatchingProductsAmazonUKAPI(APIView):
                         if temp_dict["status"] == "Success":
                             product_obj = Product.objects.get(pk=pk_list[0])
                             channel_product = product_obj.channel_product
-                            amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
+                            amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
                             parsed_products = products.parsed["Products"]["Product"]
                             if isinstance(parsed_products,list):
                                 temp_dict["matched_ASIN"] = parsed_products[0]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
@@ -187,21 +187,21 @@ class GetMatchingProductsAmazonUKAPI(APIView):
                             else:
                                 temp_dict["matched_ASIN"] = products.parsed["Products"]["Product"]["Identifiers"]["MarketplaceASIN"]["ASIN"]["value"]
                                 temp_dict["matched_product_title"] = products.parsed["Products"]["Product"]["AttributeSets"]["ItemAttributes"]["Title"]["value"]
-                            amazon_uk_product["ASIN"] = temp_dict["matched_ASIN"]
-                            channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
+                            amazon_uae_product["ASIN"] = temp_dict["matched_ASIN"]
+                            channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
                             channel_product.save()
                         else :
                             temp_dict["status"] = "New Product"
                             product_obj = Product.objects.get(pk=pk_list[0])
                             channel_product = product_obj.channel_product
-                            amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
-                            amazon_uk_product["status"] = "New"
-                            channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
+                            amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
+                            amazon_uae_product["status"] = "New"
+                            channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product)
                             channel_product.save()
 
                         temp_dict["amazon_url"] = ""
                         if temp_dict["matched_ASIN"] != "":
-                            temp_dict["amazon_url"] = "https://www.amazon.UK/dp/"+str(temp_dict["matched_ASIN"])
+                            temp_dict["amazon_url"] = "https://www.amazon.ae/dp/"+str(temp_dict["matched_ASIN"])
                         
                         matched_products_list.append(temp_dict)
                         
@@ -224,12 +224,12 @@ class GetMatchingProductsAmazonUKAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GetMatchingProductsAmazonUKAPI: %s at %s",
+            logger.error("GetMatchingProductsAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class GetPricingProductsAmazonUKAPI(APIView):
+class GetPricingProductsAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -237,12 +237,12 @@ class GetPricingProductsAmazonUKAPI(APIView):
         response['status'] = 500
         try:
             if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
-                logger.warning("GetPricingProductsAmazonUKAPI Restricted Access!")
+                logger.warning("GetPricingProductsAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("GetPricingProductsAmazonUKAPI: %s", str(data))
+            logger.info("GetPricingProductsAmazonUAEAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -250,21 +250,21 @@ class GetPricingProductsAmazonUKAPI(APIView):
             product_pk_list = data["product_pk_list"]
 
             if(len(product_pk_list)>30):
-                logger.warning("GetPricingProductsAmazonUKAPI More then 30 Products!")
+                logger.warning("GetPricingProductsAmazonUAEAPI More then 30 Products!")
                 response['status'] = 429
                 return Response(data=response)
 
             permissible_channels = custom_permission_filter_channels(request.user)
-            channel_obj = Channel.objects.get(name="Amazon UK")
+            channel_obj = Channel.objects.get(name="Amazon UAE")
 
             if channel_obj not in permissible_channels:
                 logger.warning(
-                    "GetPricingProductsAmazonUKAPI Restricted Access of UK Channel!")
+                    "GetPricingProductsAmazonUAEAPI Restricted Access of UAE Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
             products_api = APIs.Products(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
-                                        region='UK')
+                                        region='AE')
 
             barcodes_list = []
             pricing_information = {}
@@ -276,8 +276,8 @@ class GetPricingProductsAmazonUKAPI(APIView):
 
                 product_obj = Product.objects.get(pk=product_pk)
                 channel_product = product_obj.channel_product
-                amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
-                product_asin = amazon_uk_product["ASIN"]
+                amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
+                product_asin = amazon_uae_product["ASIN"]
 
                 if product_asin!="":
                     barcodes_list.append((product_asin,product_pk))
@@ -385,13 +385,13 @@ class GetPricingProductsAmazonUKAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GetPricingProductsAmazonUKAPI: %s at %s",
+            logger.error("GetPricingProductsAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class PushProductsAmazonUKAPI(APIView):
+class PushProductsAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -401,12 +401,12 @@ class PushProductsAmazonUKAPI(APIView):
         try:
 
             if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
-                logger.warning("PushProductsAmazonUKAPI Restricted Access!")
+                logger.warning("PushProductsAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("PushProductsAmazonUKAPI: %s", str(data))
+            logger.info("PushProductsAmazonUAEAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -414,16 +414,16 @@ class PushProductsAmazonUKAPI(APIView):
             product_pk_list = data["product_pk_list"]
 
             if(len(product_pk_list)>30):
-                logger.warning("PushProductsAmazonUKAPI More then 30 Products!")
+                logger.warning("PushProductsAmazonUAEAPI More then 30 Products!")
                 response['status'] = 429
                 return Response(data=response)
 
             permissible_channels = custom_permission_filter_channels(request.user)
-            channel_obj = Channel.objects.get(name="Amazon UK")
+            channel_obj = Channel.objects.get(name="Amazon UAE")
 
             if channel_obj not in permissible_channels:
                 logger.warning(
-                    "PushProductsAmazonUKAPI Restricted Access of UK Channel!")
+                    "PushProductsAmazonUAEAPI Restricted Access of UAE Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -434,12 +434,12 @@ class PushProductsAmazonUKAPI(APIView):
             xml_string = ""
 
             if(is_partial == False):
-                xml_string= generate_xml_for_post_product_data_amazon_uk(product_pk_list,SELLER_ID)
+                xml_string= generate_xml_for_post_product_data_amazon_uae(product_pk_list,SELLER_ID)
             else:
-                xml_string = generate_xml_for_partial_update_product_amazon_uk(product_pk_list,SELLER_ID)
+                xml_string = generate_xml_for_partial_update_product_amazon_uae(product_pk_list,SELLER_ID)
 
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
-                                        region='UK')
+                                        region='AE')
 
             response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_DATA_",marketplaceids=marketplace_id)
 
@@ -462,13 +462,13 @@ class PushProductsAmazonUKAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PushProductsAmazonUKAPI: %s at %s",
+            logger.error("PushProductsAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class PushProductsInventoryAmazonUKAPI(APIView):
+class PushProductsInventoryAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -478,12 +478,12 @@ class PushProductsInventoryAmazonUKAPI(APIView):
         try:
 
             if custom_permission_mws_functions(request.user,"push_inventory_on_amazon") == False and custom_permission_mws_functions(request.user,"push_price_on_amazon") == False:
-                logger.warning("PushProductsInventoryAmazonUKAPI Restricted Access!")
+                logger.warning("PushProductsInventoryAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("PushProductsInventoryAmazonUKAPI: %s", str(data))
+            logger.info("PushProductsInventoryAmazonUAEAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -491,25 +491,25 @@ class PushProductsInventoryAmazonUKAPI(APIView):
             product_pk_list = data["product_pk_list"]
 
             if(len(product_pk_list)>30):
-                logger.warning("PushProductsInventoryAmazonUKAPI More then 30 Products!")
+                logger.warning("PushProductsInventoryAmazonUAEAPI More then 30 Products!")
                 response['status'] = 429
                 return Response(data=response)
 
             permissible_channels = custom_permission_filter_channels(request.user)
-            channel_obj = Channel.objects.get(name="Amazon UK")
+            channel_obj = Channel.objects.get(name="Amazon UAE")
 
             if channel_obj not in permissible_channels:
                 logger.warning(
-                    "PushProductsInventoryAmazonUKAPI Restricted Access of UK Channel!")
+                    "PushProductsInventoryAmazonUAEAPI Restricted Access of UAE Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
             response["feed_submission_id"] = ""
 
-            xml_string= generate_xml_for_inventory_data_amazon_uk(product_pk_list,SELLER_ID)
+            xml_string= generate_xml_for_inventory_data_amazon_uae(product_pk_list,SELLER_ID)
 
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
-                                        region='UK')
+                                        region='AE')
 
             response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_INVENTORY_AVAILABILITY_DATA_",marketplaceids=marketplace_id)
 
@@ -532,12 +532,12 @@ class PushProductsInventoryAmazonUKAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PushProductsInventoryAmazonUKAPI: %s at %s",
+            logger.error("PushProductsInventoryAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class PushProductsPriceAmazonUKAPI(APIView):
+class PushProductsPriceAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -547,12 +547,12 @@ class PushProductsPriceAmazonUKAPI(APIView):
         try:
 
             if custom_permission_mws_functions(request.user,"push_price_on_amazon") == False:
-                logger.warning("PushProductsPriceAmazonUKAPI Restricted Access!")
+                logger.warning("PushProductsPriceAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("PushProductsPriceAmazonUKAPI: %s", str(data))
+            logger.info("PushProductsPriceAmazonUAEAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -560,25 +560,25 @@ class PushProductsPriceAmazonUKAPI(APIView):
             product_pk_list = data["product_pk_list"]
 
             if(len(product_pk_list)>30):
-                logger.warning("PushProductsPriceAmazonUKAPI More then 30 Products!")
+                logger.warning("PushProductsPriceAmazonUAEAPI More then 30 Products!")
                 response['status'] = 429
                 return Response(data=response)
 
             permissible_channels = custom_permission_filter_channels(request.user)
-            channel_obj = Channel.objects.get(name="Amazon UK")
+            channel_obj = Channel.objects.get(name="Amazon UAE")
 
             if channel_obj not in permissible_channels:
                 logger.warning(
-                    "PushProductsPriceAmazonUKAPI Restricted Access of UK Channel!")
+                    "PushProductsPriceAmazonUAEAPI Restricted Access of UAE Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
             response["feed_submission_id"] = ""
 
-            xml_string= generate_xml_for_price_data_amazon_uk(product_pk_list,SELLER_ID)
+            xml_string= generate_xml_for_price_data_amazon_uae(product_pk_list,SELLER_ID)
 
             feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, 
-                                        region='UK')
+                                        region='AE')
 
             response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_PRICING_DATA_",marketplaceids=marketplace_id)
 
@@ -601,12 +601,12 @@ class PushProductsPriceAmazonUKAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PushProductsPriceAmazonUKAPI: %s at %s",
+            logger.error("PushProductsPriceAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class GetProductInventoryAmazonUKAPI(APIView):
+class GetProductInventoryAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -616,12 +616,12 @@ class GetProductInventoryAmazonUKAPI(APIView):
         try:
 
             if custom_permission_mws_functions(request.user,"push_inventory_on_amazon") == False:
-                logger.warning("GetProductInventoryAmazonUKAPI Restricted Access!")
+                logger.warning("GetProductInventoryAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             data = request.data
-            logger.info("GetProductInventoryAmazonUKAPI: %s", str(data))
+            logger.info("GetProductInventoryAmazonUAEAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -629,10 +629,10 @@ class GetProductInventoryAmazonUKAPI(APIView):
             product_pk_list = data["product_pk_list"]
 
             permissible_channels = custom_permission_filter_channels(request.user)
-            channel_obj = Channel.objects.get(name="Amazon UK")
+            channel_obj = Channel.objects.get(name="Amazon UAE")
 
             if channel_obj not in permissible_channels:
-                logger.warning("GetProductInventoryAmazonUKAPI Restricted Access of UK Channel!")
+                logger.warning("GetProductInventoryAmazonUAEAPI Restricted Access of UAE Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
@@ -644,11 +644,11 @@ class GetProductInventoryAmazonUKAPI(APIView):
                 temp_dict["product_pk"] = product_pk
                 product_obj = Product.objects.get(pk=int(product_pk))
                 channel_product = product_obj.channel_product
-                amazon_uk_product = json.loads(channel_product.amazon_uk_product_json)
-                temp_dict["was_price"] = amazon_uk_product["was_price"]
-                temp_dict["now_price"] = amazon_uk_product["now_price"]
-                temp_dict["stock"] = amazon_uk_product["stock"]
-                temp_dict["status"] = amazon_uk_product["status"]
+                amazon_uae_product = json.loads(channel_product.amazon_uae_product_json)
+                temp_dict["was_price"] = amazon_uae_product["was_price"]
+                temp_dict["now_price"] = amazon_uae_product["now_price"]
+                temp_dict["stock"] = amazon_uae_product["stock"]
+                temp_dict["status"] = amazon_uae_product["status"]
                 inventory_list.append(temp_dict)
 
             response["inventory_list"] = inventory_list
@@ -656,12 +656,12 @@ class GetProductInventoryAmazonUKAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GetProductInventoryAmazonUKAPI: %s at %s",
+            logger.error("GetProductInventoryAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-class FetchPriceAndStockAmazonUKAPI(APIView):
+class FetchPriceAndStockAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -672,9 +672,9 @@ class FetchPriceAndStockAmazonUKAPI(APIView):
 
             data = request.data
 
-            logger.info("FetchPriceAndStockAmazonUKAPI: %s", str(data))
+            logger.info("FetchPriceAndStockAmazonUAEAPI: %s", str(data))
 
-            reports_api = APIs.Reports(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region="UK")
+            reports_api = APIs.Reports(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region="AE")
 
             request_report = reports_api.request_report(report_type="_GET_MERCHANT_LISTINGS_ALL_DATA_", marketplace_ids=marketplace_id)
 
@@ -696,9 +696,12 @@ class FetchPriceAndStockAmazonUKAPI(APIView):
 
             report = report.decode("windows-1252").splitlines()
 
+            cnt = 0
+
             organization_obj = CustomPermission.objects.get(user__username=request.user.username).organization
 
-            cnt = 0
+            updated_products = 0
+
             for line in report:
 
                 try:
@@ -721,14 +724,16 @@ class FetchPriceAndStockAmazonUKAPI(APIView):
                         try:
                             product = Product.objects.filter(base_product__seller_sku=seller_sku, base_product__brand__organization=organization_obj)[0]
                             channel_product = product.channel_product   
-                            amazon_uk_product_json = json.loads(channel_product.amazon_uk_product_json)
-                            amazon_uk_product_json["now_price"] = price
-                            amazon_uk_product_json["stock"] = quantity
+                            amazon_uae_product_json = json.loads(channel_product.amazon_uae_product_json)
+                            amazon_uae_product_json["now_price"] = price
+                            amazon_uae_product_json["stock"] = quantity
                             if(status != "Active"):
                                 status = "Listed"
-                            amazon_uk_product_json["status"] = status
-                            amazon_uk_product_json["ASIN"] = ASIN
-                            channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product_json)
+                            amazon_uae_product_json["status"] = status
+                            if(ASIN != ""):
+                                amazon_uae_product_json["ASIN"] = ASIN
+                                amazon_uae_product_json["http_link"] = "https://www.amazon.ae/dp/"+str(ASIN)
+                            channel_product.amazon_uae_product_json = json.dumps(amazon_uae_product_json)
                             channel_product.save()
 
                             updated_products += 1
@@ -747,13 +752,13 @@ class FetchPriceAndStockAmazonUKAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchPriceAndStockAmazonUKAPI: %s at %s",
+            logger.error("FetchPriceAndStockAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-class PushProductImagesAmazonUKAPI(APIView):
+class PushProductImagesAmazonUAEAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -764,35 +769,35 @@ class PushProductImagesAmazonUKAPI(APIView):
 
             data = request.data
             
-            logger.info("PushProductImagesAmazonUKAPI: %s", str(data))
+            logger.info("PushProductImagesAmazonUAEAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             if custom_permission_mws_functions(request.user,"push_product_on_amazon") == False:
-                logger.warning("PushProductImagesAmazonUKAPI Restricted Access!")
+                logger.warning("PushProductImagesAmazonUAEAPI Restricted Access!")
                 response['status'] = 403
                 return Response(data=response)
 
             permissible_channels = custom_permission_filter_channels(request.user)
 
-            channel_obj = Channel.objects.get(name="Amazon UK")
+            channel_obj = Channel.objects.get(name="Amazon UAE")
 
             if channel_obj not in permissible_channels:
-                logger.warning("PushProductImagesAmazonUKAPI Restricted Access of UK Channel!")
+                logger.warning("PushProductImagesAmazonUAEAPI Restricted Access of UAE Channel!")
                 response['status'] = 403
                 return Response(data=response)
 
             product_pk_list = data["product_pk_list"]
 
             if(len(product_pk_list)>30):
-                logger.warning("PushProductImagesAmazonUKAPI More then 30 Products!")
+                logger.warning("PushProductImagesAmazonUAEAPI More then 30 Products!")
                 response['status'] = 429
                 return Response(data=response)
 
-            xml_string = generate_xml_for_product_image_amazon_uk(product_pk_list,SELLER_ID)
+            xml_string = generate_xml_for_product_image_amazon_uae(product_pk_list,SELLER_ID)
 
-            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region='UK')
+            feeds_api = APIs.Feeds(MWS_ACCESS_KEY,MWS_SECRET_KEY,SELLER_ID, region='AE')
 
             response_submeet_feed = feeds_api.submit_feed(xml_string,"_POST_PRODUCT_IMAGE_DATA_",marketplaceids=marketplace_id)
 
@@ -815,23 +820,23 @@ class PushProductImagesAmazonUKAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PushProductImagesAmazonUKAPI: %s at %s",
+            logger.error("PushProductImagesAmazonUAEAPI: %s at %s",
                          e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-GetMatchingProductsAmazonUK = GetMatchingProductsAmazonUKAPI.as_view()
+GetMatchingProductsAmazonUAE = GetMatchingProductsAmazonUAEAPI.as_view()
 
-GetPricingProductsAmazonUK = GetPricingProductsAmazonUKAPI.as_view()
+GetPricingProductsAmazonUAE = GetPricingProductsAmazonUAEAPI.as_view()
 
-PushProductsAmazonUK = PushProductsAmazonUKAPI.as_view()
+PushProductsAmazonUAE = PushProductsAmazonUAEAPI.as_view()
 
-PushProductsInventoryAmazonUK = PushProductsInventoryAmazonUKAPI.as_view()
+PushProductsInventoryAmazonUAE = PushProductsInventoryAmazonUAEAPI.as_view()
 
-PushProductsPriceAmazonUK = PushProductsPriceAmazonUKAPI.as_view()
+PushProductsPriceAmazonUAE = PushProductsPriceAmazonUAEAPI.as_view()
 
-GetProductInventoryAmazonUK = GetProductInventoryAmazonUKAPI.as_view()
+GetProductInventoryAmazonUAE = GetProductInventoryAmazonUAEAPI.as_view()
 
-FetchPriceAndStockAmazonUK = FetchPriceAndStockAmazonUKAPI.as_view()
+FetchPriceAndStockAmazonUAE = FetchPriceAndStockAmazonUAEAPI.as_view()
 
-PushProductImagesAmazonUK = PushProductImagesAmazonUKAPI.as_view()
+PushProductImagesAmazonUAE = PushProductImagesAmazonUAEAPI.as_view()

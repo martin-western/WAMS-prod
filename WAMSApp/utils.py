@@ -4,10 +4,10 @@ import urllib
 import os
 from django.core.files import File
 from WAMSApp.core_utils import *
-from WAMSApp.amazon_uk import *
-from WAMSApp.amazon_uae import *
-from WAMSApp.ebay import *
-from WAMSApp.noon import *
+from WAMSApp.stores.amazon_uk import *
+from WAMSApp.stores.amazon_uae import *
+from WAMSApp.stores.ebay import *
+from WAMSApp.stores.noon import *
 from WAMSApp.serializers import UserSerializer
 from WAMSApp.models import *
 from django.db.models import Q
