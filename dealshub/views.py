@@ -3444,8 +3444,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
                                     temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.info("FetchB2BDealshubAdminSectionsAPI: %s", str(unit_banner_image_obj.uuid))
-                        logger.error("FetchB2BDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                        logger.error("FetchB2BDealshubAdminSectionsAPI: %s at %s with image %s", e, str(exc_tb.tb_lineno),  str(unit_banner_image_obj.uuid))
 
                     temp_dict2["mobileUrl"] = ""
                     temp_dict2["mobileUrl-ar"] = ""
@@ -3761,47 +3760,55 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["httpLink"] = unit_banner_image_obj.http_link
                     temp_dict2["url"] = ""
                     temp_dict2["url-ar"] = ""
-                    if unit_banner_image_obj.image!=None:
-                        if resolution=="low":
-                            temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
-                            if unit_banner_image_obj.image_ar!=None:
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
+                    try:
+                        if unit_banner_image_obj.image!=None:
+                            if resolution=="low":
+                                temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
+                                if unit_banner_image_obj.image_ar!=None:
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
+                                else:
+                                    temp_dict2["url-ar"] = ""
                             else:
-                                temp_dict2["url-ar"] = ""
-                        else:
-                            temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
-                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
-                            temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
-                            if unit_banner_image_obj.image_ar!=None:
-                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
-                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
-                            else:
-                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
-                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
+                                temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
+                                if unit_banner_image_obj.image_ar!=None:
+                                    temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
+                                    temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
+                                else:
+                                    temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
+                                    temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("FetchDealshubAdminSectionsAPI: %s at %s with image %s", e, str(exc_tb.tb_lineno), str(unit_banner_image_obj.uuid))
 
                     temp_dict2["mobileUrl"] = ""
                     temp_dict2["mobileUrl-ar"] = ""
-                    if unit_banner_image_obj.mobile_image!=None:
-                        if resolution=="low":
-                            temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
-                            if unit_banner_image_obj.mobile_image_ar!=None:
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.mid_image.url
+                    try:
+                        if unit_banner_image_obj.mobile_image!=None:
+                            if resolution=="low":
+                                temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
+                                if unit_banner_image_obj.mobile_image_ar!=None:
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.mid_image.url
+                                else:
+                                    temp_dict2["mobileUrl-ar"] = ""
                             else:
-                                temp_dict2["mobileUrl-ar"] = ""
-                        else:
-                            temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
-                            temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
-                            temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
-                            if unit_banner_image_obj.mobile_image_ar!=None:
-                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
-                                temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
-                            else:
-                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
-                                temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image.webp_image.url
+                                temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
+                                temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+                                temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
+                                if unit_banner_image_obj.mobile_image_ar!=None:
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                    temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
+                                else:
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                    temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image.webp_image.url
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("FetchDealshubAdminSectionsAPI: %s at %s with image %s", e, str(exc_tb.tb_lineno), str(unit_banner_image_obj.uuid))
 
                     hovering_banner_img = unit_banner_image_obj.hovering_banner_image
                     if hovering_banner_img is not None:
@@ -6417,8 +6424,8 @@ class AskProductReviewsCronAPI(APIView):
             
             time_delta = datetime.timedelta(days=1)
             now_time = datetime.datetime.now()
-            start_time = now_time - time_delta
-            end_time = now_time + time_delta
+            start_time = now_time - 10*time_delta
+            end_time = now_time - 9*time_delta
 
             order_uuid_list = list(UnitOrderStatus.objects.filter(date_created__gte=start_time, date_created__lte=end_time, status_admin="delivered").values_list('unit_order__order__uuid').distinct())
 

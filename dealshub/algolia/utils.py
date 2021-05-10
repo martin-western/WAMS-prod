@@ -110,7 +110,7 @@ def search_algolia_suggestions(data):
         search_string = data["search_string"]
         filters = {}
 
-        index = ALGOLIA_CLIENT.init_index(DEALSHUBPRODUCT_ALGOLIA_INDEX) 
+        index = ALGOLIA_CLIENT.init_index('DealsHubProductQuerySuggestions') 
         result = index.search(search_string,filters)
 
     except Exception as e:
