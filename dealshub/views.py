@@ -3782,8 +3782,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
                                     temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.info("FetchDealshubAdminSectionsAPI: %s", str(unit_banner_image_obj.uuid))
-                        logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                        logger.error("FetchDealshubAdminSectionsAPI: %s at %s with image %s", e, str(exc_tb.tb_lineno), str(unit_banner_image_obj.uuid))
 
                     temp_dict2["mobileUrl"] = ""
                     temp_dict2["mobileUrl-ar"] = ""
