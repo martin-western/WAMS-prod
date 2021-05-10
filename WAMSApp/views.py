@@ -7935,10 +7935,8 @@ class FetchOmnyCommUserListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            search_list = data.get("search_list", "[]")
-            filter_parameters = data.get("filter_parameters", "{}")
-            filter_parameters = json.loads(filter_parameters)
-            search_list = json.loads(search_list)
+            search_list = data.get("search_list", [])
+            filter_parameters = data.get("filter_parameters", {})
             
             page = int(data.get("page", 1))
             organization = data.get("organization","WIG")
