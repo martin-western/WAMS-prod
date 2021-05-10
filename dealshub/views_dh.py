@@ -13,11 +13,11 @@ from dealshub.constants import *
 from dealshub.utils import *
 from WAMSApp.constants import *
 from WAMSApp.utils import *
-from WAMSApp.utils_SAP_Integration import *
-from dealshub.network_global_integration import *
-from dealshub.hyperpay_integration import *
-from dealshub.spotii_integration import *
-from dealshub.tap_integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
+from dealshub.payments.network_global_integration import *
+from dealshub.payments.hyperpay_integration import *
+from dealshub.payments.spotii_integration import *
+from dealshub.payments.tap_integration import *
 from dealshub.postaplus import *
 from dealshub.views_blog import *
 
@@ -29,7 +29,7 @@ from django.utils import timezone
 #from datetime import datetime
 import datetime
 
-from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
 
 import sys
 import logging

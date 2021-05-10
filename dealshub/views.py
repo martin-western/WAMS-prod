@@ -10,8 +10,8 @@ from WAMSApp.constants import *
 from dealshub.models import *
 from dealshub.utils import *
 from dealshub.views_dh import *
-from dealshub.network_global_integration import *
-from dealshub.hyperpay_integration import *
+from dealshub.payments.network_global_integration import *
+from dealshub.payments.hyperpay_integration import *
 from dealshub.algolia.views import *
 
 from django.shortcuts import HttpResponse, get_object_or_404
