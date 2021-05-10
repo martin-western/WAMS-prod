@@ -23,10 +23,10 @@ from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 
-from WAMSApp.views_sourcing import *
-from WAMSApp.views_mws_report import *
-from WAMSApp.views_mws_amazon_uk import *
-from WAMSApp.views_mws_amazon_uae import *
+from WAMSApp.sourcing.views_sourcing import *
+from WAMSApp.mws.views_mws_report import *
+from WAMSApp.mws.views_mws_amazon_uk import *
+from WAMSApp.mws.views_mws_amazon_uae import *
 from WAMSApp.oc_reports import *
 
 from PIL import Image as IMage

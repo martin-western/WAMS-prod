@@ -1,6 +1,6 @@
 from WAMSApp.utils import *
-from WAMSApp.xml_generators_SAP import *
-from WAMSApp.SAP_constants import *
+from WAMSApp.sap.xml_generators_SAP import *
+from WAMSApp.sap.SAP_constants import *
 
 from django.core.mail import send_mail, get_connection
 from django.core.mail import EmailMultiAlternatives

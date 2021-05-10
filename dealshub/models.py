@@ -9,7 +9,7 @@ import threading
 
 from WAMSApp.models import *
 from dealshub.core_utils import *
-from WAMSApp.SAP_constants import *
+from WAMSApp.sap.SAP_constants import *
 from django.core.cache import cache
 #from dealshub.algolia.utils import *
 from algoliasearch.search_client import SearchClient
