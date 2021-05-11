@@ -115,6 +115,7 @@ urlpatterns = [
     url(r'^checkout/place-daycart-online-order/$', views.PlaceDaycartOnlineOrder),
     url(r'^checkout/place-offline-order/$',views.PlaceOfflineOrder),
     url(r'^checkout/place-online-order/$',views.PlaceOnlineOrder),
+    url(r'^checkout/place-inquiry/$',views.PlaceInquiry),
     url(r'^checkout/place-b2b-online-order/$',views.PlaceB2BOnlineOrder),
     url(r'^checkout/cancel-order/$', views.CancelOrder),
     url(r'^checkout/place-order-request/$',views.PlaceOrderRequest),

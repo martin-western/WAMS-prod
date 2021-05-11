@@ -1712,6 +1712,48 @@ class DeleteOrderRequestAPI(APIView):
         return Response(data=response)
 
 
+class PlaceInquiryAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PlaceInquiryAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            message = data["message"]
+            product_uuid = data["productUuid"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+
+            if dealshub_product_obj.location_group!=location_group_obj:
+                response["status"] = 403
+                logger.error("PlaceInquiryAPI: Product does not exist in LocationGroup!")
+                return Response(data=response)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            to_email = location_group_obj.get_support_email_id()
+            password = location_group_obj.get_support_email_password()
+
+            try:
+                p1 = threading.Thread(target=send_inquiry_now_mail, args=(message, to_email, password, dealshub_user_obj, dealshub_product_obj))
+                p1.start()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class PlaceB2BOnlineOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -9251,6 +9293,8 @@ PlaceOrderRequest = PlaceOrderRequestAPI.as_view()
 DeleteOrderRequest = DeleteOrderRequestAPI.as_view()
 
 UpdateUnitOrderRequestAdmin = UpdateUnitOrderRequestAdminAPI.as_view()
+
+PlaceInquiry = PlaceInquiryAPI.as_view()
 
 PlaceB2BOnlineOrder = PlaceB2BOnlineOrderAPI.as_view()
 
