@@ -115,7 +115,6 @@ urlpatterns = [
     url(r'^checkout/place-daycart-online-order/$', views.PlaceDaycartOnlineOrder),
     url(r'^checkout/place-offline-order/$',views.PlaceOfflineOrder),
     url(r'^checkout/place-online-order/$',views.PlaceOnlineOrder),
-    url(r'^checkout/place-inquiry/$',views.PlaceInquiry),
     url(r'^checkout/place-b2b-online-order/$',views.PlaceB2BOnlineOrder),
     url(r'^checkout/cancel-order/$', views.CancelOrder),
     url(r'^checkout/place-order-request/$',views.PlaceOrderRequest),
@@ -154,7 +153,7 @@ urlpatterns = [
     url(r'^delete-b2b-document-image/$',views.DeleteB2BDocumentImage),
     url(r'^delete-b2b-document/$',views.DeleteB2BDocument),
     url(r'^fetch-customer-orders/$', views.FetchCustomerOrders),
-
+    url(r'^place-inquiry/$',views.PlaceInquiry),
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
 
     url(r'^fetch-sales-executive-analysis/$', views.FetchSalesExecutiveAnalysis),
