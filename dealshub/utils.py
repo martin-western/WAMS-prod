@@ -181,7 +181,7 @@ def set_order_status(unit_order_obj, order_status):
         unit_order_obj.current_status_admin = order_status
         unit_order_obj.current_status = "returned"
         unit_order_obj.save()
-        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status=status, status_admin=order_status)
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="returned", status_admin=order_status)
         return
 
 
