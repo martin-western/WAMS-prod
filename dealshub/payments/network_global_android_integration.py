@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 NETWORK_URL = "https://api-gateway.sandbox.ngenius-payments.com"
 
 
-class MakePaymentNGeniousAPI(APIView):
+class MakePaymentNetworkGlobalAndroidAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -43,11 +43,10 @@ class MakePaymentNGeniousAPI(APIView):
         try:
             
             data = request.data
-            logger.info("MakePaymentNGeniousAPI: %s", str(data))
+            logger.info("MakePaymentNetworkGlobalAndroidAPI: %s", str(data))
 
             is_fast_cart = data.get("is_fast_cart", False)
 
-            session_id = data["session_id"]
             location_group_uuid = data["location_group_uuid"]
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
@@ -85,24 +84,24 @@ class MakePaymentNGeniousAPI(APIView):
             if amount == 0.0:
                 response["error"] = "Cart Amount is ZERO!"
                 response["status"] = 403
-                logger.warning("MakePaymentNGeniousAPI Cart Amount Zero!")
+                logger.warning("MakePaymentNetworkGlobalAndroidAPI Cart Amount Zero!")
                 return Response(data=response)
 
             payfort_multiplier = int(location_group_obj.location.payfort_multiplier)
             amount = str(int(float(amount)*payfort_multiplier))
             
-            API_KEY = payment_credentials["n_genious"]["API_KEY"] # "NDVlNzFjOTAtYjk1ZS00YmE4LWJlZGMtOWI2YjlhMTBhYmE1OmMwODc2OTBjLTM4ZmQtNGZlMS04YjFiLWUzOWQ1ODdiMDhjYg=="
-            OUTLET_REF = payment_credentials["n_genious"]["OUTLET_REF"] #"e209b88c-9fb6-4be8-ab4b-e4b977ad0e0d"
+            API_KEY = payment_credentials["network_global_android"]["API_KEY"]
+            OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
             
             headers = {
                 "Content-Type": "application/vnd.ni-identity.v1+json", 
                 "Authorization": "Basic "+API_KEY
             }
             
-            n_genious_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
+            network_global_android_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
 
-            n_genious_response_dict = json.loads(n_genious_response.content)
-            access_token = n_genious_response_dict["access_token"]
+            network_global_android_response_dict = json.loads(network_global_android_response.content)
+            access_token = network_global_android_response_dict["access_token"]
 
             headers = {
                 "Authorization": "Bearer " + access_token ,
@@ -143,19 +142,19 @@ class MakePaymentNGeniousAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("MakePaymentNGeniousAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("MakePaymentNetworkGlobalAndroidAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-def check_order_status_from_n_genious(merchant_reference, location_group_obj):
+def check_order_status_from_network_global_android(merchant_reference, location_group_obj):
     try:
         payment_credentials = json.loads(location_group_obj.website_group.payment_credentials)
 
         #  have to add api key and outlet data in payment credentials
 
-        API_KEY = payment_credentials["n_genious"]["API_KEY"]
-        OUTLET_REF = payment_credentials["n_genious"]["OUTLET_REF"]
+        API_KEY = payment_credentials["network_global_android"]["API_KEY"]
+        OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
 
         headers = {
             "Content-Type": "application/vnd.ni-identity.v1+json", 
@@ -182,7 +181,7 @@ def check_order_status_from_n_genious(merchant_reference, location_group_obj):
         return False
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("check_order_status_from_n_genious: %s at %s", e, str(exc_tb.tb_lineno))        
+        logger.error("check_order_status_from_network_global_android: %s at %s", e, str(exc_tb.tb_lineno))        
     return False
 
-MakePaymentNGenious = MakePaymentNGeniousAPI.as_view()
+MakePaymentNetworkGlobalAndroid = MakePaymentNetworkGlobalAndroidAPI.as_view()

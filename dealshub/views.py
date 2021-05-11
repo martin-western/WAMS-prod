@@ -12,7 +12,7 @@ from dealshub.utils import *
 from dealshub.views_dh import *
 from dealshub.payments.network_global_integration import *
 from dealshub.payments.hyperpay_integration import *
-from dealshub.payments.n_genious_integration import *
+from dealshub.payments.network_global_android_integration import *
 from dealshub.algolia.views import *
 
 from django.shortcuts import HttpResponse, get_object_or_404
