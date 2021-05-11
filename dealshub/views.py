@@ -6505,11 +6505,14 @@ class FetchProductReviewMailAPI(APIView):
                 temp_dict["seller_sku"] = dh_product_obj.get_seller_sku()
                 temp_dict["product_image"] = dh_product_obj.get_main_image_url()
                 temp_dict["product_uuid"] = dh_product_obj.uuid
+                temp_dict["product_brand"] = dh_product_obj.get_brand()
                 temp_dict["status"] = "valid"
                 products_for_review.append(temp_dict)
             
             response["products"] = products_for_review
             response["username"] = dh_user_obj.username
+            response["order_date"] = order_obj.get_date_created()
+            response["shipping_address"] = order_obj.shipping_address.get_shipping_address()
             response['status'] = 200
 
         except Exception as e:
