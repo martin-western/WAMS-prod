@@ -2279,7 +2279,7 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
         return Response(data=response)
 
 
-class AddChequeImageAPI(APIView):
+class SetOrderChequeImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -2287,13 +2287,14 @@ class AddChequeImageAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("AddChequeImageAPI: %s", str(data))
+            logger.info("SetOrderChequeImageAPI: %s", str(data))
             
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
             order_uuid = data["uuid"]
+            action = data.get("action","") # default:- "" if approved -> "approve" if disapproved-> "disapprove" if updated-> "update" 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             order_obj = Order.objects.get(uuid=order_uuid)
             image_count = int(data.get("cheque-image-count",0))
@@ -2301,29 +2302,47 @@ class AddChequeImageAPI(APIView):
             prev_instance = list(order_obj.cheque_images.all())
 
             if is_oc_user(request.user)==False:
-                # if user is not oc user and there is already cheque image present then restricted access!!
+                # if user is dealshub user and if there are already cheque images present then restricted access!!
                 if current_image_count:
                     response['status'] = 403
                     logger.warning("FetchOrderListAdminAPI Restricted Access!")
                     return Response(data=response)
+                else:
+                    for i in range(image_count):
+                        image_obj = Image.objects.create(image = data["cheque-image-" + str(i+1)])
+                        order_obj.cheque_images.add(image_obj)
+                    order_obj.save()
+                    response['status'] = 200
+                    return Response(data=response)
             else:
-                #  if user is oc user then only user can able to clear/delete/update cheque images!!
-                #  if oc user click save button -> it will clear existing cheque and add images which oc user enters
-                if current_image_count:
+                if order_obj.cheque_approved:
+                    # once cheque approved OCuser will not able to update it
+                    response['status'] = 200
+                    return Response(data=response)
+
+                if action == "approve":
+                    order_obj.cheque_approved = True
+                    order_obj.save()
+
+                elif action == "disapprove":
+                    send_order_cheque_disapproval_mail(order_obj)
                     order_obj.cheque_images.clear()
 
-            for i in range(image_count):
-                image_obj = Image.objects.create(image = data["cheque-image-" + str(i+1)])
-                order_obj.cheque_images.add(image_obj)
-            
-            render_value = "Cheque images updated by username:- " + request.user.username
-            current_instance = list(order_obj.cheque_images.all())
-            activitylog(user=request.user,table_name=Order,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=current_instance,table_item_pk=order_obj.uuid,render=render_value)
+                else:
+                    order_obj.cheque_images.clear()
+                    for i in range(image_count):
+                        image_obj = Image.objects.create(image = data["cheque-image-" + str(i+1)])
+                        order_obj.cheque_images.add(image_obj)
+                    order_obj.save()  
                 
+                render_value = "Cheque images "+ action +" by username:- " + request.user.username
+                current_instance = list(order_obj.cheque_images.all())
+                activitylog(user=request.user,table_name=Order,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=current_instance,table_item_pk=order_obj.uuid,render=render_value)
+                    
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SetOrderChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -6646,7 +6665,7 @@ class SetShippingMethodAPI(APIView):
 
                 if tracking_status!="Success":
                     logger.warning("SetShippingMethodAPI: failed status from logix api")
-                    reponse["message"] = "Logix set shipping api failed"
+                    response["message"] = "Logix set shipping api failed"
                     return Response(data=response)
                 else:
                     order_obj.logix_tracking_reference = tracking_reference
@@ -9292,7 +9311,7 @@ DeleteOrderRequest = DeleteOrderRequestAPI.as_view()
 
 UpdateUnitOrderRequestAdmin = UpdateUnitOrderRequestAdminAPI.as_view()
 
-AddChequeImage = AddChequeImageAPI.as_view()
+SetOrderChequeImage = SetOrderChequeImageAPI.as_view()
 
 PlaceB2BOnlineOrder = PlaceB2BOnlineOrderAPI.as_view()
 

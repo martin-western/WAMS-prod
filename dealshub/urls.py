@@ -123,7 +123,7 @@ urlpatterns = [
     url(r'^order/delete-order-request/$', views.DeleteOrderRequest),
     url(r'^order/update-unit-order-request-admin/$', views.UpdateUnitOrderRequestAdmin),
 
-    url(r'^order/add-cheque-image/$', views.AddChequeImage),
+    url(r'^order/add-cheque-image/$', views.SetOrderChequeImage),
 
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),

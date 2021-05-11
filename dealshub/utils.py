@@ -456,6 +456,38 @@ def send_order_request_deleted_mail(order_request_obj):
         logger.error("send_order_request_deleted_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
 
+def send_order_cheque_disapproval_mail(order_obj):
+    try:
+        logger.info("send_order_cheque_disapproval_mail started!")
+        if order_obj.owner.email_verified==False:
+            return
+
+        location_group_obj = order_request_obj.location_group
+
+        with get_connection(
+            host=location_group_obj.get_email_host(),
+            port=location_group_obj.get_email_port(),
+            username=location_group_obj.get_order_from_email_id(),
+            password=location_group_obj.get_order_from_email_password(),
+            use_tls=True) as connection:
+
+            email = EmailMultiAlternatives(
+                        subject='Your cheque has been Disapproved', 
+                        body='Dear ' + order_obj.get_customer_full_name() + '\n' + 'Your cheque has been disapproved for your order request dated ' + order_request_obj.get_date_created() + ".",
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[order_obj.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
+                    )
+            email.send(fail_silently=False)
+            logger.info("send_order_cheque_disapproval_mail")
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_order_cheque_disapproval_mail: %s at %s", e, str(exc_tb.tb_lineno))
+
+
 def send_order_confirmation_mail(order_obj):
     try:
         logger.info("send_order_confirmation_mail started!")

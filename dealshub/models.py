@@ -1214,6 +1214,7 @@ class Order(models.Model):
     voucher = models.ForeignKey(Voucher,null=True,default=None,blank=True,on_delete=models.SET_NULL)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     cheque_images = models.ManyToManyField(Image, related_name="cheque_images", blank=True)
+    cheque_approved = models.BooleanField(default=False)
 
     sap_final_billing_info = models.TextField(default="{}")
     SAP_STATUS = (
