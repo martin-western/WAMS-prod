@@ -18,6 +18,7 @@ from dealshub.payments.network_global_integration import *
 from dealshub.payments.hyperpay_integration import *
 from dealshub.payments.spotii_integration import *
 from dealshub.payments.tap_integration import *
+from dealshub.payments.n_genious_integration import *
 from dealshub.postaplus import *
 from dealshub.views_blog import *
 
@@ -8462,6 +8463,10 @@ class PlaceOnlineOrderAPI(APIView):
                 if get_charge_status(data["charge_id"])!="CAPTURED":
                     logger.warning("PlaceOnlineOrderAPI: TAP STATUS MISMATCH!")
                     return Response(data=response)
+            elif online_payment_mode.strip().lower()=="n_genious":
+                if check_order_status_from_n_genious(merchant_reference, location_group_obj)==False:
+                    logger.warning("PlaceOnlineOrderAPI: N-GENIOUS STATUS MISMATCH!")
+                    return Response(data=response)  
             else:
                 if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
                     logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")

@@ -230,6 +230,7 @@ urlpatterns = [
     url(r'^fetch-order-analytics-params/$', views.FetchOrderAnalyticsParams),
     url(r'^make-payment-network-global/$',views.MakePaymentNetworkGlobal),
     url(r'^make-b2b-payment-network-global/$',views.MakeB2BPaymentNetworkGlobal),
+    url(r'^make-payment-n-genious/$',views.MakePaymentNGenious),
 
     url(r'^fetch-postaplus-tracking/$',views.FetchPostaPlusTracking),
 
