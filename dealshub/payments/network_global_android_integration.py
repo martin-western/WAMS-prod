@@ -102,6 +102,7 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
 
             network_global_android_response_dict = json.loads(network_global_android_response.content)
             access_token = network_global_android_response_dict["access_token"]
+            redirectUrl = data["redirectUrl"]
 
             headers = {
                 "Authorization": "Bearer " + access_token ,
@@ -116,6 +117,9 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
                     "value": amount
                 },
                 "merchantOrderReference": merchant_reference,
+                "merchantAttributes": {
+                    "redirectUrl": redirectUrl
+                },
                 "emailAddress": dealshub_user_obj.email,
                 "billingAddress": {
                     "firstName": first_name,
