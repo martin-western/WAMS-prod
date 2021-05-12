@@ -1,6 +1,6 @@
 from dealshub.models import *
 from dealshub.core_utils import *
-from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
 
 import datetime
 from django.utils import timezone
@@ -20,7 +20,7 @@ from django.core.mail import EmailMessage
 from django.template import loader
 import threading
 from WAMSApp.utils import fetch_refresh_stock
-from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
 
 logger = logging.getLogger(__name__)
 
@@ -177,6 +177,13 @@ def set_order_status(unit_order_obj, order_status):
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
         return
 
+    if unit_order_obj.current_status_admin=="delivery failed" and order_status in ["returned"]:
+        unit_order_obj.current_status_admin = order_status
+        unit_order_obj.current_status = "returned"
+        unit_order_obj.save()
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="returned", status_admin=order_status)
+        return
+
 
 def cancel_order_admin(unit_order_obj, cancelling_note):
 
@@ -313,6 +320,35 @@ def send_parajohn_order_status_sms(unit_order_obj,message):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_parajohn_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def send_inquiry_now_mail(message, to_email, password, dealshub_user_obj, dealshub_product_obj):
+    try:
+        body = """
+        Customer Name:- """+dealshub_user_obj.first_name+"""
+        Customer Email: """+dealshub_user_obj.email+"""
+        Customer Number:- """+dealshub_user_obj.contact_number+"""
+
+        Message: """+message+"""
+        
+        Product ID: """+dealshub_product_obj.get_product_id()+"""
+        Product Name: """+dealshub_product_obj.product_name+"""
+        Product Description: """+dealshub_product_obj.product_description+"""
+        """
+
+        send_mail(
+            subject="Product Enquiry of " + str(dealshub_product_obj.product_name),
+            message=body,
+            from_email=to_email,
+            auth_user=to_email,
+            auth_password=password,
+            recipient_list=[to_email],
+            fail_silently=False,
+        )
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_inquiry_now_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def send_order_request_placed_mail(order_request_obj):

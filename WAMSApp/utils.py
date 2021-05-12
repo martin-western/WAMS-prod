@@ -4,10 +4,10 @@ import urllib
 import os
 from django.core.files import File
 from WAMSApp.core_utils import *
-from WAMSApp.amazon_uk import *
-from WAMSApp.amazon_uae import *
-from WAMSApp.ebay import *
-from WAMSApp.noon import *
+from WAMSApp.stores.amazon_uk import *
+from WAMSApp.stores.amazon_uae import *
+from WAMSApp.stores.ebay import *
+from WAMSApp.stores.noon import *
 from WAMSApp.serializers import UserSerializer
 from WAMSApp.models import *
 from django.db.models import Q
@@ -2505,11 +2505,13 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                 common_row[2] = ""
                 if DealsHubProduct.objects.filter(location_group=location_group_obj, product__product_id=product_id).exists():
                     dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, product__product_id=product_id)
+                    
                     if update_type == "stock":
                         stock = float(dfs.iloc[i][1])
                         dh_product_obj.stock = stock
                         dh_product_obj.save()
                         common_row[2] = "success"
+                    
                     elif update_type == "price":
                         now_price = float(dfs.iloc[i][1])
                         was_price = float(dfs.iloc[i][2])
@@ -2517,6 +2519,24 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
                         dh_product_obj.was_price = was_price
                         dh_product_obj.save()
                         common_row[2] = "success"
+                    
+                    elif update_type == "publish_status":
+                        any_error = False
+                        is_published = str(dfs.iloc[i][1]).strip().lower()
+                        if is_published =='yes':
+                            is_published = True
+                        elif is_published =='no':
+                            is_published = False
+                        else:
+                            common_row[2]+='Publish status value is not proper.'
+                            any_error = True
+                        
+                        if not any_error:
+                            dh_product_obj.is_published = is_published
+                            dh_product_obj.save()
+                            common_row[2] = "success"
+
+                    
                     elif update_type == "status":
                         is_cod_allowed = str(dfs.iloc[i][1]).strip().lower()
                         is_promo_restricted = str(dfs.iloc[i][2]).strip().lower()
@@ -2819,6 +2839,109 @@ def bulk_update_b2b_dealshub_product_moq(oc_uuid,path,filename, location_group_o
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("bulk_update_b2b_dealshub_product_moq: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def create_all_dealshub_products_report(filename, uuid, location_group_obj):
+
+    workbook = xlsxwriter.Workbook('./'+filename)
+    worksheet = workbook.add_worksheet()
+
+    row = ["Product ID",
+           "Product Name",
+           "Seller SKU",
+           "Brand",
+           "Currency",
+           "Promotional Price",
+           "Now Price",
+           "Was Price",
+           "Stock",
+           "Minimum order quantity",
+           "AllowedQty",
+           "Is Published",
+           "Is New Arrival",
+           "Is On Sale",
+           "Is Cod Allowed",
+           "Is Promo Restricted",
+           "Is Bestseller",
+           "Is Featured",
+           "Is Notified",
+           "Warrenty",
+           "Super Category",
+           "Category",
+           "Sub Category",
+           "Is Promotional",
+           "Promotion Tag",
+           "Start Time",
+           "End Time",
+           ]
+
+    cnt = 0   
+    colnum = 0
+    for k in row:
+        worksheet.write(cnt, colnum, k)
+        colnum += 1
+
+    dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj).order_by("-pk")
+
+    for dealshub_product_obj in dealshub_product_objs:
+        try:
+            cnt += 1
+            common_row = ["" for i in range(len(row))]
+            common_row[0] = dealshub_product_obj.get_product_id()
+            common_row[1] = dealshub_product_obj.get_name()
+            common_row[2] = dealshub_product_obj.get_seller_sku()
+            common_row[3] = dealshub_product_obj.get_brand()
+            common_row[4] = dealshub_product_obj.get_currency()
+            common_row[5] = dealshub_product_obj.promotional_price
+            common_row[6] = dealshub_product_obj.now_price
+            common_row[7] = dealshub_product_obj.was_price
+            common_row[8] = dealshub_product_obj.stock
+            common_row[9] = dealshub_product_obj.moq
+            common_row[10] = dealshub_product_obj.get_allowed_qty()
+            common_row[11] = "yes" if dealshub_product_obj.is_published else "no"
+            common_row[12] = "yes" if dealshub_product_obj.is_new_arrival else "no"
+            common_row[13] = "yes" if dealshub_product_obj.is_on_sale else "no"
+            common_row[14] = "yes" if dealshub_product_obj.is_cod_allowed else "no"
+            common_row[15] = "yes" if dealshub_product_obj.is_promo_restricted else "no"
+            common_row[16] = "yes" if dealshub_product_obj.is_bestseller else "no"
+            common_row[17] = "yes" if dealshub_product_obj.is_featured else "no"
+            common_row[18] = "yes" if dealshub_product_obj.is_notified else "no"
+            common_row[19] = dealshub_product_obj.warranty
+            common_row[20] = dealshub_product_obj.get_super_category()
+            common_row[21] = dealshub_product_obj.get_category()
+            common_row[22] = dealshub_product_obj.get_sub_category()
+            
+            if dealshub_product_obj.is_promotional and check_valid_promotion(dealshub_product_obj.promotion)==False:
+                dealshub_product_obj.promotion = None
+                dealshub_product_obj.is_promotional = False
+                dealshub_product_obj.save()
+            common_row[23] = "yes" if dealshub_product_obj.is_promotional else "no"
+            common_row[24] = ""
+            common_row[25] = None
+            common_row[26] = None
+
+            if dealshub_product_obj.promotion!=None:
+                common_row[24] = dealshub_product_obj.promotion.promotion_tag
+                common_row[25] = str(dealshub_product_obj.promotion.start_time)
+                common_row[26] = str(dealshub_product_obj.promotion.end_time)
+
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Error create_all_dealshub_products_report %s %s", e, str(exc_tb.tb_lineno))
+
+    workbook.close()
+
+    oc_report_obj = OCReport.objects.get(uuid=uuid)
+    oc_report_obj.is_processed = True
+    oc_report_obj.completion_date = timezone.now()
+    oc_report_obj.save()
+
+    notify_user_for_report(oc_report_obj)
 
 
 def activitylog(user,table_name,action_type,table_item_pk='',prev_instance=None,current_instance=None,location_group_obj=None,render=''):

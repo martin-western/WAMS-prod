@@ -13,11 +13,12 @@ from dealshub.constants import *
 from dealshub.utils import *
 from WAMSApp.constants import *
 from WAMSApp.utils import *
-from WAMSApp.utils_SAP_Integration import *
-from dealshub.network_global_integration import *
-from dealshub.hyperpay_integration import *
-from dealshub.spotii_integration import *
-from dealshub.tap_integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
+from dealshub.payments.network_global_integration import *
+from dealshub.payments.hyperpay_integration import *
+from dealshub.payments.spotii_integration import *
+from dealshub.payments.tap_integration import *
+from dealshub.payments.network_global_android_integration import *
 from dealshub.postaplus import *
 from dealshub.views_blog import *
 
@@ -29,7 +30,7 @@ from django.utils import timezone
 #from datetime import datetime
 import datetime
 
-from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
 
 import sys
 import logging
@@ -1712,6 +1713,48 @@ class DeleteOrderRequestAPI(APIView):
         return Response(data=response)
 
 
+class PlaceInquiryAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PlaceInquiryAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            message = data["message"]
+            product_uuid = data["productUuid"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+
+            if dealshub_product_obj.location_group!=location_group_obj:
+                response["status"] = 403
+                logger.error("PlaceInquiryAPI: Product does not exist in LocationGroup!")
+                return Response(data=response)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            to_email = location_group_obj.get_support_email_id()
+            password = location_group_obj.get_support_email_password()
+
+            try:
+                p1 = threading.Thread(target=send_inquiry_now_mail, args=(message, to_email, password, dealshub_user_obj, dealshub_product_obj))
+                p1.start()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class PlaceB2BOnlineOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1730,6 +1773,10 @@ class PlaceB2BOnlineOrderAPI(APIView):
             b2b_user_obj = B2BUser.objects.get(username = request.user.username)
 
             order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
+
+            if Order.objects.filter(merchant_reference=merchant_reference).exists():
+                logger.warning("PlaceB2BOnlineOrderAPI: Credentials for older order!")
+                return Response(data=response)
 
             if order_request_obj.request_status != "Approved":
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -8513,6 +8560,10 @@ class PlaceOnlineOrderAPI(APIView):
 
             order_obj = None
 
+            if Order.objects.filter(merchant_reference=merchant_reference).exists():
+                logger.warning("PlaceOnlineOrderAPI: Credentials for older order!")
+                return Response(data=response)
+            
             if online_payment_mode.strip().lower()=="spotii":
                 if on_approve_capture_order(merchant_reference)==False:
                     logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH!")
@@ -8521,6 +8572,10 @@ class PlaceOnlineOrderAPI(APIView):
                 if get_charge_status(data["charge_id"])!="CAPTURED":
                     logger.warning("PlaceOnlineOrderAPI: TAP STATUS MISMATCH!")
                     return Response(data=response)
+            elif online_payment_mode.strip().lower()=="network_global_android":
+                if check_order_status_from_network_global_android(merchant_reference, location_group_obj)==False:
+                    logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL ANDROID STATUS MISMATCH!")
+                    return Response(data=response)  
             else:
                 if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
                     logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")
@@ -9312,6 +9367,7 @@ DeleteOrderRequest = DeleteOrderRequestAPI.as_view()
 UpdateUnitOrderRequestAdmin = UpdateUnitOrderRequestAdminAPI.as_view()
 
 SetOrderChequeImage = SetOrderChequeImageAPI.as_view()
+PlaceInquiry = PlaceInquiryAPI.as_view()
 
 PlaceB2BOnlineOrder = PlaceB2BOnlineOrderAPI.as_view()
 
