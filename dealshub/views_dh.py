@@ -2354,7 +2354,7 @@ class SetOrderChequeImageAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
             order_uuid = data["uuid"]
-            action = data.get("action","") # default:- "" if approved -> "approve" if disapproved-> "disapprove" if updated-> "update" 
+            action = data.get("action","")
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             order_obj = Order.objects.get(uuid=order_uuid)
             image_count = int(data.get("cheque_image_count",0))
@@ -2362,7 +2362,7 @@ class SetOrderChequeImageAPI(APIView):
             prev_instance = list(order_obj.cheque_images.all())
 
             if is_oc_user(request.user)==False:
-                # if user is dealshub user and if there are already cheque images present then restricted access!!
+                # if user is dealshub user and if cheque images already present then restricted access!!
                 if current_image_count:
                     response['status'] = 403
                     logger.warning("SetOrderChequeImageAPI Restricted Access!")
@@ -2394,7 +2394,7 @@ class SetOrderChequeImageAPI(APIView):
                 else:
                     order_obj.cheque_images.clear()
                     for i in range(image_count):
-                        image_obj = Image.objects.create(image = data["cheque_image_" + str(i+1)])
+                        image_obj = Image.objects.create(image = data["cheque_image_" + str(i)])
                         order_obj.cheque_images.add(image_obj)
                     order_obj.save()  
                     
