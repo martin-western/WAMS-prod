@@ -6275,8 +6275,6 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     if order_obj.payment_mode == "CHEQUE":
                         image_objs = order_obj.cheque_images.all()
                         cheque_images_list = []
-
-                        # logger.info("FetchOrdersForWarehouseManagerAPI: %s", str(order_obj.cheque_approved))
                         for image_obj in image_objs:
                             try:
                                 cheque_images_list.append(image_obj.mid_image.url)
