@@ -3622,7 +3622,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
             banner_image_objs_list = get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs)
             dealshub_admin_sections.append(section_products_list)
             dealshub_admin_sections.append(banner_image_objs_list)
-            dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: i["orderIndex"])
+            dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: int(i["orderIndex"]))
 
             response["circular_category_index"] = location_group_obj.circular_category_index
 
