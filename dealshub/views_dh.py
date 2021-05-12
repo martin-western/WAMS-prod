@@ -6275,16 +6275,16 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     if order_obj.payment_mode == "CHEQUE":
                         image_objs = order_obj.cheque_images.all()
                         cheque_images_list = []
-                        temp_dict["cheque_images_list"]: cheque_images_list
-                        temp_dict["cheque_approved"]: order_obj.cheque_approved
-                        logger.info("FetchOrdersForWarehouseManagerAPI: %s", str(order_obj.cheque_approved))
-                        # for image_obj in image_objs:
-                        #     try:
-                        #         cheque_images_list.append(image_obj.mid_image.url)
-                        #     except Exception as e:
-                        #         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        #         logger.warning("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
+                        # logger.info("FetchOrdersForWarehouseManagerAPI: %s", str(order_obj.cheque_approved))
+                        for image_obj in image_objs:
+                            try:
+                                cheque_images_list.append(image_obj.mid_image.url)
+                            except Exception as e:
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                logger.warning("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                        temp_dict["cheque_images_list"] = cheque_images_list
+                        temp_dict["cheque_approved"] =  order_obj.cheque_approved
                         
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
