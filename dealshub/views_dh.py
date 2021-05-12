@@ -6271,6 +6271,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["time"] = order_obj.get_time_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
+                    
                     if order_obj.payment_mode == "CHEQUE":
                         image_objs = order_obj.cheque_images.all()
                         cheque_images_list = []
@@ -6282,7 +6283,6 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                                 logger.warning("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
                         temp_dict["cheque_images_list"]: cheque_images_list
                         temp_dict["cheque_approved"]: order_obj.cheque_approved
-                        
                         
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
