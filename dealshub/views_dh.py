@@ -2357,7 +2357,7 @@ class SetOrderChequeImageAPI(APIView):
             action = data.get("action","") # default:- "" if approved -> "approve" if disapproved-> "disapprove" if updated-> "update" 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             order_obj = Order.objects.get(uuid=order_uuid)
-            image_count = int(data.get("cheque-image-count",0))
+            image_count = int(data.get("cheque_image_count",0))
             current_image_count = order_obj.cheque_images.count()
             prev_instance = list(order_obj.cheque_images.all())
 
@@ -2365,15 +2365,18 @@ class SetOrderChequeImageAPI(APIView):
                 # if user is dealshub user and if there are already cheque images present then restricted access!!
                 if current_image_count:
                     response['status'] = 403
-                    logger.warning("FetchOrderListAdminAPI Restricted Access!")
-                    return Response(data=response)
+                    logger.warning("SetOrderChequeImageAPI Restricted Access!")
                 else:
+                    cheque_images_list = []
                     for i in range(image_count):
-                        image_obj = Image.objects.create(image = data["cheque-image-" + str(i+1)])
+                        image_obj = Image.objects.create(image = data["cheque_image_" + str(i+1)])
                         order_obj.cheque_images.add(image_obj)
+                        cheque_images_list.append(image_obj.mid_image.url)
                     order_obj.save()
                     response['status'] = 200
-                    return Response(data=response)
+                    response["cheque_images_list"] = cheque_images_list
+                    response["cheque_approved"] =  order_obj.cheque_approved
+                return Response(data=response)
             else:
                 if order_obj.cheque_approved:
                     # once cheque approved OCuser will not able to update it
@@ -2391,10 +2394,21 @@ class SetOrderChequeImageAPI(APIView):
                 else:
                     order_obj.cheque_images.clear()
                     for i in range(image_count):
-                        image_obj = Image.objects.create(image = data["cheque-image-" + str(i+1)])
+                        image_obj = Image.objects.create(image = data["cheque_image_" + str(i+1)])
                         order_obj.cheque_images.add(image_obj)
                     order_obj.save()  
-                
+                    
+                image_objs = order_obj.cheque_images.all()
+                cheque_images_list = []
+                for image_obj in image_objs:
+                    try:
+                        cheque_images_list.append(image_obj.mid_image.url)
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.warning("SetOrderChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                response["cheque_images_list"] = cheque_images_list
+                response["cheque_approved"] =  order_obj.cheque_approved
+
                 render_value = "Cheque images "+ action +" by username:- " + request.user.username
                 current_instance = list(order_obj.cheque_images.all())
                 activitylog(user=request.user,table_name=Order,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=current_instance,table_item_pk=order_obj.uuid,render=render_value)
