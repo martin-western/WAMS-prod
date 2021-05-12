@@ -10,8 +10,9 @@ from WAMSApp.constants import *
 from dealshub.models import *
 from dealshub.utils import *
 from dealshub.views_dh import *
-from dealshub.network_global_integration import *
-from dealshub.hyperpay_integration import *
+from dealshub.payments.network_global_integration import *
+from dealshub.payments.hyperpay_integration import *
+from dealshub.payments.network_global_android_integration import *
 from dealshub.algolia.views import *
 
 from django.shortcuts import HttpResponse, get_object_or_404
@@ -3444,8 +3445,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
                                     temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.info("FetchB2BDealshubAdminSectionsAPI: %s", str(unit_banner_image_obj.uuid))
-                        logger.error("FetchB2BDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                        logger.error("FetchB2BDealshubAdminSectionsAPI: %s at %s with image %s", e, str(exc_tb.tb_lineno),  str(unit_banner_image_obj.uuid))
 
                     temp_dict2["mobileUrl"] = ""
                     temp_dict2["mobileUrl-ar"] = ""
@@ -3761,47 +3761,55 @@ class FetchDealshubAdminSectionsAPI(APIView):
                     temp_dict2["httpLink"] = unit_banner_image_obj.http_link
                     temp_dict2["url"] = ""
                     temp_dict2["url-ar"] = ""
-                    if unit_banner_image_obj.image!=None:
-                        if resolution=="low":
-                            temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
-                            if unit_banner_image_obj.image_ar!=None:
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
+                    try:
+                        if unit_banner_image_obj.image!=None:
+                            if resolution=="low":
+                                temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
+                                if unit_banner_image_obj.image_ar!=None:
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
+                                else:
+                                    temp_dict2["url-ar"] = ""
                             else:
-                                temp_dict2["url-ar"] = ""
-                        else:
-                            temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
-                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
-                            temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
-                            if unit_banner_image_obj.image_ar!=None:
-                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
-                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
-                            else:
-                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
-                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
+                                temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
+                                if unit_banner_image_obj.image_ar!=None:
+                                    temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
+                                    temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
+                                else:
+                                    temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
+                                    temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("FetchDealshubAdminSectionsAPI: %s at %s with image %s", e, str(exc_tb.tb_lineno), str(unit_banner_image_obj.uuid))
 
                     temp_dict2["mobileUrl"] = ""
                     temp_dict2["mobileUrl-ar"] = ""
-                    if unit_banner_image_obj.mobile_image!=None:
-                        if resolution=="low":
-                            temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
-                            if unit_banner_image_obj.mobile_image_ar!=None:
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.mid_image.url
+                    try:
+                        if unit_banner_image_obj.mobile_image!=None:
+                            if resolution=="low":
+                                temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
+                                if unit_banner_image_obj.mobile_image_ar!=None:
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.mid_image.url
+                                else:
+                                    temp_dict2["mobileUrl-ar"] = ""
                             else:
-                                temp_dict2["mobileUrl-ar"] = ""
-                        else:
-                            temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
-                            temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
-                            temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
-                            if unit_banner_image_obj.mobile_image_ar!=None:
-                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
-                                temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
-                            else:
-                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
-                                temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image.webp_image.url
+                                temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
+                                temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+                                temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
+                                if unit_banner_image_obj.mobile_image_ar!=None:
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                    temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
+                                else:
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                    temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image.webp_image.url
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("FetchDealshubAdminSectionsAPI: %s at %s with image %s", e, str(exc_tb.tb_lineno), str(unit_banner_image_obj.uuid))
 
                     hovering_banner_img = unit_banner_image_obj.hovering_banner_image
                     if hovering_banner_img is not None:
@@ -5679,7 +5687,7 @@ class FetchSEOAdminAutocompleteAPI(APIView):
                     temp_dict["uuid"] = seo_brand_obj.brand.name
                     autocomplete_list.append(temp_dict)
             elif page_type=="product":
-                dealshub_product_objs = DealsHubProduct.objects.filter(product_name__icontains=search_string, location_group=location_group_obj)[:5]
+                dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj).filter(Q(product_name__icontains=search_string) | Q(product__base_product__seller_sku__icontains=search_string))[:5]
                 for dealshub_product_obj in dealshub_product_objs:
                     temp_dict = {}
                     temp_dict["name"] = dealshub_product_obj.get_name()
@@ -6417,8 +6425,8 @@ class AskProductReviewsCronAPI(APIView):
             
             time_delta = datetime.timedelta(days=1)
             now_time = datetime.datetime.now()
-            start_time = now_time - time_delta
-            end_time = now_time + time_delta
+            start_time = now_time - 10*time_delta
+            end_time = now_time - 9*time_delta
 
             order_uuid_list = list(UnitOrderStatus.objects.filter(date_created__gte=start_time, date_created__lte=end_time, status_admin="delivered").values_list('unit_order__order__uuid').distinct())
 
@@ -6497,11 +6505,14 @@ class FetchProductReviewMailAPI(APIView):
                 temp_dict["seller_sku"] = dh_product_obj.get_seller_sku()
                 temp_dict["product_image"] = dh_product_obj.get_main_image_url()
                 temp_dict["product_uuid"] = dh_product_obj.uuid
+                temp_dict["product_brand"] = dh_product_obj.get_brand()
                 temp_dict["status"] = "valid"
                 products_for_review.append(temp_dict)
             
             response["products"] = products_for_review
             response["username"] = dh_user_obj.username
+            response["order_date"] = order_obj.get_date_created()
+            response["shipping_address"] = order_obj.shipping_address.get_shipping_address()
             response['status'] = 200
 
         except Exception as e:

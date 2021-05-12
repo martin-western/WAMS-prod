@@ -9,7 +9,7 @@ import threading
 
 from WAMSApp.models import *
 from dealshub.core_utils import *
-from WAMSApp.SAP_constants import *
+from WAMSApp.sap.SAP_constants import *
 from django.core.cache import cache
 #from dealshub.algolia.utils import *
 from algoliasearch.search_client import SearchClient
@@ -1377,7 +1377,8 @@ class UnitOrder(models.Model):
         ("shipped", "shipped"),
         ("intransit", "intransit"),
         ("delivered", "delivered"),
-        ("cancelled", "cancelled")
+        ("cancelled", "cancelled"),
+        ("returned", "returned")
     )
     current_status = models.CharField(max_length=100, choices=CURRENT_STATUS, default="ordered")
 
@@ -1389,6 +1390,7 @@ class UnitOrder(models.Model):
         ("dispatched", "dispatched"),
         ("delivered", "delivered"),
         ("delivery failed", "delivery failed"),
+        ("returned", "returned")
     )
     current_status_admin = models.CharField(max_length=100, choices=CURRENT_STATUS_ADMIN, default="pending")
 
@@ -1495,7 +1497,8 @@ class UnitOrderStatus(models.Model):
         ("shipped", "shipped"),
         ("intransit", "intransit"),
         ("delivered", "delivered"),
-        ("cancelled", "cancelled")
+        ("cancelled", "cancelled"),
+        ("returned", "returned")
     )
     status = models.CharField(max_length=100, choices=STATUS, default="ordered")
 
@@ -1507,6 +1510,7 @@ class UnitOrderStatus(models.Model):
         ("dispatched", "dispatched"),
         ("delivered", "delivered"),
         ("delivery failed", "delivery failed"),
+        ("returned", "returned")
     )
     status_admin = models.CharField(max_length=100, choices=STATUS_ADMIN, default="pending")
 

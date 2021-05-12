@@ -20,20 +20,20 @@ from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 
-from WAMSApp.views_sourcing import *
-from WAMSApp.views_mws_report import *
-from WAMSApp.views_mws_orders import *
-from WAMSApp.views_mws_amazon_uk import *
-from WAMSApp.views_mws_amazon_uae import *
-from WAMSApp.views_noon import *
-from WAMSApp.views_amazon_uae import *
-from WAMSApp.views_amazon_uk import *
-from WAMSApp.views_noon_integration import *
+from WAMSApp.sourcing.views_sourcing import *
+from WAMSApp.mws.views_mws_report import *
+from WAMSApp.mws.views_mws_orders import *
+from WAMSApp.mws.views_mws_amazon_uk import *
+from WAMSApp.mws.views_mws_amazon_uae import *
+from WAMSApp.stores.views_noon import *
+from WAMSApp.stores.views_amazon_uae import *
+from WAMSApp.stores.views_amazon_uk import *
+from WAMSApp.stores.views_noon_integration import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
 from WAMSApp.views_category_manager import *
-from WAMSApp.views_SAP_Integration import *
-from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.sap.views_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
 from WAMSApp.views_nesto import *
 from WAMSApp.views_cron import *
 
@@ -1514,6 +1514,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
         return Response(data=response)
 
+
 #API with active log
 class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
@@ -1521,8 +1522,9 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
         response = {}
         response['status'] = 500
-
+        
         try:
+            
             data = request.data
             logger.info("BulkUpdateDealshubProductPublishStatusAPI: %s", str(data))
 
@@ -1533,60 +1535,35 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
                 response['status'] = 403
                 logger.warning("BulkUpdateDealshubProductPublishStatusAPI Restricted Access!")
                 return Response(data=response)
-            
+
             location_group_uuid = data["locationGroupUuid"]
 
-            path = default_storage.save('tmp/bulk-publish-product.xlsx', data["import_file"])
+            path = default_storage.save('tmp/bulk-upload-status.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
 
-            try:
-                dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
-            except Exception as e:
-                response['status'] = 406
-                logger.warning("BulkUpdateDealshubProductPublishStatusAPI: UnSupported File Format or Sheet1 not found")
+            if OCReport.objects.filter(is_processed=False).count()>15:
+                response["approved"] = False
+                response['status'] = 200
                 return Response(data=response)
-            
-            rows = len(dfs.iloc[:])
-            excel_errors = []
-            publish_count = 0
-            unpublish_count = 0
-            for i in range(rows):
-                try:
-                    product_id = str(dfs.iloc[i][0]).strip()
-                    product_id = product_id.split(".")[0]
-                    is_published_str = str(dfs.iloc[i][1]).strip().lower()
-                    
-                    if is_published_str!="true" and is_published_str!="false":
-                        excel_errors.append("status for "+product_id+" is not proper")
-                        continue
-                    is_published = True if is_published_str=="true" else False
 
-                    dh_product_obj = DealsHubProduct.objects.get(location_group__uuid=location_group_uuid, product__product_id=product_id)
-                    prev_instance = deepcopy(dh_product_obj)
-                    dh_product_obj.is_published = is_published
-                    dh_product_obj.save()
-                    
-                    if is_published ==True:
-                        render_value = 'DealsHubProduct {} is published'.format(dh_product_obj.get_seller_sku())
-                    else:
-                        render_value = 'DealsHubProduct {} is not published'.format(dh_product_obj.get_seller_sku())
-                    activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
+            report_type = "bulk upload product"
+            report_title = "bulk upload publish status"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the bulk upload of the publish status" 
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-                    if is_published:
-                        publish_count += 1
-                    else:
-                        unpublish_count += 1
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
-            
-            response['excel_errors'] = excel_errors
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
 
-            render_value = 'Bulk publish products {} are published and {} are not published'.format(publish_count,unpublish_count)
-            #activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
-
+            p1 =  threading.Thread(target=bulk_update_dealshub_product_price_or_stock_or_status , args=(oc_report_obj.uuid, path,filename, location_group_obj, "publish_status",))
+            p1.start()
+            render_value = 'Bulk update products status with report  {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
 
             response['status'] = 200
+            response['approved'] = True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1646,6 +1623,63 @@ class BulkUpdateDealshubProductStatusAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("BulkUpdateDealshubProductStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class BulkDownloadDealshubProductAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("BulkDownloadDealshubProductAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("BulkDownloadDealshubProductAPI Restricted Access!")
+                return Response(data=response)
+
+            if OCReport.objects.filter(is_processed=False).count()>6:
+                response["approved"] = False
+                response['status'] = 200
+                return Response(data=response)
+
+            location_group_uuid = data.get("locationGroupUuid","")
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+
+
+            #  have to add this report type in custom permission
+            report_type = "download product details"
+            report_title = "Products Details"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            note = "report for the download product details" 
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
+             
+            render_value = 'OCReport {} is created'.format(oc_report_obj.name)
+            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
+
+            p1 = threading.Thread(target=create_all_dealshub_products_report, args=(filename, oc_report_obj.uuid, location_group_obj))
+            p1.start()
+
+            response["approved"] = True
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkDownloadDealshubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6787,7 +6821,13 @@ class CreateOCReportAPI(APIView):
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
-
+            # note = {
+            #     "report_type": report_type,
+            #     "note":"-" if note=="" else note,
+            #     "brand_list":"all" if brand_list==[] else brand_list,
+            #     "from_date":from_date[:10] if from_date else "-",
+            #     "to_date":to_date[:10] if to_date else "-",
+            #     }
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
@@ -7895,13 +7935,29 @@ class FetchOmnyCommUserListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            search_list = data.get("search_list", [])
+            filter_parameters = data.get("filter_parameters", {})
+            
             page = int(data.get("page", 1))
             organization = data.get("organization","WIG")
 
-            custom_permission_objs = CustomPermission.objects.filter(organization__name=organization).order_by("-pk")
-
-            user_count = custom_permission_objs.count()
-            paginator  = Paginator(custom_permission_objs,20)
+            custom_permission_username_list = CustomPermission.objects.filter(organization__name=organization).order_by("-pk").values_list('user__username', flat=True)
+            omnycomm_user_objs = OmnyCommUser.objects.filter(username__in= custom_permission_username_list)
+            
+            if "is_active" in filter_parameters:
+                if filter_parameters["is_active"] == True:
+                    omnycomm_user_objs = omnycomm_user_objs.filter(is_active=True)
+                elif filter_parameters["is_active"] == False:
+                    omnycomm_user_objs = omnycomm_user_objs.filter(is_active=False)
+                    
+            if len(search_list)>0:
+                temp_omnycomm_objs_list = OmnyCommUser.objects.none()
+                for search_key in search_list:
+                    temp_omnycomm_objs_list |= omnycomm_user_objs.filter(Q(username__icontains=search_key) | Q(first_name__icontains=search_key) | Q(last_name__icontains=search_key) | Q(designation__icontains=search_key))
+                omnycomm_user_objs = temp_omnycomm_objs_list.distinct()
+            
+            user_count = omnycomm_user_objs.count()
+            paginator  = Paginator(omnycomm_user_objs,20)
             total_pages = int(paginator.num_pages)
 
             if page > total_pages:
@@ -7910,13 +7966,12 @@ class FetchOmnyCommUserListAPI(APIView):
                 logger.warning("FetchOmnyCommUserListAPI : Page number out of range")
                 return Response(data=response)            
 
-            custom_permission_objs = paginator.page(page)
+            omnycomm_user_objs = paginator.page(page)
 
             user_list = []
 
-            for custom_permission_obj in custom_permission_objs:
+            for omnycomm_user_obj in omnycomm_user_objs:
                 temp_dict = {}
-                omnycomm_user_obj = OmnyCommUser.objects.get(username=custom_permission_obj.user.username)
                 temp_dict["username"] = omnycomm_user_obj.username
                 temp_dict["first_name"] = omnycomm_user_obj.first_name
                 temp_dict["last_name"] = omnycomm_user_obj.last_name
@@ -8144,10 +8199,12 @@ class SaveOmnyCommUserPermissionsAPI(APIView):
             custom_permission_obj = CustomPermission.objects.get(user=omnycomm_user_obj)
             prev_custom_permission_instance = deepcopy(custom_permission_obj)
 
+            custom_permission_obj.location_groups.clear()
             for location_group_uuid in location_group_uuid_list:
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 custom_permission_obj.location_groups.add(location_group_obj)
 
+            custom_permission_obj.brands.clear()
             for brand_pk in brand_pk_list:
                 brand_obj = Brand.objects.get(pk=brand_pk)
                 custom_permission_obj.brands.add(brand_obj)
@@ -8398,6 +8455,8 @@ BulkUpdateDealshubProductStock = BulkUpdateDealshubProductStockAPI.as_view()
 BulkUpdateDealshubProductStatus = BulkUpdateDealshubProductStatusAPI.as_view()
 
 BulkUpdateDealshubProductPublishStatus  = BulkUpdateDealshubProductPublishStatusAPI.as_view()
+
+BulkDownloadDealshubProduct = BulkDownloadDealshubProductAPI.as_view()
 
 FetchAuditLogsByUser = FetchAuditLogsByUserAPI.as_view()
 

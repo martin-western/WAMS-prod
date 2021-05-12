@@ -57,6 +57,11 @@
             width: 25%;
         }
 
+        .email-support a {
+            color: white;
+            text-decoration: none;
+        }
+
         @media screen and (max-width:480px) {
 
             .preheader .rightColumnContent,
@@ -160,8 +165,8 @@
                                                                                 cellspacing="0" align="center"
                                                                                 width="100%" role="module"
                                                                                 data-type="columns"
-                                                                                style="padding:30px 20px 40px 30px;"
-                                                                                bgcolor="white">
+                                                                                style="padding: 30px 20px 0px;"
+                                                                                bgcolor="black">
                                                                                 <tbody>
                                                                                     <tr role="module-content">
                                                                                         <td height="100%" valign="top">
@@ -252,15 +257,15 @@
                                                                                 data-muid="8b5181ed-0827-471c-972b-74c77e326e3d">
                                                                                 <tbody>
                                                                                     <tr>
-                                                                                        <td style="padding:30px 20px 0px 30px; line-height:22px; text-align:inherit;"
+                                                                                        <td style="padding: 0px 30px; line-height:22px; text-align:inherit;"
                                                                                             height="100%" valign="top"
-                                                                                            bgcolor=""
+                                                                                            bgcolor="black"
                                                                                             role="module-content">
                                                                                             <div>
                                                                                                 <div
                                                                                                     style="font-family: inherit; text-align: inherit">
                                                                                                     <span
-                                                                                                        style="color: #DA3E2B; font-size: 24px; font-family:  myFont;font-weight: bold;">Hi
+                                                                                                        style="color: #DA3E2B; font-size: 24px;">Hi
                                                                                                         {{customer_name}}</span>
                                                                                                 </div>
                                                                                             </div>
@@ -279,10 +284,10 @@
                                                                                     <tr>
                                                                                         <td style="padding:18px 20px 18px 30px; line-height:22px; text-align:inherit;"
                                                                                             height="100%" valign="top"
-                                                                                            bgcolor=""
+                                                                                            bgcolor="black"
                                                                                             role="module-content">
                                                                                             <div
-                                                                                                style="font-family: inherit; text-align: inherit;font-family:  myFont;font-weight: bold;">
+                                                                                                style="font-family: inherit; text-align: inherit; color: white;">
                                                                                                 Your package could
                                                                                                 not be delivered and
                                                                                                 is being returned to
@@ -305,7 +310,7 @@
                                                                                         <td style="padding:0px 30px 0px 30px;"
                                                                                             role="module-content"
                                                                                             height="100%" valign="top"
-                                                                                            bgcolor="">
+                                                                                            bgcolor="black">
                                                                                             <table border="0"
                                                                                                 cellpadding="0"
                                                                                                 cellspacing="0"
@@ -315,8 +320,8 @@
                                                                                                 style="line-height:3px; font-size:3px;">
                                                                                                 <tbody>
                                                                                                     <tr>
-                                                                                                        <td style="padding:0px 0px 3px 0px;"
-                                                                                                            bgcolor="#e7e7e7">
+                                                                                                        <td style="padding:0px 0px 3px 0px; background-color: #cccccc8a;"
+                                                                                                            bgcolor="">
                                                                                                         </td>
                                                                                                     </tr>
                                                                                                 </tbody>
@@ -332,7 +337,7 @@
                                                                                 width="100%" role="module"
                                                                                 data-type="columns"
                                                                                 style="padding:20px 20px 0px 30px;"
-                                                                                bgcolor="#FFFFFF">
+                                                                                bgcolor="black">
                                                                                 <tbody>
                                                                                     <tr role="module-content">
                                                                                         <td height="100%" valign="top">
@@ -409,7 +414,7 @@
                                                                                                                             role="module-content">
                                                                                                                             <div>
                                                                                                                                 <div
-                                                                                                                                    style="font-family: inherit; text-align: inherit">
+                                                                                                                                    style="font-family: inherit; text-align: inherit; color: white;">
                                                                                                                                     {{product_name}}
                                                                                                                                 </div>
                                                                                                                                 <div
@@ -419,14 +424,6 @@
                                                                                                                                     &nbsp;&nbsp;<span
                                                                                                                                         style="color: #DA3E2B">{{quantity}}
                                                                                                                                     </span>
-                                                                                                                                </div>
-                                                                                                                                <div
-                                                                                                                                    style="font-family: inherit; text-align: inherit; color : #DA3E2B;">
-                                                                                                                                    Price
-                                                                                                                                    :
-                                                                                                                                    &nbsp;&nbsp;<span
-                                                                                                                                        style="color: #DA3E2B">{{price}}
-                                                                                                                                        {{currency}}</span>
                                                                                                                                 </div>
                                                                                                                             </div>
                                                                                                                         </td>
@@ -483,13 +480,13 @@
                                                                                 data-muid="264ee24b-c2b0-457c-a9c1-d465879f9935">
                                                                                 <tbody>
                                                                                     <tr>
-                                                                                        <td style="padding:18px 20px 0px 30px; line-height:22px; text-align:inherit;"
+                                                                                        <td style="padding:0px 30px 10px; line-height:22px; text-align:inherit;"
                                                                                             height="100%" valign="top"
-                                                                                            bgcolor=""
+                                                                                            bgcolor="black"
                                                                                             role="module-content">
                                                                                             <div
-                                                                                                style="font-family: inherit; text-align: inherit;font-family:  myFont;color :rgb(135,149,150);">
-                                                                                                Order <a href="{{website_order_link}}">{{order_id}}</a>
+                                                                                                style="font-family: inherit; text-align: inherit;font-family:  myFont;color :white;">
+                                                                                                Order <a href="{{website_order_link}}" style="color: white;">{{order_id}}</a>
                                                                                             </div>
 
                                                                                         </td>
@@ -509,7 +506,7 @@
                                                                                         <td style="padding:5px 30px 30px 30px;"
                                                                                             role="module-content"
                                                                                             height="100%" valign="top"
-                                                                                            bgcolor="">
+                                                                                            bgcolor="black">
                                                                                             <table border="0"
                                                                                                 cellpadding="0"
                                                                                                 cellspacing="0"
@@ -519,8 +516,8 @@
                                                                                                 style="line-height:3px; font-size:3px;">
                                                                                                 <tbody>
                                                                                                     <tr>
-                                                                                                        <td style="padding:0px 0px 3px 0px;"
-                                                                                                            bgcolor="E7E7E7">
+                                                                                                        <td style="padding:0px 0px 3px 0px; background-color: #cccccc8a;"
+                                                                                                            bgcolor="">
                                                                                                         </td>
                                                                                                     </tr>
                                                                                                 </tbody>
@@ -529,28 +526,38 @@
                                                                                     </tr>
                                                                                 </tbody>
                                                                             </table>
-
-
                                                                             <table border="0" cellpadding="0"
                                                                                 cellspacing="0" align="center"
                                                                                 width="100%" role="module"
-                                                                                data-type="columns"
-                                                                                style="padding:0px 20px 0px 20px;"
-                                                                                bgcolor="#DA3E2B">
+                                                                                data-type="columns" style="
+                                                                                        padding: 0px
+                                                                                            20px
+                                                                                            0px
+                                                                                            20px;
+                                                                                    " bgcolor="#DA3E2B">
                                                                                 <tbody>
                                                                                     <tr role="module-content">
                                                                                         <td height="100%" valign="top">
                                                                                             <table class="column"
-                                                                                                width="280"
-                                                                                                style="width:280px; border-spacing:0; border-collapse:collapse; margin:0px 0px 0px 0px;"
-                                                                                                cellpadding="0"
+                                                                                                width="280" style="
+                                                                                                        width: 50%;
+                                                                                                        border-spacing: 0;
+                                                                                                        border-collapse: collapse;
+                                                                                                        margin: 0px
+                                                                                                            0px
+                                                                                                            0px
+                                                                                                            0px;
+                                                                                                    " cellpadding="0"
                                                                                                 cellspacing="0"
                                                                                                 align="left" border="0"
                                                                                                 bgcolor="">
                                                                                                 <tbody>
                                                                                                     <tr>
-                                                                                                        <td
-                                                                                                            style="padding:0px;margin:0px;border-spacing:0;">
+                                                                                                        <td style="
+                                                                                                                    padding: 0px;
+                                                                                                                    margin: 0px;
+                                                                                                                    border-spacing: 0;
+                                                                                                                ">
                                                                                                             <table
                                                                                                                 class="module"
                                                                                                                 role="module"
@@ -559,21 +566,42 @@
                                                                                                                 cellpadding="0"
                                                                                                                 cellspacing="0"
                                                                                                                 width="100%"
-                                                                                                                style="table-layout: fixed;"
+                                                                                                                style="
+                                                                                                                        table-layout: fixed;
+                                                                                                                    "
                                                                                                                 data-muid="9d43ffa1-8e24-438b-9484-db553cf5b092">
                                                                                                                 <tbody>
                                                                                                                     <tr>
-                                                                                                                        <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit;"
+                                                                                                                        <td style="
+                                                                                                                                    padding: 18px
+                                                                                                                                        0px
+                                                                                                                                        18px
+                                                                                                                                        0px;
+                                                                                                                                    line-height: 22px;
+                                                                                                                                    text-align: inherit;
+                                                                                                                                "
                                                                                                                             height="100%"
                                                                                                                             valign="top"
                                                                                                                             bgcolor=""
                                                                                                                             role="module-content">
                                                                                                                             <div>
                                                                                                                                 <div
-                                                                                                                                    style="font-family: inherit; text-align: center;font-family:  myFont;font-weight: bold;">
-                                                                                                                                    <a
-                                                                                                                                        href="http://"><span
-                                                                                                                                            style="color: #ffffff">Support</span></a>
+                                                                                                                                    style="
+                                                                                                                                            font-family: inherit;
+                                                                                                                                            text-align: center;
+                                                                                                                                            display: flex;
+                                                                                                                                            justify-content: center;
+                                                                                                                                            margin: 0 auto;
+                                                                                                                                            width: fit-content;
+                                                                                                                                        ">
+                                                                                                                                        <img style="width: 18px;
+                                                                                                                                        height: 18px; padding-top: 1px; padding-right: 5px;"
+                                                                                                                                            alt=""
+                                                                                                                                            src="https://cdn.omnycomm.com/phone-regular-24.png" />
+                                                                                                                                        <span
+                                                                                                                                            style="
+                                                                                                                                                    color: #ffffff;
+                                                                                                                                                ">{{support_contact_number}}</span>
                                                                                                                                 </div>
                                                                                                                                 <div>
                                                                                                                                 </div>
@@ -587,16 +615,25 @@
                                                                                                 </tbody>
                                                                                             </table>
                                                                                             <table class="column"
-                                                                                                width="280"
-                                                                                                style="width:280px; border-spacing:0; border-collapse:collapse; margin:0px 0px 0px 0px;"
-                                                                                                cellpadding="0"
+                                                                                                width="280" style="
+                                                                                                        width: 50%;
+                                                                                                        border-spacing: 0;
+                                                                                                        border-collapse: collapse;
+                                                                                                        margin: 0px
+                                                                                                            0px
+                                                                                                            0px
+                                                                                                            0px;
+                                                                                                    " cellpadding="0"
                                                                                                 cellspacing="0"
                                                                                                 align="left" border="0"
                                                                                                 bgcolor="">
                                                                                                 <tbody>
                                                                                                     <tr>
-                                                                                                        <td
-                                                                                                            style="padding:0px;margin:0px;border-spacing:0;">
+                                                                                                        <td style="
+                                                                                                                    padding: 0px;
+                                                                                                                    margin: 0px;
+                                                                                                                    border-spacing: 0;
+                                                                                                                ">
                                                                                                             <table
                                                                                                                 class="module"
                                                                                                                 role="module"
@@ -605,22 +642,44 @@
                                                                                                                 cellpadding="0"
                                                                                                                 cellspacing="0"
                                                                                                                 width="100%"
-                                                                                                                style="table-layout: fixed;"
+                                                                                                                style="
+                                                                                                                        table-layout: fixed;
+                                                                                                                    "
                                                                                                                 data-muid="9d43ffa1-8e24-438b-9484-db553cf5b092.1">
                                                                                                                 <tbody>
                                                                                                                     <tr>
-                                                                                                                        <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit;"
+                                                                                                                        <td style="
+                                                                                                                                    padding: 18px
+                                                                                                                                        0px
+                                                                                                                                        18px
+                                                                                                                                        0px;
+                                                                                                                                    line-height: 22px;
+                                                                                                                                    text-align: inherit;
+                                                                                                                                "
                                                                                                                             height="100%"
                                                                                                                             valign="top"
                                                                                                                             bgcolor=""
                                                                                                                             role="module-content">
                                                                                                                             <div>
                                                                                                                                 <div
-                                                                                                                                    style="font-family: inherit; text-align: center;font-family:  myFont;font-weight: bold;">
-                                                                                                                                    <a
-                                                                                                                                        href="http://"><span
-                                                                                                                                            style="color: #ffffff">Contact
-                                                                                                                                            Us</span></a>
+                                                                                                                                    style="
+                                                                                                                                            font-family: inherit;
+                                                                                                                                            text-align: center;
+                                                                                                                                            display: flex;
+                                                                                                                                            justify-content: center;
+                                                                                                                                            margin: 0 auto;
+                                                                                                                                            width: fit-content;
+                                                                                                                                        ">
+                                                                                                                                        <img 
+                                                                                                                                        style="width: 18px; padding-top: 1px;
+                                                                                                                                        height: 18px; padding-right: 5px;"
+                                                                                                                                        alt=""
+                                                                                                                                        src="https://cdn.omnycomm.com/mail.png" />
+                                                                                                                                        <span
+                                                                                                                                            class="email-support"
+                                                                                                                                            style="
+                                                                                                                                                    color: #ffffff;
+                                                                                                                                                ">{{support_email}}</span>
                                                                                                                                 </div>
                                                                                                                                 <div>
                                                                                                                                 </div>
@@ -633,8 +692,6 @@
                                                                                                     </tr>
                                                                                                 </tbody>
                                                                                             </table>
-
-
                                                                                         </td>
                                                                                     </tr>
                                                                                 </tbody>

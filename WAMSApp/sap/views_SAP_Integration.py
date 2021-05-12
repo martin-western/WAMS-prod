@@ -1,7 +1,7 @@
 from dealshub.models import *
-from WAMSApp.SAP_constants import *
+from WAMSApp.sap.SAP_constants import *
 from WAMSApp.utils import *
-from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
 
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
