@@ -31,10 +31,11 @@ from WAMSApp.stores.views_amazon_uk import *
 from WAMSApp.stores.views_noon_integration import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
+from WAMSApp.nesto.nesto_reports import *
 from WAMSApp.views_category_manager import *
 from WAMSApp.sap.views_SAP_Integration import *
 from WAMSApp.sap.utils_SAP_Integration import *
-from WAMSApp.views_nesto import *
+from WAMSApp.nesto.views_nesto import *
 from WAMSApp.views_cron import *
 
 from PIL import Image as IMage
