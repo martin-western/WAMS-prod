@@ -1641,7 +1641,7 @@ def get_section_products(location_group_obj, is_dealshub, language_code, resolut
         if is_dealshub==True and custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0).exists()==False:
             continue
         temp_dict = {}
-        temp_dict["orderIndex"] = section_obj.order_index
+        temp_dict["orderIndex"] = int(section_obj.order_index)
         temp_dict["type"] = "ProductListing"
         temp_dict["uuid"] = str(section_obj.uuid)
         temp_dict["name"] = str(section_obj.get_name(language_code))
@@ -1770,7 +1770,7 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
 
         banner_images = []
         temp_dict = {}
-        temp_dict["orderIndex"] = banner_obj.order_index
+        temp_dict["orderIndex"] = int(banner_obj.order_index)
         temp_dict["type"] = "Banner"
         temp_dict["uuid"] = banner_obj.uuid
         temp_dict["name"] = banner_obj.name
