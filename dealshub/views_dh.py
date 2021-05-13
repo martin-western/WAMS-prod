@@ -2157,7 +2157,7 @@ class FetchOrderListAPI(APIView):
                                     cheque_images_list.append(temp_dict_cheque_image)
                             except Exception as e:
                                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                                logger.warning("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                                logger.warning("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
                         temp_dict["cheque_images_list"] = cheque_images_list
                         temp_dict["cheque_approved"] =  order_obj.cheque_approved
 
