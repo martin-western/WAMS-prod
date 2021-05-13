@@ -2373,12 +2373,17 @@ class SetOrderChequeImageAPI(APIView):
                 else:
                     cheque_images_list = []
                     for i in range(image_count):
-                        image_obj = Image.objects.create(image = data["cheque_image_" + str(i)])
-                        order_obj.cheque_images.add(image_obj)
-                        temp_dict_cheque_image = {}
-                        temp_dict_cheque_image["url"] = image_obj.mid_image.url
-                        temp_dict_cheque_image["uuid"] = image_obj.pk
-                        cheque_images_list.append(temp_dict_cheque_image)
+                        try:
+                            image_obj = Image.objects.create(image = data["cheque_image_" + str(i)])
+                            order_obj.cheque_images.add(image_obj)
+                            temp_dict_cheque_image = {}
+                            temp_dict_cheque_image["url"] = image_obj.mid_image.url
+                            temp_dict_cheque_image["uuid"] = image_obj.pk
+                            cheque_images_list.append(temp_dict_cheque_image)
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.warning("SetOrderChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
                     order_obj.save()
                     response['status'] = 200
                     response["cheque_images_list"] = cheque_images_list
