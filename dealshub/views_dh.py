@@ -2383,7 +2383,7 @@ class SetOrderChequeImageAPI(APIView):
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
                             logger.warning("SetOrderChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
+                            
                     order_obj.save()
                     response['status'] = 200
                     response["cheque_images_list"] = cheque_images_list

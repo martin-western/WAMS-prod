@@ -90,8 +90,11 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
             payfort_multiplier = int(location_group_obj.location.payfort_multiplier)
             amount = str(int(float(amount)*payfort_multiplier))
             
-            API_KEY = payment_credentials["network_global_android"]["API_KEY"]
-            OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
+            # API_KEY = payment_credentials["network_global_android"]["API_KEY"] 
+            # OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
+            
+            API_KEY = "ZTkzNmY2NGMtY2M1Yi00OWZiLWE5ZjQtNDhhOWJiMGZhZWJiOmQ1MDAxYjc5LTVkMmYtNDRkYi1iYmU0LWNhMGJmYTI3MTcxYw=="
+            OUTLET_REF = "7f40fd1d-c382-4b51-9dab-6650d1097179"
             
             headers = {
                 "Content-Type": "application/vnd.ni-identity.v1+json", 
@@ -102,6 +105,7 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
 
             network_global_android_response_dict = json.loads(network_global_android_response.content)
             access_token = network_global_android_response_dict["access_token"]
+            redirectUrl = data["redirectUrl"]
 
             headers = {
                 "Authorization": "Bearer " + access_token ,
@@ -116,6 +120,9 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
                     "value": amount
                 },
                 "merchantOrderReference": merchant_reference,
+                "merchantAttributes": {
+                    "redirectUrl": redirectUrl
+                },
                 "emailAddress": dealshub_user_obj.email,
                 "billingAddress": {
                     "firstName": first_name,
@@ -153,9 +160,12 @@ def check_order_status_from_network_global_android(merchant_reference, location_
 
         #  have to add api key and outlet data in payment credentials
 
-        API_KEY = payment_credentials["network_global_android"]["API_KEY"]
-        OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
+        # API_KEY = payment_credentials["network_global_android"]["API_KEY"]
+        # OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
 
+        API_KEY = "ZTkzNmY2NGMtY2M1Yi00OWZiLWE5ZjQtNDhhOWJiMGZhZWJiOmQ1MDAxYjc5LTVkMmYtNDRkYi1iYmU0LWNhMGJmYTI3MTcxYw=="
+        OUTLET_REF = "7f40fd1d-c382-4b51-9dab-6650d1097179"
+        
         headers = {
             "Content-Type": "application/vnd.ni-identity.v1+json", 
             "Authorization": "Basic "+API_KEY
@@ -175,7 +185,7 @@ def check_order_status_from_network_global_android(merchant_reference, location_
         r = requests.get(url=url, headers=headers)
 
         content = json.loads(r.content)
-        state = content["_embedded"]["payment"]["state"]
+        state = content["_embedded"]["payment"][0]["state"]
         if state=="CAPTURED" or state=="AUTHORISED":
             return True
         return False
