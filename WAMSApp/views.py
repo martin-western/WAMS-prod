@@ -7194,7 +7194,7 @@ class FetchOCReportListAPI(APIView):
                         try:
                             json_note_obj = json.loads(oc_report_obj.note)
                         except Exception as e:
-                            temp_note = {"report_type": oc_report_obj.report_title, "note": oc_report_obj.note, "brand_list": "-", "from_date": "-", "to_date": "-"}
+                            temp_note = json.dumps({"report_type": oc_report_obj.report_title, "note": oc_report_obj.note, "brand_list": "-", "from_date": "-", "to_date": "-"})
                             json_note_obj = json.loads(temp_note)
 
                     temp_dict = {
