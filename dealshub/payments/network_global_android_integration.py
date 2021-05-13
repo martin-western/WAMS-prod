@@ -90,8 +90,11 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
             payfort_multiplier = int(location_group_obj.location.payfort_multiplier)
             amount = str(int(float(amount)*payfort_multiplier))
             
-            API_KEY = payment_credentials["network_global_android"]["API_KEY"]
-            OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
+            # API_KEY = payment_credentials["network_global_android"]["API_KEY"] 
+            # OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
+            
+            API_KEY = "ZTkzNmY2NGMtY2M1Yi00OWZiLWE5ZjQtNDhhOWJiMGZhZWJiOmQ1MDAxYjc5LTVkMmYtNDRkYi1iYmU0LWNhMGJmYTI3MTcxYw=="
+            OUTLET_REF = "7f40fd1d-c382-4b51-9dab-6650d1097179"
             
             headers = {
                 "Content-Type": "application/vnd.ni-identity.v1+json", 
@@ -157,9 +160,12 @@ def check_order_status_from_network_global_android(merchant_reference, location_
 
         #  have to add api key and outlet data in payment credentials
 
-        API_KEY = payment_credentials["network_global_android"]["API_KEY"]
-        OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
+        # API_KEY = payment_credentials["network_global_android"]["API_KEY"]
+        # OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
 
+        API_KEY = "ZTkzNmY2NGMtY2M1Yi00OWZiLWE5ZjQtNDhhOWJiMGZhZWJiOmQ1MDAxYjc5LTVkMmYtNDRkYi1iYmU0LWNhMGJmYTI3MTcxYw=="
+        OUTLET_REF = "7f40fd1d-c382-4b51-9dab-6650d1097179"
+        
         headers = {
             "Content-Type": "application/vnd.ni-identity.v1+json", 
             "Authorization": "Basic "+API_KEY
