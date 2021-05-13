@@ -2150,10 +2150,14 @@ class FetchOrderListAPI(APIView):
                         cheque_images_list = []
                         for image_obj in image_objs:
                             try:
-                                cheque_images_list.append(image_obj.mid_image.url)
+                                if image_obj.mid_image!=None:
+                                    temp_dict_cheque_image = {}
+                                    temp_dict_cheque_image["url"] = image_obj.mid_image.url
+                                    temp_dict_cheque_image["uuid"] = image_obj.pk
+                                    cheque_images_list.append(temp_dict_cheque_image)
                             except Exception as e:
                                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                                logger.warning("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                                logger.warning("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
                         temp_dict["cheque_images_list"] = cheque_images_list
                         temp_dict["cheque_approved"] =  order_obj.cheque_approved
 
@@ -6309,7 +6313,11 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         cheque_images_list = []
                         for image_obj in image_objs:
                             try:
-                                cheque_images_list.append(image_obj.mid_image.url)
+                                if image_obj.mid_image!=None:
+                                    temp_dict_cheque_image = {}
+                                    temp_dict_cheque_image["url"] = image_obj.mid_image.url
+                                    temp_dict_cheque_image["uuid"] = image_obj.pk
+                                    cheque_images_list.append(temp_dict_cheque_image)
                             except Exception as e:
                                 exc_type, exc_obj, exc_tb = sys.exc_info()
                                 logger.warning("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
