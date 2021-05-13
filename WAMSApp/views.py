@@ -6822,14 +6822,14 @@ class CreateOCReportAPI(APIView):
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
-            # note = {
-            #     "report_type": report_type,
-            #     "note":"-" if note=="" else note,
-            #     "brand_list":"all" if brand_list==[] else brand_list,
-            #     "from_date":from_date[:10] if from_date else "-",
-            #     "to_date":to_date[:10] if to_date else "-",
-            #     }
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
+            report_information = {
+                "report_type": report_type,
+                "note":"-" if note=="" else note,
+                "brand_list":"all" if brand_list==[] else brand_list,
+                "from_date":from_date[:10] if from_date else "-",
+                "to_date":to_date[:10] if to_date else "-",
+                }
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=json.dumps(report_information), filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
             if len(brand_list)==0:
