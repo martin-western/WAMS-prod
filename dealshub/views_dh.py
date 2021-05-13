@@ -2390,9 +2390,14 @@ class SetOrderChequeImageAPI(APIView):
                 elif action == "disapprove":
                     send_order_cheque_disapproval_mail(order_obj)
                     order_obj.cheque_images.clear()
+                
+                elif action == "delete":
+                    image_uuid = int(data["image_uuid"])
+                    image_obj = Image.objects.get(pk=image_uuid)
+                    order_obj.cheque_images.remove(image_obj)
+                    order_obj.save()
 
-                else:
-                    order_obj.cheque_images.clear()
+                elif action == "update":
                     for i in range(image_count):
                         image_obj = Image.objects.create(image = data["cheque_image_" + str(i)])
                         order_obj.cheque_images.add(image_obj)
