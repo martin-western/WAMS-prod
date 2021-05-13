@@ -7190,13 +7190,20 @@ class FetchOCReportListAPI(APIView):
                     completion_date = ""
                     if oc_report_obj.completion_date!=None:
                         completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
+
+                        try:
+                            json_note_obj = json.loads(oc_report_obj.note)
+                        except Exception as e:
+                            temp_note = {"report_type": oc_report_obj.report_title, "note": oc_report_obj.note, "brand_list": "-", "from_date": "-", "to_date": "-"}
+                            json_note_obj = json.loads(temp_note)
+
                     temp_dict = {
                         "name": oc_report_obj.report_title,
                         "created_date": str(timezone.localtime(oc_report_obj.created_date).strftime("%d %m, %Y %H:%M")),
                         "created_by": str(oc_report_obj.created_by),
                         "is_processed": oc_report_obj.is_processed,
                         "completion_date": completion_date,
-                        "note": json.loads(oc_report_obj.note),
+                        "note": json_note_obj,
                         "filename": SERVER_IP+"/"+oc_report_obj.filename,
                         "uuid": oc_report_obj.uuid
                     }
