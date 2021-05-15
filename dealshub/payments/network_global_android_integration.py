@@ -105,7 +105,7 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
 
             network_global_android_response_dict = json.loads(network_global_android_response.content)
             access_token = network_global_android_response_dict["access_token"]
-            redirectUrl = data["redirectUrl"]
+            # redirectUrl = data["redirectUrl"]
 
             headers = {
                 "Authorization": "Bearer " + access_token ,
@@ -120,9 +120,9 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
                     "value": amount
                 },
                 "merchantOrderReference": merchant_reference,
-                "merchantAttributes": {
-                    "redirectUrl": redirectUrl
-                },
+                # "merchantAttributes": {
+                #     "redirectUrl": redirectUrl
+                # },
                 "emailAddress": dealshub_user_obj.email,
                 "billingAddress": {
                     "firstName": first_name,
@@ -153,7 +153,7 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
 
         return Response(data=response)
 
-class MakePaymentB2BNetworkGlobalAndroidAPI(APIView):
+class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -224,7 +224,7 @@ class MakePaymentB2BNetworkGlobalAndroidAPI(APIView):
 
             network_global_android_response_dict = json.loads(network_global_android_response.content)
             access_token = network_global_android_response_dict["access_token"]
-            redirectUrl = data["redirectUrl"]
+            # redirectUrl = data["redirectUrl"]
 
             headers = {
                 "Authorization": "Bearer " + access_token ,
@@ -239,9 +239,9 @@ class MakePaymentB2BNetworkGlobalAndroidAPI(APIView):
                     "value": amount
                 },
                 "merchantOrderReference": merchant_reference,
-                "merchantAttributes": {
-                    "redirectUrl": redirectUrl
-                },
+                # "merchantAttributes": {
+                #     "redirectUrl": redirectUrl
+                # },
                 "emailAddress": dealshub_user_obj.email,
                 "billingAddress": {
                     "firstName": first_name,
@@ -314,4 +314,4 @@ def check_order_status_from_network_global_android(merchant_reference, location_
     return False
 
 MakePaymentNetworkGlobalAndroid = MakePaymentNetworkGlobalAndroidAPI.as_view()
-MakePaymentB2BNetworkGlobalAndroidAPI = MakePaymentB2BNetworkGlobalAndroidAPI.as_view()
+MakeB2BPaymentNetworkGlobalAndroid = MakeB2BPaymentNetworkGlobalAndroidAPI.as_view()
