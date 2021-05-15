@@ -304,6 +304,7 @@ def check_order_status_from_network_global_android(merchant_reference, location_
         r = requests.get(url=url, headers=headers)
 
         content = json.loads(r.content)
+        logger.info("check_order_status_from_network_global_android: state:- %s",str(state))
         state = content["_embedded"]["payment"][0]["state"]
         logger.info("check_order_status_from_network_global_android: state:- %s",str(state))
         if state=="CAPTURED" or state=="AUTHORISED":
