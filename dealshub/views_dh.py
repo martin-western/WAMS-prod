@@ -1784,10 +1784,16 @@ class PlaceB2BOnlineOrderAPI(APIView):
                 response["message"] = "Order request not approved"
                 return Response(data=response)
 
-            if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("PlaceB2BOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
-                return Response(data=response)
+            online_payment_mode = data.get("online_payment_mode","card")
+
+            if online_payment_mode.strip().lower()=="network_global_android":
+                if check_order_status_from_network_global_android(merchant_reference, location_group_obj)==False:
+                    logger.warning("PlaceB2BOnlineOrderAPI: NETWORK GLOBAL ANDROID STATUS MISMATCH!")
+                    return Response(data=response)  
+            else:
+                if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
+                    logger.warning("PlaceB2BOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")
+                    return Response(data=response)
 
             try:
                 voucher_obj = order_request_obj.voucher
