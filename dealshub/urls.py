@@ -233,7 +233,7 @@ urlpatterns = [
     url(r'^make-payment-network-global/$',views.MakePaymentNetworkGlobal),
     url(r'^make-b2b-payment-network-global/$',views.MakeB2BPaymentNetworkGlobal),
     url(r'^make-payment-network-global-android/$',views.MakePaymentNetworkGlobalAndroid),
-    url(r'^make-payment-b2b-network-global-android/$',views.MakePaymentB2BNetworkGlobalAndroidAPI),
+    url(r'^make-b2b-payment-network-global-android/$',views.MakeB2BPaymentNetworkGlobalAndroid),
 
     url(r'^fetch-postaplus-tracking/$',views.FetchPostaPlusTracking),
 
