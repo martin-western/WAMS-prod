@@ -189,13 +189,14 @@ class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
 
             order_prefix = json.loads(location_group_obj.website_group.conf)["order_prefix"]
             order_cnt = Order.objects.filter(location_group=location_group_obj).count()+1
-            merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
-
+            # merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+            # while retriving order status n_genious only support order_reference. I tried to get state using merchantOrderReference but got error as:-
+            # state:- {'message': 'Not Found', 'code': 404, 'errors': [{'message': 'Entity not found', 'localizedMessage': '{error.processing.invalidOrderReference}', 'errorCode': 'invalidOrderReference', 'domain': 'processing'}]}
+            # Hence saving order_reference in above merchant_reference
+ 
             if order_request_obj.request_status == "Approved":
                 amount = order_request_obj.to_pay
                 shipping_address = order_request_obj.shipping_address
-                order_request_obj.merchant_reference = merchant_reference
-                order_request_obj.save()
 
             first_name = shipping_address.first_name
             last_name = shipping_address.last_name
@@ -238,7 +239,7 @@ class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
                     "currencyCode": currency, 
                     "value": amount
                 },
-                "merchantOrderReference": merchant_reference,
+                # "merchantOrderReference": merchant_reference,
                 # "merchantAttributes": {
                 #     "redirectUrl": redirectUrl
                 # },
@@ -261,8 +262,14 @@ class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/orders"
             
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
+            payment_response_content = json.loads(payment_response.content)
+            merchant_reference = payment_response_content["_embedded"]["payment"][0]["orderReference"]
+
+            if order_request_obj.request_status == "Approved":
+                order_request_obj.merchant_reference = merchant_reference
+                order_request_obj.save()
             
-            response["payment_response"] = json.loads(payment_response.content)
+            response["payment_response"] = payment_response_content
             response["error"] = "Payment Success"
             response["status"] = 200
 
@@ -304,9 +311,7 @@ def check_order_status_from_network_global_android(merchant_reference, location_
         r = requests.get(url=url, headers=headers)
 
         content = json.loads(r.content)
-        logger.info("check_order_status_from_network_global_android: state:- %s",str(content))
         state = content["_embedded"]["payment"][0]["state"]
-        logger.info("check_order_status_from_network_global_android: state:- %s",str(state))
         if state=="CAPTURED" or state=="AUTHORISED":
             return True
         return False
