@@ -5088,7 +5088,7 @@ class BulkUploadFakeReviewAdminAPI(APIView):
                 logger.warning("BulkUploadFakeReviewAdminAPI Restricted Access!")
                 return Response(data=response)
 
-            location_group_uuid_list = data["locationGroupUuidList"]
+            location_group_uuid_list = data["locationGroupUuid"]
 
             path = default_storage.save('tmp/bulk-upload-review.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
@@ -5107,9 +5107,12 @@ class BulkUploadFakeReviewAdminAPI(APIView):
             organization_obj = custom_permission_obj.organization
             
             location_group_objs = LocationGroup.objects.filter(uuid__in=location_group_uuid_list)
+            logger.info("BulkUploadFakeReviewAdminAPI: %s ", location_group_objs)
+
             for location_group_obj in location_group_objs:
                 try:
                     oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
+                    logger.info("BulkUploadFakeReviewAdminAPI: %s ", oc_report_obj.filename)
                     p1 =  threading.Thread(target=bulk_upload_fake_review , args=(oc_report_obj.uuid, path, filename, location_group_obj, oc_user_obj))
                     p1.start()
                     render_value = 'Bulk update fake reviews with report {} is created'.format(oc_report_obj.name)
