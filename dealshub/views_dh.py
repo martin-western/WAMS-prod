@@ -5105,12 +5105,13 @@ class BulkUploadFakeReviewAdminAPI(APIView):
             note = "report for the bulk upload of the fake review" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
-            logger.info("BulkUploadFakeReviewAdminAPI: %s ", list(location_group_uuid_list))
-            location_group_objs = LocationGroup.objects.filter(uuid__in=list(location_group_uuid_list))
-            logger.info("BulkUploadFakeReviewAdminAPI: %s ", location_group_objs)
 
-            for location_group_obj in location_group_objs:
+
+            for location_group_uuid in location_group_uuid_list:
                 try:
+                    logger.info("BulkUploadFakeReviewAdminAPI: %s ", location_group_uuid)
+                    location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+                    logger.info("BulkUploadFakeReviewAdminAPI: %s ", location_group_obj)
                     oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
                     logger.info("BulkUploadFakeReviewAdminAPI: %s ", oc_report_obj.filename)
                     p1 =  threading.Thread(target=bulk_upload_fake_review , args=(oc_report_obj.uuid, path, filename, location_group_obj, oc_user_obj))
