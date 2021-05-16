@@ -5107,6 +5107,8 @@ class BulkUploadFakeReviewAdminAPI(APIView):
             organization_obj = custom_permission_obj.organization
             
             location_group_objs = LocationGroup.objects.filter(uuid__in=location_group_uuid_list)
+            logger.info("BulkUploadFakeReviewAdminAPI: %s ", location_group_objs)
+
             for location_group_obj in location_group_objs:
                 try:
                     oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
