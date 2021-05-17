@@ -9443,6 +9443,7 @@ DeleteOrderRequest = DeleteOrderRequestAPI.as_view()
 UpdateUnitOrderRequestAdmin = UpdateUnitOrderRequestAdminAPI.as_view()
 
 SetOrderChequeImage = SetOrderChequeImageAPI.as_view()
+
 PlaceInquiry = PlaceInquiryAPI.as_view()
 
 PlaceB2BOnlineOrder = PlaceB2BOnlineOrderAPI.as_view()

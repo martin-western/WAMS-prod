@@ -1635,274 +1635,282 @@ def send_b2b_user_status_change_mail(b2b_user_obj):
 
 # utility method for FetchDealshubAdminSectionsAPI
 def get_section_products(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs):
-    dealshub_admin_sections = []
-    for section_obj in section_objs:
-        custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
-        if is_dealshub==True and custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0).exists()==False:
-            continue
-        temp_dict = {}
-        temp_dict["orderIndex"] = int(section_obj.order_index)
-        temp_dict["type"] = "ProductListing"
-        temp_dict["uuid"] = str(section_obj.uuid)
-        temp_dict["name"] = str(section_obj.get_name(language_code))
-        temp_dict["listingType"] = str(section_obj.listing_type)
-        temp_dict["createdOn"] = str(datetime.datetime.strftime(section_obj.created_date, "%d %b, %Y"))
-        temp_dict["modifiedOn"] = str(datetime.datetime.strftime(section_obj.modified_date, "%d %b, %Y"))
-        temp_dict["createdBy"] = str(section_obj.created_by)
-        temp_dict["modifiedBy"] = str(section_obj.modified_by)
-        temp_dict["isPublished"] = section_obj.is_published
-
-        promotion_obj = section_obj.promotion
-        if promotion_obj is None:
-            temp_dict["is_promotional"] = False
-            temp_dict["start_time"] = None
-            temp_dict["end_time"] = None
-            temp_dict["promotion_tag"] = None
-            temp_dict["remaining_time"] = None
-        else:
-            temp_dict["is_promotional"] = True
-            temp_dict["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
-            temp_dict["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
-            now_time = datetime.datetime.now()
-            total_seconds = (timezone.localtime(promotion_obj.end_time).replace(tzinfo=None) - now_time).total_seconds()
-            temp_dict["remaining_time"] = {
-                "days": int(total_seconds/(3600*24)),
-                "hours": int(total_seconds/3600)%24,
-                "minutes": int(total_seconds/60)%60,
-                "seconds": int(total_seconds)%60
-            }
-            temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
-
-        hovering_banner_img = section_obj.hovering_banner_image
-        if hovering_banner_img is not None:
-            temp_dict["hoveringBannerUuid"] = section_obj.hovering_banner_image.pk
-            if resolution=="low":
-                temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.mid_image.url
-            else:
-                temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.image.url
-        else:
-            temp_dict["hoveringBannerUrl"] = ""
-            temp_dict["hoveringBannerUuid"] = ""
-
-        temp_products = []
-
-        custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
-        if is_dealshub==True:
-            custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
-
-        dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
-        
-        section_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
-        
-        section_products = list(section_products)
-        section_products.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
-        
-        section_products = section_products[:40]
-        if limit==True:
-            if section_obj.listing_type=="Carousel":
-                section_products = section_products[:14]
-            elif section_obj.listing_type=="Grid Stack":
-                section_products = section_products[:14]
-
-        for dealshub_product_obj in section_products:
-            if dealshub_product_obj.now_price==0:
+    try:
+        dealshub_admin_sections = []
+        for section_obj in section_objs:
+            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+            if is_dealshub==True and custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0).exists()==False:
                 continue
-            temp_dict2 = {}
+            temp_dict = {}
+            temp_dict["orderIndex"] = int(section_obj.order_index)
+            temp_dict["type"] = "ProductListing"
+            temp_dict["uuid"] = str(section_obj.uuid)
+            temp_dict["name"] = str(section_obj.get_name(language_code))
+            temp_dict["listingType"] = str(section_obj.listing_type)
+            temp_dict["createdOn"] = str(datetime.datetime.strftime(section_obj.created_date, "%d %b, %Y"))
+            temp_dict["modifiedOn"] = str(datetime.datetime.strftime(section_obj.modified_date, "%d %b, %Y"))
+            temp_dict["createdBy"] = str(section_obj.created_by)
+            temp_dict["modifiedBy"] = str(section_obj.modified_by)
+            temp_dict["isPublished"] = section_obj.is_published
 
-            temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
-            temp_dict2["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
-            temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
-            temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
-            temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
-            temp_dict2["displayId"] = dealshub_product_obj.get_product_id()
-            temp_dict2["uuid"] = dealshub_product_obj.uuid
-            temp_dict2["link"] = dealshub_product_obj.url
-            dealshub_product_obj_base_product = dealshub_product_obj.product.base_product
-            dealshub_same_baseproduct_objs = DealsHubProduct.objects.filter(location_group=location_group_obj,product__base_product = dealshub_product_obj_base_product,is_published=True).exclude(now_price=0).exclude(stock=0)
-            temp_dict2["color_list"] = []
-            if dealshub_same_baseproduct_objs.count()>1:
-                for dealshubproduct_obj in dealshub_same_baseproduct_objs:
-                    dealshubproduct_color = dealshubproduct_obj.product.color
-                    temp_dict2["color_list"].append({"color":str(dealshubproduct_color),"uuid":str(dealshubproduct_obj.uuid)})
-            
-            if is_dealshub==True:
-                temp_dict2["category"] = dealshub_product_obj.get_category(language_code)
-                temp_dict2["currency"] = dealshub_product_obj.get_currency()
-            
-            temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
-            temp_dict2["now_price"] = dealshub_product_obj.now_price
-            temp_dict2["was_price"] = dealshub_product_obj.was_price
-            temp_dict2["stock"] = dealshub_product_obj.stock
-            temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
-            temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
-            if promotion_obj==None:
-                product_promotion_details = get_product_promotion_details(dealshub_product_obj)
-                for key in product_promotion_details.keys():
-                    temp_dict2[key]=product_promotion_details[key]
-            temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
-            if dealshub_product_obj.stock>0:
-                temp_dict2["isStockAvailable"] = True
+            promotion_obj = section_obj.promotion
+            if promotion_obj is None:
+                temp_dict["is_promotional"] = False
+                temp_dict["start_time"] = None
+                temp_dict["end_time"] = None
+                temp_dict["promotion_tag"] = None
+                temp_dict["remaining_time"] = None
             else:
-                temp_dict2["isStockAvailable"] = False
+                temp_dict["is_promotional"] = True
+                temp_dict["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
+                temp_dict["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
+                now_time = datetime.datetime.now()
+                total_seconds = (timezone.localtime(promotion_obj.end_time).replace(tzinfo=None) - now_time).total_seconds()
+                temp_dict["remaining_time"] = {
+                    "days": int(total_seconds/(3600*24)),
+                    "hours": int(total_seconds/3600)%24,
+                    "minutes": int(total_seconds/60)%60,
+                    "seconds": int(total_seconds)%60
+                }
+                temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
 
-            temp_products.append(temp_dict2)
-        temp_dict["products"] = temp_products
+            hovering_banner_img = section_obj.hovering_banner_image
+            if hovering_banner_img is not None:
+                temp_dict["hoveringBannerUuid"] = section_obj.hovering_banner_image.pk
+                if resolution=="low":
+                    temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.mid_image.url
+                else:
+                    temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.image.url
+            else:
+                temp_dict["hoveringBannerUrl"] = ""
+                temp_dict["hoveringBannerUuid"] = ""
 
-        dealshub_admin_sections.append(temp_dict)
-    return dealshub_admin_sections
+            temp_products = []
+
+            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+            if is_dealshub==True:
+                custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
+
+            dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
+            
+            section_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+            
+            section_products = list(section_products)
+            section_products.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
+            
+            section_products = section_products[:40]
+            if limit==True:
+                if section_obj.listing_type=="Carousel":
+                    section_products = section_products[:14]
+                elif section_obj.listing_type=="Grid Stack":
+                    section_products = section_products[:14]
+
+            for dealshub_product_obj in section_products:
+                if dealshub_product_obj.now_price==0:
+                    continue
+                temp_dict2 = {}
+
+                temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                temp_dict2["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
+                temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
+                temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
+                temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
+                temp_dict2["displayId"] = dealshub_product_obj.get_product_id()
+                temp_dict2["uuid"] = dealshub_product_obj.uuid
+                temp_dict2["link"] = dealshub_product_obj.url
+                dealshub_product_obj_base_product = dealshub_product_obj.product.base_product
+                dealshub_same_baseproduct_objs = DealsHubProduct.objects.filter(location_group=location_group_obj,product__base_product = dealshub_product_obj_base_product,is_published=True).exclude(now_price=0).exclude(stock=0)
+                temp_dict2["color_list"] = []
+                if dealshub_same_baseproduct_objs.count()>1:
+                    for dealshubproduct_obj in dealshub_same_baseproduct_objs:
+                        dealshubproduct_color = dealshubproduct_obj.product.color
+                        temp_dict2["color_list"].append({"color":str(dealshubproduct_color),"uuid":str(dealshubproduct_obj.uuid)})
+                
+                if is_dealshub==True:
+                    temp_dict2["category"] = dealshub_product_obj.get_category(language_code)
+                    temp_dict2["currency"] = dealshub_product_obj.get_currency()
+                
+                temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
+                temp_dict2["now_price"] = dealshub_product_obj.now_price
+                temp_dict2["was_price"] = dealshub_product_obj.was_price
+                temp_dict2["stock"] = dealshub_product_obj.stock
+                temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
+                if promotion_obj==None:
+                    product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+                    for key in product_promotion_details.keys():
+                        temp_dict2[key]=product_promotion_details[key]
+                temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+                if dealshub_product_obj.stock>0:
+                    temp_dict2["isStockAvailable"] = True
+                else:
+                    temp_dict2["isStockAvailable"] = False
+
+                temp_products.append(temp_dict2)
+            temp_dict["products"] = temp_products
+
+            dealshub_admin_sections.append(temp_dict)
+        return dealshub_admin_sections
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("FetchDealshubAdminSectionsAPI get_section_products: %s at %s", e, str(exc_tb.tb_lineno))
 
 # utility method for FetchDealshubAdminSectionsAPI
 def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs):
-    dealshub_admin_sections = []
-    for banner_obj in banner_objs:
-        unit_banner_image_objs = UnitBannerImage.objects.filter(banner=banner_obj)
+    try:
+        dealshub_admin_sections = []
+        for banner_obj in banner_objs:
+            unit_banner_image_objs = UnitBannerImage.objects.filter(banner=banner_obj)
 
-        if is_dealshub:
-            valid_unit_banner_image_objs = UnitBannerImage.objects.none()
-            for unit_banner_image_obj in unit_banner_image_objs:
-                promotion_obj = unit_banner_image_obj.promotion
-                if promotion_obj is not None:
-                    if check_valid_promotion(promotion_obj):
+            if is_dealshub:
+                valid_unit_banner_image_objs = UnitBannerImage.objects.none()
+                for unit_banner_image_obj in unit_banner_image_objs:
+                    promotion_obj = unit_banner_image_obj.promotion
+                    if promotion_obj is not None:
+                        if check_valid_promotion(promotion_obj):
+                            valid_unit_banner_image_objs |= UnitBannerImage.objects.filter(pk=unit_banner_image_obj.pk)
+                    else:
                         valid_unit_banner_image_objs |= UnitBannerImage.objects.filter(pk=unit_banner_image_obj.pk)
-                else:
-                    valid_unit_banner_image_objs |= UnitBannerImage.objects.filter(pk=unit_banner_image_obj.pk)
-            unit_banner_image_objs = valid_unit_banner_image_objs
+                unit_banner_image_objs = valid_unit_banner_image_objs
 
-        banner_images = []
-        temp_dict = {}
-        temp_dict["orderIndex"] = int(banner_obj.order_index)
-        temp_dict["type"] = "Banner"
-        temp_dict["uuid"] = banner_obj.uuid
-        temp_dict["name"] = banner_obj.name
-        temp_dict["bannerType"] = banner_obj.banner_type.name
-        temp_dict["limit"] = banner_obj.banner_type.limit
-        temp_dict["is_nested"] = banner_obj.is_nested
-        for unit_banner_image_obj in unit_banner_image_objs:
-            temp_dict2 = {}
-            temp_dict2["uid"] = unit_banner_image_obj.uuid
-            temp_dict2["httpLink"] = unit_banner_image_obj.http_link
-            temp_dict2["url"] = ""
-            temp_dict2["url-ar"] = ""
-            try:
-                if unit_banner_image_obj.image!=None:
+            banner_images = []
+            temp_dict = {}
+            temp_dict["orderIndex"] = int(banner_obj.order_index)
+            temp_dict["type"] = "Banner"
+            temp_dict["uuid"] = banner_obj.uuid
+            temp_dict["name"] = banner_obj.name
+            temp_dict["bannerType"] = banner_obj.banner_type.name
+            temp_dict["limit"] = banner_obj.banner_type.limit
+            temp_dict["is_nested"] = banner_obj.is_nested
+            for unit_banner_image_obj in unit_banner_image_objs:
+                temp_dict2 = {}
+                temp_dict2["uid"] = unit_banner_image_obj.uuid
+                temp_dict2["httpLink"] = unit_banner_image_obj.http_link
+                temp_dict2["url"] = ""
+                temp_dict2["url-ar"] = ""
+                try:
+                    if unit_banner_image_obj.image!=None:
+                        if resolution=="low":
+                            temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
+                            if unit_banner_image_obj.image_ar!=None:
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
+                            else:
+                                temp_dict2["url-ar"] = ""
+                        else:
+                            temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
+                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                            temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
+                            if unit_banner_image_obj.image_ar!=None:
+                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
+                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
+                            else:
+                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchDealshubAdminSectionsAPI get_banner_image_objects: %s at %s with image %s", e, str(exc_tb.tb_lineno), str(unit_banner_image_obj.uuid))
+
+                temp_dict2["mobileUrl"] = ""
+                temp_dict2["mobileUrl-ar"] = ""
+                try:
+                    if unit_banner_image_obj.mobile_image!=None:
+                        if resolution=="low":
+                            temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
+                            if unit_banner_image_obj.mobile_image_ar!=None:
+                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.mid_image.url
+                            else:
+                                temp_dict2["mobileUrl-ar"] = ""
+                        else:
+                            temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
+                            temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+                            temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
+                            if unit_banner_image_obj.mobile_image_ar!=None:
+                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
+                            else:
+                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image.webp_image.url
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchDealshubAdminSectionsAPI get_banner_image_objects: %s at %s with image %s", e, str(exc_tb.tb_lineno), str(unit_banner_image_obj.uuid))
+
+                hovering_banner_img = unit_banner_image_obj.hovering_banner_image
+                if hovering_banner_img is not None:
+                    temp_dict2["hoveringBannerUuid"] = unit_banner_image_obj.hovering_banner_image.pk
                     if resolution=="low":
-                        temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
-                        if unit_banner_image_obj.image_ar!=None:
-                            temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
-                        else:
-                            temp_dict2["url-ar"] = ""
+                        temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
                     else:
-                        temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
-                        temp_dict2["url"] = unit_banner_image_obj.image.image.url
-                        temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
-                        if unit_banner_image_obj.image_ar!=None:
-                            temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
-                            temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
-                            temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
-                        else:
-                            temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
-                            temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
-                            temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubAdminSectionsAPI: %s at %s with image %s", e, str(exc_tb.tb_lineno), str(unit_banner_image_obj.uuid))
-
-            temp_dict2["mobileUrl"] = ""
-            temp_dict2["mobileUrl-ar"] = ""
-            try:
-                if unit_banner_image_obj.mobile_image!=None:
-                    if resolution=="low":
-                        temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
-                        if unit_banner_image_obj.mobile_image_ar!=None:
-                            temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.mid_image.url
-                        else:
-                            temp_dict2["mobileUrl-ar"] = ""
-                    else:
-                        temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
-                        temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
-                        temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
-                        if unit_banner_image_obj.mobile_image_ar!=None:
-                            temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
-                            temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
-                            temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
-                        else:
-                            temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
-                            temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
-                            temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image.webp_image.url
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubAdminSectionsAPI: %s at %s with image %s", e, str(exc_tb.tb_lineno), str(unit_banner_image_obj.uuid))
-
-            hovering_banner_img = unit_banner_image_obj.hovering_banner_image
-            if hovering_banner_img is not None:
-                temp_dict2["hoveringBannerUuid"] = unit_banner_image_obj.hovering_banner_image.pk
-                if resolution=="low":
-                    temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
+                        temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
                 else:
-                    temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
-            else:
-                temp_dict2["hoveringBannerUrl"] = ""
-                temp_dict2["hoveringBannerUuid"] = ""
+                    temp_dict2["hoveringBannerUrl"] = ""
+                    temp_dict2["hoveringBannerUuid"] = ""
 
-            promotion_obj = unit_banner_image_obj.promotion
-            if promotion_obj is None:
-                temp_dict2["is_promotional"] = False
-                temp_dict2["start_time"] = None
-                temp_dict2["end_time"] = None
-                temp_dict2["promotion_tag"] = None
-            else:
-                temp_dict2["is_promotional"] = True
-                temp_dict2["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
-                temp_dict2["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
-                temp_dict2["promotion_tag"] = str(promotion_obj.promotion_tag)
+                promotion_obj = unit_banner_image_obj.promotion
+                if promotion_obj is None:
+                    temp_dict2["is_promotional"] = False
+                    temp_dict2["start_time"] = None
+                    temp_dict2["end_time"] = None
+                    temp_dict2["promotion_tag"] = None
+                else:
+                    temp_dict2["is_promotional"] = True
+                    temp_dict2["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
+                    temp_dict2["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
+                    temp_dict2["promotion_tag"] = str(promotion_obj.promotion_tag)
 
 
-            custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj)
-            if is_dealshub==True:
-                custom_product_unit_banner_objs = custom_product_unit_banner_objs.exclude(product__now_price=0).exclude(product__stock=0)
+                custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj)
+                if is_dealshub==True:
+                    custom_product_unit_banner_objs = custom_product_unit_banner_objs.exclude(product__now_price=0).exclude(product__stock=0)
 
-            dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
-            unit_banner_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+                dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
+                unit_banner_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
 
-            unit_banner_products = list(unit_banner_products)
-            unit_banner_products.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
+                unit_banner_products = list(unit_banner_products)
+                unit_banner_products.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
 
-            if is_dealshub==False :
-                temp_products = []
-                for dealshub_product_obj in unit_banner_products[:40]:
-                    if dealshub_product_obj.now_price==0:
-                        continue
-                    temp_dict3 = {}
+                if is_dealshub==False :
+                    temp_products = []
+                    for dealshub_product_obj in unit_banner_products[:40]:
+                        if dealshub_product_obj.now_price==0:
+                            continue
+                        temp_dict3 = {}
 
-                    temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
-                    temp_dict3["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
-                    temp_dict3["name"] = dealshub_product_obj.get_name(language_code)
-                    temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
-                    temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
-                    temp_dict3["brand"] = dealshub_product_obj.get_brand(language_code)
-                    temp_dict3["uuid"] = dealshub_product_obj.uuid
-                    temp_dict3["link"] = dealshub_product_obj.url
+                        temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                        temp_dict3["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
+                        temp_dict3["name"] = dealshub_product_obj.get_name(language_code)
+                        temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
+                        temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
+                        temp_dict3["brand"] = dealshub_product_obj.get_brand(language_code)
+                        temp_dict3["uuid"] = dealshub_product_obj.uuid
+                        temp_dict3["link"] = dealshub_product_obj.url
 
-                    promotion_obj = dealshub_product_obj.promotion
+                        promotion_obj = dealshub_product_obj.promotion
 
-                    temp_dict3["promotional_price"] = dealshub_product_obj.promotional_price
-                    temp_dict3["now_price"] = dealshub_product_obj.now_price
-                    temp_dict3["was_price"] = dealshub_product_obj.was_price
-                    temp_dict3["stock"] = dealshub_product_obj.stock
-                    temp_dict3["allowedQty"] = dealshub_product_obj.get_allowed_qty()
-                    if dealshub_product_obj.stock>0:
-                        temp_dict3["isStockAvailable"] = True
-                    else:
-                        temp_dict3["isStockAvailable"] = False
+                        temp_dict3["promotional_price"] = dealshub_product_obj.promotional_price
+                        temp_dict3["now_price"] = dealshub_product_obj.now_price
+                        temp_dict3["was_price"] = dealshub_product_obj.was_price
+                        temp_dict3["stock"] = dealshub_product_obj.stock
+                        temp_dict3["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+                        if dealshub_product_obj.stock>0:
+                            temp_dict3["isStockAvailable"] = True
+                        else:
+                            temp_dict3["isStockAvailable"] = False
 
-                    temp_products.append(temp_dict3)    # No need to Send all
-                temp_dict2["products"] = temp_products
-            
-            temp_dict2["has_products"] = len(unit_banner_products)>0
-            banner_images.append(temp_dict2)
+                        temp_products.append(temp_dict3)    # No need to Send all
+                    temp_dict2["products"] = temp_products
+                
+                temp_dict2["has_products"] = len(unit_banner_products)>0
+                banner_images.append(temp_dict2)
 
-        temp_dict["bannerImages"] = banner_images
-        temp_dict["isPublished"] = banner_obj.is_published
+            temp_dict["bannerImages"] = banner_images
+            temp_dict["isPublished"] = banner_obj.is_published
 
-        dealshub_admin_sections.append(temp_dict)
-    return dealshub_admin_sections
+            dealshub_admin_sections.append(temp_dict)
+        return dealshub_admin_sections
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("FetchDealshubAdminSectionsAPI get_banner_image_objects: %s at %s", e, str(exc_tb.tb_lineno))
