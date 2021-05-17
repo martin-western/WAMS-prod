@@ -52,6 +52,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return
 
+
 class AddToWishListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -67,30 +68,38 @@ class AddToWishListAPI(APIView):
             product_uuid = data["productUuid"]
             location_group_uuid = data["locationGroupUuid"]
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(
+                uuid=product_uuid)
 
-            if dealshub_product_obj.location_group!=location_group_obj:
+            if dealshub_product_obj.location_group != location_group_obj:
                 response["status"] = 403
-                logger.error("AddToWishListAPI: Product does not exist in LocationGroup!")
+                logger.error(
+                    "AddToWishListAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            wish_list_obj = WishList.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
+            wish_list_obj = WishList.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
             unit_wish_list_obj = None
-            
-            if UnitWishList.objects.filter(wish_list=wish_list_obj, product=dealshub_product_obj).exists()==False:
-                unit_wish_list_obj = UnitWishList.objects.create(wish_list=wish_list_obj, product=dealshub_product_obj)
+
+            if UnitWishList.objects.filter(wish_list=wish_list_obj, product=dealshub_product_obj).exists() == False:
+                unit_wish_list_obj = UnitWishList.objects.create(
+                    wish_list=wish_list_obj, product=dealshub_product_obj)
             else:
-                unit_wish_list_obj = UnitWishList.objects.get(wish_list=wish_list_obj, product=dealshub_product_obj)
+                unit_wish_list_obj = UnitWishList.objects.get(
+                    wish_list=wish_list_obj, product=dealshub_product_obj)
 
             response["unitWishListUuid"] = unit_wish_list_obj.uuid
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddToWishListAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("AddToWishListAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -107,16 +116,18 @@ class RemoveFromWishListAPI(APIView):
                 data = json.loads(data)
 
             unit_wish_list_uuid = data["unitWishListUuid"]
-            
-            unit_wish_list_obj = UnitWishList.objects.get(uuid=unit_wish_list_uuid)
+
+            unit_wish_list_obj = UnitWishList.objects.get(
+                uuid=unit_wish_list_uuid)
             unit_wish_list_obj.delete()
 
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RemoveFromWishListAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("RemoveFromWishListAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -128,32 +139,42 @@ class FetchWishListAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            language_code = data.get("language","en")
+            language_code = data.get("language", "en")
             logger.info("FetchWishListAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            wish_list_obj = WishList.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-            unit_wish_list_objs = UnitWishList.objects.filter(wish_list=wish_list_obj)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
+            wish_list_obj = WishList.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
+            unit_wish_list_objs = UnitWishList.objects.filter(
+                wish_list=wish_list_obj)
             unit_wish_list = []
             for unit_wish_list_obj in unit_wish_list_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = unit_wish_list_obj.uuid
-                temp_dict["price"] = unit_wish_list_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                temp_dict["price"] = unit_wish_list_obj.product.get_actual_price_for_customer(
+                    dealshub_user_obj)
                 temp_dict["currency"] = unit_wish_list_obj.product.get_currency()
-                temp_dict["moq"] = unit_wish_list_obj.product.get_moq(dealshub_user_obj)
+                temp_dict["moq"] = unit_wish_list_obj.product.get_moq(
+                    dealshub_user_obj)
                 temp_dict["dateCreated"] = unit_wish_list_obj.get_date_created()
-                temp_dict["productName"] = unit_wish_list_obj.product.get_name(language_code)
-                temp_dict["productImageUrl"] = unit_wish_list_obj.product.get_display_image_url()
+                temp_dict["productName"] = unit_wish_list_obj.product.get_name(
+                    language_code)
+                temp_dict["productImageUrl"] = unit_wish_list_obj.product.get_display_image_url(
+                )
                 temp_dict["productUuid"] = unit_wish_list_obj.product.uuid
                 temp_dict["link"] = unit_wish_list_obj.product.url
-                temp_dict["brand"] = unit_wish_list_obj.product.get_brand(language_code)
+                temp_dict["brand"] = unit_wish_list_obj.product.get_brand(
+                    language_code)
                 temp_dict["isStockAvailable"] = unit_wish_list_obj.product.stock > 0
-                temp_dict["category"] = unit_wish_list_obj.product.get_category(language_code)
+                temp_dict["category"] = unit_wish_list_obj.product.get_category(
+                    language_code)
                 unit_wish_list.append(temp_dict)
 
             response["unitWishList"] = unit_wish_list
@@ -161,8 +182,9 @@ class FetchWishListAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchWishListAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("FetchWishListAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -182,7 +204,8 @@ class FetchShippingAddressListAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
 
-            address_objs = Address.objects.filter(is_shipping=True, is_deleted=False, user=user, location_group__uuid=location_group_uuid)
+            address_objs = Address.objects.filter(
+                is_shipping=True, is_deleted=False, user=user, location_group__uuid=location_group_uuid)
 
             address_list = []
             for address_obj in address_objs:
@@ -209,11 +232,14 @@ class FetchShippingAddressListAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchShippingAddressListAPI: %s at %s",e, str(exc_tb.tb_lineno))
-        
+            logger.error("FetchShippingAddressListAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
-#API with activity log
+# API with activity log
+
+
 class EditShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -238,7 +264,7 @@ class EditShippingAddressAPI(APIView):
             line2 = data["line2"]
             line3 = data.get("line3", "")
             line4 = data.get("line4", "")
-            
+
             state = data.get("state", "")
             neighbourhood = data.get("neighbourhood", "")
 
@@ -262,8 +288,9 @@ class EditShippingAddressAPI(APIView):
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
 
-            render_value =  "Shipping Address updated offline for " + address_obj.user.username
-            activitylog(request.user, Address, "updated", address_obj.uuid, prev_address_obj, address_obj, address_obj.location_group, render_value)
+            render_value = "Shipping Address updated offline for " + address_obj.user.username
+            activitylog(request.user, Address, "updated", address_obj.uuid,
+                        prev_address_obj, address_obj, address_obj.location_group, render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -285,10 +312,12 @@ class CreateShippingAddressAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             first_name = data["firstName"]
             last_name = data.get("lastName", "")
@@ -301,32 +330,36 @@ class CreateShippingAddressAPI(APIView):
             postcode = ""
             neighbourhood = data.get("neighbourhood", "")
             emirates = data.get("emirates", "")
-            if postcode==None:
+            if postcode == None:
                 postcode = ""
             contact_number = dealshub_user_obj.contact_number
             tag = data.get("tag", "")
-            if tag==None:
+            if tag == None:
                 tag = ""
 
-            if dealshub_user_obj.first_name=="":
+            if dealshub_user_obj.first_name == "":
                 dealshub_user_obj.first_name = first_name
                 dealshub_user_obj.last_name = last_name
                 dealshub_user_obj.save()
 
-            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj, neighbourhood=neighbourhood, emirates=emirates)
+            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode,
+                                                 contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj, neighbourhood=neighbourhood, emirates=emirates)
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateShippingAddressAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class CreateOfflineShippingAddressAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -339,7 +372,8 @@ class CreateOfflineShippingAddressAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
             username = data["username"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             if DealsHubUser.objects.filter(username=username).exists():
 
@@ -354,26 +388,29 @@ class CreateOfflineShippingAddressAPI(APIView):
                 state = data["state"]
                 postcode = data["postcode"]
                 emirates = data.get("emirates", "")
-                if postcode==None:
+                if postcode == None:
                     postcode = ""
                 contact_number = dealshub_user_obj.contact_number
                 tag = data.get("tag", "")
-                if tag==None:
+                if tag == None:
                     tag = ""
 
-                address_obj = Address.objects.create(user=dealshub_user_obj,first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj, emirates=emirates)
+                address_obj = Address.objects.create(user=dealshub_user_obj, first_name=first_name, last_name=last_name, address_lines=address_lines,
+                                                     state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj, emirates=emirates)
 
                 response["uuid"] = address_obj.uuid
 
                 render_value = "New Offline Shipping Address created for " + username
-                activitylog(request.user, Address, "created", address_obj.uuid, None, address_obj, location_group_obj, render_value)
+                activitylog(request.user, Address, "created", address_obj.uuid,
+                            None, address_obj, location_group_obj, render_value)
                 response['status'] = 200
             else:
                 response["status"] = 409
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateOfflineShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateOfflineShippingAddressAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -409,7 +446,8 @@ class DeleteShippingAddressAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DeleteShippingAddressAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -430,32 +468,41 @@ class AddToCartAPI(APIView):
             quantity = int(data["quantity"])
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(
+                uuid=product_uuid)
 
-            if dealshub_product_obj.location_group!=location_group_obj:
+            if dealshub_product_obj.location_group != location_group_obj:
                 response["status"] = 403
-                logger.error("AddToCartAPI: Product does not exist in LocationGroup!")
+                logger.error(
+                    "AddToCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
+            cart_obj = Cart.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_obj = None
-            if UnitCart.objects.filter(cart=cart_obj, product__uuid=product_uuid).exists()==True:
-                unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product__uuid=product_uuid)
+            if UnitCart.objects.filter(cart=cart_obj, product__uuid=product_uuid).exists() == True:
+                unit_cart_obj = UnitCart.objects.get(
+                    cart=cart_obj, product__uuid=product_uuid)
                 unit_cart_obj.quantity += quantity
                 unit_cart_obj.save()
             else:
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity, offline_price=dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj))
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, product=dealshub_product_obj, quantity=quantity,
+                                                        offline_price=dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj))
 
             update_cart_bill(cart_obj)
 
-            response["price"] = dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj)
-            response["showNote"] = dealshub_product_obj.is_promo_restriction_note_required(dealshub_user_obj)
+            response["price"] = dealshub_product_obj.get_actual_price_for_customer(
+                dealshub_user_obj)
+            response["showNote"] = dealshub_product_obj.is_promo_restriction_note_required(
+                dealshub_user_obj)
 
             subtotal = cart_obj.get_subtotal()
-            
+
             delivery_fee = cart_obj.get_delivery_fee()
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
@@ -464,13 +511,14 @@ class AddToCartAPI(APIView):
             total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat_with_cod = cart_obj.get_vat(cod=True)
 
-            is_voucher_applied = cart_obj.voucher!=None
+            is_voucher_applied = cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
-                if cart_obj.voucher.voucher_type=="SD":
+                if cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -500,7 +548,7 @@ class AddToCartAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("AddToCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
@@ -520,29 +568,36 @@ class AddToFastCartAPI(APIView):
             quantity = data.get("quantity", 1)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(
+                uuid=product_uuid)
 
-            if dealshub_product_obj.location_group!=location_group_obj:
+            if dealshub_product_obj.location_group != location_group_obj:
                 response["status"] = 403
-                logger.error("AddToCartAPI: Product does not exist in LocationGroup!")
+                logger.error(
+                    "AddToCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-            
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
+            fast_cart_obj = FastCart.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
+
             fast_cart_obj.product = dealshub_product_obj
             fast_cart_obj.quantity = quantity
             fast_cart_obj.save()
 
             update_fast_cart_bill(fast_cart_obj)
 
-            response["price"] = dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj)
-            response["showNote"] = dealshub_product_obj.is_promo_restriction_note_required(dealshub_user_obj)
+            response["price"] = dealshub_product_obj.get_actual_price_for_customer(
+                dealshub_user_obj)
+            response["showNote"] = dealshub_product_obj.is_promo_restriction_note_required(
+                dealshub_user_obj)
 
             subtotal = fast_cart_obj.get_subtotal()
-            
+
             delivery_fee = fast_cart_obj.get_delivery_fee()
             total_amount = fast_cart_obj.get_total_amount()
             vat = fast_cart_obj.get_vat()
@@ -551,13 +606,14 @@ class AddToFastCartAPI(APIView):
             total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
             vat_with_cod = fast_cart_obj.get_vat(cod=True)
 
-            is_voucher_applied = fast_cart_obj.voucher!=None
+            is_voucher_applied = fast_cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = fast_cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = fast_cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = fast_cart_obj.voucher.voucher_code
-                if fast_cart_obj.voucher.voucher_type=="SD":
+                if fast_cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -586,13 +642,16 @@ class AddToFastCartAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddToFastCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("AddToFastCartAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class AddToOfflineCartAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -608,47 +667,55 @@ class AddToOfflineCartAPI(APIView):
             username = data["username"]
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(
+                uuid=product_uuid)
 
-            if dealshub_product_obj.location_group!=location_group_obj:
+            if dealshub_product_obj.location_group != location_group_obj:
                 response["status"] = 403
-                logger.error("AddToOfflineCartAPI: Product does not exist in LocationGroup!")
+                logger.error(
+                    "AddToOfflineCartAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
             prev_cart_obj = deepcopy(cart_obj)
             unit_cart_obj = None
-            if UnitCart.objects.filter(cart=cart_obj, product__uuid=product_uuid).exists()==True:
-                unit_cart_obj = UnitCart.objects.get(cart=cart_obj, product__uuid=product_uuid)
+            if UnitCart.objects.filter(cart=cart_obj, product__uuid=product_uuid).exists() == True:
+                unit_cart_obj = UnitCart.objects.get(
+                    cart=cart_obj, product__uuid=product_uuid)
                 unit_cart_obj.quantity += quantity
                 unit_cart_obj.save()
             else:
-                unit_cart_obj = UnitCart.objects.create(cart=cart_obj, 
-                                                        product=dealshub_product_obj, 
+                unit_cart_obj = UnitCart.objects.create(cart=cart_obj,
+                                                        product=dealshub_product_obj,
                                                         quantity=quantity,
                                                         offline_price=dealshub_product_obj.get_actual_price_for_customer(dealshub_user_obj))
 
-            update_cart_bill(cart_obj,cod=True,offline=True)
+            update_cart_bill(cart_obj, cod=True, offline=True)
 
             subtotal = cart_obj.get_subtotal(offline=True)
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)
             vat = cart_obj.get_vat(offline=True)
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(
+                cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(
+                cod=True, offline=True)
             vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
 
-            is_voucher_applied = cart_obj.voucher!=None
+            is_voucher_applied = cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
-                if cart_obj.voucher.voucher_type=="SD":
+                if cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -674,12 +741,15 @@ class AddToOfflineCartAPI(APIView):
             }
 
             response["unitCartUuid"] = unit_cart_obj.uuid
-            render_value = "Product " + dealshub_product_obj.product_name + " added to offline cart for " + username
-            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, location_group_obj, render_value)
+            render_value = "Product " + dealshub_product_obj.product_name + \
+                " added to offline cart for " + username
+            activitylog(request.user, Cart, "updated", cart_obj.uuid,
+                        prev_cart_obj, cart_obj, location_group_obj, render_value)
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddToOfflineCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddToOfflineCartAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -693,40 +763,48 @@ class FetchCartDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchCartDetailsAPI: %s", str(data))
-            language_code = data.get("language","en")
+            language_code = data.get("language", "en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
+            cart_obj = Cart.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             unit_cart_list = []
             for unit_cart_obj in unit_cart_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
-                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
-                temp_dict["moq"] = unit_cart_obj.product.get_moq(dealshub_user_obj)
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(
+                    dealshub_user_obj)
+                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(
+                    dealshub_user_obj)
+                temp_dict["moq"] = unit_cart_obj.product.get_moq(
+                    dealshub_user_obj)
                 temp_dict["stock"] = unit_cart_obj.product.stock
                 temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
-                temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
+                temp_dict["productName"] = unit_cart_obj.product.get_name(
+                    language_code)
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
                 temp_dict["link"] = unit_cart_obj.product.url
-                temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
+                temp_dict["brand"] = unit_cart_obj.product.get_brand(
+                    language_code)
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
             update_cart_bill(cart_obj)
 
             subtotal = cart_obj.get_subtotal()
-            
+
             delivery_fee = cart_obj.get_delivery_fee()
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
@@ -735,13 +813,14 @@ class FetchCartDetailsAPI(APIView):
             total_amount_with_cod = cart_obj.get_total_amount(cod=True)
             vat_with_cod = cart_obj.get_vat(cod=True)
 
-            is_voucher_applied = cart_obj.voucher!=None
+            is_voucher_applied = cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
-                if cart_obj.voucher.voucher_type=="SD":
+                if cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -766,13 +845,14 @@ class FetchCartDetailsAPI(APIView):
                 "voucher_discount": voucher_discount,
                 "voucher_code": voucher_code
             }
-            
+
             response["unitCartList"] = unit_cart_list
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("FetchCartDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -785,16 +865,18 @@ class FetchOfflineCartDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchOfflineCartDetailsAPI: %s", str(data))
-            language_code = data.get("language","en")
+            language_code = data.get("language", "en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
             username = data["username"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             unit_cart_list = []
             for unit_cart_obj in unit_cart_objs:
@@ -803,18 +885,21 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["quantity"] = unit_cart_obj.quantity
                 temp_dict["price"] = unit_cart_obj.offline_price
                 temp_dict["sellerSku"] = unit_cart_obj.product.get_seller_sku()
-                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(
+                    dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
-                temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
+                temp_dict["productName"] = unit_cart_obj.product.get_name(
+                    language_code)
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
                 temp_dict["link"] = unit_cart_obj.product.url
-                temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
+                temp_dict["brand"] = unit_cart_obj.product.get_brand(
+                    language_code)
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
-            update_cart_bill(cart_obj,cod=True,offline=True)
+            update_cart_bill(cart_obj, cod=True, offline=True)
 
             subtotal = cart_obj.get_subtotal(offline=True)
 
@@ -822,20 +907,23 @@ class FetchOfflineCartDetailsAPI(APIView):
             total_amount = cart_obj.get_total_amount(offline=True)
             vat = cart_obj.get_vat(offline=True)
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(
+                cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(
+                cod=True, offline=True)
             vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
 
-            is_voucher_applied = cart_obj.voucher!=None
+            is_voucher_applied = cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
-                if cart_obj.voucher.voucher_type=="SD":
+                if cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
-                    
+
             response["cartUuid"] = cart_obj.uuid
             response["additional_note"] = cart_obj.additional_note
             response["referenceMedium"] = cart_obj.reference_medium
@@ -864,7 +952,8 @@ class FetchOfflineCartDetailsAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchOfflineCartDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -893,31 +982,35 @@ class UpdateCartDetailsAPI(APIView):
                 unit_cart_obj.offline_price = offline_price
             unit_cart_obj.save()
 
-            cod=False
-            if is_order_offline==True:
-                cod=True
+            cod = False
+            if is_order_offline == True:
+                cod = True
 
-            update_cart_bill(unit_cart_obj.cart,cod=cod,offline=is_order_offline)
+            update_cart_bill(unit_cart_obj.cart, cod=cod,
+                             offline=is_order_offline)
 
             cart_obj = unit_cart_obj.cart
 
             subtotal = cart_obj.get_subtotal(offline=is_order_offline)
-            
+
             delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
             total_amount = cart_obj.get_total_amount(offline=is_order_offline)
             vat = cart_obj.get_vat(offline=is_order_offline)
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=is_order_offline)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=is_order_offline)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(
+                cod=True, offline=is_order_offline)
+            total_amount_with_cod = cart_obj.get_total_amount(
+                cod=True, offline=is_order_offline)
             vat_with_cod = cart_obj.get_vat(cod=True, offline=is_order_offline)
 
-            is_voucher_applied = cart_obj.voucher!=None
+            is_voucher_applied = cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
-                if cart_obj.voucher.voucher_type=="SD":
+                if cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -936,7 +1029,7 @@ class UpdateCartDetailsAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.offline_cod_charge if is_order_offline==True else cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.offline_cod_charge if is_order_offline == True else cart_obj.location_group.cod_charge,
                 "is_voucher_applied": is_voucher_applied,
                 "voucher_discount": voucher_discount,
                 "voucher_code": voucher_code
@@ -945,15 +1038,18 @@ class UpdateCartDetailsAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("UpdateCartDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class UpdateOfflineCartDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
-    
+
         response = {}
         response['status'] = 500
         try:
@@ -975,25 +1071,33 @@ class UpdateOfflineCartDetailsAPI(APIView):
             cart_obj.offline_delivery_fee = offline_delivery_fee
             cart_obj.save()
 
-            update_cart_bill(cart_obj,cod=True,offline=is_order_offline, delivery_fee_calculate=False)
+            update_cart_bill(
+                cart_obj, cod=True, offline=is_order_offline, delivery_fee_calculate=False)
 
             subtotal = cart_obj.get_subtotal(offline=is_order_offline)
-            
-            delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline, calculate=False)
-            total_amount = cart_obj.get_total_amount(offline=is_order_offline, delivery_fee_calculate=False)
-            vat = cart_obj.get_vat(offline=is_order_offline, delivery_fee_calculate=False)
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=is_order_offline, calculate=False)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=is_order_offline, delivery_fee_calculate=False)
-            vat_with_cod = cart_obj.get_vat(cod=True, offline=is_order_offline, delivery_fee_calculate=False)
+            delivery_fee = cart_obj.get_delivery_fee(
+                offline=is_order_offline, calculate=False)
+            total_amount = cart_obj.get_total_amount(
+                offline=is_order_offline, delivery_fee_calculate=False)
+            vat = cart_obj.get_vat(
+                offline=is_order_offline, delivery_fee_calculate=False)
 
-            is_voucher_applied = cart_obj.voucher!=None
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(
+                cod=True, offline=is_order_offline, calculate=False)
+            total_amount_with_cod = cart_obj.get_total_amount(
+                cod=True, offline=is_order_offline, delivery_fee_calculate=False)
+            vat_with_cod = cart_obj.get_vat(
+                cod=True, offline=is_order_offline, delivery_fee_calculate=False)
+
+            is_voucher_applied = cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
-                if cart_obj.voucher.voucher_type=="SD":
+                if cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -1019,13 +1123,15 @@ class UpdateOfflineCartDetailsAPI(APIView):
             }
 
             render_value = "Offline Cart updated for " + cart_obj.owner.username
-            activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, cart_obj.location_group, render_value)
+            activitylog(request.user, Cart, "updated", cart_obj.uuid,
+                        prev_cart_obj, cart_obj, cart_obj.location_group, render_value)
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("UpdateOfflineCartDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -1043,36 +1149,40 @@ class BulkUpdateCartDetailsAPI(APIView):
 
             unit_cart_list = data["unitCartList"]
             location_group_uuid = data["locationGroupUuid"]
-            
+
             for unit_cart in unit_cart_list:
                 unit_cart_obj = UnitCart.objects.get(uuid=unit_cart["uuid"])
-                if int(unit_cart["quantity"])==0:
+                if int(unit_cart["quantity"]) == 0:
                     unit_cart_obj.delete()
                 else:
                     unit_cart_obj.quantity = unit_cart["quantity"]
-                    unit_cart_obj.save()            
+                    unit_cart_obj.save()
 
-            cart_obj = Cart.objects.get(owner__username=request.user.username, location_group__uuid=location_group_uuid)
+            cart_obj = Cart.objects.get(
+                owner__username=request.user.username, location_group__uuid=location_group_uuid)
 
             update_cart_bill(cart_obj)
 
             subtotal = cart_obj.get_subtotal()
-            
+
             delivery_fee = cart_obj.get_delivery_fee()
             total_amount = cart_obj.get_total_amount()
             vat = cart_obj.get_vat()
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=False)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=False)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(
+                cod=True, offline=False)
+            total_amount_with_cod = cart_obj.get_total_amount(
+                cod=True, offline=False)
             vat_with_cod = cart_obj.get_vat(cod=True, offline=False)
 
-            is_voucher_applied = cart_obj.voucher!=None
+            is_voucher_applied = cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
-                if cart_obj.voucher.voucher_type=="SD":
+                if cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -1100,8 +1210,9 @@ class BulkUpdateCartDetailsAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("BulkUpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("BulkUpdateCartDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -1127,7 +1238,7 @@ class UpdateFastCartDetailsAPI(APIView):
             update_fast_cart_bill(fast_cart_obj)
 
             subtotal = fast_cart_obj.get_subtotal()
-            
+
             delivery_fee = fast_cart_obj.get_delivery_fee()
             total_amount = fast_cart_obj.get_total_amount()
             vat = fast_cart_obj.get_vat()
@@ -1136,13 +1247,14 @@ class UpdateFastCartDetailsAPI(APIView):
             total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
             vat_with_cod = fast_cart_obj.get_vat(cod=True)
 
-            is_voucher_applied = fast_cart_obj.voucher!=None
+            is_voucher_applied = fast_cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = fast_cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = fast_cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = fast_cart_obj.voucher.voucher_code
-                if fast_cart_obj.voucher.voucher_type=="SD":
+                if fast_cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -1170,8 +1282,9 @@ class UpdateFastCartDetailsAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateFastCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("UpdateFastCartDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -1188,35 +1301,38 @@ class RemoveFromCartAPI(APIView):
                 data = json.loads(data)
 
             unit_cart_uuid = data["unitCartUuid"]
-            is_order_offline = data.get("is_order_offline",False)
+            is_order_offline = data.get("is_order_offline", False)
 
             unit_cart_obj = UnitCart.objects.get(uuid=unit_cart_uuid)
             cart_obj = unit_cart_obj.cart
             unit_cart_obj.delete()
 
             cod = False
-            if is_order_offline==True:
+            if is_order_offline == True:
                 cod = True
 
-            update_cart_bill(cart_obj,cod=cod,offline=is_order_offline)
+            update_cart_bill(cart_obj, cod=cod, offline=is_order_offline)
 
             subtotal = cart_obj.get_subtotal(offline=is_order_offline)
-            
+
             delivery_fee = cart_obj.get_delivery_fee(offline=is_order_offline)
             total_amount = cart_obj.get_total_amount(offline=is_order_offline)
             vat = cart_obj.get_vat(offline=is_order_offline)
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True,offline=is_order_offline)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True,offline=is_order_offline)
-            vat_with_cod = cart_obj.get_vat(cod=True,offline=is_order_offline)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(
+                cod=True, offline=is_order_offline)
+            total_amount_with_cod = cart_obj.get_total_amount(
+                cod=True, offline=is_order_offline)
+            vat_with_cod = cart_obj.get_vat(cod=True, offline=is_order_offline)
 
-            is_voucher_applied = cart_obj.voucher!=None
+            is_voucher_applied = cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
-                if cart_obj.voucher.voucher_type=="SD":
+                if cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -1235,7 +1351,7 @@ class RemoveFromCartAPI(APIView):
                 "vat": vat_with_cod,
                 "toPay": total_amount_with_cod,
                 "delivery_fee": delivery_fee_with_cod,
-                "codCharge": cart_obj.offline_cod_charge if is_order_offline==True else cart_obj.location_group.cod_charge,
+                "codCharge": cart_obj.offline_cod_charge if is_order_offline == True else cart_obj.location_group.cod_charge,
                 "is_voucher_applied": is_voucher_applied,
                 "voucher_discount": voucher_discount,
                 "voucher_code": voucher_code
@@ -1244,8 +1360,9 @@ class RemoveFromCartAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RemoveFromCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("RemoveFromCartAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -1264,25 +1381,31 @@ class SelectAddressAPI(APIView):
             address_uuid = data["addressUuid"]
 
             address_obj = Address.objects.get(uuid=address_uuid)
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
-            if data.get("is_fast_cart", False)==True:
-                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+            if data.get("is_fast_cart", False) == True:
+                fast_cart_obj = FastCart.objects.get(
+                    owner=dealshub_user_obj, location_group=address_obj.location_group)
                 fast_cart_obj.shipping_address = address_obj
                 fast_cart_obj.save()
             else:
-                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+                cart_obj = Cart.objects.get(
+                    owner=dealshub_user_obj, location_group=address_obj.location_group)
                 cart_obj.shipping_address = address_obj
                 cart_obj.save()
 
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SelectAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("SelectAddressAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class SelectOfflineAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1300,18 +1423,20 @@ class SelectOfflineAddressAPI(APIView):
 
             address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
-            
+            cart_obj = Cart.objects.get(
+                owner=dealshub_user_obj, location_group=address_obj.location_group)
+
             cart_obj.shipping_address = address_obj
             cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
             cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
             cart_obj.save()
-            
+
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SelectOfflineAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("SelectOfflineAddressAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -1328,11 +1453,14 @@ class SelectPaymentModeAPI(APIView):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             payment_mode = data["paymentMode"]
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
+            cart_obj = Cart.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
 
             cart_obj.payment_mode = payment_mode
             cart_obj.save()
@@ -1340,7 +1468,8 @@ class SelectPaymentModeAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SelectPaymentModeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SelectPaymentModeAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -1353,20 +1482,24 @@ class FetchActiveOrderDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchActiveOrderDetailsAPI: %s", str(data))
-            language_code = data.get("language","en")
+            language_code = data.get("language", "en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
+            cart_obj = Cart.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
 
             update_cart_bill(cart_obj)
-            
-            if cart_obj.shipping_address==None and Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj).count()>0:
-                cart_obj.shipping_address = Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj)[0]
+
+            if cart_obj.shipping_address == None and Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj).count() > 0:
+                cart_obj.shipping_address = Address.objects.filter(
+                    is_deleted=False, user=request.user, location_group=location_group_obj)[0]
                 cart_obj.save()
 
             address_obj = cart_obj.shipping_address
@@ -1380,7 +1513,7 @@ class FetchActiveOrderDetailsAPI(APIView):
             if is_voucher_applied:
                 response["voucherCode"] = voucher_obj.voucher_code
 
-            if address_obj==None:
+            if address_obj == None:
                 response["shippingAddress"] = {}
             else:
                 response["shippingAddress"] = {
@@ -1405,11 +1538,14 @@ class FetchActiveOrderDetailsAPI(APIView):
                 temp_dict = {}
                 temp_dict["uuid"] = unit_cart_obj.uuid
                 temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
-                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(
+                    dealshub_user_obj)
+                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(
+                    dealshub_user_obj)
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
-                temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
+                temp_dict["productName"] = unit_cart_obj.product.get_name(
+                    language_code)
                 temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
                 temp_dict["link"] = unit_cart_obj.product.url
@@ -1436,7 +1572,8 @@ class FetchActiveOrderDetailsAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchActiveOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchActiveOrderDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1458,23 +1595,27 @@ class PlaceOrderRequestAPI(APIView):
 
             is_fast_cart = data.get("is_fast_cart", False)
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             order_request_obj = None
-            if is_fast_cart==False:
-                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            if is_fast_cart == False:
+                cart_obj = Cart.objects.get(
+                    owner=dealshub_user_obj, location_group=location_group_obj)
 
                 try:
-                    if cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                    if cart_obj.shipping_address == None:
+                        address_obj = Address.objects.filter(
+                            user=dealshub_user_obj)[0]
                         cart_obj.shipping_address = address_obj
                         cart_obj.save()
                 except Exception as e:
                     pass
 
-                if location_group_obj.is_voucher_allowed_on_cod==False:
+                if location_group_obj.is_voucher_allowed_on_cod == False:
                     cart_obj.voucher = None
                     cart_obj.save()
 
@@ -1482,26 +1623,26 @@ class PlaceOrderRequestAPI(APIView):
 
                 unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
 
-                if payment_mode=="COD":
+                if payment_mode == "COD":
                     cart_obj.to_pay += cart_obj.location_group.cod_charge
                     cart_obj.save()
 
                 order_request_obj = OrderRequest.objects.create(owner=cart_obj.owner,
-                                                 shipping_address=cart_obj.shipping_address,
-                                                 to_pay=cart_obj.to_pay,
-                                                 real_to_pay=cart_obj.to_pay,
-                                                 voucher=cart_obj.voucher,
-                                                 location_group=cart_obj.location_group,
-                                                 delivery_fee=cart_obj.get_delivery_fee(),
-                                                 payment_mode = payment_mode,
-                                                 cod_charge=cart_obj.location_group.cod_charge,
-                                                 additional_note=cart_obj.additional_note)
+                                                                shipping_address=cart_obj.shipping_address,
+                                                                to_pay=cart_obj.to_pay,
+                                                                real_to_pay=cart_obj.to_pay,
+                                                                voucher=cart_obj.voucher,
+                                                                location_group=cart_obj.location_group,
+                                                                delivery_fee=cart_obj.get_delivery_fee(),
+                                                                payment_mode=payment_mode,
+                                                                cod_charge=cart_obj.location_group.cod_charge,
+                                                                additional_note=cart_obj.additional_note)
 
                 for unit_cart_obj in unit_cart_objs:
                     unit_order_request_obj = UnitOrderRequest.objects.create(order_request=order_request_obj,
-                                                              product=unit_cart_obj.product,
-                                                              initial_quantity=unit_cart_obj.quantity,
-                                                              initial_price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+                                                                             product=unit_cart_obj.product,
+                                                                             initial_quantity=unit_cart_obj.quantity,
+                                                                             initial_price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
 
                 # Cart gets empty
                 for unit_cart_obj in unit_cart_objs:
@@ -1516,17 +1657,19 @@ class PlaceOrderRequestAPI(APIView):
                 cart_obj.payment_info = "{}"
                 cart_obj.save()
             else:
-                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                fast_cart_obj = FastCart.objects.get(
+                    owner=dealshub_user_obj, location_group=location_group_obj)
 
                 try:
-                    if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                    if fast_cart_obj.shipping_address == None:
+                        address_obj = Address.objects.filter(
+                            user=dealshub_user_obj)[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
                     pass
 
-                if location_group_obj.is_voucher_allowed_on_cod==False:
+                if location_group_obj.is_voucher_allowed_on_cod == False:
                     fast_cart_obj.voucher = None
                     fast_cart_obj.save()
 
@@ -1536,19 +1679,19 @@ class PlaceOrderRequestAPI(APIView):
                 fast_cart_obj.save()
 
                 order_request_obj = OrderRequest.objects.create(owner=fast_cart_obj.owner,
-                                                 shipping_address=fast_cart_obj.shipping_address,
-                                                 to_pay=fast_cart_obj.to_pay,
-                                                 real_to_pay=fast_cart_obj.to_pay,
-                                                 voucher=fast_cart_obj.voucher,
-                                                 location_group=fast_cart_obj.location_group,
-                                                 delivery_fee=fast_cart_obj.get_delivery_fee(),
-                                                 cod_charge=fast_cart_obj.location_group.cod_charge,
-                                                 additional_note=fast_cart_obj.additional_note)
+                                                                shipping_address=fast_cart_obj.shipping_address,
+                                                                to_pay=fast_cart_obj.to_pay,
+                                                                real_to_pay=fast_cart_obj.to_pay,
+                                                                voucher=fast_cart_obj.voucher,
+                                                                location_group=fast_cart_obj.location_group,
+                                                                delivery_fee=fast_cart_obj.get_delivery_fee(),
+                                                                cod_charge=fast_cart_obj.location_group.cod_charge,
+                                                                additional_note=fast_cart_obj.additional_note)
 
                 unit_order_request_obj = UnitOrderRequest.objects.create(order_request=order_request_obj,
-                                                          product=fast_cart_obj.product,
-                                                          initial_quantity=fast_cart_obj.quantity,
-                                                          initial_price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
+                                                                         product=fast_cart_obj.product,
+                                                                         initial_quantity=fast_cart_obj.quantity,
+                                                                         initial_price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
 
                 # cart_obj points to None
                 fast_cart_obj.shipping_address = None
@@ -1560,20 +1703,22 @@ class PlaceOrderRequestAPI(APIView):
                 fast_cart_obj.product = None
                 fast_cart_obj.save()
 
-
             # Trigger Email
             try:
-                p1 = threading.Thread(target=send_order_request_placed_mail, args=(order_request_obj,))
+                p1 = threading.Thread(
+                    target=send_order_request_placed_mail, args=(order_request_obj,))
                 p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("PlaceOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceOrderRequestAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PlaceOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("PlaceOrderRequestAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -1590,20 +1735,26 @@ class ProcessOrderRequestAPI(APIView):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             unit_order_requests = data["UnitOrderRequests"]
             request_status = data["requestStatus"]
-            admin_note = data.get("adminNote","")
+            admin_note = data.get("adminNote", "")
 
-            order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
+            order_request_obj = OrderRequest.objects.get(
+                uuid=data["OrderRequestUuid"])
 
-            unit_order_request_objs = UnitOrderRequest.objects.filter(order_request = order_request_obj)
+            unit_order_request_objs = UnitOrderRequest.objects.filter(
+                order_request=order_request_obj)
             unit_order_request_objs.update(request_status="Rejected")
 
             for unit_order_request in unit_order_requests:
-                unit_order_request_obj = UnitOrderRequest.objects.get(order_request=order_request_obj, uuid = unit_order_request["uuid"])
-                unit_order_request_obj.final_quantity = int(unit_order_request["quantity"])
-                unit_order_request_obj.final_price = float(unit_order_request["price"])
+                unit_order_request_obj = UnitOrderRequest.objects.get(
+                    order_request=order_request_obj, uuid=unit_order_request["uuid"])
+                unit_order_request_obj.final_quantity = int(
+                    unit_order_request["quantity"])
+                unit_order_request_obj.final_price = float(
+                    unit_order_request["price"])
                 unit_order_request_obj.request_status = unit_order_request["status"]
                 unit_order_request_obj.save()
 
@@ -1613,32 +1764,34 @@ class ProcessOrderRequestAPI(APIView):
 
             if order_request_obj.payment_mode == "COD" or order_request_obj.payment_mode == "CHEQUE":
                 try:
-                    if order_request_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                    if order_request_obj.shipping_address == None:
+                        address_obj = Address.objects.filter(
+                            user=dealshub_user_obj)[0]
                         order_request_obj.shipping_address = address_obj
                         order_request_obj.save()
                 except Exception as e:
                     pass
 
-                if location_group_obj.is_voucher_allowed_on_cod==False:
+                if location_group_obj.is_voucher_allowed_on_cod == False:
                     order_request_obj.voucher = None
                     order_request_obj.save()
 
-                update_order_request_bill(order_request_obj,cod=True if order_request_obj.payment_mode == "COD" else False)
+                update_order_request_bill(
+                    order_request_obj, cod=True if order_request_obj.payment_mode == "COD" else False)
 
-                order_obj = Order.objects.create(owner = order_request_obj.owner,
+                order_obj = Order.objects.create(owner=order_request_obj.owner,
                                                  shipping_address=order_request_obj.shipping_address,
                                                  to_pay=order_request_obj.to_pay,
                                                  real_to_pay=order_request_obj.to_pay,
-                                                 payment_mode = order_request_obj.payment_mode,
-                                                 payment_status = "cod" if order_request_obj.payment_mode == "COD" else "paid",
+                                                 payment_mode=order_request_obj.payment_mode,
+                                                 payment_status="cod" if order_request_obj.payment_mode == "COD" else "paid",
                                                  order_placed_date=timezone.now(),
                                                  voucher=order_request_obj.voucher,
                                                  location_group=order_request_obj.location_group,
                                                  delivery_fee=order_request_obj.get_delivery_fee(),
                                                  cod_charge=order_request_obj.location_group.cod_charge,
                                                  additional_note=order_request_obj.additional_note,
-                                                 admin_note = order_request_obj.admin_note)
+                                                 admin_note=order_request_obj.admin_note)
 
                 for unit_order_request_obj in unit_order_request_objs:
                     unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -1652,11 +1805,13 @@ class ProcessOrderRequestAPI(APIView):
 
                 # Trigger Email
                 try:
-                    p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                    p1 = threading.Thread(
+                        target=send_order_confirmation_mail, args=(order_obj,))
                     p1.start()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("ProcessOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("ProcessOrderRequestAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
                 # Refresh Stock
                 refresh_stock(order_obj)
@@ -1667,16 +1822,19 @@ class ProcessOrderRequestAPI(APIView):
 
                 # Trigger Email
                 try:
-                    p1 = threading.Thread(target=send_order_request_approval_mail, args=(order_request_obj,))
+                    p1 = threading.Thread(
+                        target=send_order_request_approval_mail, args=(order_request_obj,))
                     p1.start()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("ProcessOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("ProcessOrderRequestAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("ProcessOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("ProcessOrderRequestAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -1692,24 +1850,29 @@ class DeleteOrderRequestAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
             location_group_uuid = data["locationGroupUuid"]
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            order_request_obj = OrderRequest.objects.get(location_group__uuid=location_group_uuid, uuid = data["OrderRequestUuid"])
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
+            order_request_obj = OrderRequest.objects.get(
+                location_group__uuid=location_group_uuid, uuid=data["OrderRequestUuid"])
 
             if order_request_obj.owner == dealshub_user_obj:
                 order_request_obj_copy = deepcopy(order_request_obj)
                 # Trigger Email
                 try:
-                    p1 = threading.Thread(target=send_order_request_deleted_mail, args=(order_request_obj_copy,))
+                    p1 = threading.Thread(
+                        target=send_order_request_deleted_mail, args=(order_request_obj_copy,))
                     p1.start()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("DeleteOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("DeleteOrderRequestAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
                 order_request_obj.delete()
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("DeleteOrderRequestAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -1728,30 +1891,36 @@ class PlaceInquiryAPI(APIView):
             message = data["message"]
             product_uuid = data["productUuid"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(
+                uuid=product_uuid)
 
-            if dealshub_product_obj.location_group!=location_group_obj:
+            if dealshub_product_obj.location_group != location_group_obj:
                 response["status"] = 403
-                logger.error("PlaceInquiryAPI: Product does not exist in LocationGroup!")
+                logger.error(
+                    "PlaceInquiryAPI: Product does not exist in LocationGroup!")
                 return Response(data=response)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
             to_email = location_group_obj.get_support_email_id()
             password = location_group_obj.get_support_email_password()
 
             try:
-                p1 = threading.Thread(target=send_inquiry_now_mail, args=(message, to_email, password, dealshub_user_obj, dealshub_product_obj))
+                p1 = threading.Thread(target=send_inquiry_now_mail, args=(
+                    message, to_email, password, dealshub_user_obj, dealshub_product_obj))
                 p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceInquiryAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
@@ -1769,35 +1938,41 @@ class PlaceB2BOnlineOrderAPI(APIView):
 
             merchant_reference = data["merchant_reference"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
+            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
 
-            order_request_obj = OrderRequest.objects.get(uuid = data["OrderRequestUuid"])
+            order_request_obj = OrderRequest.objects.get(
+                uuid=data["OrderRequestUuid"])
 
             if Order.objects.filter(merchant_reference=merchant_reference).exists():
-                logger.warning("PlaceB2BOnlineOrderAPI: Credentials for older order!")
+                logger.warning(
+                    "PlaceB2BOnlineOrderAPI: Credentials for older order!")
                 return Response(data=response)
 
             if order_request_obj.request_status != "Approved":
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("PlaceB2BOnlineOrderAPI: Order Request Not Approved %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("PlaceB2BOnlineOrderAPI: Order Request Not Approved %s at %s", e, str(
+                    exc_tb.tb_lineno))
                 response["message"] = "Order request not approved"
                 return Response(data=response)
 
-            if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
+            if check_order_status_from_network_global(merchant_reference, location_group_obj) == False:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("PlaceB2BOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("PlaceB2BOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(
+                    exc_tb.tb_lineno))
                 return Response(data=response)
 
             try:
                 voucher_obj = order_request_obj.voucher
-                if voucher_obj!=None:
-                    if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(order_request_obj.owner, voucher_obj)==False:
+                if voucher_obj != None:
+                    if voucher_obj.is_expired() == False and is_voucher_limt_exceeded_for_customer(order_request_obj.owner, voucher_obj) == False:
                         voucher_obj.total_usage += 1
                         voucher_obj.save()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("PlaceB2BOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                logger.warning("PlaceB2BOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(
+                    exc_tb.tb_lineno))
 
             payment_info = "NA"
             payment_mode = "NA"
@@ -1807,7 +1982,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
             except Exception as e:
                 pass
 
-            order_obj = Order.objects.create(owner = order_request_obj.owner,
+            order_obj = Order.objects.create(owner=order_request_obj.owner,
                                              shipping_address=order_request_obj.shipping_address,
                                              to_pay=order_request_obj.to_pay,
                                              real_to_pay=order_request_obj.to_pay,
@@ -1821,10 +1996,11 @@ class PlaceB2BOnlineOrderAPI(APIView):
                                              merchant_reference=merchant_reference,
                                              bundleid=order_request_obj.merchant_reference,
                                              additional_note=order_request_obj.additional_note,
-                                             admin_note = order_request_obj.admin_note,
+                                             admin_note=order_request_obj.admin_note,
                                              cod_charge=0)
 
-            unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj).exclude(request_status="Rejected")
+            unit_order_request_objs = UnitOrderRequest.objects.filter(
+                order_request=order_request_obj).exclude(request_status="Rejected")
 
             for unit_order_request_obj in unit_order_request_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
@@ -1838,11 +2014,13 @@ class PlaceB2BOnlineOrderAPI(APIView):
 
             # Trigger Email
             try:
-                p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                p1 = threading.Thread(
+                    target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("PlaceB2BOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceB2BOnlineOrderAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
             # Refresh Stock
             refresh_stock(order_obj)
@@ -1852,7 +2030,8 @@ class PlaceB2BOnlineOrderAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PlaceB2BOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("PlaceB2BOnlineOrderAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
         return Response(data=response)
 
 
@@ -1872,23 +2051,27 @@ class PlaceOrderAPI(APIView):
 
             is_fast_cart = data.get("is_fast_cart", False)
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             order_obj = None
-            if is_fast_cart==False:
-                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            if is_fast_cart == False:
+                cart_obj = Cart.objects.get(
+                    owner=dealshub_user_obj, location_group=location_group_obj)
 
                 try:
-                    if cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                    if cart_obj.shipping_address == None:
+                        address_obj = Address.objects.filter(
+                            user=dealshub_user_obj)[0]
                         cart_obj.shipping_address = address_obj
                         cart_obj.save()
                 except Exception as e:
                     pass
 
-                if location_group_obj.is_voucher_allowed_on_cod==False:
+                if location_group_obj.is_voucher_allowed_on_cod == False:
                     cart_obj.voucher = None
                     cart_obj.save()
 
@@ -1898,7 +2081,7 @@ class PlaceOrderAPI(APIView):
 
                 # Check if COD is allowed
                 is_cod_allowed = cart_obj.is_cod_allowed()
-                if is_cod_allowed==False:
+                if is_cod_allowed == False:
                     response["status"] = 403
                     logger.error("PlaceOrderAPI: COD not allowed!")
                     return Response(data=response)
@@ -1937,17 +2120,19 @@ class PlaceOrderAPI(APIView):
                 cart_obj.payment_info = "{}"
                 cart_obj.save()
             else:
-                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                fast_cart_obj = FastCart.objects.get(
+                    owner=dealshub_user_obj, location_group=location_group_obj)
 
                 try:
-                    if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                    if fast_cart_obj.shipping_address == None:
+                        address_obj = Address.objects.filter(
+                            user=dealshub_user_obj)[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
                     pass
 
-                if location_group_obj.is_voucher_allowed_on_cod==False:
+                if location_group_obj.is_voucher_allowed_on_cod == False:
                     fast_cart_obj.voucher = None
                     fast_cart_obj.save()
 
@@ -1955,7 +2140,7 @@ class PlaceOrderAPI(APIView):
 
                 # Check if COD is allowed
                 is_cod_allowed = fast_cart_obj.is_cod_allowed()
-                if is_cod_allowed==False:
+                if is_cod_allowed == False:
                     response["status"] = 403
                     logger.error("PlaceOrderAPI: COD not allowed!")
                     return Response(data=response)
@@ -1990,28 +2175,32 @@ class PlaceOrderAPI(APIView):
                 fast_cart_obj.product = None
                 fast_cart_obj.save()
 
-
             # Trigger Email
             try:
-                p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                p1 = threading.Thread(
+                    target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
                 website_group = order_obj.location_group.website_group.name
                 unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
-                if website_group=="parajohn":
+                if website_group == "parajohn":
                     message = 'Your order has been confirmed!'
-                    p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
+                    p2 = threading.Thread(
+                        target=send_parajohn_order_status_sms, args=(unit_order_obj, message,))
                     p2.start()
                 elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
                     message = 'Your order has been confirmed!'
-                    p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
+                    p2 = threading.Thread(
+                        target=send_wigme_order_status_sms, args=(unit_order_obj, message,))
                     p2.start()
-                elif website_group=="daycart":
+                elif website_group == "daycart":
                     message = 'Your order has been confirmed!'
-                    p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
+                    p2 = threading.Thread(
+                        target=send_daycart_order_status_sms, args=(unit_order_obj, message,))
                     p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceOrderAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
             # Refresh Stock
             refresh_stock(order_obj)
@@ -2022,12 +2211,12 @@ class PlaceOrderAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
 class PlaceOfflineOrderAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2040,14 +2229,17 @@ class PlaceOfflineOrderAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
             username = data["username"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
 
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
-            
-            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+
+            omnycomm_user_obj = OmnyCommUser.objects.get(
+                username=request.user.username)
 
             order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
@@ -2055,14 +2247,14 @@ class PlaceOfflineOrderAPI(APIView):
                                              real_to_pay=cart_obj.to_pay,
                                              order_placed_date=timezone.now(),
                                              voucher=cart_obj.voucher,
-                                             reference_medium= cart_obj.reference_medium,
+                                             reference_medium=cart_obj.reference_medium,
                                              additional_note=cart_obj.additional_note,
-                                             is_order_offline = True,
+                                             is_order_offline=True,
                                              location_group=cart_obj.location_group,
                                              delivery_fee=cart_obj.offline_delivery_fee,
                                              cod_charge=cart_obj.offline_cod_charge,
                                              offline_sales_person=omnycomm_user_obj)
-            
+
             for unit_cart_obj in unit_cart_objs:
                 unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                           product=unit_cart_obj.product,
@@ -2084,11 +2276,13 @@ class PlaceOfflineOrderAPI(APIView):
 
             # Trigger Email
             try:
-                p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                p1 = threading.Thread(
+                    target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("PlaceOfflineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceOfflineOrderAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
             # Refresh Stock
             refresh_stock(order_obj)
@@ -2096,7 +2290,8 @@ class PlaceOfflineOrderAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PlaceOfflineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("PlaceOfflineOrderAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -2129,14 +2324,16 @@ class FetchOrderListAPI(APIView):
         try:
             data = request.data
             logger.info("FetchOrderListAPI: %s", str(data))
-            language_code = data.get("language","en")
+            language_code = data.get("language", "en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             order_list = []
-            order_objs = Order.objects.filter(owner=dealshub_user_obj).order_by('-pk')
+            order_objs = Order.objects.filter(
+                owner=dealshub_user_obj).order_by('-pk')
             for order_obj in order_objs:
                 try:
                     voucher_obj = order_obj.voucher
@@ -2144,18 +2341,20 @@ class FetchOrderListAPI(APIView):
                     temp_dict = {}
                     temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
-                    
+
                     if order_obj.payment_mode == "CHEQUE":
                         image_objs = order_obj.cheque_images.all()
                         cheque_images_list = []
                         for image_obj in image_objs:
                             try:
-                                cheque_images_list.append(image_obj.mid_image.url)
+                                cheque_images_list.append(
+                                    image_obj.mid_image.url)
                             except Exception as e:
                                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                                logger.warning("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                                logger.warning(
+                                    "FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
                         temp_dict["cheque_images_list"] = cheque_images_list
-                        temp_dict["cheque_approved"] =  order_obj.cheque_approved
+                        temp_dict["cheque_approved"] = order_obj.cheque_approved
 
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["customerName"] = order_obj.owner.first_name
@@ -2164,7 +2363,8 @@ class FetchOrderListAPI(APIView):
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
-                    temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address()
+                    temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address(
+                    )
 
                     unit_order_objs = UnitOrder.objects.filter(order=order_obj)
                     unit_order_list = []
@@ -2178,19 +2378,22 @@ class FetchOrderListAPI(APIView):
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         unit_order_status = unit_order_obj.current_status_admin
                         temp_dict2["can_user_cancel_unitorder"] = False
-                        if unit_order_status=="pending" or unit_order_status=="approved" or unit_order_status=="picked":
+                        if unit_order_status == "pending" or unit_order_status == "approved" or unit_order_status == "picked":
                             temp_dict2["can_user_cancel_unitorder"] = True
-                        temp_dict2["productName"] = unit_order_obj.product.get_name(language_code)
-                        temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
+                        temp_dict2["productName"] = unit_order_obj.product.get_name(
+                            language_code)
+                        temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url(
+                        )
                         unit_order_list.append(temp_dict2)
                     temp_dict["unitOrderList"] = unit_order_list
                     order_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchOrderListAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
             response["orderList"] = order_list
-            if len(order_list)==0:
+            if len(order_list) == 0:
                 response["isOrderListEmpty"] = True
             else:
                 response["isOrderListEmpty"] = False
@@ -2198,8 +2401,9 @@ class FetchOrderListAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("FetchOrderListAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -2212,14 +2416,16 @@ class FetchOrderRequestListAPI(APIView):
         try:
             data = request.data
             logger.info("FetchOrderRequestListAPI: %s", str(data))
-            language_code = data.get("language","en")
+            language_code = data.get("language", "en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             order_request_list = []
-            order_request_objs = OrderRequest.objects.filter(owner=dealshub_user_obj).filter(is_placed=False).order_by('-pk')
+            order_request_objs = OrderRequest.objects.filter(
+                owner=dealshub_user_obj).filter(is_placed=False).order_by('-pk')
             for order_request_obj in order_request_objs:
                 try:
                     voucher_obj = order_request_obj.voucher
@@ -2243,7 +2449,8 @@ class FetchOrderRequestListAPI(APIView):
                         "emirates": address_obj.emirates
                     }
 
-                    unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
+                    unit_order_request_objs = UnitOrderRequest.objects.filter(
+                        order_request=order_request_obj)
                     if order_request_obj.request_status == "Approved" and unit_order_request_objs.exclude(request_status="Rejected").count() != unit_order_request_objs.count():
                         temp_dict["requestStatus"] = "Partially Approved"
                     unit_order_request_list = []
@@ -2256,24 +2463,30 @@ class FetchOrderRequestListAPI(APIView):
                         temp_dict2["initialPrice"] = unit_order_request_obj.initial_price
                         temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
                         temp_dict2["finalPrice"] = unit_order_request_obj.final_price
-                        temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
-                        temp_dict2["productName"] = unit_order_request_obj.product.get_name(language_code)
-                        temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_display_image_url()
+                        temp_dict2["currency"] = unit_order_request_obj.product.get_currency(
+                        )
+                        temp_dict2["productName"] = unit_order_request_obj.product.get_name(
+                            language_code)
+                        temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_display_image_url(
+                        )
                         if unit_order_request_obj.request_status == "Approved" and temp_dict2["initialQuantity"] != temp_dict2["finalQuantity"]:
                             temp_dict["requestStatus"] = "Partially Approved"
                         unit_order_request_list.append(temp_dict2)
                     temp_dict["currency"] = order_request_obj.get_currency()
-                    temp_dict["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").count()
-                    temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
-                    temp_dict["totalAmount"] =order_request_obj.get_subtotal()
+                    temp_dict["totalItems"] = unit_order_request_objs.exclude(
+                        request_status="Rejected").count()
+                    temp_dict["totalQuantity"] = unit_order_request_objs.exclude(
+                        request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
+                    temp_dict["totalAmount"] = order_request_obj.get_subtotal()
                     temp_dict["unitOrderRequestList"] = unit_order_request_list
                     order_request_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchOrderRequestListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchOrderRequestListAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
             response["orderRequestList"] = order_request_list
-            if len(order_request_list)==0:
+            if len(order_request_list) == 0:
                 response["isOrderRequestListEmpty"] = True
             else:
                 response["isOrderRequestListEmpty"] = False
@@ -2281,8 +2494,9 @@ class FetchOrderRequestListAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrderRequestListAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("FetchOrderRequestListAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -2298,27 +2512,37 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            order_request_obj = OrderRequest.objects.get(uuid=data["OrderRequestUuid"])
-            unit_order_request_uuid = data.get("UnitOrderRequestUuid","")
+            order_request_obj = OrderRequest.objects.get(
+                uuid=data["OrderRequestUuid"])
+            unit_order_request_uuid = data.get("UnitOrderRequestUuid", "")
 
             if unit_order_request_uuid != "":
-                unit_order_request_obj = UnitOrderRequest.objects.get(order_request = order_request_obj,uuid = unit_order_request_uuid)
+                unit_order_request_obj = UnitOrderRequest.objects.get(
+                    order_request=order_request_obj, uuid=unit_order_request_uuid)
                 prev_instance = deepcopy(unit_order_request_obj)
-                unit_order_request_obj.final_quantity = data.get("finalQuantity",unit_order_request_obj.final_quantity)
-                unit_order_request_obj.final_price = data.get("finalPrice",unit_order_request_obj.final_price)
-                unit_order_request_obj.request_status = data.get("requestStatus",unit_order_request_obj.request_status)
+                unit_order_request_obj.final_quantity = data.get(
+                    "finalQuantity", unit_order_request_obj.final_quantity)
+                unit_order_request_obj.final_price = data.get(
+                    "finalPrice", unit_order_request_obj.final_price)
+                unit_order_request_obj.request_status = data.get(
+                    "requestStatus", unit_order_request_obj.request_status)
                 unit_order_request_obj.save()
-                render_value = "unit order request {} of order request {} is updated.".format(unit_order_request_obj.order_req_id,order_request_obj.uuid)
-                activitylog(user=request.user,table_name=UnitOrderRequest,action_type='updated',location_group_obj=unit_order_request_obj.order_request.location_group,prev_instance=prev_instance,current_instance=unit_order_request_obj,table_item_pk=unit_order_request_obj.uuid,render=render_value)
+                render_value = "unit order request {} of order request {} is updated.".format(
+                    unit_order_request_obj.order_req_id, order_request_obj.uuid)
+                activitylog(user=request.user, table_name=UnitOrderRequest, action_type='updated', location_group_obj=unit_order_request_obj.order_request.location_group,
+                            prev_instance=prev_instance, current_instance=unit_order_request_obj, table_item_pk=unit_order_request_obj.uuid, render=render_value)
 
-            update_order_request_bill(order_request_obj,cod=True)
-            unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)   
+            update_order_request_bill(order_request_obj, cod=True)
+            unit_order_request_objs = UnitOrderRequest.objects.filter(
+                order_request=order_request_obj)
 
             response["OrderRequestUuid"] = order_request_obj.uuid
-            response["totalItems"] = unit_order_request_objs.exclude(request_status="Rejected").count()
-            response["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
+            response["totalItems"] = unit_order_request_objs.exclude(
+                request_status="Rejected").count()
+            response["totalQuantity"] = unit_order_request_objs.exclude(
+                request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
 
-            is_cod = True if order_request_obj.payment_mode=="COD" else False
+            is_cod = True if order_request_obj.payment_mode == "COD" else False
             subtotal = order_request_obj.get_subtotal()
             delivery_fee = order_request_obj.get_delivery_fee(cod=is_cod)
             cod_fee = order_request_obj.get_cod_charge(cod=is_cod)
@@ -2334,8 +2558,9 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateUnitOrderRequestAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("UpdateUnitOrderRequestAdminAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -2348,20 +2573,21 @@ class SetOrderChequeImageAPI(APIView):
         try:
             data = request.data
             logger.info("SetOrderChequeImageAPI: %s", str(data))
-            
+
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
             order_uuid = data["uuid"]
-            action = data.get("action","")
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            action = data.get("action", "")
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             order_obj = Order.objects.get(uuid=order_uuid)
-            image_count = int(data.get("cheque_image_count",0))
+            image_count = int(data.get("cheque_image_count", 0))
             current_image_count = order_obj.cheque_images.count()
             prev_instance = list(order_obj.cheque_images.all())
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 # if user is dealshub user and if cheque images already present then restricted access!!
                 if current_image_count:
                     response['status'] = 403
@@ -2369,13 +2595,14 @@ class SetOrderChequeImageAPI(APIView):
                 else:
                     cheque_images_list = []
                     for i in range(image_count):
-                        image_obj = Image.objects.create(image = data["cheque_image_" + str(i+1)])
+                        image_obj = Image.objects.create(
+                            image=data["cheque_image_" + str(i+1)])
                         order_obj.cheque_images.add(image_obj)
                         cheque_images_list.append(image_obj.mid_image.url)
                     order_obj.save()
                     response['status'] = 200
                     response["cheque_images_list"] = cheque_images_list
-                    response["cheque_approved"] =  order_obj.cheque_approved
+                    response["cheque_approved"] = order_obj.cheque_approved
                 return Response(data=response)
             else:
                 if order_obj.cheque_approved:
@@ -2394,10 +2621,11 @@ class SetOrderChequeImageAPI(APIView):
                 else:
                     order_obj.cheque_images.clear()
                     for i in range(image_count):
-                        image_obj = Image.objects.create(image = data["cheque_image_" + str(i)])
+                        image_obj = Image.objects.create(
+                            image=data["cheque_image_" + str(i)])
                         order_obj.cheque_images.add(image_obj)
-                    order_obj.save()  
-                    
+                    order_obj.save()
+
                 image_objs = order_obj.cheque_images.all()
                 cheque_images_list = []
                 for image_obj in image_objs:
@@ -2405,19 +2633,23 @@ class SetOrderChequeImageAPI(APIView):
                         cheque_images_list.append(image_obj.mid_image.url)
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.warning("SetOrderChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                        logger.warning(
+                            "SetOrderChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 response["cheque_images_list"] = cheque_images_list
-                response["cheque_approved"] =  order_obj.cheque_approved
+                response["cheque_approved"] = order_obj.cheque_approved
 
-                render_value = "Cheque images "+ action +" by username:- " + request.user.username
+                render_value = "Cheque images " + action + \
+                    " by username:- " + request.user.username
                 current_instance = list(order_obj.cheque_images.all())
-                activitylog(user=request.user,table_name=Order,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=current_instance,table_item_pk=order_obj.uuid,render=render_value)
-                    
+                activitylog(user=request.user, table_name=Order, action_type='updated', location_group_obj=location_group_obj,
+                            prev_instance=prev_instance, current_instance=current_instance, table_item_pk=order_obj.uuid, render=render_value)
+
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SetOrderChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("SetOrderChequeImageAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -2433,7 +2665,7 @@ class FetchOrderListAdminAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("FetchOrderListAdminAPI Restricted Access!")
                 return Response(data=response)
@@ -2441,15 +2673,17 @@ class FetchOrderListAdminAPI(APIView):
             page = data.get("page", 1)
             location_group_uuid = data["locationGroupUuid"]
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            order_objs = Order.objects.filter(location_group=location_group_obj).order_by('-pk')
+            order_objs = Order.objects.filter(
+                location_group=location_group_obj).order_by('-pk')
             paginator = Paginator(order_objs, 20)
             total_orders = order_objs.count()
             order_objs = paginator.page(page)
 
             order_list = []
-            
+
             for order_obj in order_objs:
                 try:
                     voucher_obj = order_obj.voucher
@@ -2464,7 +2698,8 @@ class FetchOrderListAdminAPI(APIView):
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
-                    temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address()
+                    temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address(
+                    )
 
                     unit_order_objs = UnitOrder.objects.filter(order=order_obj)
                     unit_order_list = []
@@ -2477,13 +2712,15 @@ class FetchOrderListAdminAPI(APIView):
                         temp_dict2["price"] = unit_order_obj.price
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
                         temp_dict2["productName"] = unit_order_obj.product.get_name()
-                        temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
+                        temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url(
+                        )
                         unit_order_list.append(temp_dict2)
                     temp_dict["unitOrderList"] = unit_order_list
                     order_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchOrderListAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchOrderListAdminAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
             response["orderList"] = order_list
 
@@ -2497,8 +2734,9 @@ class FetchOrderListAdminAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrderListAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("FetchOrderListAdminAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -2511,7 +2749,7 @@ class FetchOrderDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchOrderDetailsAPI: %s", str(data))
-            language_code = data.get("language","en")
+            language_code = data.get("language", "en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -2524,12 +2762,13 @@ class FetchOrderDetailsAPI(APIView):
             unit_order_objs = UnitOrder.objects.filter(order=order_obj)
 
             enable_order_edit = False
-            if order_obj.payment_status=="cod": # and unit_order_objs.filter(current_status_admin="pending").exists():
+            # and unit_order_objs.filter(current_status_admin="pending").exists():
+            if order_obj.payment_status == "cod":
                 enable_order_edit = True
 
             response["enableOrderEdit"] = enable_order_edit
             response["is_order_offline"] = order_obj.is_order_offline
-            response["bundleId"] = order_obj.bundleid 
+            response["bundleId"] = order_obj.bundleid
             response["dateCreated"] = order_obj.get_date_created()
             response["paymentMode"] = order_obj.payment_mode
             response["paymentStatus"] = order_obj.payment_status
@@ -2538,11 +2777,12 @@ class FetchOrderDetailsAPI(APIView):
             response["isVoucherApplied"] = is_voucher_applied
             if is_voucher_applied:
                 response["voucherCode"] = voucher_obj.voucher_code
-                response["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
+                response["voucherDiscount"] = voucher_obj.get_voucher_discount(
+                    order_obj.get_subtotal())
             response["shippingMethod"] = unit_order_objs[0].shipping_method
 
             address_obj = order_obj.shipping_address
-            if address_obj==None:
+            if address_obj == None:
                 response["shippingAddress"] = {}
             else:
                 response["shippingAddress"] = {
@@ -2570,9 +2810,12 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["quantity"] = unit_order_obj.quantity
                 temp_dict["price"] = unit_order_obj.price
                 temp_dict["currency"] = unit_order_obj.product.get_currency()
-                temp_dict["productName"] = unit_order_obj.product.get_name(language_code)
-                temp_dict["productNameAr"] = unit_order_obj.product.get_name("ar")
-                temp_dict["productImageUrl"] = unit_order_obj.product.get_display_image_url()
+                temp_dict["productName"] = unit_order_obj.product.get_name(
+                    language_code)
+                temp_dict["productNameAr"] = unit_order_obj.product.get_name(
+                    "ar")
+                temp_dict["productImageUrl"] = unit_order_obj.product.get_display_image_url(
+                )
                 temp_dict["sellerSku"] = unit_order_obj.product.get_seller_sku()
                 temp_dict["productId"] = unit_order_obj.product.get_product_id()
                 temp_dict["productUuid"] = unit_order_obj.product.uuid
@@ -2580,7 +2823,8 @@ class FetchOrderDetailsAPI(APIView):
                 temp_dict["user_cancellation_status"] = unit_order_obj.user_cancellation_status
 
                 unit_order_status_list = []
-                unit_order_status_objs = UnitOrderStatus.objects.filter(unit_order=unit_order_obj).order_by('date_created')
+                unit_order_status_objs = UnitOrderStatus.objects.filter(
+                    unit_order=unit_order_obj).order_by('date_created')
                 for unit_order_status_obj in unit_order_status_objs:
                     temp_dict2 = {}
                     temp_dict2["customerStatus"] = unit_order_status_obj.status
@@ -2592,7 +2836,7 @@ class FetchOrderDetailsAPI(APIView):
 
                 temp_dict["UnitOrderStatusList"] = unit_order_status_list
                 unit_order_list.append(temp_dict)
-            
+
             subtotal = order_obj.get_subtotal()
             delivery_fee = order_obj.get_delivery_fee()
             cod_fee = order_obj.get_cod_charge()
@@ -2612,8 +2856,9 @@ class FetchOrderDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("FetchOrderDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -2628,31 +2873,37 @@ class FetchOrderVersionDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("FetchOrderVersionDetailsAPI Restricted Access!")
+                logger.warning(
+                    "FetchOrderVersionDetailsAPI Restricted Access!")
                 return Response(data=response)
 
             order_uuid = data["uuid"]
             order_obj = Order.objects.get(uuid=order_uuid)
             version_order_list = []
-            version_order_objs = VersionOrder.objects.filter(order=order_obj).order_by('-pk')
+            version_order_objs = VersionOrder.objects.filter(
+                order=order_obj).order_by('-pk')
             for version_order_obj in version_order_objs:
                 temp_dict = {}
                 temp_dict["uuid"] = version_order_obj.uuid
-                temp_dict["date"] = str(timezone.localtime(version_order_obj.timestamp).strftime("%d %b, %Y"))
-                temp_dict["time"] = str(timezone.localtime(version_order_obj.timestamp).strftime("%I:%M %p"))
-                if version_order_obj.user!=None:
+                temp_dict["date"] = str(timezone.localtime(
+                    version_order_obj.timestamp).strftime("%d %b, %Y"))
+                temp_dict["time"] = str(timezone.localtime(
+                    version_order_obj.timestamp).strftime("%I:%M %p"))
+                if version_order_obj.user != None:
                     temp_dict["user"] = version_order_obj.user.username
-                temp_dict["change_info"] = json.loads(version_order_obj.change_information)
+                temp_dict["change_info"] = json.loads(
+                    version_order_obj.change_information)
                 version_order_list.append(temp_dict)
             response['status'] = 200
             response['version_order_list'] = version_order_list
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrderVersionDetails: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchOrderVersionDetails: %s at %s",
+                         e, str(exc_tb.tb_lineno))
         return Response(data=response)
-      
+
 
 class CreateUnitOrderCancellationRequestAPI(APIView):
 
@@ -2660,7 +2911,7 @@ class CreateUnitOrderCancellationRequestAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-            data = request.data 
+            data = request.data
             logger.info("CreateUnitOrderCancellationRequestAPI: %s", str(data))
 
             if not isinstance(data, dict):
@@ -2669,36 +2920,38 @@ class CreateUnitOrderCancellationRequestAPI(APIView):
             unit_order_cancellation_list = data["unit_order_cancellation_list"]
 
             for unit_order_cancellation_item in unit_order_cancellation_list:
-                unit_order_obj = UnitOrder.objects.get(uuid=unit_order_cancellation_item["unit_order_uuid"])
+                unit_order_obj = UnitOrder.objects.get(
+                    uuid=unit_order_cancellation_item["unit_order_uuid"])
                 unit_order_obj.cancelled_by_user = True
                 unit_order_obj.user_cancellation_note = unit_order_cancellation_item["note"]
                 unit_order_obj.user_cancellation_status = "pending"
                 unit_order_obj.save()
-            
+
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateUnitOrderCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error(
+                "CreateUnitOrderCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
 class CreateOrderCancellationRequestAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
-            data = request.data 
+            data = request.data
             logger.info("CreateOrderCancellationRequestAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             order_uuid = data["order_uuid"]
-            cancellation_note = data.get("note","")
-            
+            cancellation_note = data.get("note", "")
+
             unit_order_objs = UnitOrder.objects.filter(order__uuid=order_uuid)
 
             for unit_order_obj in unit_order_objs:
@@ -2706,16 +2959,19 @@ class CreateOrderCancellationRequestAPI(APIView):
                 unit_order_obj.user_cancellation_note = cancellation_note
                 unit_order_obj.user_cancellation_status = "pending"
                 unit_order_obj.save()
-                
+
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateOrderCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateOrderCancellationRequestAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class CreateOfflineCustomerAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -2727,7 +2983,7 @@ class CreateOfflineCustomerAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("CreateOfflineCustomerAPI Restricted Access!")
                 return Response(data=response)
@@ -2743,18 +2999,21 @@ class CreateOfflineCustomerAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number[0]=="0":
+            if contact_number[0] == "0":
                 contact_number = contact_number[1:]
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name
 
-            if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
+            if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists() == False:
                 if location_group_obj.is_b2b == True:
-                    b2b_user_obj = B2BUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
-                    dealshub_user_obj = DealsHubUser.objects.get(username=b2b_user_obj.username)
+                    b2b_user_obj = B2BUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number,
+                                                          first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
+                    dealshub_user_obj = DealsHubUser.objects.get(
+                        username=b2b_user_obj.username)
                     b2b_user_obj.set_password(OTP)
                     b2b_user_obj.verification_code = OTP
                     b2b_user_obj.is_signup_completed = True
@@ -2763,33 +3022,41 @@ class CreateOfflineCustomerAPI(APIView):
                     b2b_user_obj.trade_license_status = "Approved"
                     b2b_user_obj.save()
                 else:
-                    dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
+                    dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number,
+                                                                    first_name=first_name, last_name=last_name, email=email, email_verified=True, website_group=website_group_obj)
                     dealshub_user_obj.set_password(OTP)
                     dealshub_user_obj.verification_code = OTP
                     dealshub_user_obj.save()
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
-                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj, offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
-                    WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
-                    FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj,
+                                        offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
+                    WishList.objects.create(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
+                    FastCart.objects.create(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
 
                 response["username"] = dealshub_user_obj.username
 
                 render_value = "New User created offline with username " + dealshub_user_obj.username
-                activitylog(request.user, DealsHubUser, "created", dealshub_user_obj.username, None, dealshub_user_obj, location_group_obj, render_value)
+                activitylog(request.user, DealsHubUser, "created", dealshub_user_obj.username,
+                            None, dealshub_user_obj, location_group_obj, render_value)
                 response["status"] = 200
             else:
                 response["status"] = 409
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateOfflineCustomerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateOfflineCustomerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class UpdateOfflineUserProfileAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -2800,9 +3067,10 @@ class UpdateOfflineUserProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("UpdateOfflineUserProfileAPI Restricted Access!")
+                logger.warning(
+                    "UpdateOfflineUserProfileAPI Restricted Access!")
                 return Response(data=response)
 
             username = data["username"]
@@ -2811,7 +3079,7 @@ class UpdateOfflineUserProfileAPI(APIView):
             last_name = data.get("lastName", "")
             contact_number = data["contactNumber"]
 
-            if contact_number[0]=="0":
+            if contact_number[0] == "0":
                 contact_number = contact_number[1:]
 
             if DealsHubUser.objects.filter(username=username).exists():
@@ -2822,16 +3090,18 @@ class UpdateOfflineUserProfileAPI(APIView):
                 dealshub_user_obj.last_name = last_name
                 dealshub_user_obj.contact_number = contact_number
                 dealshub_user_obj.save()
-                
+
                 render_value = "User profile updated for username " + dealshub_user_obj.username
-                activitylog(request.user, DealsHubUser, "updated", dealshub_user_obj.username, prev_dealshub_user_obj, dealshub_user_obj, None, render_value)
+                activitylog(request.user, DealsHubUser, "updated", dealshub_user_obj.username,
+                            prev_dealshub_user_obj, dealshub_user_obj, None, render_value)
                 response['status'] = 200
             else:
                 response['status'] = 404
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateOfflineUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateOfflineUserProfileAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -2847,37 +3117,44 @@ class SearchCustomerAutocompleteAPI(APIView):
             data = request.data
             logger.info("SearchCustomerAutocompleteAPI: %s", str(data))
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("SearchCustomerAutocompleteAPI Restricted Access!")
+                logger.warning(
+                    "SearchCustomerAutocompleteAPI Restricted Access!")
                 return Response(data=response)
 
             search_string = data["searchString"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
 
-            user_objs = DealsHubUser.objects.filter(website_group=website_group_obj)
+            user_objs = DealsHubUser.objects.filter(
+                website_group=website_group_obj)
 
-            user_objs = user_objs.filter(Q(first_name__icontains=search_string) | Q(contact_number__icontains=search_string))[:5]
+            user_objs = user_objs.filter(Q(first_name__icontains=search_string) | Q(
+                contact_number__icontains=search_string))[:5]
 
             user_list = []
             for user_obj in user_objs:
                 try:
                     temp_dict = {}
-                    temp_dict["name"] = user_obj.first_name + " | " + user_obj.contact_number
+                    temp_dict["name"] = user_obj.first_name + \
+                        " | " + user_obj.contact_number
                     temp_dict["username"] = user_obj.username
                     user_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("SearchCustomerAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning(
+                        "SearchCustomerAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["userList"] = user_list
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SearchCustomerAutocompleteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SearchCustomerAutocompleteAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -2894,7 +3171,7 @@ class FetchOfflineUserProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("FetchOfflineUserProfileAPI Restricted Access!")
                 return Response(data=response)
@@ -2916,15 +3193,20 @@ class FetchOfflineUserProfileAPI(APIView):
                     temp_dict = {}
                     temp_dict['firstName'] = address_obj.first_name
                     temp_dict['lastName'] = address_obj.last_name
-                    temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
-                    temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
-                    temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
-                    temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
+                    temp_dict['line1'] = json.loads(
+                        address_obj.address_lines)[0]
+                    temp_dict['line2'] = json.loads(
+                        address_obj.address_lines)[1]
+                    temp_dict['line3'] = json.loads(
+                        address_obj.address_lines)[2]
+                    temp_dict['line4'] = json.loads(
+                        address_obj.address_lines)[3]
                     temp_dict['state'] = address_obj.state
                     temp_dict['emirates'] = address_obj.emirates
                     temp_dict['country'] = address_obj.get_country()
                     temp_dict['postcode'] = address_obj.postcode
-                    temp_dict['contactNumber'] = str(address_obj.contact_number)
+                    temp_dict['contactNumber'] = str(
+                        address_obj.contact_number)
                     temp_dict['tag'] = str(address_obj.tag)
                     temp_dict['uuid'] = str(address_obj.uuid)
 
@@ -2935,7 +3217,8 @@ class FetchOfflineUserProfileAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOfflineUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchOfflineUserProfileAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -2952,7 +3235,8 @@ class FetchUserProfileAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             response["firstName"] = dealshub_user_obj.first_name
             response["lastName"] = dealshub_user_obj.last_name
@@ -2962,7 +3246,8 @@ class FetchUserProfileAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchUserProfileAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -2994,7 +3279,8 @@ class UpdateUserProfileAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateUserProfileAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -3011,7 +3297,7 @@ class FetchCustomerListAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("FetchCustomerListAPI Restricted Access!")
                 return Response(data=response)
@@ -3020,14 +3306,17 @@ class FetchCustomerListAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
-            website_dealshub_user_objs = DealsHubUser.objects.filter(website_group=website_group_obj)
+            website_dealshub_user_objs = DealsHubUser.objects.filter(
+                website_group=website_group_obj)
 
             dealshub_user_objs = DealsHubUser.objects.none()
-            if len(search_list)>0:
+            if len(search_list) > 0:
                 for search_key in search_list:
-                    dealshub_user_objs |= website_dealshub_user_objs.filter(Q(first_name__icontains=search_key)| Q(contact_number__icontains=search_key))
+                    dealshub_user_objs |= website_dealshub_user_objs.filter(
+                        Q(first_name__icontains=search_key) | Q(contact_number__icontains=search_key))
                 dealshub_user_objs = dealshub_user_objs.distinct().order_by('-pk')
             else:
                 dealshub_user_objs = website_dealshub_user_objs.order_by('-pk')
@@ -3035,30 +3324,37 @@ class FetchCustomerListAPI(APIView):
             filter_parameters = data.get("filter_parameters", {})
 
             if "is_feedback_available" in filter_parameters:
-                if filter_parameters["is_feedback_available"]==True:
+                if filter_parameters["is_feedback_available"] == True:
                     pass
 
             if location_group_obj.name in ["WIGme - B2B"]:
-                dealshub_user_objs = dealshub_user_objs.filter(b2buser__is_signup_completed=True)
+                dealshub_user_objs = dealshub_user_objs.filter(
+                    b2buser__is_signup_completed=True)
 
             if "is_cart_empty" in filter_parameters:
-                if filter_parameters["is_cart_empty"]==True:
+                if filter_parameters["is_cart_empty"] == True:
                     cart_objs = UnitCart.objects.all().values("cart")
                     fast_cart_objs = FastCart.objects.exclude(product=None)
-                    dealshub_user_objs =  dealshub_user_objs.exclude(cart__in=cart_objs).exclude(fastcart__in=fast_cart_objs)
-                elif filter_parameters["is_cart_empty"]==False:
+                    dealshub_user_objs = dealshub_user_objs.exclude(
+                        cart__in=cart_objs).exclude(fastcart__in=fast_cart_objs)
+                elif filter_parameters["is_cart_empty"] == False:
                     cart_objs = UnitCart.objects.all().values("cart")
                     fast_cart_objs = FastCart.objects.exclude(product=None)
-                    dealshub_user_objs = dealshub_user_objs.filter(cart__in=cart_objs) | dealshub_user_objs.filter(fastcart__in=fast_cart_objs)
+                    dealshub_user_objs = dealshub_user_objs.filter(
+                        cart__in=cart_objs) | dealshub_user_objs.filter(fastcart__in=fast_cart_objs)
                     dealshub_user_objs = dealshub_user_objs.distinct()
 
             if "b2b-verified" in filter_parameters:
-                if filter_parameters["b2b-verified"]==True:
-                    b2b_user_objs = B2BUser.objects.filter(vat_certificate_status="Approved", trade_license_status="Approved", passport_copy_status="Approved")
-                    dealshub_user_objs = dealshub_user_objs.filter(b2buser__in=b2b_user_objs)
-                elif filter_parameters["b2b-verified"]==False:
-                    b2b_user_objs = B2BUser.objects.exclude(vat_certificate_status="Approved", trade_license_status="Approved", passport_copy_status="Approved")
-                    dealshub_user_objs = dealshub_user_objs.filter(b2buser__in=b2b_user_objs)
+                if filter_parameters["b2b-verified"] == True:
+                    b2b_user_objs = B2BUser.objects.filter(
+                        vat_certificate_status="Approved", trade_license_status="Approved", passport_copy_status="Approved")
+                    dealshub_user_objs = dealshub_user_objs.filter(
+                        b2buser__in=b2b_user_objs)
+                elif filter_parameters["b2b-verified"] == False:
+                    b2b_user_objs = B2BUser.objects.exclude(
+                        vat_certificate_status="Approved", trade_license_status="Approved", passport_copy_status="Approved")
+                    dealshub_user_objs = dealshub_user_objs.filter(
+                        b2buser__in=b2b_user_objs)
 
             page = data.get("page", 1)
             total_customers = dealshub_user_objs.count()
@@ -3073,21 +3369,27 @@ class FetchCustomerListAPI(APIView):
                     temp_dict["emailId"] = dealshub_user_obj.email
                     temp_dict["contactNumber"] = dealshub_user_obj.contact_number
                     temp_dict["username"] = dealshub_user_obj.username
-                    temp_dict["is_cart_empty"] = not (UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists() or FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists())
+                    temp_dict["is_cart_empty"] = not (UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists(
+                    ) or FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists())
                     temp_dict["is_feedback_available"] = False
-                    temp_dict["date_created"] = str(dealshub_user_obj.date_created.strftime("%d %b %Y"))
+                    temp_dict["date_created"] = str(
+                        dealshub_user_obj.date_created.strftime("%d %b %Y"))
                     if location_group_obj.is_b2b:
-                        b2b_user_obj = B2BUser.objects.get(username = dealshub_user_obj.username)
+                        b2b_user_obj = B2BUser.objects.get(
+                            username=dealshub_user_obj.username)
                         temp_dict["companyName"] = b2b_user_obj.company_name
-                        total_qty = UnitOrder.objects.filter(order__owner=dealshub_user_obj).aggregate(Sum('quantity'))["quantity__sum"]
-                        if total_qty==None:
+                        total_qty = UnitOrder.objects.filter(
+                            order__owner=dealshub_user_obj).aggregate(Sum('quantity'))["quantity__sum"]
+                        if total_qty == None:
                             total_qty = 0
                         temp_dict["total_qty"] = total_qty
-                        temp_dict["total_items"] = len(UnitOrder.objects.filter(order__owner=dealshub_user_obj).values("product").distinct())
+                        temp_dict["total_items"] = len(UnitOrder.objects.filter(
+                            order__owner=dealshub_user_obj).values("product").distinct())
                     customer_list.append(temp_dict)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchCustomerListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchCustomerListAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
             is_available = True
 
@@ -3102,7 +3404,8 @@ class FetchCustomerListAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCustomerListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchCustomerListAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -3119,7 +3422,7 @@ class FetchCustomerDetailsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("FetchCustomerDetailsAPI Restricted Access!")
                 return Response(data=response)
@@ -3128,9 +3431,10 @@ class FetchCustomerDetailsAPI(APIView):
 
             is_b2b = False
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
-            location_group_uuid = data.get("locationGroupUuid","")
+            location_group_uuid = data.get("locationGroupUuid", "")
             if location_group_uuid != "":
-                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                location_group_obj = LocationGroup.objects.get(
+                    uuid=location_group_uuid)
                 is_b2b = location_group_obj.is_b2b
 
             temp_dict = {}
@@ -3138,13 +3442,14 @@ class FetchCustomerDetailsAPI(APIView):
             temp_dict["emailId"] = dealshub_user_obj.email
             temp_dict["contactNumber"] = dealshub_user_obj.contact_number
             if is_b2b == True:
-                b2b_user_obj = B2BUser.objects.get(username = dealshub_user_obj.username)
+                b2b_user_obj = B2BUser.objects.get(
+                    username=dealshub_user_obj.username)
                 temp_dict["cohort"] = b2b_user_obj.cohort
                 temp_dict["companyName"] = b2b_user_obj.company_name
 
                 temp_dict["vatCertificate"] = ""
                 temp_dict["vatCertificateType"] = "EMPTY"
-                if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
+                if b2b_user_obj.vat_certificate != None and b2b_user_obj.vat_certificate != "":
                     temp_dict["vatCertificateType"] = "PDF"
                     temp_dict["vatCertificate"] = b2b_user_obj.vat_certificate.url
                 elif b2b_user_obj.vat_certificate_images.exists() > 0:
@@ -3160,7 +3465,7 @@ class FetchCustomerDetailsAPI(APIView):
 
                 temp_dict["passportCopy"] = ""
                 temp_dict["passportCopyType"] = "EMPTY"
-                if b2b_user_obj.passport_copy!=None and b2b_user_obj.passport_copy!="":
+                if b2b_user_obj.passport_copy != None and b2b_user_obj.passport_copy != "":
                     temp_dict["passportCopyType"] = "PDF"
                     temp_dict["passportCopy"] = b2b_user_obj.passport_copy.url
                 elif b2b_user_obj.passport_copy_images.exists() > 0:
@@ -3176,7 +3481,7 @@ class FetchCustomerDetailsAPI(APIView):
 
                 temp_dict["tradeLicense"] = ""
                 temp_dict["tradeLicenseType"] = "EMPTY"
-                if b2b_user_obj.trade_license!=None and b2b_user_obj.trade_license!="":
+                if b2b_user_obj.trade_license != None and b2b_user_obj.trade_license != "":
                     temp_dict["tradeLicenseType"] = "PDF"
                     temp_dict["tradeLicense"] = b2b_user_obj.trade_license.url
                 elif b2b_user_obj.trade_license_images.exists() > 0:
@@ -3196,10 +3501,12 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict["vatCertificateId"] = b2b_user_obj.vat_certificate_id
                 temp_dict["passportCopyId"] = b2b_user_obj.passport_copy_id
                 temp_dict["tradeLicenseId"] = b2b_user_obj.trade_license_id
-            temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
+            temp_dict["is_cart_empty"] = not (FastCart.objects.filter(owner=dealshub_user_obj).exclude(
+                product=None).exists() or UnitCart.objects.filter(cart__owner=dealshub_user_obj).exists())
             try:
-                if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date!=None:
-                    temp_dict["cart_last_modified"] = str(timezone.localtime(Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date).strftime("%d %b, %Y %H:%M"))
+                if Cart.objects.filter(owner=dealshub_user_obj)[0].modified_date != None:
+                    temp_dict["cart_last_modified"] = str(timezone.localtime(Cart.objects.filter(
+                        owner=dealshub_user_obj)[0].modified_date).strftime("%d %b, %Y %H:%M"))
                 else:
                     temp_dict["cart_last_modified"] = "NA"
             except Exception as e:
@@ -3207,19 +3514,23 @@ class FetchCustomerDetailsAPI(APIView):
             temp_dict["is_feedback_available"] = False
             address_list = []
             for address_obj in Address.objects.filter(is_deleted=False, user__username=dealshub_user_obj.username):
-                address_list.append(", ".join(json.loads(address_obj.address_lines)))
+                address_list.append(
+                    ", ".join(json.loads(address_obj.address_lines)))
             temp_dict["addressList"] = address_list
 
-            review_objs = Review.objects.filter(dealshub_user=dealshub_user_obj).exclude(is_published=False)
-            
+            review_objs = Review.objects.filter(
+                dealshub_user=dealshub_user_obj).exclude(is_published=False)
+
             unit_cart_list = []
             for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj):
                 temp_dict2 = {}
                 temp_dict2["uuid"] = unit_cart_obj.uuid
                 temp_dict2["sellerSku"] = unit_cart_obj.product.get_seller_sku()
                 temp_dict2["quantity"] = unit_cart_obj.quantity
-                temp_dict2["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
-                temp_dict2["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+                temp_dict2["price"] = unit_cart_obj.product.get_actual_price_for_customer(
+                    dealshub_user_obj)
+                temp_dict2["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(
+                    dealshub_user_obj)
                 temp_dict2["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict2["productName"] = unit_cart_obj.product.get_name()
                 temp_dict2["productImageUrl"] = unit_cart_obj.product.get_main_image_url()
@@ -3230,8 +3541,10 @@ class FetchCustomerDetailsAPI(APIView):
                 temp_dict2["uuid"] = unit_cart_obj.uuid
                 temp_dict2["sellerSku"] = unit_cart_obj.product.get_seller_sku()
                 temp_dict2["quantity"] = unit_cart_obj.quantity
-                temp_dict2["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
-                temp_dict2["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+                temp_dict2["price"] = unit_cart_obj.product.get_actual_price_for_customer(
+                    dealshub_user_obj)
+                temp_dict2["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(
+                    dealshub_user_obj)
                 temp_dict2["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict2["productName"] = unit_cart_obj.product.get_name()
                 temp_dict2["productImageUrl"] = unit_cart_obj.product.get_main_image_url()
@@ -3243,23 +3556,26 @@ class FetchCustomerDetailsAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["uuid"] = review_obj.uuid
                     temp_dict2["sellerSku"] = review_obj.product.get_seller_sku()
-                    temp_dict2["productImageUrl"] = review_obj.product.get_main_image_url()
+                    temp_dict2["productImageUrl"] = review_obj.product.get_main_image_url(
+                    )
                     temp_dict2["rating"] = review_obj.rating
                     temp_dict2["isReview"] = False
-                    if review_obj.content!=None:
+                    if review_obj.content != None:
                         temp_dict2["isReview"] = True
                         temp_dict2["subject"] = review_obj.content.subject
                         temp_dict2["content"] = review_obj.content.content
                         temp_dict2["isReply"] = False
-                        if review_obj.content.admin_comment!=None:
+                        if review_obj.content.admin_comment != None:
                             temp_dict2["isReply"] = True
                             temp_dict2["username"] = review_obj.content.admin_comment.user.username
-                            temp_dict2["displayName"] = review_obj.content.admin_comment.first_name + " " + review_obj.content.admin_comment.last_name
+                            temp_dict2["displayName"] = review_obj.content.admin_comment.first_name + \
+                                " " + review_obj.content.admin_comment.last_name
                             temp_dict2["comment"] = review_obj.content.admin_comment.comment
                     review_list.append(temp_dict2)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchCustomerDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("FetchCustomerDetailsAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
             response["customerDetails"] = temp_dict
             response["unitCartList"] = unit_cart_list
@@ -3268,11 +3584,14 @@ class FetchCustomerDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCustomerDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchCustomerDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class UpdateB2BCustomerStatusAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3283,14 +3602,14 @@ class UpdateB2BCustomerStatusAPI(APIView):
             data = request.data
             logger.info("UpdateB2BCustomerStatusAPI: %s", str(data))
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("UpdateB2BCustomerStatusAPI Restricted Access!")
                 return Response(data=response)
 
             username = data["username"]
 
-            b2b_user_obj = B2BUser.objects.get(username = username)
+            b2b_user_obj = B2BUser.objects.get(username=username)
             prev_b2b_user_obj = deepcopy(b2b_user_obj)
 
             company_name = data["companyName"]
@@ -3312,9 +3631,10 @@ class UpdateB2BCustomerStatusAPI(APIView):
                 is_notify = True
 
             if vat_certificate_type == "IMG":
-                image_count = int(data.get("vatCertificateImageCount",0))
+                image_count = int(data.get("vatCertificateImageCount", 0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["vat-certificate-image-" + str(i+1)])
+                    image_obj = Image.objects.create(
+                        image=data["vat-certificate-image-" + str(i+1)])
                     b2b_user_obj.vat_certificate_images.add(image_obj)
                 b2b_user_obj.vat_certificate = None
             elif vat_certificate_type == "PDF":
@@ -3325,9 +3645,10 @@ class UpdateB2BCustomerStatusAPI(APIView):
                     image_obj.delete()
 
             if trade_license_type == "IMG":
-                image_count = int(data.get("tradeLicenseImageCount",0))
+                image_count = int(data.get("tradeLicenseImageCount", 0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["trade-license-image-" + str(i+1)])
+                    image_obj = Image.objects.create(
+                        image=data["trade-license-image-" + str(i+1)])
                     b2b_user_obj.trade_license_images.add(image_obj)
                 b2b_user_obj.trade_license = None
             elif trade_license_type == "PDF":
@@ -3338,9 +3659,10 @@ class UpdateB2BCustomerStatusAPI(APIView):
                     image_obj.delete()
 
             if passport_copy_type == "IMG":
-                image_count = int(data.get("passportCopyImageCount",0))
+                image_count = int(data.get("passportCopyImageCount", 0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["passport-copy-image-" + str(i+1)])
+                    image_obj = Image.objects.create(
+                        image=data["passport-copy-image-" + str(i+1)])
                     b2b_user_obj.passport_copy_images.add(image_obj)
                 b2b_user_obj.passport_copy = None
             elif passport_copy_type == "PDF":
@@ -3363,24 +3685,30 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.save()
 
             if is_notify == True:
-                #threading send a mail
-                 p1 = threading.Thread(target = send_b2b_user_status_change_mail, args=(b2b_user_obj,))
-                 p1.start()
+                # threading send a mail
+                p1 = threading.Thread(
+                    target=send_b2b_user_status_change_mail, args=(b2b_user_obj,))
+                p1.start()
 
             b2b_location_group_obj = None
             if LocationGroup.objects.filter(is_b2b=True).exists():
-                b2b_location_group_obj = LocationGroup.objects.filter(is_b2b=True)[0]
+                b2b_location_group_obj = LocationGroup.objects.filter(is_b2b=True)[
+                    0]
             render_value = "B2B user status updated offline for " + username
-            activitylog(request.user, B2BUser, "updated", b2b_user_obj.username, prev_b2b_user_obj, b2b_user_obj, b2b_location_group_obj, render_value)
+            activitylog(request.user, B2BUser, "updated", b2b_user_obj.username,
+                        prev_b2b_user_obj, b2b_user_obj, b2b_location_group_obj, render_value)
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateB2BCustomerStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateB2BCustomerStatusAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class DeleteB2BDocumentImageAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3392,23 +3720,28 @@ class DeleteB2BDocumentImageAPI(APIView):
             logger.info("DeleteB2BDocumentImageAPI: %s", str(data))
 
             pk = data["pk"]
-            image_obj = Image.objects.get(pk = pk)
+            image_obj = Image.objects.get(pk=pk)
             image_url = image_obj.image.url
             image_obj.delete()
-            
+
             b2b_location_group_obj = None
             if LocationGroup.objects.filter(is_b2b=True).exists():
-                b2b_location_group_obj = LocationGroup.objects.filter(is_b2b=True)[0]
+                b2b_location_group_obj = LocationGroup.objects.filter(is_b2b=True)[
+                    0]
             render_value = "B2B document image " + image_url + " deleted"
-            activitylog(request.user, Image, "deleted", pk, image_obj, None, b2b_location_group_obj, render_value)
+            activitylog(request.user, Image, "deleted", pk, image_obj,
+                        None, b2b_location_group_obj, render_value)
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteB2BDocumentImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DeleteB2BDocumentImageAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class DeleteB2BDocumentAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -3420,33 +3753,38 @@ class DeleteB2BDocumentAPI(APIView):
             logger.info("DeleteB2BDocumentAPI: %s", str(data))
 
             document_type = data["documentType"]
-            contact_number = data.get("contactNumber","")
-            is_dealshub = data.get("isDealshub",True)
-            location_group_uuid = data.get("locationGroupUuid","")
+            contact_number = data.get("contactNumber", "")
+            is_dealshub = data.get("isDealshub", True)
+            location_group_uuid = data.get("locationGroupUuid", "")
 
             if is_dealshub == True:
-                b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+                b2b_user_obj = B2BUser.objects.get(
+                    username=request.user.username)
             else:
-                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                location_group_obj = LocationGroup.objects.get(
+                    uuid=location_group_uuid)
                 website_group_name = location_group_obj.website_group.name.lower()
-                b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+                b2b_user_obj = B2BUser.objects.get(
+                    username=contact_number + "-" + website_group_name)
                 prev_b2b_user_obj = deepcopy(b2b_user_obj)
-            if document_type=="VAT":
+            if document_type == "VAT":
                 b2b_user_obj.vat_certificate = None
-            elif document_type=="PASSPORT":
+            elif document_type == "PASSPORT":
                 b2b_user_obj.passport_copy = None
-            elif document_type=="TRADE":
+            elif document_type == "TRADE":
                 b2b_user_obj.trade_license = None
             b2b_user_obj.save()
 
             if is_dealshub == False:
-                render_value =  "B2B documents deleted for user" + b2b_user_obj.username
-                activitylog(request.user, B2BUser, "updated", b2b_user_obj.username, prev_b2b_user_obj, b2b_user_obj, location_group_obj, render_value)
+                render_value = "B2B documents deleted for user" + b2b_user_obj.username
+                activitylog(request.user, B2BUser, "updated", b2b_user_obj.username,
+                            prev_b2b_user_obj, b2b_user_obj, location_group_obj, render_value)
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteB2BDocumentAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DeleteB2BDocumentAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -3468,8 +3806,9 @@ class FetchCustomerOrdersAPI(APIView):
 
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
 
-            order_objs = Order.objects.filter(owner=dealshub_user_obj).order_by('-pk')
-            
+            order_objs = Order.objects.filter(
+                owner=dealshub_user_obj).order_by('-pk')
+
             total_orders = order_objs.count()
             paginator = Paginator(order_objs, 10)
             order_objs = paginator.page(page)
@@ -3483,7 +3822,8 @@ class FetchCustomerOrdersAPI(APIView):
                 temp_dict["bundleId"] = str(order_obj.bundleid)
                 temp_dict["paymentMode"] = order_obj.payment_mode
                 temp_dict["uuid"] = order_obj.uuid
-                temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[0].shipping_method
+                temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[
+                    0].shipping_method
                 temp_dict["call_status"] = order_obj.call_status
                 temp_dict["sapStatus"] = order_obj.sap_status
                 unit_order_list = []
@@ -3497,11 +3837,13 @@ class FetchCustomerOrdersAPI(APIView):
                     temp_dict2["price"] = unit_order_obj.price
                     temp_dict2["currency"] = unit_order_obj.product.get_currency()
                     temp_dict2["productName"] = unit_order_obj.product.get_name()
-                    temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
+                    temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url(
+                    )
                     temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
                     temp_dict2["sapStatus"] = unit_order_obj.sap_status
                     unit_order_list.append(temp_dict2)
-                temp_dict["totalBilling"] = str(order_obj.to_pay) + " " + str(order_obj.location_group.location.currency)
+                temp_dict["totalBilling"] = str(
+                    order_obj.to_pay) + " " + str(order_obj.location_group.location.currency)
                 temp_dict["unitOrderList"] = unit_order_list
                 order_list.append(temp_dict)
 
@@ -3518,7 +3860,8 @@ class FetchCustomerOrdersAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchCustomerOrdersAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchCustomerOrdersAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -3529,7 +3872,7 @@ class FetchTokenRequestParametersAPI(APIView):
 
         response = {}
         response['status'] = 500
-        
+
         try:
             data = request.data
             logger.info("FetchTokenRequestParametersAPI: %s", str(data))
@@ -3538,12 +3881,15 @@ class FetchTokenRequestParametersAPI(APIView):
 
             return_url = data["returnUrl"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            
-            website_group_obj = location_group_obj.website_group
-            payment_credentials = json.loads(website_group_obj.payment_credentials)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            website_group_obj = location_group_obj.website_group
+            payment_credentials = json.loads(
+                website_group_obj.payment_credentials)
+
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             service_command = "TOKENIZATION"
             access_code = payment_credentials["access_code"]
@@ -3553,27 +3899,30 @@ class FetchTokenRequestParametersAPI(APIView):
             PASS = payment_credentials["PASS"]
 
             if location_group_obj.is_b2b == True:
-                order_request_obj = OrderRequest.objects.get(uuid=data.get("OrderRequestUuid",""))
+                order_request_obj = OrderRequest.objects.get(
+                    uuid=data.get("OrderRequestUuid", ""))
                 order_request_obj.merchant_reference = merchant_reference
                 order_request_obj.save()
             else:
                 is_fast_cart = data.get("is_fast_cart", False)
-                if is_fast_cart==False:
-                    cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                if is_fast_cart == False:
+                    cart_obj = Cart.objects.get(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
                     cart_obj.merchant_reference = merchant_reference
                     cart_obj.save()
                 else:
-                    fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                    fast_cart_obj = FastCart.objects.get(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
                     fast_cart_obj.merchant_reference = merchant_reference
                     fast_cart_obj.save()
 
             request_data = {
                 "service_command": service_command,
-                "access_code":access_code,
-                "merchant_identifier":merchant_identifier,
-                "merchant_reference":merchant_reference,
-                "language":language,
-                "return_url":return_url
+                "access_code": access_code,
+                "merchant_identifier": merchant_identifier,
+                "merchant_reference": merchant_reference,
+                "language": language,
+                "return_url": return_url
             }
 
             keys = list(request_data.keys())
@@ -3585,7 +3934,8 @@ class FetchTokenRequestParametersAPI(APIView):
                 signature_string.append(key+"="+request_data[key])
             signature_string.append(PASS)
             signature_string = "".join(signature_string)
-            signature = hashlib.sha256(signature_string.encode('utf-8')).hexdigest()
+            signature = hashlib.sha256(
+                signature_string.encode('utf-8')).hexdigest()
 
             response["access_code"] = access_code
             response["merchant_identifier"] = merchant_identifier
@@ -3595,7 +3945,8 @@ class FetchTokenRequestParametersAPI(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchTokenRequestParametersAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchTokenRequestParametersAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -3606,7 +3957,7 @@ class MakePurchaseRequestAPI(APIView):
 
         response = {}
         response['status'] = 500
-        
+
         try:
             data = request.data
             logger.info("MakePurchaseRequestAPI: %s", str(data))
@@ -3617,12 +3968,15 @@ class MakePurchaseRequestAPI(APIView):
             merchant_reference = data["merchant_reference"]
             token_name = data["token_name"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            
-            website_group_obj = location_group_obj.website_group
-            payment_credentials = json.loads(website_group_obj.payment_credentials)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            website_group_obj = location_group_obj.website_group
+            payment_credentials = json.loads(
+                website_group_obj.payment_credentials)
+
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             currency = location_group_obj.location.currency
 
@@ -3640,32 +3994,33 @@ class MakePurchaseRequestAPI(APIView):
 
             command = "PURCHASE"
 
-            
-
             customer_email = dealshub_user_obj.email
 
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            cart_obj = Cart.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
             amount = cart_obj.to_pay
-            payfort_multiplier = int(cart_obj.location_group.location.payfort_multiplier)
+            payfort_multiplier = int(
+                cart_obj.location_group.location.payfort_multiplier)
             amount = str(int(float(amount)*payfort_multiplier))
 
-            if data.get("is_fast_cart", False)==True:
-                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+            if data.get("is_fast_cart", False) == True:
+                fast_cart_obj = FastCart.objects.get(
+                    owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = fast_cart_obj.to_pay
                 amount = str(int(float(amount)*payfort_multiplier))
 
             request_data = {
-                "command":command,
-                "access_code":access_code,
-                "merchant_identifier":merchant_identifier,
-                "merchant_reference":merchant_reference,
-                "amount":amount,
-                "currency":currency,
-                "language":language,
-                "customer_email":customer_email,
-                "customer_ip":customer_ip,
-                "token_name":token_name,
-                "return_url":return_url
+                "command": command,
+                "access_code": access_code,
+                "merchant_identifier": merchant_identifier,
+                "merchant_reference": merchant_reference,
+                "amount": amount,
+                "currency": currency,
+                "language": language,
+                "customer_email": customer_email,
+                "customer_ip": customer_ip,
+                "token_name": token_name,
+                "return_url": return_url
             }
 
             keys = list(request_data.keys())
@@ -3675,20 +4030,23 @@ class MakePurchaseRequestAPI(APIView):
                 signature_string.append(key+"="+request_data[key])
             signature_string.append(PASS)
             signature_string = "".join(signature_string)
-            signature = hashlib.sha256(signature_string.encode('utf-8')).hexdigest()
+            signature = hashlib.sha256(
+                signature_string.encode('utf-8')).hexdigest()
 
             request_data["signature"] = signature
 
-            r = requests.post(url="https://sbpaymentservices.payfort.com/FortAPI/paymentApi", json=request_data)
+            r = requests.post(
+                url="https://sbpaymentservices.payfort.com/FortAPI/paymentApi", json=request_data)
             payment_response = json.loads(r.content)
             logger.info("payment_response %s", str(payment_response))
 
-            if data.get("is_fast_cart", False)==False:
+            if data.get("is_fast_cart", False) == False:
                 cart_obj.payment_info = json.dumps(payment_response)
                 cart_obj.merchant_reference = merchant_reference
                 cart_obj.save()
             else:
-                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                fast_cart_obj = FastCart.objects.get(
+                    owner=dealshub_user_obj, location_group=location_group_obj)
                 fast_cart_obj.payment_info = json.dumps(payment_response)
                 fast_cart_obj.merchant_reference = merchant_reference
                 fast_cart_obj.save()
@@ -3697,15 +4055,16 @@ class MakePurchaseRequestAPI(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("MakePurchaseRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("MakePurchaseRequestAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
 class PaymentTransactionAPI(APIView):
-    
+
     permission_classes = (AllowAny,)
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -3722,19 +4081,21 @@ class PaymentTransactionAPI(APIView):
             PASS = "$2y$10$vdNwwmCDM"
 
             calc_signature = calc_response_signature(PASS, data)
-            if calc_signature!=data["signature"]:
-                logger.error("PaymentTransactionAPI: SIGNATURE DOES NOT MATCH!")
+            if calc_signature != data["signature"]:
+                logger.error(
+                    "PaymentTransactionAPI: SIGNATURE DOES NOT MATCH!")
                 return Response(data=response)
 
-
-            if status=="14":
+            if status == "14":
                 order_obj = None
-                if Cart.objects.filter(merchant_reference=merchant_reference).exists()==True:
-                    cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
+                if Cart.objects.filter(merchant_reference=merchant_reference).exists() == True:
+                    cart_obj = Cart.objects.get(
+                        merchant_reference=merchant_reference)
 
                     try:
-                        if cart_obj.shipping_address==None:
-                            address_obj = Address.objects.filter(user=cart_obj.owner)[0]
+                        if cart_obj.shipping_address == None:
+                            address_obj = Address.objects.filter(
+                                user=cart_obj.owner)[0]
                             cart_obj.shipping_address = address_obj
                             cart_obj.save()
                     except Exception as e:
@@ -3742,8 +4103,8 @@ class PaymentTransactionAPI(APIView):
 
                     try:
                         voucher_obj = cart_obj.voucher
-                        if voucher_obj!=None:
-                            if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                        if voucher_obj != None:
+                            if voucher_obj.is_expired() == False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj) == False:
                                 voucher_obj.total_usage += 1
                                 voucher_obj.save()
                             else:
@@ -3751,9 +4112,10 @@ class PaymentTransactionAPI(APIView):
                                 cart_obj.save()
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                        logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(
+                            exc_tb.tb_lineno))
 
-                    order_obj = Order.objects.create(owner=cart_obj.owner, 
+                    order_obj = Order.objects.create(owner=cart_obj.owner,
                                                      shipping_address=cart_obj.shipping_address,
                                                      to_pay=cart_obj.to_pay,
                                                      real_to_pay=cart_obj.to_pay,
@@ -3761,19 +4123,22 @@ class PaymentTransactionAPI(APIView):
                                                      voucher=cart_obj.voucher,
                                                      location_group=cart_obj.location_group,
                                                      payment_status="paid",
-                                                     payment_info=json.dumps(data),
-                                                     payment_mode=data.get("payment_option", "NA"),
+                                                     payment_info=json.dumps(
+                                                         data),
+                                                     payment_mode=data.get(
+                                                         "payment_option", "NA"),
                                                      merchant_reference=merchant_reference,
                                                      delivery_fee=cart_obj.get_delivery_fee(),
                                                      cod_charge=0)
 
                     unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
                     for unit_cart_obj in unit_cart_objs:
-                        unit_order_obj = UnitOrder.objects.create(order=order_obj, 
+                        unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                                   product=unit_cart_obj.product,
                                                                   quantity=unit_cart_obj.quantity,
                                                                   price=unit_cart_obj.product.get_actual_price_for_customer(cart_obj.owner))
-                        UnitOrderStatus.objects.create(unit_order=unit_order_obj)
+                        UnitOrderStatus.objects.create(
+                            unit_order=unit_order_obj)
 
                     # Cart gets empty
                     for unit_cart_obj in unit_cart_objs:
@@ -3786,12 +4151,14 @@ class PaymentTransactionAPI(APIView):
                     cart_obj.merchant_reference = ""
                     cart_obj.payment_info = "{}"
                     cart_obj.save()
-                elif FastCart.objects.filter(merchant_reference=merchant_reference).exists()==True:
-                    fast_cart_obj = FastCart.objects.get(merchant_reference=merchant_reference)
+                elif FastCart.objects.filter(merchant_reference=merchant_reference).exists() == True:
+                    fast_cart_obj = FastCart.objects.get(
+                        merchant_reference=merchant_reference)
 
                     try:
-                        if fast_cart_obj.shipping_address==None:
-                            address_obj = Address.objects.filter(user=fast_cart_obj.owner)[0]
+                        if fast_cart_obj.shipping_address == None:
+                            address_obj = Address.objects.filter(
+                                user=fast_cart_obj.owner)[0]
                             fast_cart_obj.shipping_address = address_obj
                             fast_cart_obj.save()
                     except Exception as e:
@@ -3799,8 +4166,8 @@ class PaymentTransactionAPI(APIView):
 
                     try:
                         voucher_obj = fast_cart_obj.voucher
-                        if voucher_obj!=None:
-                            if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(fast_cart_obj.owner, voucher_obj)==False:
+                        if voucher_obj != None:
+                            if voucher_obj.is_expired() == False and is_voucher_limt_exceeded_for_customer(fast_cart_obj.owner, voucher_obj) == False:
                                 voucher_obj.total_usage += 1
                                 voucher_obj.save()
                             else:
@@ -3808,9 +4175,10 @@ class PaymentTransactionAPI(APIView):
                                 fast_cart_obj.save()
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                        logger.warning("PaymentTransactionAPI: voucher code not handled properly! %s at %s", e, str(
+                            exc_tb.tb_lineno))
 
-                    order_obj = Order.objects.create(owner=fast_cart_obj.owner, 
+                    order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                      shipping_address=fast_cart_obj.shipping_address,
                                                      to_pay=fast_cart_obj.to_pay,
                                                      real_to_pay=fast_cart_obj.to_pay,
@@ -3818,14 +4186,15 @@ class PaymentTransactionAPI(APIView):
                                                      voucher=fast_cart_obj.voucher,
                                                      location_group=fast_cart_obj.location_group,
                                                      payment_status="paid",
-                                                     payment_info=json.dumps(data),
-                                                     payment_mode=data.get("payment_option", "NA"),
+                                                     payment_info=json.dumps(
+                                                         data),
+                                                     payment_mode=data.get(
+                                                         "payment_option", "NA"),
                                                      merchant_reference=merchant_reference,
                                                      delivery_fee=fast_cart_obj.get_delivery_fee(),
                                                      cod_charge=0)
 
-                    
-                    unit_order_obj = UnitOrder.objects.create(order=order_obj, 
+                    unit_order_obj = UnitOrder.objects.create(order=order_obj,
                                                               product=fast_cart_obj.product,
                                                               quantity=fast_cart_obj.quantity,
                                                               price=fast_cart_obj.product.get_actual_price_for_customer(fast_cart_obj.owner))
@@ -3842,41 +4211,46 @@ class PaymentTransactionAPI(APIView):
 
                 # Trigger Email
                 try:
-                    p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                    p1 = threading.Thread(
+                        target=send_order_confirmation_mail, args=(order_obj,))
                     p1.start()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("PaymentTransactionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("PaymentTransactionAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
                 # Refresh Stock
                 refresh_stock(order_obj)
             else:
-                if Cart.objects.filter(merchant_reference=merchant_reference).exists()==True:
-                    cart_obj = Cart.objects.get(merchant_reference=merchant_reference)
+                if Cart.objects.filter(merchant_reference=merchant_reference).exists() == True:
+                    cart_obj = Cart.objects.get(
+                        merchant_reference=merchant_reference)
                     cart_obj.merchant_reference = ""
                     cart_obj.save()
-                if FastCart.objects.filter(merchant_reference=merchant_reference).exists()==True:
-                    fast_cart_obj = FastCart.objects.get(merchant_reference=merchant_reference)
+                if FastCart.objects.filter(merchant_reference=merchant_reference).exists() == True:
+                    fast_cart_obj = FastCart.objects.get(
+                        merchant_reference=merchant_reference)
                     fast_cart_obj.merchant_reference = ""
                     fast_cart_obj.save()
-            
+
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PaymentTransactionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("PaymentTransactionAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
 class PaymentNotificationAPI(APIView):
-    
+
     permission_classes = (AllowAny,)
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
-        
+
         try:
             data = request.data
 
@@ -3884,12 +4258,12 @@ class PaymentNotificationAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
-            
+
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PaymentNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("PaymentNotificationAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -3900,7 +4274,7 @@ class PaymentNotificationAPI(APIView):
 
 #         response = {}
 #         response['status'] = 500
-        
+
 #         try:
 #             data = request.data
 
@@ -3924,7 +4298,7 @@ class PaymentNotificationAPI(APIView):
 #             order_obj = Cart.objects.get(owner__username=request.user.username).order
 
 #             amount = order_obj.to_pay
-            
+
 #             amount = str(int(float(amount)*100))
 
 #             request_data = {
@@ -3965,7 +4339,7 @@ class PaymentNotificationAPI(APIView):
 
 #         response = {}
 #         response['status'] = 500
-        
+
 #         try:
 #             data = request.data
 
@@ -4004,7 +4378,7 @@ class PaymentNotificationAPI(APIView):
 #             order_obj = Order.objects.get(merchant_reference=merchant_reference)
 
 #             amount = order_obj.to_pay
-            
+
 #             dealshub_user_obj = order_obj.owner
 
 #             customer_email = dealshub_user_obj.email
@@ -4062,7 +4436,7 @@ class CalculateSignatureAPI(APIView):
 
         response = {}
         response['status'] = 500
-        
+
         try:
             data = request.data
 
@@ -4072,16 +4446,17 @@ class CalculateSignatureAPI(APIView):
                 data = json.loads(data)
 
             PASS = "$2y$10$vdNwwmCDM"
-            #PASS = "$2y$10$tGrWU3XZ0"  # Prod
+            # PASS = "$2y$10$tGrWU3XZ0"  # Prod
 
-            calc_signature = calc_response_signature(PASS, data["payfortResponse"])
-
+            calc_signature = calc_response_signature(
+                PASS, data["payfortResponse"])
 
             response["signature"] = calc_signature
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CalculateSignatureAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CalculateSignatureAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4099,28 +4474,32 @@ class ContactUsSendEmailAPI(APIView):
             logger.info("ContactUsSendEmailAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             your_email = data["yourEmail"]
             message = data["message"]
             location_group_uuid = data["locationGroupUuid"]
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             to_email = location_group_obj.get_support_email_id()
             password = location_group_obj.get_support_email_password()
 
             # Trigger Email
             try:
-                p1 = threading.Thread(target=contact_us_send_email, args=(your_email,message,to_email,password))
+                p1 = threading.Thread(target=contact_us_send_email, args=(
+                    your_email, message, to_email, password))
                 p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("ContactUsSendEmail: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("ContactUsSendEmail: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("ContactUsSendEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("ContactUsSendEmailAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4129,7 +4508,7 @@ class FetchAccountStatusB2BUserAPI(APIView):
 
     def post(self, request, *args, **kwargs):
         response = {}
-        response['status'] =500
+        response['status'] = 500
 
         try:
             data = request.data
@@ -4137,7 +4516,7 @@ class FetchAccountStatusB2BUserAPI(APIView):
 
             b2b_user_obj = None
             is_verified = False
-            b2b_user_obj = B2BUser.objects.get(username = request.user.username)
+            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
             if check_account_status(b2b_user_obj) == True:
                 is_verified = True
 
@@ -4150,19 +4529,20 @@ class FetchAccountStatusB2BUserAPI(APIView):
                     b2b_user_obj.conf = json.dumps(conf)
                     b2b_user_obj.save()
                 response["status"] = 200
-            
+
             response["IsVerified"] = is_verified
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchAccountStatusB2BUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchAccountStatusB2BUserAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
 class SendB2BOTPSMSLoginAPI(APIView):
-    permission_classes = [AllowAny,]
+    permission_classes = [AllowAny, ]
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -4173,7 +4553,8 @@ class SendB2BOTPSMSLoginAPI(APIView):
             logger.info("SendB2BOTPSMSLoginAPI: %s", str(data))
             contact_number = data["contactNumber"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
             sms_country_info = json.loads(location_group_obj.sms_country_info)
@@ -4189,16 +4570,17 @@ class SendB2BOTPSMSLoginAPI(APIView):
             otp_sent = False
             username = contact_number + "-" + website_group_name
             b2b_user_obj = None
-            if B2BUser.objects.filter(username = username).exists() == True:
+            if B2BUser.objects.filter(username=username).exists() == True:
                 b2b_user_obj = B2BUser.objects.get(username=username)
 
             if b2b_user_obj != None and b2b_user_obj.contact_verified == True and b2b_user_obj.is_signup_completed == True:
-                b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+                b2b_user_obj = B2BUser.objects.get(
+                    username=contact_number + "-" + website_group_name)
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.verification_code = OTP
                 b2b_user_obj.save()
 
-                #Trigger sms
+                # Trigger sms
                 try:
                     prefix_code = sms_country_info["prefix_code"]
                     user = sms_country_info["user"]
@@ -4209,26 +4591,28 @@ class SendB2BOTPSMSLoginAPI(APIView):
 
                     url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
                     req_data = {
-                        "user" : user,
+                        "user": user,
                         "passwd": pwd,
                         "message": message,
                         "mobilenumber": contact_number,
-                        "mtype":"N",
-                        "DR":"Y"
+                        "mtype": "N",
+                        "DR": "Y"
                     }
                     r = requests.post(url=url, data=req_data)
                     otp_sent = True
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("SendB2BOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))  
+                    logger.error("SendB2BOTPSMSLoginAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
             response["status"] = 200
             response["OTPSent"] = otp_sent
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SendB2BOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SendB2BOTPSMSLoginAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4236,19 +4620,20 @@ class SendB2BOTPSMSLoginAPI(APIView):
 class SendB2BOTPSMSSignUpAPI(APIView):
     permission_classes = [AllowAny]
 
-    def post(self,request,*args,**kwargs):
+    def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
             data = request.data
-            logger.info("SendB2BOTPSMSSignUpAPI: %s",str(data))
+            logger.info("SendB2BOTPSMSSignUpAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             contact_number = data["contactNumber"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
             sms_country_info = json.loads(location_group_obj.sms_country_info)
@@ -4264,21 +4649,22 @@ class SendB2BOTPSMSSignUpAPI(APIView):
             is_new_user = False
             username = contact_number + "-" + website_group_name
             b2b_user_obj = None
-            if B2BUser.objects.filter(username = username).exists() == True:
+            if B2BUser.objects.filter(username=username).exists() == True:
                 b2b_user_obj = B2BUser.objects.get(username=username)
 
             if b2b_user_obj == None:
                 b2b_user_obj = B2BUser.objects.create(
-                    username = contact_number+"-"+website_group_name,
-                    contact_number = contact_number,
-                    website_group = website_group_obj,
-                    verification_code = OTP
+                    username=contact_number+"-"+website_group_name,
+                    contact_number=contact_number,
+                    website_group=website_group_obj,
+                    verification_code=OTP
                 )
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.save()
-                is_new_user =True
+                is_new_user = True
             elif b2b_user_obj.contact_verified == False or b2b_user_obj.is_signup_completed == False:
-                b2b_user_obj = B2BUser.objects.get(username = contact_number+ "-"+ website_group_name)
+                b2b_user_obj = B2BUser.objects.get(
+                    username=contact_number + "-" + website_group_name)
                 b2b_user_obj.verification_code = OTP
                 b2b_user_obj.set_password(OTP)
                 b2b_user_obj.save()
@@ -4288,7 +4674,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            #Trigger sms
+            # Trigger sms
             try:
                 prefix_code = sms_country_info["prefix_code"]
                 user = sms_country_info["user"]
@@ -4299,24 +4685,26 @@ class SendB2BOTPSMSSignUpAPI(APIView):
 
                 url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
                 req_data = {
-                    "user" : user,
+                    "user": user,
                     "passwd": pwd,
                     "message": message,
                     "mobilenumber": contact_number,
-                    "mtype":"N",
-                    "DR":"Y"
+                    "mtype": "N",
+                    "DR": "Y"
                 }
                 r = requests.post(url=url, data=req_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SendB2BOTPSMSSignUpAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("SendB2BOTPSMSSignUpAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
             response["isNewUser"] = is_new_user
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SendB2BOTPSMSSignUpAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SendB2BOTPSMSSignUpAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4324,6 +4712,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
 class SignUpCompletionAPI(APIView):
 
     permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
@@ -4339,58 +4728,65 @@ class SignUpCompletionAPI(APIView):
             company_name = data["companyName"]
             email = data["email"]
             otp = data["otp"]
-            vat_certificate_id = data.get("vat-certificate-id","")
-            passport_copy_id = data.get("passport-copy-id","")
-            trade_license_id = data.get("trade-license-id","")
+            vat_certificate_id = data.get("vat-certificate-id", "")
+            passport_copy_id = data.get("passport-copy-id", "")
+            trade_license_id = data.get("trade-license-id", "")
             vat_certificate_type = data.get("vatCertificateType", "")
             trade_license_type = data.get("tradeLicenseType", "")
             passport_copy_type = data.get("passportCopyType", "")
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
             try:
-                dealshub_user_obj = DealsHubUser.objects.get(username=contact_number + "-" + website_group_name)
-                if Cart.objects.filter(owner=dealshub_user_obj,location_group=location_group_obj).exists() == True:
+                dealshub_user_obj = DealsHubUser.objects.get(
+                    username=contact_number + "-" + website_group_name)
+                if Cart.objects.filter(owner=dealshub_user_obj, location_group=location_group_obj).exists() == True:
                     response["message"] = "SignUp is already completed for this account"
                     return Response(data=response)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("SignUpCompletionAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
-            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+            b2b_user_obj = B2BUser.objects.get(
+                username=contact_number + "-" + website_group_name)
 
             if vat_certificate_type == "IMG":
-                image_count = int(data.get("vatCertificateImageCount",0))
+                image_count = int(data.get("vatCertificateImageCount", 0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["vat-certificate-image-" + str(i+1)])
+                    image_obj = Image.objects.create(
+                        image=data["vat-certificate-image-" + str(i+1)])
                     b2b_user_obj.vat_certificate_images.add(image_obj)
             elif vat_certificate_type == "PDF":
                 if data["vat-certificate-document"] != "":
                     b2b_user_obj.vat_certificate = data["vat-certificate-document"]
 
             if trade_license_type == "IMG":
-                image_count = int(data.get("tradeLicenseImageCount",0))
+                image_count = int(data.get("tradeLicenseImageCount", 0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["trade-license-image-" + str(i+1)])
+                    image_obj = Image.objects.create(
+                        image=data["trade-license-image-" + str(i+1)])
                     b2b_user_obj.trade_license_images.add(image_obj)
             elif trade_license_type == "PDF":
                 if data["trade-license-document"] != "":
                     b2b_user_obj.trade_license = data["trade-license-document"]
 
             if passport_copy_type == "IMG":
-                image_count = int(data.get("passportCopyImageCount",0))
+                image_count = int(data.get("passportCopyImageCount", 0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["passport-copy-image-" + str(i+1)])
+                    image_obj = Image.objects.create(
+                        image=data["passport-copy-image-" + str(i+1)])
                     b2b_user_obj.passport_copy_images.add(image_obj)
             elif passport_copy_type == "PDF":
                 if data["passport-copy-document"] != "":
                     b2b_user_obj.passport_copy = data["passport-copy-document"]
 
-            is_new_user_created =False
-            if b2b_user_obj.verification_code==otp:  
+            is_new_user_created = False
+            if b2b_user_obj.verification_code == otp:
                 b2b_user_obj.contact_number = contact_number
                 b2b_user_obj.first_name = name
                 b2b_user_obj.email = email
@@ -4402,14 +4798,18 @@ class SignUpCompletionAPI(APIView):
                 b2b_user_obj.passport_copy_id = passport_copy_id
                 is_new_user_created = True
 
-                dealshub_user_obj = DealsHubUser.objects.get(username = b2b_user_obj.username)
+                dealshub_user_obj = DealsHubUser.objects.get(
+                    username=b2b_user_obj.username)
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
-                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
-                    WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
-                    FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    Cart.objects.create(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
+                    WishList.objects.create(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
+                    FastCart.objects.create(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
 
                 conf = json.loads(b2b_user_obj.conf)
-                conf["isVerifiedShown"] =False
+                conf["isVerifiedShown"] = False
                 b2b_user_obj.conf = json.dumps(conf)
 
                 b2b_user_obj.is_signup_completed = True
@@ -4420,8 +4820,9 @@ class SignUpCompletionAPI(APIView):
                 "password": otp
             }
 
-            if is_new_user_created == True:            
-                r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+            if is_new_user_created == True:
+                r = requests.post(url=SERVER_IP+"/token-auth/",
+                                  data=credentials, verify=False)
                 token = json.loads(r.content)["token"]
                 response["token"] = token
 
@@ -4429,9 +4830,10 @@ class SignUpCompletionAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SignUpCompletionAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
-        return Response(data=response) 
+        return Response(data=response)
 
 
 class SendOTPSMSLoginAPI(APIView):
@@ -4447,15 +4849,15 @@ class SendOTPSMSLoginAPI(APIView):
             logger.info("SendOTPSMSLoginAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             contact_number = data["contactNumber"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
             sms_country_info = json.loads(location_group_obj.sms_country_info)
-
 
             digits = "0123456789"
             OTP = ""
@@ -4466,20 +4868,25 @@ class SendOTPSMSLoginAPI(APIView):
                 OTP = "777777"
 
             is_new_user = False
-            if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
-                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
+            if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists() == False:
+                dealshub_user_obj = DealsHubUser.objects.create(
+                    username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
                 dealshub_user_obj.set_password(OTP)
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
                 is_new_user = True
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
-                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj, offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
-                    WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
-                    FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj,
+                                        offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
+                    WishList.objects.create(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
+                    FastCart.objects.create(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
 
             else:
-                dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
+                dealshub_user_obj = DealsHubUser.objects.get(
+                    username=contact_number+"-"+website_group_name)
                 dealshub_user_obj.set_password(OTP)
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
@@ -4498,23 +4905,25 @@ class SendOTPSMSLoginAPI(APIView):
 
                     url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
                     req_data = {
-                        "user" : user,
+                        "user": user,
                         "passwd": pwd,
                         "message": message,
                         "mobilenumber": contact_number,
-                        "mtype":"N",
-                        "DR":"Y",
+                        "mtype": "N",
+                        "DR": "Y",
                         "sid": sender_id
                     }
                     r = requests.post(url=url, data=req_data)
-                elif location_group_obj.website_group.name.lower()=="kryptonworld":
+                elif location_group_obj.website_group.name.lower() == "kryptonworld":
                     contact_number = "971"+contact_number
-                    url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
+                    url = "https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text=" + \
+                        message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
                     r = requests.get(url)
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SendOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("SendOTPSMSLoginAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
             if website_group_name not in ["shopnesto"]:
                 response["isNewUser"] = is_new_user
@@ -4522,7 +4931,8 @@ class SendOTPSMSLoginAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SendOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SendOTPSMSLoginAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4540,37 +4950,44 @@ class CheckUserPinSetAPI(APIView):
             logger.info("CheckUserPinSetAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             contact_number = data["contactNumber"]
             location_group_uuid = data["locationGroupUuid"]
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
             is_new_user = False
             dealshub_user_obj = None
-            if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists()==False:
-                dealshub_user_obj = DealsHubUser.objects.create(username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
+            if DealsHubUser.objects.filter(username=contact_number+"-"+website_group_name).exists() == False:
+                dealshub_user_obj = DealsHubUser.objects.create(
+                    username=contact_number+"-"+website_group_name, contact_number=contact_number, website_group=website_group_obj)
                 dealshub_user_obj.set_password("97631")
                 dealshub_user_obj.verification_code = "97631"
                 dealshub_user_obj.save()
                 is_new_user = True
 
                 for location_group_obj in LocationGroup.objects.filter(website_group=website_group_obj):
-                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj, offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
-                    WishList.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
-                    FastCart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj)
+                    Cart.objects.create(owner=dealshub_user_obj, location_group=location_group_obj,
+                                        offline_cod_charge=location_group_obj.cod_charge, offline_delivery_fee=location_group_obj.delivery_fee)
+                    WishList.objects.create(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
+                    FastCart.objects.create(
+                        owner=dealshub_user_obj, location_group=location_group_obj)
             else:
-                dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
-            
+                dealshub_user_obj = DealsHubUser.objects.get(
+                    username=contact_number+"-"+website_group_name)
+
             response["is_pin_set"] = dealshub_user_obj.is_pin_set
             response["is_new_user"] = is_new_user
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CheckUserPinSetAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CheckUserPinSetAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4588,23 +5005,25 @@ class SetLoginPinAPI(APIView):
             logger.info("SetLoginPinAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             contact_number = data["contactNumber"]
             location_group_uuid = data["locationGroupUuid"]
             pin = data["pin"]
 
-            if len(pin)!=4:
+            if len(pin) != 4:
                 response["status"] = 403
                 logger.warning("SetLoginPinAPI: Pin must be 4 digit long")
                 return Response(data=response)
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
-            
+
             verified = False
-            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
-            if dealshub_user_obj.is_pin_set==False:
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=contact_number+"-"+website_group_name)
+            if dealshub_user_obj.is_pin_set == False:
                 dealshub_user_obj.set_password(pin)
                 dealshub_user_obj.verification_code = pin
                 dealshub_user_obj.is_pin_set = True
@@ -4614,8 +5033,9 @@ class SetLoginPinAPI(APIView):
                     "username": contact_number+"-"+website_group_name,
                     "password": pin
                 }
-                if dealshub_user_obj.verification_code==pin:
-                    r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+                if dealshub_user_obj.verification_code == pin:
+                    r = requests.post(url=SERVER_IP+"/token-auth/",
+                                      data=credentials, verify=False)
                     token = json.loads(r.content)["token"]
                     response["token"] = token
                     dealshub_user_obj.contact_verified = True
@@ -4649,29 +5069,32 @@ class VerifyLoginPinAPI(APIView):
             logger.info("VerifyLoginPinAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             contact_number = data["contactNumber"]
             location_group_uuid = data["locationGroupUuid"]
             pin = data["pin"]
 
-            if len(pin)!=4:
+            if len(pin) != 4:
                 response["status"] = 403
                 logger.warning("VerifyLoginPinAPI: Pin must be 4 digit long")
                 return Response(data=response)
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
-            
+
             verified = False
-            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
-            if dealshub_user_obj.is_pin_set==True:
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=contact_number+"-"+website_group_name)
+            if dealshub_user_obj.is_pin_set == True:
                 credentials = {
                     "username": contact_number+"-"+website_group_name,
                     "password": pin
                 }
-                if dealshub_user_obj.verification_code==pin:
-                    r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+                if dealshub_user_obj.verification_code == pin:
+                    r = requests.post(url=SERVER_IP+"/token-auth/",
+                                      data=credentials, verify=False)
                     token = json.loads(r.content)["token"]
                     response["token"] = token
                     dealshub_user_obj.contact_verified = True
@@ -4701,11 +5124,12 @@ class ForgotLoginPinAPI(APIView):
             logger.info("ForgotLoginPinAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             contact_number = data["contactNumber"]
             location_group_uuid = data["locationGroupUuid"]
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
@@ -4719,7 +5143,8 @@ class ForgotLoginPinAPI(APIView):
 
             message = "Your PIN has been reset. New PIN is " + pin
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=contact_number+"-"+website_group_name)
             dealshub_user_obj.set_password(pin)
             dealshub_user_obj.verification_code = pin
             dealshub_user_obj.save()
@@ -4732,22 +5157,27 @@ class ForgotLoginPinAPI(APIView):
                 user = mshastra_info["user"]
                 pwd = mshastra_info["pwd"]
                 contact_number = prefix_code+contact_number
-                url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
+                url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid=" + \
+                    sender_id+"&mobileno="+contact_number+"&msgtext=" + \
+                    message+"&priority=High&CountryCode=ALL"
                 r = requests.get(url)
-            elif location_group_obj.website_group.name.lower()=="parajohn":
+            elif location_group_obj.website_group.name.lower() == "parajohn":
                 contact_number = "971"+contact_number
-                url = "https://retail.atech.alarislabs.com/rest/send_sms?from=PARA JOHN&to="+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
+                url = "https://retail.atech.alarislabs.com/rest/send_sms?from=PARA JOHN&to=" + \
+                    contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
                 r = requests.get(url)
-            elif location_group_obj.website_group.name.lower()=="kryptonworld":
+            elif location_group_obj.website_group.name.lower() == "kryptonworld":
                 contact_number = "971"+contact_number
-                url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
+                url = "https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text=" + \
+                    message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
                 r = requests.get(url)
 
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("ForgotLoginPinAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("ForgotLoginPinAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4756,33 +5186,36 @@ class VerifyB2BOTPSMSAPI(APIView):
 
     permission_classes = [AllowAny]
 
-    def post(self,request,*args,**kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
 
         try:
             data = request.data
-            logger.info("VerifyB2BOTPSMSAPI: %s",str(data))
-            if not isinstance(data,dict):
+            logger.info("VerifyB2BOTPSMSAPI: %s", str(data))
+            if not isinstance(data, dict):
                 data = json.loads(data)
 
             contact_number = data['contactNumber']
             otp = data["otp"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
-            b2b_user_obj = B2BUser.objects.get(username = contact_number+"-"+website_group_name)
+            b2b_user_obj = B2BUser.objects.get(
+                username=contact_number+"-"+website_group_name)
 
             credentials = {
-                "username":contact_number+"-"+website_group_name,
-                "password":otp
+                "username": contact_number+"-"+website_group_name,
+                "password": otp
             }
 
             is_verified = False
-            if b2b_user_obj.verification_code==otp:
-                r = requests.post(url = SERVER_IP+"/token-auth/",data=credentials,verify=False)
+            if b2b_user_obj.verification_code == otp:
+                r = requests.post(url=SERVER_IP+"/token-auth/",
+                                  data=credentials, verify=False)
                 token = json.loads(r.content)["token"]
                 if b2b_user_obj.contact_verified == True:
                     response["token"] = token
@@ -4791,11 +5224,12 @@ class VerifyB2BOTPSMSAPI(APIView):
                 is_verified = True
                 b2b_user_obj.save()
 
-            response["verified"]=is_verified
-            response["status"]=200
+            response["verified"] = is_verified
+            response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("VerifyB2BOTPSMSAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("VerifyB2BOTPSMSAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4813,26 +5247,29 @@ class VerifyOTPSMSLoginAPI(APIView):
             logger.info("VerifyOTPSMSLoginAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             contact_number = data["contactNumber"]
             otp = data["otp"]
             location_group_uuid = data["locationGroupUuid"].lower()
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
             sms_country_info = json.loads(location_group_obj.sms_country_info)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
-            
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=contact_number+"-"+website_group_name)
+
             credentials = {
                 "username": contact_number+"-"+website_group_name,
                 "password": otp
             }
 
             verified = False
-            if dealshub_user_obj.verification_code==otp:
-                r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+            if dealshub_user_obj.verification_code == otp:
+                r = requests.post(url=SERVER_IP+"/token-auth/",
+                                  data=credentials, verify=False)
                 token = json.loads(r.content)["token"]
                 response["token"] = token
                 response["message"] = "Login Successful!"
@@ -4846,7 +5283,7 @@ class VerifyOTPSMSLoginAPI(APIView):
                 response["message"] = "Invalid OTP!"
                 if otp_attempts >= 5:
                     response["message"] = "Too many attempts! New OTP Sent"
-                    otp_attempts = otp_attempts%5
+                    otp_attempts = otp_attempts % 5
 
                     digits = "0123456789"
                     OTP = ""
@@ -4874,23 +5311,25 @@ class VerifyOTPSMSLoginAPI(APIView):
 
                             url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
                             req_data = {
-                                "user" : user,
+                                "user": user,
                                 "passwd": pwd,
                                 "message": message,
                                 "mobilenumber": contact_number,
-                                "mtype":"N",
-                                "DR":"Y",
+                                "mtype": "N",
+                                "DR": "Y",
                                 "sid": sender_id
                             }
                             r = requests.post(url=url, data=req_data)
-                        elif location_group_obj.website_group.name.lower()=="kryptonworld":
+                        elif location_group_obj.website_group.name.lower() == "kryptonworld":
                             contact_number = "971"+contact_number
-                            url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
+                            url = "https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text=" + \
+                                message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
                             r = requests.get(url)
 
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("VerifyOTPSMSLogin: %s at %s", e, str(exc_tb.tb_lineno))
+                        logger.error("VerifyOTPSMSLogin: %s at %s",
+                                     e, str(exc_tb.tb_lineno))
 
                 dealshub_user_obj.otp_attempts = otp_attempts
                 dealshub_user_obj.save()
@@ -4900,7 +5339,8 @@ class VerifyOTPSMSLoginAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("VerifyOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("VerifyOTPSMSLoginAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4916,11 +5356,12 @@ class UpdateUserEmailAPI(APIView):
             logger.info("UpdateUserEmailAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             email_id = data["emailId"].strip()
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
+
             dealshub_user_obj.email = email_id
             dealshub_user_obj.email_verified = True
             dealshub_user_obj.save()
@@ -4929,7 +5370,8 @@ class UpdateUserEmailAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateUserEmailAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -4950,21 +5392,25 @@ class AddReviewAPI(APIView):
             subject = str(review_content["subject"])
             content = str(review_content["content"])
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_code)
+            dealshub_product_obj = DealsHubProduct.objects.get(
+                uuid=product_code)
 
-            #if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
-            review_obj, created = Review.objects.get_or_create(dealshub_user=dealshub_user_obj, product=dealshub_product_obj)
+            # if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
+            review_obj, created = Review.objects.get_or_create(
+                dealshub_user=dealshub_user_obj, product=dealshub_product_obj)
             review_obj.rating = rating
             review_content_obj = review_obj.content
             if review_content_obj is None:
-                review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+                review_content_obj = ReviewContent.objects.create(
+                    subject=subject, content=content)
             else:
                 review_content_obj.subject = subject
                 review_content_obj.content = content
                 review_content_obj.save()
-            
+
             image_count = int(data.get("image_count", 0))
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
@@ -4987,7 +5433,7 @@ class AddReviewAPI(APIView):
 
 
 class AddFakeReviewAdminAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -4996,11 +5442,11 @@ class AddFakeReviewAdminAPI(APIView):
 
             data = request.data
             logger.info("AddFakeReviewAdminAPI: %s", str(data))
-            
+
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("AddFakeReviewAdminAPI Restricted Access!")
                 return Response(data=response)
@@ -5012,16 +5458,19 @@ class AddFakeReviewAdminAPI(APIView):
 
             subject = str(review_content["subject"])
             content = str(review_content["content"])
-            
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_code)
 
-            review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+            dealshub_product_obj = DealsHubProduct.objects.get(
+                uuid=product_code)
+
+            review_content_obj = ReviewContent.objects.create(
+                subject=subject, content=content)
             image_count = int(data.get("image_count", 0))
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
                 review_content_obj.images.add(image_obj)
-            
-            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+
+            omnycomm_user_obj = OmnyCommUser.objects.get(
+                username=request.user.username)
 
             review_obj = Review.objects.create(is_fake=True,
                                                product=dealshub_product_obj,
@@ -5029,15 +5478,16 @@ class AddFakeReviewAdminAPI(APIView):
                                                content=review_content_obj,
                                                fake_customer_name=fake_customer_name,
                                                fake_oc_user=omnycomm_user_obj)
-            
+
             response["uuid"] = review_obj.uuid
             response["review_content_uuid"] = review_content_obj.uuid
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddFakeReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("AddFakeReviewAdminAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -5047,56 +5497,68 @@ class BulkUploadFakeReviewAdminAPI(APIView):
 
         response = {}
         response['status'] = 500
-        
+
         try:
-            
+
             data = request.data
             logger.info("BulkUploadFakeReviewAdminAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("BulkUploadFakeReviewAdminAPI Restricted Access!")
+                logger.warning(
+                    "BulkUploadFakeReviewAdminAPI Restricted Access!")
                 return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
 
-            path = default_storage.save('tmp/bulk-upload-review.xlsx', data["import_file"])
+            path = default_storage.save(
+                'tmp/bulk-upload-review.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
 
-            if OCReport.objects.filter(is_processed=False).count()>6:
+            if OCReport.objects.filter(is_processed=False).count() > 6:
                 response["approved"] = False
                 response['status'] = 200
                 return Response(data=response)
 
             report_type = "bulk upload product"
             report_title = "bulk upload fake review"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
-            oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-            note = "report for the bulk upload of the fake review" 
-            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            filename = "files/reports/" + \
+                str(datetime.datetime.now().strftime(
+                    "%d%m%Y%H%M_"))+report_type+".xlsx"
+            oc_user_obj = OmnyCommUser.objects.get(
+                username=request.user.username)
+            note = "report for the bulk upload of the fake review"
+            custom_permission_obj = CustomPermission.objects.get(
+                user=request.user)
             organization_obj = custom_permission_obj.organization
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj,
+                                                    note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
 
-            p1 =  threading.Thread(target=bulk_upload_fake_review , args=(oc_report_obj.uuid, path, filename, location_group_obj, oc_user_obj))
+            p1 = threading.Thread(target=bulk_upload_fake_review, args=(
+                oc_report_obj.uuid, path, filename, location_group_obj, oc_user_obj))
             p1.start()
-            render_value = 'Bulk update fake reviews with report {} is created'.format(oc_report_obj.name)
-            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
+            render_value = 'Bulk update fake reviews with report {} is created'.format(
+                oc_report_obj.name)
+            activitylog(user=request.user, table_name=OCReport, action_type='created', location_group_obj=location_group_obj,
+                        prev_instance=None, current_instance=oc_report_obj, table_item_pk=oc_report_obj.uuid, render=render_value)
 
             response['status'] = 200
             response['approved'] = True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("BulkUploadFakeReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("BulkUploadFakeReviewAdminAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
-#API with active log
+# API with active log
 class UpdateReviewAdminAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5106,18 +5568,18 @@ class UpdateReviewAdminAPI(APIView):
 
         try:
             data = request.data
-            logger.info("UpdateReviewAdminAPI: %s",str(data))
+            logger.info("UpdateReviewAdminAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("UpdateReviewAdminAPI Restricted Access!")
                 return Response(data=response)
 
             review_uuid = str(data["review_uuid"])
-            fake_customer_name = data.get("customerName","")
+            fake_customer_name = data.get("customerName", "")
             rating = int(data["rating"])
             review_content = json.loads(data["review_content"])
             created_date = str(data["created_at"])+"T00:00:00+04:00"
@@ -5125,23 +5587,24 @@ class UpdateReviewAdminAPI(APIView):
 
             subject = str(review_content["subject"])
             content = str(review_content["content"])
-            
+
             review_obj = Review.objects.get(uuid=review_uuid)
             prev_review_obj = deepcopy(review_obj)
             review_obj.rating = rating
-            if review_obj.is_fake==True:
+            if review_obj.is_fake == True:
                 review_obj.fake_customer_name = fake_customer_name
-            
+
             review_content_obj = review_obj.content
             if review_content_obj is None:
-                review_content_obj = ReviewContent.objects.create(subject=subject, content=content)
+                review_content_obj = ReviewContent.objects.create(
+                    subject=subject, content=content)
                 prev_review_content_obj = None
             else:
                 prev_review_content_obj = deepcopy(review_content_obj)
                 review_content_obj.subject = subject
                 review_content_obj.content = content
                 review_content_obj.save()
-            
+
             image_url_list = []
             image_count = int(data.get("image_count", 0))
             for i in range(image_count):
@@ -5156,21 +5619,26 @@ class UpdateReviewAdminAPI(APIView):
             review_obj.content = review_content_obj
             review_obj.created_date = created_date
             review_obj.save()
-            
+
             response['image_url_list'] = image_url_list
             response['review_uuid'] = review_obj.uuid
             response['review_content_uuid'] = review_content_obj.uuid
 
-            render_value_1 = "Review of product " + review_obj.product.product_name + " updated"
-            activitylog(request.user, Review, "updated", review_obj.uuid, prev_review_obj, review_obj, review_obj.product.location_group, render_value_1)
-            render_value_2 = "Review Content of product " + review_obj.product.product_name + " updated"
-            activitylog(request.user, ReviewContent, "updated", review_content_obj.uuid, prev_review_content_obj, review_content_obj, review_obj.product.location_group, render_value_2)
+            render_value_1 = "Review of product " + \
+                review_obj.product.product_name + " updated"
+            activitylog(request.user, Review, "updated", review_obj.uuid, prev_review_obj,
+                        review_obj, review_obj.product.location_group, render_value_1)
+            render_value_2 = "Review Content of product " + \
+                review_obj.product.product_name + " updated"
+            activitylog(request.user, ReviewContent, "updated", review_content_obj.uuid,
+                        prev_review_content_obj, review_content_obj, review_obj.product.location_group, render_value_2)
 
             response['status'] = 200
-            
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateReviewAdminAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -5187,12 +5655,15 @@ class AddRatingAPI(APIView):
             product_code = str(data["product_code"])
             rating = int(data["rating"])
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_code)
+            dealshub_product_obj = DealsHubProduct.objects.get(
+                uuid=product_code)
 
             if UnitOrder.objects.filter(product=dealshub_product_obj, order__owner=dealshub_user_obj).exists():
-                review_obj = Review.objects.create(dealshub_user=dealshub_user_obj, product=dealshub_product_obj, rating=rating)
+                review_obj = Review.objects.create(
+                    dealshub_user=dealshub_user_obj, product=dealshub_product_obj, rating=rating)
                 response["uuid"] = review_obj.uuid
                 response["status"] = 200
             else:
@@ -5201,7 +5672,7 @@ class AddRatingAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("AddRatingAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+
         return Response(data=response)
 
 
@@ -5218,7 +5689,8 @@ class UpdateRatingAPI(APIView):
             rating = int(data["rating"])
 
             review_obj = Review.objects.get(uuid=uuid)
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             if review_obj.dealshub_user == dealshub_user_obj:
                 review_obj.rating = rating
@@ -5233,9 +5705,11 @@ class UpdateRatingAPI(APIView):
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class AddAdminCommentAPI(APIView):
-    
+
     def post(self, request, *arg, **kwargs):
 
         response = {}
@@ -5244,7 +5718,7 @@ class AddAdminCommentAPI(APIView):
             data = request.data
             logger.info("AddAdminCommentAPI: %s", str(data))
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("AddAdminCommentAPI Restricted Access!")
                 return Response(data=response)
@@ -5254,51 +5728,62 @@ class AddAdminCommentAPI(APIView):
 
             review_obj = Review.objects.get(uuid=uuid)
 
-            omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+            omnycomm_user_obj = OmnyCommUser.objects.get(
+                username=request.user.username)
 
-            if review_obj.content==None:
+            if review_obj.content == None:
                 response["status"] = 403
                 return Response(data=response)
 
-            if comment.strip()=="":
-                review_content_obj = review_obj.content 
+            if comment.strip() == "":
+                review_content_obj = review_obj.content
                 prev_review_content_obj = deepcopy(review_content_obj)
                 review_content_obj.admin_comment = None
                 review_content_obj.save()
-                render_value = "Admin comment for product " + review_obj.product.product_name +" deleted"
-                activitylog(user=omnycomm_user_obj,table_name=ReviewContent,action_type='deleted',location_group_obj=review_obj.product.location_group, prev_instance=prev_review_content_obj,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render=render_value)
+                render_value = "Admin comment for product " + \
+                    review_obj.product.product_name + " deleted"
+                activitylog(user=omnycomm_user_obj, table_name=ReviewContent, action_type='deleted', location_group_obj=review_obj.product.location_group,
+                            prev_instance=prev_review_content_obj, current_instance=review_content_obj, table_item_pk=review_content_obj.pk, render=render_value)
                 response["status"] = 200
                 return Response(data=response)
-            
+
             admin_comment_obj = None
-            if review_obj.content.admin_comment!=None:
+            if review_obj.content.admin_comment != None:
                 admin_comment_obj = review_obj.content.admin_comment
                 prev_admin_comment_obj = deepcopy(admin_comment_obj)
                 admin_comment_obj.comment = comment
                 admin_comment_obj.user = omnycomm_user_obj
                 admin_comment_obj.save()
-                render_value = "Admin comment for product " + review_obj.product.product_name +" updated"
-                activitylog(user=omnycomm_user_obj,table_name=AdminReviewComment,action_type='updated',location_group_obj=review_obj.product.location_group,prev_instance=prev_admin_comment_obj,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render=render_value)
+                render_value = "Admin comment for product " + \
+                    review_obj.product.product_name + " updated"
+                activitylog(user=omnycomm_user_obj, table_name=AdminReviewComment, action_type='updated', location_group_obj=review_obj.product.location_group,
+                            prev_instance=prev_admin_comment_obj, current_instance=admin_comment_obj, table_item_pk=admin_comment_obj.pk, render=render_value)
             else:
-                admin_comment_obj = AdminReviewComment.objects.create(user=omnycomm_user_obj, comment=comment)
-                render_value = "Admin comment for product " + review_obj.product.product_name +" created"
-                activitylog(user=omnycomm_user_obj,table_name=AdminReviewComment,action_type='created',location_group_obj=review_obj.product.location_group,prev_instance=None,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render=render_value)
+                admin_comment_obj = AdminReviewComment.objects.create(
+                    user=omnycomm_user_obj, comment=comment)
+                render_value = "Admin comment for product " + \
+                    review_obj.product.product_name + " created"
+                activitylog(user=omnycomm_user_obj, table_name=AdminReviewComment, action_type='created', location_group_obj=review_obj.product.location_group,
+                            prev_instance=None, current_instance=admin_comment_obj, table_item_pk=admin_comment_obj.pk, render=render_value)
                 review_content_obj = review_obj.content
                 review_content_obj.admin_comment = admin_comment_obj
-                review_content_obj.save()    
+                review_content_obj.save()
 
             response["admin_comment_uuid"] = admin_comment_obj.uuid
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddAdminCommentAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddAdminCommentAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class UpdateAdminCommentAPI(APIView):
-    
+
     def post(self, request, *arg, **kwargs):
 
         response = {}
@@ -5307,7 +5792,7 @@ class UpdateAdminCommentAPI(APIView):
             data = request.data
             logger.info("UpdateAdminCommentAPI: %s", str(data))
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("UpdateAdminCommentAPI Restricted Access!")
                 return Response(data=response)
@@ -5320,13 +5805,16 @@ class UpdateAdminCommentAPI(APIView):
             admin_comment_obj.comment = comment
             admin_comment_obj.save()
             review_obj = Review.objects.get(content__admin_comment__uuid=uuid)
-            render_value = "Admin review comment for product " + review_obj.product.product_name +" updated"
-            activitylog(user=request.user,table_name=AdminReviewComment,action_type='updated',location_group_obj=review_obj.product.location_group,prev_instance=prev_admin_comment_obj,current_instance=admin_comment_obj,table_item_pk=admin_comment_obj.pk,render=render_value)
+            render_value = "Admin review comment for product " + \
+                review_obj.product.product_name + " updated"
+            activitylog(user=request.user, table_name=AdminReviewComment, action_type='updated', location_group_obj=review_obj.product.location_group,
+                        prev_instance=prev_admin_comment_obj, current_instance=admin_comment_obj, table_item_pk=admin_comment_obj.pk, render=render_value)
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateAdminCommentAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateAdminCommentAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -5343,7 +5831,8 @@ class AddUpvoteAPI(APIView):
             uuid = str(data["review_content_uuid"])
 
             review_content_obj = ReviewContent.objects.get(uuid=uuid)
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
             review_obj = Review.objects.get(content=review_content_obj)
 
             if review_obj.dealshub_user != dealshub_user_obj:
@@ -5372,7 +5861,8 @@ class DeleteUpvoteAPI(APIView):
             uuid = str(data["review_content_uuid"])
 
             review_content_obj = ReviewContent.objects.get(uuid=uuid)
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
             review_obj = Review.objects.get(content=review_content_obj)
 
             if review_obj.dealshub_user != dealshub_user_obj:
@@ -5387,7 +5877,7 @@ class DeleteUpvoteAPI(APIView):
             logger.error("DeleteUpvoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-    
+
 
 class FetchReviewAPI(APIView):
 
@@ -5401,7 +5891,8 @@ class FetchReviewAPI(APIView):
             uuid = str(data["uuid"])
 
             review_obj = Review.objects.get(uuid=uuid)
-            response["username"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.username)
+            response["username"] = str(
+                review_obj.fake_customer_name if review_obj.is_fake == True else review_obj.dealshub_user.username)
             response["product_code"] = str(review_obj.product.uuid)
             response["rating"] = str(review_obj.rating)
 
@@ -5409,18 +5900,18 @@ class FetchReviewAPI(APIView):
             admin_comment_obj = review_content_obj.admin_comment
 
             admin_comment = {
-                "username" : str(admin_comment_obj.username),
-                "display_name" : str(admin_comment_obj.user.first_name+" "+ admin_comment_obj.user.last_name),
-                "comment" : str(admin_comment_obj.comment),
-                "created_date" : str(admin_comment_obj.created_date),
-                "modified_date" : str(admin_comment_obj.modified_date)
+                "username": str(admin_comment_obj.username),
+                "display_name": str(admin_comment_obj.user.first_name+" " + admin_comment_obj.user.last_name),
+                "comment": str(admin_comment_obj.comment),
+                "created_date": str(admin_comment_obj.created_date),
+                "modified_date": str(admin_comment_obj.modified_date)
             }
 
             review_content = {
-                "subject" : str(review_content_obj.subject),
-                "content" : str(review_content_obj.content),
-                "upvotes_count" : str(review_content_obj.upvoted_users.all().count()),
-                "admin_comment" : admin_comment
+                "subject": str(review_content_obj.subject),
+                "content": str(review_content_obj.content),
+                "upvotes_count": str(review_content_obj.upvoted_users.all().count()),
+                "admin_comment": admin_comment
             }
 
             response["is_published"] = review_obj.is_published
@@ -5450,79 +5941,85 @@ class FetchReviewsAdminAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("FetchReviewsAdminAPI Restricted Access!")
                 return Response(data=response)
 
-            product_code = data.get("product_code","")
-            from_date = data.get("from_date","")
-            to_date = data.get("to_date","")
-            category_uuid = data.get("category_uuid","")
+            product_code = data.get("product_code", "")
+            from_date = data.get("from_date", "")
+            to_date = data.get("to_date", "")
+            category_uuid = data.get("category_uuid", "")
             is_fake = data.get("is_fake", None)
 
             location_group_uuid = data["locationGroupUuid"]
-            page = int(data.get("page",1))
+            page = int(data.get("page", 1))
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            review_objs = Review.objects.filter(product__location_group=location_group_obj).order_by('-modified_date')
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
+            review_objs = Review.objects.filter(
+                product__location_group=location_group_obj).order_by('-modified_date')
 
-            if product_code!="":
+            if product_code != "":
                 dh_product_obj = DealsHubProduct.objects.get(uuid=product_code)
                 review_objs = review_objs.filter(product=dh_product_obj)
 
-            if from_date!="":
+            if from_date != "":
                 from_date = from_date[:10]+"T00:00:00+04:00"
                 review_objs = review_objs.filter(created_date__gte=from_date)
 
-            if to_date!="":
+            if to_date != "":
                 to_date = to_date[:10]+"T23:59:59+04:00"
                 review_objs = review_objs.filter(created_date__lte=to_date)
-            
-            if category_uuid!="":
-                category_obj = Category.objects.get(uuid=category_uuid)
-                review_objs = review_objs.filter(product__category=category_obj)
 
-            if is_fake!=None:
+            if category_uuid != "":
+                category_obj = Category.objects.get(uuid=category_uuid)
+                review_objs = review_objs.filter(
+                    product__category=category_obj)
+
+            if is_fake != None:
                 review_objs = review_objs.filter(is_fake=is_fake)
-            
+
             total_reviews = review_objs.count()
 
-            paginator  = Paginator(review_objs,20)
+            paginator = Paginator(review_objs, 20)
             total_pages = int(paginator.num_pages)
 
             if page > total_pages:
                 response['status'] = 404
                 response['message'] = "Page number out of range"
-                logger.warning("FetchReviewsAdminAPI : Page number out of range")
+                logger.warning(
+                    "FetchReviewsAdminAPI : Page number out of range")
                 return Response(data=response)
 
             review_objs = paginator.page(page)
 
             review_list = []
             for review_obj in review_objs:
-                temp_dict= {}
-                temp_dict["username"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.username)
-                temp_dict["display_name"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.first_name)
+                temp_dict = {}
+                temp_dict["username"] = str(
+                    review_obj.fake_customer_name if review_obj.is_fake == True else review_obj.dealshub_user.username)
+                temp_dict["display_name"] = str(
+                    review_obj.fake_customer_name if review_obj.is_fake == True else review_obj.dealshub_user.first_name)
                 temp_dict["rating"] = str(review_obj.rating)
                 temp_dict["is_fake"] = review_obj.is_fake
                 temp_dict["is_published"] = review_obj.is_published
-                if review_obj.is_fake and review_obj.fake_oc_user!=None:
+                if review_obj.is_fake and review_obj.fake_oc_user != None:
                     temp_dict["fake_oc_user"] = review_obj.fake_oc_user.first_name
 
-                review_content_obj = review_obj.content   
+                review_content_obj = review_obj.content
 
                 admin_comment_obj = None
-                if review_content_obj!=None:
+                if review_content_obj != None:
                     admin_comment_obj = review_content_obj.admin_comment
                 admin_comment = None
                 if admin_comment_obj is not None:
                     admin_comment = {
-                        "username" : str(admin_comment_obj.user.username),
-                        "display_name" : str(admin_comment_obj.user.first_name+" "+admin_comment_obj.user.last_name),
-                        "comment" : str(admin_comment_obj.comment),
-                        "created_date" : str(timezone.localtime(admin_comment_obj.created_date).strftime("%d %b, %Y")),
-                        "modified_date" : str(timezone.localtime(admin_comment_obj.modified_date).strftime("%d %b, %Y"))
+                        "username": str(admin_comment_obj.user.username),
+                        "display_name": str(admin_comment_obj.user.first_name+" "+admin_comment_obj.user.last_name),
+                        "comment": str(admin_comment_obj.comment),
+                        "created_date": str(timezone.localtime(admin_comment_obj.created_date).strftime("%d %b, %Y")),
+                        "modified_date": str(timezone.localtime(admin_comment_obj.modified_date).strftime("%d %b, %Y"))
                     }
 
                 review_content = None
@@ -5531,31 +6028,34 @@ class FetchReviewsAdminAPI(APIView):
                     image_url_list = []
                     for image_obj in image_objs:
                         try:
-                            if image_obj.mid_image!=None:
+                            if image_obj.mid_image != None:
                                 temp_dict2 = {}
                                 temp_dict2["url"] = image_obj.mid_image.url
                                 temp_dict2["uuid"] = image_obj.pk
                                 image_url_list.append(temp_dict2)
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
-                            logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                            logger.warning(
+                                "FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     review_content = {
-                        "subject" : str(review_content_obj.subject),
-                        "content" : str(review_content_obj.content),
-                        "upvotes_count" : str(review_content_obj.upvoted_users.count()),
-                        "admin_comment" : admin_comment,
+                        "subject": str(review_content_obj.subject),
+                        "content": str(review_content_obj.content),
+                        "upvotes_count": str(review_content_obj.upvoted_users.count()),
+                        "admin_comment": admin_comment,
                         "image_url_list": image_url_list
                     }
                 product_details = {
-                    "name" : review_obj.product.product_name,
-                    "image_url" : review_obj.product.get_display_image_url(),
-                    "seller_sku" : review_obj.product.get_seller_sku()
+                    "name": review_obj.product.product_name,
+                    "image_url": review_obj.product.get_display_image_url(),
+                    "seller_sku": review_obj.product.get_seller_sku()
                 }
 
-                temp_dict["product_details"] =  product_details
+                temp_dict["product_details"] = product_details
                 temp_dict["review_content"] = review_content
-                temp_dict["created_date"] = str(timezone.localtime(review_obj.created_date).strftime("%d %b, %Y"))
-                temp_dict["modified_date"] = str(timezone.localtime(review_obj.modified_date).strftime("%d %b, %Y"))
+                temp_dict["created_date"] = str(timezone.localtime(
+                    review_obj.created_date).strftime("%d %b, %Y"))
+                temp_dict["modified_date"] = str(timezone.localtime(
+                    review_obj.modified_date).strftime("%d %b, %Y"))
                 temp_dict["review_uuid"] = str(review_obj.uuid)
                 review_list.append(temp_dict)
 
@@ -5572,7 +6072,8 @@ class FetchReviewsAdminAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchReviewsAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchReviewsAdminAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -5580,7 +6081,7 @@ class FetchReviewsAdminAPI(APIView):
 class FetchProductReviewsAPI(APIView):
 
     permission_classes = [AllowAny]
-    
+
     def post(self, request, *arg, **kwargs):
 
         response = {}
@@ -5592,32 +6093,35 @@ class FetchProductReviewsAPI(APIView):
             product_code = str(data["product_code"])
 
             product_reviews = []
-            review_objs = Review.objects.filter(product__uuid=product_code).exclude(is_published=False)
+            review_objs = Review.objects.filter(
+                product__uuid=product_code).exclude(is_published=False)
             total_reviews = review_objs.count()
 
             total_rating = 0
             for review_obj in review_objs:
                 temp_dict = {}
 
-                temp_dict["username"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.username)
-                temp_dict["display_name"] = str(review_obj.fake_customer_name if review_obj.is_fake==True else review_obj.dealshub_user.first_name)
+                temp_dict["username"] = str(
+                    review_obj.fake_customer_name if review_obj.is_fake == True else review_obj.dealshub_user.username)
+                temp_dict["display_name"] = str(
+                    review_obj.fake_customer_name if review_obj.is_fake == True else review_obj.dealshub_user.first_name)
                 temp_dict["rating"] = str(review_obj.rating)
-  
+
                 total_rating += int(review_obj.rating)
 
                 review_content_obj = review_obj.content
 
                 admin_comment_obj = None
-                if review_content_obj!=None:
+                if review_content_obj != None:
                     admin_comment_obj = review_content_obj.admin_comment
                 admin_comment = None
                 if admin_comment_obj is not None:
                     admin_comment = {
-                        "username" : str(admin_comment_obj.user.username),
-                        "display_name" : str(admin_comment_obj.user.first_name+" "+admin_comment_obj.user.last_name),
-                        "comment" : str(admin_comment_obj.comment),
-                        "created_date" : str(timezone.localtime(admin_comment_obj.created_date).strftime("%d %b, %Y")),
-                        "modified_date" : str(timezone.localtime(admin_comment_obj.modified_date).strftime("%d %b, %Y"))
+                        "username": str(admin_comment_obj.user.username),
+                        "display_name": str(admin_comment_obj.user.first_name+" "+admin_comment_obj.user.last_name),
+                        "comment": str(admin_comment_obj.comment),
+                        "created_date": str(timezone.localtime(admin_comment_obj.created_date).strftime("%d %b, %Y")),
+                        "modified_date": str(timezone.localtime(admin_comment_obj.modified_date).strftime("%d %b, %Y"))
                     }
 
                 review_content = None
@@ -5629,35 +6133,40 @@ class FetchProductReviewsAPI(APIView):
                             image_url_list.append(image_obj.mid_image.url)
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
-                            logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                            logger.warning(
+                                "FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                     review_content = {
-                        "subject" : str(review_content_obj.subject),
-                        "content" : str(review_content_obj.content),
-                        "upvotes_count" : str(review_content_obj.upvoted_users.count()),
-                        "admin_comment" : admin_comment,
+                        "subject": str(review_content_obj.subject),
+                        "content": str(review_content_obj.content),
+                        "upvotes_count": str(review_content_obj.upvoted_users.count()),
+                        "admin_comment": admin_comment,
                         "image_url_list": image_url_list
                     }
 
                 temp_dict["review_content"] = review_content
-                temp_dict["created_date"] = str(timezone.localtime(review_obj.created_date).strftime("%d %b, %Y"))
-                temp_dict["modified_date"] = str(timezone.localtime(review_obj.modified_date).strftime("%d %b, %Y"))
+                temp_dict["created_date"] = str(timezone.localtime(
+                    review_obj.created_date).strftime("%d %b, %Y"))
+                temp_dict["modified_date"] = str(timezone.localtime(
+                    review_obj.modified_date).strftime("%d %b, %Y"))
 
                 product_reviews.append(temp_dict)
 
             average_rating = 0
             if total_reviews != 0:
-                average_rating = round(float(total_rating)/float(total_reviews), 2)
+                average_rating = round(
+                    float(total_rating)/float(total_reviews), 2)
 
             is_user_reviewed = False
             is_product_purchased = True
-            if request.user!=None:
+            if request.user != None:
 
                 if UnitOrder.objects.filter(product__uuid=product_code, order__owner__username=request.user.username).exists():
                     is_product_purchased = True
 
                 if Review.objects.filter(product__uuid=product_code, dealshub_user__username=request.user.username).exclude(is_published=False).exists():
                     is_user_reviewed = True
-                    review_obj = Review.objects.get(product__uuid=product_code, dealshub_user__username=request.user.username)
+                    review_obj = Review.objects.get(
+                        product__uuid=product_code, dealshub_user__username=request.user.username)
                     review_content = None
                     review_content_obj = review_obj.content
                     if review_content_obj is not None:
@@ -5666,17 +6175,18 @@ class FetchProductReviewsAPI(APIView):
                         for image_obj in image_objs:
                             try:
                                 temp_dict = {
-                                    "uuid": image_obj.pk, 
+                                    "uuid": image_obj.pk,
                                     "url": image_obj.mid_image.url
                                 }
                                 image_url_list.append(temp_dict)
                             except Exception as e:
                                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                                logger.warning("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                                logger.warning(
+                                    "FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                         review_content = {
-                            "subject" : str(review_content_obj.subject),
-                            "content" : str(review_content_obj.content),
-                            "upvotes_count" : str(review_content_obj.upvoted_users.count()),
+                            "subject": str(review_content_obj.subject),
+                            "content": str(review_content_obj.content),
+                            "upvotes_count": str(review_content_obj.upvoted_users.count()),
                             "image_url_list": image_url_list
                         }
                     response["user_rating"] = str(review_obj.rating)
@@ -5691,27 +6201,28 @@ class FetchProductReviewsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchProductReviewsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
 class DeleteUserReviewImageAPI(APIView):
-    
+
     def post(self, request, *arg, **kwargs):
-        
+
         response = {}
         response['status'] = 500
         try:
 
             data = request.data
             logger.info("DeleteUserReviewImageAPI: %s", str(data))
-            
+
             image_uuid = int(data["image_uuid"])
             user_review_uuid = data["user_review_uuid"]
 
             review_obj = Review.objects.get(uuid=user_review_uuid)
-            if review_obj.dealshub_user.username==request.user.username:
+            if review_obj.dealshub_user.username == request.user.username:
                 review_content_obj = review_obj.content
                 image_obj = Image.objects.get(pk=image_uuid)
                 review_content_obj.images.remove(image_obj)
@@ -5721,15 +6232,18 @@ class DeleteUserReviewImageAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteUserReviewImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DeleteUserReviewImageAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class DeleteAdminReviewImageAPI(APIView):
 
     def post(self, request, *arg, **kwargs):
-        
+
         response = {}
         response['status'] = 500
         try:
@@ -5737,11 +6251,11 @@ class DeleteAdminReviewImageAPI(APIView):
             data = request.data
             logger.info("DeleteAdminReviewImageAPI: %s", str(data))
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("DeleteAdminReviewImageAPI Restricted Access!")
                 return Response(data=response)
-            
+
             image_uuid = int(data["image_uuid"])
             review_uuid = data["review_uuid"]
 
@@ -5752,21 +6266,24 @@ class DeleteAdminReviewImageAPI(APIView):
             review_content_obj.images.remove(image_obj)
             review_content_obj.save()
 
-            render_value = "Image "+ image_obj.image.url + "removed from review of product " + review_obj.product.product_name
-            activitylog(user=request.user,table_name=ReviewContent,action_type='update',location_group_obj=review_obj.product.location_group,prev_instance=prev_review_content_obj,current_instance=review_content_obj,table_item_pk=review_content_obj.pk,render=render_value)
+            render_value = "Image " + image_obj.image.url + \
+                "removed from review of product " + review_obj.product.product_name
+            activitylog(user=request.user, table_name=ReviewContent, action_type='update', location_group_obj=review_obj.product.location_group,
+                        prev_instance=prev_review_content_obj, current_instance=review_content_obj, table_item_pk=review_content_obj.pk, render=render_value)
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteAdminReviewImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DeleteAdminReviewImageAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
 class DeleteUserReviewAPI(APIView):
-    
+
     def post(self, request, *arg, **kwargs):
-        
+
         response = {}
         response['status'] = 500
         try:
@@ -5776,19 +6293,22 @@ class DeleteUserReviewAPI(APIView):
             uuid = str(data["uuid"])
 
             review_obj = Review.objects.get(uuid=uuid)
-            if review_obj.dealshub_user.username==request.user.username:
+            if review_obj.dealshub_user.username == request.user.username:
                 review_obj.is_deleted = True
                 review_obj.save()
-                
+
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteUserReviewAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DeleteUserReviewAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class HideReviewAdminAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5802,7 +6322,7 @@ class HideReviewAdminAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("HideReviewAdminAPI Restricted Access!")
                 return Response(data=response)
@@ -5814,21 +6334,27 @@ class HideReviewAdminAPI(APIView):
             review_obj.is_deleted = True
             review_obj.save()
 
-            render_value = "Review of product " + review_obj.product.product_name + "by user " + (review_obj.dealshub_user.username if review_obj.dealshub_user!=None else "") + " deleted"
-            activitylog(user=request.user,table_name=Review,action_type='deleted',location_group_obj=review_obj.product.location_group,prev_instance=prev_review_obj,current_instance=review_obj,table_item_pk=review_obj.uuid,render=render_value)
+            render_value = "Review of product " + review_obj.product.product_name + "by user " + \
+                (review_obj.dealshub_user.username if review_obj.dealshub_user !=
+                 None else "") + " deleted"
+            activitylog(user=request.user, table_name=Review, action_type='deleted', location_group_obj=review_obj.product.location_group,
+                        prev_instance=prev_review_obj, current_instance=review_obj, table_item_pk=review_obj.uuid, render=render_value)
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("HideReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("HideReviewAdminAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class UpdateReviewPublishStatusAPI(APIView):
 
     def post(self, request, *args, **kwargs):
-    
+
         response = {}
         response['status'] = 500
         try:
@@ -5838,9 +6364,10 @@ class UpdateReviewPublishStatusAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("UpdateReviewPublishStatusAPI Restricted Access!")
+                logger.warning(
+                    "UpdateReviewPublishStatusAPI Restricted Access!")
                 return Response(data=response)
 
             review_uuid = data["review_uuid"]
@@ -5850,15 +6377,21 @@ class UpdateReviewPublishStatusAPI(APIView):
             prev_review_obj = deepcopy(review_obj)
             review_obj.is_published = is_published
             review_obj.save()
-            render_value = "Review of product " + review_obj.product.product_name + "by user " + (review_obj.dealshub_user.username if review_obj.dealshub_user!=None else "") + " is " + ("published" if is_published==True else "unpublished")  
-            activitylog(user=request.user,table_name=Review,action_type='update',location_group_obj=review_obj.product.location_group,prev_instance=prev_review_obj,current_instance=review_obj,table_item_pk=review_obj.uuid,render=render_value)
+            render_value = "Review of product " + review_obj.product.product_name + "by user " + \
+                (review_obj.dealshub_user.username if review_obj.dealshub_user != None else "") + \
+                " is " + ("published" if is_published ==
+                          True else "unpublished")
+            activitylog(user=request.user, table_name=Review, action_type='update', location_group_obj=review_obj.product.location_group,
+                        prev_instance=prev_review_obj, current_instance=review_obj, table_item_pk=review_obj.uuid, render=render_value)
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateReviewPublishStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateReviewPublishStatusAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class FetchSalesExecutiveAnalysisAPI(APIView):
 
@@ -5870,181 +6403,232 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
             data = request.data
             logger.info("FetchSalesExecutiveAnalysisAPI: %s", str(data))
 
-            if not isinstance(data,dict):
+            if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("FetchSalesExecutiveAnalysisAPI Restricted Access!")
+                logger.warning(
+                    "FetchSalesExecutiveAnalysisAPI Restricted Access!")
                 return Response(data=response)
-            
-            custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+
+            custom_permission_obj = CustomPermission.objects.get(
+                user__username=request.user.username)
             misc = json.loads(custom_permission_obj.misc)
             if "analytics" not in misc:
-                logger.warning("User does not have permission to view analytics!")
+                logger.warning(
+                    "User does not have permission to view analytics!")
                 response["status"] = 403
                 return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            order_objs = Order.objects.filter(location_group=location_group_obj)
-            
+            order_objs = Order.objects.filter(
+                location_group=location_group_obj)
+
             today = str(datetime.date.today())[:10] + "T00:00:00+04:00"
-            yesterday = str(datetime.date.today() - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
+            yesterday = str(datetime.date.today() -
+                            datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
 
-            month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
+            month = str(datetime.datetime.now().replace(
+                day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
             prev_month_value = datetime.datetime.now().month-1
             prev_year_value = datetime.datetime.now().year
-            if prev_month_value==0:
+            if prev_month_value == 0:
                 prev_month_value = 12
                 prev_year_value -= 1
-            prev_month = str(datetime.datetime.now().replace(year=prev_year_value, month=prev_month_value, day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
+            prev_month = str(datetime.datetime.now().replace(year=prev_year_value, month=prev_month_value,
+                             day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
 
-            sales_target_objs = SalesTarget.objects.filter(location_group=location_group_obj)
+            sales_target_objs = SalesTarget.objects.filter(
+                location_group=location_group_obj)
 
             sales_target_list = []
             for sales_target_obj in sales_target_objs:
                 user_order_objs = Order.objects.none()
-                if sales_target_obj.user!=None:
-                    user_order_objs = order_objs.filter(is_order_offline=True, offline_sales_person=sales_target_obj.user)
+                if sales_target_obj.user != None:
+                    user_order_objs = order_objs.filter(
+                        is_order_offline=True, offline_sales_person=sales_target_obj.user)
 
-                today_order_objs = user_order_objs.filter(date_created__gt = today)
-                yesterday_order_objs = user_order_objs.filter(date_created__gt = yesterday, date_created__lt = today)
+                today_order_objs = user_order_objs.filter(
+                    date_created__gt=today)
+                yesterday_order_objs = user_order_objs.filter(
+                    date_created__gt=yesterday, date_created__lt=today)
 
-                today_total_sales = today_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-                today_total_sales = 0 if today_total_sales==None else round(today_total_sales,2)
-                yesterdays_total_sales = yesterday_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-                yesterdays_total_sales = 0 if yesterdays_total_sales==None else round(yesterdays_total_sales,2)
+                today_total_sales = today_order_objs.aggregate(
+                    total_sales=Sum('real_to_pay'))["total_sales"]
+                today_total_sales = 0 if today_total_sales == None else round(
+                    today_total_sales, 2)
+                yesterdays_total_sales = yesterday_order_objs.aggregate(
+                    total_sales=Sum('real_to_pay'))["total_sales"]
+                yesterdays_total_sales = 0 if yesterdays_total_sales == None else round(
+                    yesterdays_total_sales, 2)
 
                 # all orders except fully cancelled
                 today_order_list = list(today_order_objs)
-                today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+                today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(
+                    current_status_admin="cancelled").values_list('order__uuid').distinct().count()
                 yesterday_order_list = list(yesterday_order_objs)
-                yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+                yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(
+                    current_status_admin="cancelled").values_list('order__uuid').distinct().count()
 
-                today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
-                yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
-                
-                today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-                yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+                today_avg_order_value = 0 if today_total_orders == 0 else round(
+                    float(today_total_sales/today_total_orders), 2)
+                yesterday_avg_order_value = 0 if yesterday_total_orders == 0 else round(
+                    float(yesterdays_total_sales/yesterday_total_orders), 2)
 
-                today_pending_delivery = today_total_orders - today_done_delivery
-                yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
+                today_done_delivery = today_order_objs.filter(
+                    unitorder__current_status_admin="delivered").distinct().count()
+                yesterday_done_delivery = yesterday_order_objs.filter(
+                    unitorder__current_status_admin="delivered").distinct().count()
 
-                today_dispatched_delivery = today_order_objs.filter(unitorder__current_status_admin = "dispatched").distinct().count()
-                yesterday_dispatched_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "dispatched").distinct().count()
+                today_pending_delivery = today_order_objs.filter(
+                    unitorder__current_status_admin="pending").distinct().count()
+                yesterday_pending_delivery = yesterday_order_objs.filter(
+                    unitorder__current_status_admin="pending").distinct().count()
 
-                today_returned_delivery = today_order_objs.filter(unitorder__current_status_admin = "returned").distinct().count()
-                yesterday_returned_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "returned").distinct().count()
+                today_dispatched_delivery = today_order_objs.filter(
+                    unitorder__current_status_admin="dispatched").distinct().count()
+                yesterday_dispatched_delivery = yesterday_order_objs.filter(
+                    unitorder__current_status_admin="dispatched").distinct().count()
 
-                today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin = "cancelled").distinct().count()
-                yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "cancelled").distinct().count()
+                today_returned_delivery = today_order_objs.filter(
+                    unitorder__current_status_admin="returned").distinct().count()
+                yesterday_returned_delivery = yesterday_order_objs.filter(
+                    unitorder__current_status_admin="returned").distinct().count()
 
-                month_order_objs = user_order_objs.filter(date_created__gt = month)
-                prev_month_order_objs = user_order_objs.filter(date_created__gt = prev_month, date_created__lt = month)
+                today_cancelled_delivery = today_order_objs.filter(
+                    unitorder__current_status_admin="cancelled").distinct().count()
+                yesterday_cancelled_delivery = yesterday_order_objs.filter(
+                    unitorder__current_status_admin="cancelled").distinct().count()
 
-                month_total_sales = month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-                month_total_sales = 0 if month_total_sales==None else round(month_total_sales,2)
-                prev_month_total_sales = prev_month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-                prev_month_total_sales = 0 if prev_month_total_sales==None else round(prev_month_total_sales,2)
+                month_order_objs = user_order_objs.filter(
+                    date_created__gt=month)
+                prev_month_order_objs = user_order_objs.filter(
+                    date_created__gt=prev_month, date_created__lt=month)
+
+                month_total_sales = month_order_objs.aggregate(
+                    total_sales=Sum('real_to_pay'))["total_sales"]
+                month_total_sales = 0 if month_total_sales == None else round(
+                    month_total_sales, 2)
+                prev_month_total_sales = prev_month_order_objs.aggregate(
+                    total_sales=Sum('real_to_pay'))["total_sales"]
+                prev_month_total_sales = 0 if prev_month_total_sales == None else round(
+                    prev_month_total_sales, 2)
 
                 month_order_list = list(month_order_objs)
-                month_total_orders = UnitOrder.objects.filter(order__in=month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+                month_total_orders = UnitOrder.objects.filter(order__in=month_order_list).exclude(
+                    current_status_admin="cancelled").values_list('order__uuid').distinct().count()
                 prev_month_order_list = list(prev_month_order_objs)
-                prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+                prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(
+                    current_status_admin="cancelled").values_list('order__uuid').distinct().count()
 
-                month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
-                prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
-                
-                month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-                prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+                month_avg_order_value = 0 if month_total_orders == 0 else round(
+                    float(month_total_sales/month_total_orders), 2)
+                prev_month_avg_order_value = 0 if prev_month_total_orders == 0 else round(
+                    float(prev_month_total_sales/prev_month_total_orders), 2)
 
-                month_pending_delivery = month_total_orders - month_done_delivery
-                prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
+                month_done_delivery = month_order_objs.filter(
+                    unitorder__current_status_admin="delivered").distinct().count()
+                prev_month_done_delivery = prev_month_order_objs.filter(
+                    unitorder__current_status_admin="delivered").distinct().count()
 
-                month_dispatched_delivery = month_order_objs.filter(unitorder__current_status_admin = "dispatched").distinct().count()
-                prev_month_dispatched_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "dispatched").distinct().count()
+                month_pending_delivery = month_order_objs.filter(
+                    unitorder__current_status_admin="pending").distinct().count()
+                prev_pending_done_delivery = prev_month_order_objs.filter(
+                    unitorder__current_status_admin="pending").distinct().count()
 
-                month_returned_delivery = month_order_objs.filter(unitorder__current_status_admin = "returned").distinct().count()
-                prev_month_returned_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "returned").distinct().count()
+                month_dispatched_delivery = month_order_objs.filter(
+                    unitorder__current_status_admin="dispatched").distinct().count()
+                prev_month_dispatched_delivery = prev_month_order_objs.filter(
+                    unitorder__current_status_admin="dispatched").distinct().count()
 
-                month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin = "cancelled").distinct().count()
-                prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "cancelled").distinct().count()
-            
-                
+                month_returned_delivery = month_order_objs.filter(
+                    unitorder__current_status_admin="returned").distinct().count()
+                prev_month_returned_delivery = prev_month_order_objs.filter(
+                    unitorder__current_status_admin="returned").distinct().count()
+
+                month_cancelled_delivery = month_order_objs.filter(
+                    unitorder__current_status_admin="cancelled").distinct().count()
+                prev_month_cancelled_delivery = prev_month_order_objs.filter(
+                    unitorder__current_status_admin="cancelled").distinct().count()
+
                 days_in_month = float(datetime.datetime.now().day)
                 temp_dict = {}
                 temp_dict["targets"] = {
-                    "today_sales" : sales_target_obj.today_sales_target,
-                    "today_orders" : sales_target_obj.today_orders_target,
-                    "monthly_sales" : sales_target_obj.monthly_sales_target,
-                    "monthly_orders" : sales_target_obj.monthly_orders_target
+                    "today_sales": sales_target_obj.today_sales_target,
+                    "today_orders": sales_target_obj.today_orders_target,
+                    "monthly_sales": sales_target_obj.monthly_sales_target,
+                    "monthly_orders": sales_target_obj.monthly_orders_target
                 }
-                
+
                 temp_dict["todays"] = {
-                    "sales" : today_total_sales,
-                    "sales_delta" :  today_total_sales - yesterdays_total_sales,
-                    "orders" : today_total_orders,
-                    "orders_delta" : today_total_orders - yesterday_total_orders,
-                    "avg_value" : today_avg_order_value,
-                    "avg_value_delta" : today_avg_order_value - yesterday_avg_order_value,
+                    "sales": today_total_sales,
+                    "sales_delta":  today_total_sales - yesterdays_total_sales,
+                    "orders": today_total_orders,
+                    "orders_delta": today_total_orders - yesterday_total_orders,
+                    "avg_value": today_avg_order_value,
+                    "avg_value_delta": today_avg_order_value - yesterday_avg_order_value,
                     "delivered": today_done_delivery,
-                    "delivered_delta" : today_done_delivery - yesterday_done_delivery,
-                    "pending" : today_pending_delivery,
-                    "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
-                    "dispatched" : today_dispatched_delivery,
-                    "dispatched_delta" : today_dispatched_delivery - yesterday_dispatched_delivery,
-                    "returned" : today_returned_delivery,
-                    "returned_delta" : today_returned_delivery - yesterday_returned_delivery,
-                    "cancelled" : today_cancelled_delivery,
-                    "cancelled_delta" : today_cancelled_delivery - yesterday_cancelled_delivery,
-                    "percent_sales" : 0 if month_total_sales==0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
-                    "percent_orders" : 0 if month_total_orders==0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                    "percent_avg" : 0 if month_avg_order_value==0 else round(float(today_avg_order_value/month_avg_order_value)*100),
-                    "percent_delivered" : 0 if month_done_delivery==0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
-                    "percent_pending" : 0 if month_pending_delivery==0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
-                    "percent_dispatched" : 0 if month_dispatched_delivery==0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
-                    "percent_returned" : 0 if month_returned_delivery==0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
-                    "percent_cancelled" : 0 if month_cancelled_delivery==0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
+                    "delivered_delta": today_done_delivery - yesterday_done_delivery,
+                    "pending": today_pending_delivery,
+                    "pending_delta": today_pending_delivery - yesterday_pending_delivery,
+                    "dispatched": today_dispatched_delivery,
+                    "dispatched_delta": today_dispatched_delivery - yesterday_dispatched_delivery,
+                    "returned": today_returned_delivery,
+                    "returned_delta": today_returned_delivery - yesterday_returned_delivery,
+                    "cancelled": today_cancelled_delivery,
+                    "cancelled_delta": today_cancelled_delivery - yesterday_cancelled_delivery,
+                    "percent_sales": 0 if month_total_sales == 0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
+                    "percent_orders": 0 if month_total_orders == 0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
+                    "percent_avg": 0 if month_avg_order_value == 0 else round(float(today_avg_order_value/month_avg_order_value)*100),
+                    "percent_delivered": 0 if month_done_delivery == 0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
+                    "percent_pending": 0 if month_pending_delivery == 0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
+                    "percent_dispatched": 0 if month_dispatched_delivery == 0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
+                    "percent_returned": 0 if month_returned_delivery == 0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
+                    "percent_cancelled": 0 if month_cancelled_delivery == 0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
                 }
                 temp_dict["monthly"] = {
-                    "sales" : month_total_sales,
-                    "sales_delta" :  month_total_sales - prev_month_total_sales,
-                    "orders" : month_total_orders,
-                    "orders_delta" : month_total_orders - prev_month_total_orders,
-                    "avg_value" : month_avg_order_value,
-                    "avg_value_delta" : month_avg_order_value - prev_month_avg_order_value,
+                    "sales": month_total_sales,
+                    "sales_delta":  month_total_sales - prev_month_total_sales,
+                    "orders": month_total_orders,
+                    "orders_delta": month_total_orders - prev_month_total_orders,
+                    "avg_value": month_avg_order_value,
+                    "avg_value_delta": month_avg_order_value - prev_month_avg_order_value,
                     "delivered": month_done_delivery,
-                    "delivered_delta" : month_done_delivery - prev_month_done_delivery,
-                    "pending" : month_pending_delivery,
-                    "pending_delta" : month_pending_delivery - prev_month_pending_delivery,
-                    "dispatched" : month_dispatched_delivery,
-                    "dispatched_delta" : month_dispatched_delivery - prev_month_dispatched_delivery,
-                    "returned" : month_returned_delivery,
-                    "returned_delta" : month_returned_delivery - prev_month_returned_delivery,
-                    "cancelled" : month_cancelled_delivery,
-                    "cancelled_delta" : month_cancelled_delivery - prev_month_cancelled_delivery
+                    "delivered_delta": month_done_delivery - prev_month_done_delivery,
+                    "pending": month_pending_delivery,
+                    "pending_delta": month_pending_delivery - prev_month_pending_delivery,
+                    "dispatched": month_dispatched_delivery,
+                    "dispatched_delta": month_dispatched_delivery - prev_month_dispatched_delivery,
+                    "returned": month_returned_delivery,
+                    "returned_delta": month_returned_delivery - prev_month_returned_delivery,
+                    "cancelled": month_cancelled_delivery,
+                    "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
                 }
                 temp_dict["currency"] = location_group_obj.location.currency
                 temp_dict["username"] = sales_target_obj.user.username
                 temp_dict["first_name"] = sales_target_obj.user.first_name
                 sales_target_list.append(temp_dict)
 
-            sales_target_list = sorted(sales_target_list, key = lambda i: i["todays"]["sales"], reverse=True)
+            sales_target_list = sorted(
+                sales_target_list, key=lambda i: i["todays"]["sales"], reverse=True)
             response["sales_target_list"] = sales_target_list
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchSalesExecutiveAnalysisAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("FetchSalesExecutiveAnalysisAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
 class FetchOrderSalesAnalyticsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
-    
+
         response = {}
         response['status'] = 500
         try:
@@ -6054,175 +6638,227 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("FetchOrderSalesAnalyticsAPI Restricted Access!")
+                logger.warning(
+                    "FetchOrderSalesAnalyticsAPI Restricted Access!")
                 return Response(data=response)
 
-            custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+            custom_permission_obj = CustomPermission.objects.get(
+                user__username=request.user.username)
             misc = json.loads(custom_permission_obj.misc)
             if ("analytics" not in misc) and ("sales-analytics" not in misc):
-                logger.warning("User does not have permission to view analytics!")
+                logger.warning(
+                    "User does not have permission to view analytics!")
                 response["status"] = 403
                 return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            order_objs = Order.objects.filter(location_group=location_group_obj)
+            order_objs = Order.objects.filter(
+                location_group=location_group_obj)
 
             if ("sales-analytics" in misc) and ("analytics" not in misc):
-                oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-                order_objs = order_objs.filter(is_order_offline=True, offline_sales_person=oc_user_obj)
+                oc_user_obj = OmnyCommUser.objects.get(
+                    username=request.user.username)
+                order_objs = order_objs.filter(
+                    is_order_offline=True, offline_sales_person=oc_user_obj)
 
             # today's
             today = str(datetime.date.today())[:10] + "T00:00:00+04:00"
-            yesterday = str(datetime.date.today() - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
+            yesterday = str(datetime.date.today() -
+                            datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
 
-            today_order_objs = order_objs.filter(date_created__gt = today)
-            yesterday_order_objs = order_objs.filter(date_created__gt = yesterday, date_created__lt = today)
+            today_order_objs = order_objs.filter(date_created__gt=today)
+            yesterday_order_objs = order_objs.filter(
+                date_created__gt=yesterday, date_created__lt=today)
 
-            today_total_sales = today_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-            today_total_sales = 0 if today_total_sales==None else round(today_total_sales,2)
-            yesterdays_total_sales = yesterday_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-            yesterdays_total_sales = 0 if yesterdays_total_sales==None else round(yesterdays_total_sales,2)
+            today_total_sales = today_order_objs.aggregate(
+                total_sales=Sum('real_to_pay'))["total_sales"]
+            today_total_sales = 0 if today_total_sales == None else round(
+                today_total_sales, 2)
+            yesterdays_total_sales = yesterday_order_objs.aggregate(
+                total_sales=Sum('real_to_pay'))["total_sales"]
+            yesterdays_total_sales = 0 if yesterdays_total_sales == None else round(
+                yesterdays_total_sales, 2)
 
             # all orders except fully cancelled
             today_order_list = list(today_order_objs)
-            today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(
+                current_status_admin="cancelled").values_list('order__uuid').distinct().count()
             yesterday_order_list = list(yesterday_order_objs)
-            yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(
+                current_status_admin="cancelled").values_list('order__uuid').distinct().count()
 
-            today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
-            yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
-            
-            today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-            yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+            today_avg_order_value = 0 if today_total_orders == 0 else round(
+                float(today_total_sales/today_total_orders), 2)
+            yesterday_avg_order_value = 0 if yesterday_total_orders == 0 else round(
+                float(yesterdays_total_sales/yesterday_total_orders), 2)
 
-            today_pending_delivery = today_total_orders - today_done_delivery
-            yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
+            today_done_delivery = today_order_objs.filter(
+                unitorder__current_status_admin="delivered").distinct().count()
+            yesterday_done_delivery = yesterday_order_objs.filter(
+                unitorder__current_status_admin="delivered").distinct().count()
 
-            today_dispatched_delivery = today_order_objs.filter(unitorder__current_status_admin = "dispatched").distinct().count()
-            yesterday_dispatched_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "dispatched").distinct().count()
+            today_pending_delivery = today_order_objs.filter(
+                unitorder__current_status_admin="pending").distinct().count()
+            yesterday_pending_delivery = yesterday_order_objs.filter(
+                unitorder__current_status_admin="pending").distinct().count()
 
-            today_returned_delivery = today_order_objs.filter(unitorder__current_status_admin = "returned").distinct().count()
-            yesterday_returned_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "returned").distinct().count()
+            today_dispatched_delivery = today_order_objs.filter(
+                unitorder__current_status_admin="dispatched").distinct().count()
+            yesterday_dispatched_delivery = yesterday_order_objs.filter(
+                unitorder__current_status_admin="dispatched").distinct().count()
 
-            today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin = "cancelled").distinct().count()
-            yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "cancelled").distinct().count()
+            today_returned_delivery = today_order_objs.filter(
+                unitorder__current_status_admin="returned").distinct().count()
+            yesterday_returned_delivery = yesterday_order_objs.filter(
+                unitorder__current_status_admin="returned").distinct().count()
+
+            today_cancelled_delivery = today_order_objs.filter(
+                unitorder__current_status_admin="cancelled").distinct().count()
+            yesterday_cancelled_delivery = yesterday_order_objs.filter(
+                unitorder__current_status_admin="cancelled").distinct().count()
 
             # monthly
-            month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
+            month = str(datetime.datetime.now().replace(
+                day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
             prev_month_value = datetime.datetime.now().month-1
             prev_year_value = datetime.datetime.now().year
-            if prev_month_value==0:
+            if prev_month_value == 0:
                 prev_month_value = 12
                 prev_year_value -= 1
-            prev_month = str(datetime.datetime.now().replace(year=prev_year_value, month=prev_month_value, day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
+            prev_month = str(datetime.datetime.now().replace(year=prev_year_value, month=prev_month_value,
+                             day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
 
-            month_order_objs = order_objs.filter(date_created__gt = month)
-            prev_month_order_objs = order_objs.filter(date_created__gt = prev_month, date_created__lt = month)
+            month_order_objs = order_objs.filter(date_created__gt=month)
+            prev_month_order_objs = order_objs.filter(
+                date_created__gt=prev_month, date_created__lt=month)
 
-            month_total_sales = month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-            month_total_sales = 0 if month_total_sales==None else round(month_total_sales,2)
-            prev_month_total_sales = prev_month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-            prev_month_total_sales = 0 if prev_month_total_sales==None else round(prev_month_total_sales,2)
+            month_total_sales = month_order_objs.aggregate(
+                total_sales=Sum('real_to_pay'))["total_sales"]
+            month_total_sales = 0 if month_total_sales == None else round(
+                month_total_sales, 2)
+            prev_month_total_sales = prev_month_order_objs.aggregate(
+                total_sales=Sum('real_to_pay'))["total_sales"]
+            prev_month_total_sales = 0 if prev_month_total_sales == None else round(
+                prev_month_total_sales, 2)
 
             month_order_list = list(month_order_objs)
-            month_total_orders = UnitOrder.objects.filter(order__in=month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            month_total_orders = UnitOrder.objects.filter(order__in=month_order_list).exclude(
+                current_status_admin="cancelled").values_list('order__uuid').distinct().count()
             prev_month_order_list = list(prev_month_order_objs)
-            prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(
+                current_status_admin="cancelled").values_list('order__uuid').distinct().count()
 
-            month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
-            prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
-            
-            month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-            prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+            month_avg_order_value = 0 if month_total_orders == 0 else round(
+                float(month_total_sales/month_total_orders), 2)
+            prev_month_avg_order_value = 0 if prev_month_total_orders == 0 else round(
+                float(prev_month_total_sales/prev_month_total_orders), 2)
 
-            month_pending_delivery = month_total_orders - month_done_delivery
-            prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
+            month_done_delivery = month_order_objs.filter(
+                unitorder__current_status_admin="delivered").distinct().count()
+            prev_month_done_delivery = prev_month_order_objs.filter(
+                unitorder__current_status_admin="delivered").distinct().count()
 
-            month_dispatched_delivery = month_order_objs.filter(unitorder__current_status_admin = "dispatched").distinct().count()
-            prev_month_dispatched_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "dispatched").distinct().count()
+            month_pending_delivery = month_order_objs.filter(
+                unitorder__current_status_admin="pending").distinct().count()
+            prev_month_pending_delivery = prev_month_order_objs.filter(
+                unitorder__current_status_admin="pending").distinct().count()
 
-            month_returned_delivery = month_order_objs.filter(unitorder__current_status_admin = "returned").distinct().count()
-            prev_month_returned_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "returned").distinct().count()
+            month_dispatched_delivery = month_order_objs.filter(
+                unitorder__current_status_admin="dispatched").distinct().count()
+            prev_month_dispatched_delivery = prev_month_order_objs.filter(
+                unitorder__current_status_admin="dispatched").distinct().count()
 
-            month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin = "cancelled").distinct().count()
-            prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "cancelled").distinct().count()
-            
+            month_returned_delivery = month_order_objs.filter(
+                unitorder__current_status_admin="returned").distinct().count()
+            prev_month_returned_delivery = prev_month_order_objs.filter(
+                unitorder__current_status_admin="returned").distinct().count()
+
+            month_cancelled_delivery = month_order_objs.filter(
+                unitorder__current_status_admin="cancelled").distinct().count()
+            prev_month_cancelled_delivery = prev_month_order_objs.filter(
+                unitorder__current_status_admin="cancelled").distinct().count()
+
             days_in_month = float(datetime.datetime.now().day)
-            
+
             if ("sales-analytics" in misc) and ("analytics" not in misc):
-                oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-                sales_target_objs = SalesTarget.objects.filter(user=oc_user_obj, location_group=location_group_obj)
+                oc_user_obj = OmnyCommUser.objects.get(
+                    username=request.user.username)
+                sales_target_objs = SalesTarget.objects.filter(
+                    user=oc_user_obj, location_group=location_group_obj)
                 if sales_target_objs.exists():
                     response["targets"] = {
-                        "today_sales" : sales_target_objs[0].today_sales_target,
-                        "today_orders" : sales_target_objs[0].today_orders_target,
-                        "monthly_sales" : sales_target_objs[0].monthly_sales_target,
-                        "monthly_orders" : sales_target_objs[0].monthly_orders_target
+                        "today_sales": sales_target_objs[0].today_sales_target,
+                        "today_orders": sales_target_objs[0].today_orders_target,
+                        "monthly_sales": sales_target_objs[0].monthly_sales_target,
+                        "monthly_orders": sales_target_objs[0].monthly_orders_target
                     }
                 else:
-                    response["targets"] = { "today_sales" : 0, "today_orders" : 0, "monthly_sales" : 0, "monthly_orders" : 0 }
+                    response["targets"] = {
+                        "today_sales": 0, "today_orders": 0, "monthly_sales": 0, "monthly_orders": 0}
             else:
                 response["targets"] = {
-                    "today_sales" : location_group_obj.today_sales_target,
-                    "today_orders" : location_group_obj.today_orders_target,
-                    "monthly_sales" : location_group_obj.monthly_sales_target,
-                    "monthly_orders" : location_group_obj.monthly_orders_target
-                }                                
-            
+                    "today_sales": location_group_obj.today_sales_target,
+                    "today_orders": location_group_obj.today_orders_target,
+                    "monthly_sales": location_group_obj.monthly_sales_target,
+                    "monthly_orders": location_group_obj.monthly_orders_target
+                }
+
             response["todays"] = {
-                "sales" : today_total_sales,
-                "sales_delta" :  today_total_sales - yesterdays_total_sales,
-                "orders" : today_total_orders,
-                "orders_delta" : today_total_orders - yesterday_total_orders,
-                "avg_value" : today_avg_order_value,
-                "avg_value_delta" : today_avg_order_value - yesterday_avg_order_value,
+                "sales": today_total_sales,
+                "sales_delta":  today_total_sales - yesterdays_total_sales,
+                "orders": today_total_orders,
+                "orders_delta": today_total_orders - yesterday_total_orders,
+                "avg_value": today_avg_order_value,
+                "avg_value_delta": today_avg_order_value - yesterday_avg_order_value,
                 "delivered": today_done_delivery,
-                "delivered_delta" : today_done_delivery - yesterday_done_delivery,
-                "pending" : today_pending_delivery,
-                "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
-                "dispatched" : today_dispatched_delivery,
-                "dispatched_delta" : today_dispatched_delivery - yesterday_dispatched_delivery,
-                "returned" : today_returned_delivery,
-                "returned_delta" : today_returned_delivery - yesterday_returned_delivery,
-                "cancelled" : today_cancelled_delivery,
-                "cancelled_delta" : today_cancelled_delivery - yesterday_cancelled_delivery,
-                "percent_sales" : 0 if month_total_sales==0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
-                "percent_orders" : 0 if month_total_orders==0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                "percent_avg" : 0 if month_avg_order_value==0 else round(float(today_avg_order_value/month_avg_order_value)*100),
-                "percent_delivered" : 0 if month_done_delivery==0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
-                "percent_pending" : 0 if month_pending_delivery==0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
-                "percent_dispatched" : 0 if month_dispatched_delivery==0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
-                "percent_returned" : 0 if month_returned_delivery==0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
-                "percent_cancelled" : 0 if month_cancelled_delivery==0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100) 
+                "delivered_delta": today_done_delivery - yesterday_done_delivery,
+                "pending": today_pending_delivery,
+                "pending_delta": today_pending_delivery - yesterday_pending_delivery,
+                "dispatched": today_dispatched_delivery,
+                "dispatched_delta": today_dispatched_delivery - yesterday_dispatched_delivery,
+                "returned": today_returned_delivery,
+                "returned_delta": today_returned_delivery - yesterday_returned_delivery,
+                "cancelled": today_cancelled_delivery,
+                "cancelled_delta": today_cancelled_delivery - yesterday_cancelled_delivery,
+                "percent_sales": 0 if month_total_sales == 0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
+                "percent_orders": 0 if month_total_orders == 0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
+                "percent_avg": 0 if month_avg_order_value == 0 else round(float(today_avg_order_value/month_avg_order_value)*100),
+                "percent_delivered": 0 if month_done_delivery == 0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
+                "percent_pending": 0 if month_pending_delivery == 0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
+                "percent_dispatched": 0 if month_dispatched_delivery == 0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
+                "percent_returned": 0 if month_returned_delivery == 0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
+                "percent_cancelled": 0 if month_cancelled_delivery == 0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
             }
             response["monthly"] = {
-                "sales" : month_total_sales,
-                "sales_delta" :  month_total_sales - prev_month_total_sales,
-                "orders" : month_total_orders,
-                "orders_delta" : month_total_orders - prev_month_total_orders,
-                "avg_value" : month_avg_order_value,
-                "avg_value_delta" : month_avg_order_value - prev_month_avg_order_value,
+                "sales": month_total_sales,
+                "sales_delta":  month_total_sales - prev_month_total_sales,
+                "orders": month_total_orders,
+                "orders_delta": month_total_orders - prev_month_total_orders,
+                "avg_value": month_avg_order_value,
+                "avg_value_delta": month_avg_order_value - prev_month_avg_order_value,
                 "delivered": month_done_delivery,
-                "delivered_delta" : month_done_delivery - prev_month_done_delivery,
-                "pending" : month_pending_delivery,
-                "pending_delta" : month_pending_delivery - prev_month_pending_delivery,
-                "dispatched" : month_dispatched_delivery,
-                "dispatched_delta" : month_dispatched_delivery - prev_month_dispatched_delivery,
-                "returned" : month_returned_delivery,
-                "returned_delta" : month_returned_delivery - prev_month_returned_delivery,
-                "cancelled" : month_cancelled_delivery,
-                "cancelled_delta" : month_cancelled_delivery - prev_month_cancelled_delivery
+                "delivered_delta": month_done_delivery - prev_month_done_delivery,
+                "pending": month_pending_delivery,
+                "pending_delta": month_pending_delivery - prev_month_pending_delivery,
+                "dispatched": month_dispatched_delivery,
+                "dispatched_delta": month_dispatched_delivery - prev_month_dispatched_delivery,
+                "returned": month_returned_delivery,
+                "returned_delta": month_returned_delivery - prev_month_returned_delivery,
+                "cancelled": month_cancelled_delivery,
+                "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
             }
             response["currency"] = location_group_obj.location.currency
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrderSalesAnalyticsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchOrderSalesAnalyticsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6240,9 +6876,10 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("FetchOrdersForWarehouseManagerAPI Restricted Access!")
+                logger.warning(
+                    "FetchOrdersForWarehouseManagerAPI Restricted Access!")
                 return Response(data=response)
 
             from_date = data.get("fromDate", "")
@@ -6252,8 +6889,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             max_qty = data.get("maxQty", "")
             min_price = data.get("minPrice", "")
             max_price = data.get("maxPrice", "")
-            cancellation_requested = data.get("cancellation_requested",False)
-            sales_person = data.get("salesPerson","")
+            cancellation_requested = data.get("cancellation_requested", False)
+            sales_person = data.get("salesPerson", "")
             currency_list = data.get("currencyList", [])
             shipping_method_list = data.get("shippingMethodList", [])
             tracking_status_list = data.get("trackingStatusList", [])
@@ -6266,78 +6903,101 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             page = data.get("page", 1)
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
+            unit_order_objs = UnitOrder.objects.filter(
+                order__location_group__uuid=location_group_uuid).order_by('-pk')
 
-            if is_postaplus==True:
-                unit_order_objs = unit_order_objs.filter(order__is_postaplus=True)                
+            if is_postaplus == True:
+                unit_order_objs = unit_order_objs.filter(
+                    order__is_postaplus=True)
 
-            if from_date!="":
+            if from_date != "":
                 from_date = from_date[:10]+"T00:00:00+04:00"
-                unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
+                unit_order_objs = unit_order_objs.filter(
+                    order__order_placed_date__gte=from_date)
 
-            if to_date!="":
+            if to_date != "":
                 to_date = to_date[:10]+"T23:59:59+04:00"
-                unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
+                unit_order_objs = unit_order_objs.filter(
+                    order__order_placed_date__lte=to_date)
 
-            if len(payment_type_list)>0:
+            if len(payment_type_list) > 0:
                 if "COD" in payment_type_list and "Credit Card" not in payment_type_list:
-                    unit_order_objs = unit_order_objs.filter(order__payment_mode="COD")
+                    unit_order_objs = unit_order_objs.filter(
+                        order__payment_mode="COD")
                 if "COD" not in payment_type_list and "Credit Card" in payment_type_list:
-                    unit_order_objs = unit_order_objs.exclude(order__payment_mode="COD")
+                    unit_order_objs = unit_order_objs.exclude(
+                        order__payment_mode="COD")
 
-            if len(shipping_method_list)>0:
-                unit_order_objs = unit_order_objs.filter(shipping_method__in=shipping_method_list)
+            if len(shipping_method_list) > 0:
+                unit_order_objs = unit_order_objs.filter(
+                    shipping_method__in=shipping_method_list)
 
-            if len(tracking_status_list)>0:
-                unit_order_objs = unit_order_objs.filter(current_status_admin__in=tracking_status_list)
+            if len(tracking_status_list) > 0:
+                unit_order_objs = unit_order_objs.filter(
+                    current_status_admin__in=tracking_status_list)
 
-            if len(sap_status_list)>0:
-                unit_order_objs = unit_order_objs.filter(sap_status__in=sap_status_list)
+            if len(sap_status_list) > 0:
+                unit_order_objs = unit_order_objs.filter(
+                    sap_status__in=sap_status_list)
 
-            if is_order_offline!=None:
-                unit_order_objs = unit_order_objs.filter(order__is_order_offline=is_order_offline)                
+            if is_order_offline != None:
+                unit_order_objs = unit_order_objs.filter(
+                    order__is_order_offline=is_order_offline)
 
-            if max_qty!="":
-                unit_order_objs = unit_order_objs.filter(quantity__lte=int(max_qty))
+            if max_qty != "":
+                unit_order_objs = unit_order_objs.filter(
+                    quantity__lte=int(max_qty))
 
-            if min_qty!="":
-                unit_order_objs = unit_order_objs.filter(quantity__gte=int(min_qty))
+            if min_qty != "":
+                unit_order_objs = unit_order_objs.filter(
+                    quantity__gte=int(min_qty))
 
-            if max_price!="":
-                unit_order_objs = unit_order_objs.filter(price__lte=int(max_price))
+            if max_price != "":
+                unit_order_objs = unit_order_objs.filter(
+                    price__lte=int(max_price))
 
-            if min_price!="":
-                unit_order_objs = unit_order_objs.filter(price__gte=int(min_price))
-            
+            if min_price != "":
+                unit_order_objs = unit_order_objs.filter(
+                    price__gte=int(min_price))
+
             if cancellation_requested:
-                unit_order_objs = unit_order_objs.filter(cancelled_by_user=True)
+                unit_order_objs = unit_order_objs.filter(
+                    cancelled_by_user=True)
 
-            if sales_person!="":
-                unit_order_objs = unit_order_objs.filter(order__offline_sales_person__username=sales_person)
+            if sales_person != "":
+                unit_order_objs = unit_order_objs.filter(
+                    order__offline_sales_person__username=sales_person)
 
-            if len(search_list)>0:
+            if len(search_list) > 0:
                 temp_unit_order_objs = UnitOrder.objects.none()
                 for search_string in search_list:
                     search_string = search_string.strip()
-                    temp_unit_order_objs |= unit_order_objs.filter(Q(product__product__base_product__seller_sku__icontains=search_string) | Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string) | Q(order__sap_final_billing_info__icontains=search_string) | Q(sap_intercompany_info__icontains=search_string))
+                    temp_unit_order_objs |= unit_order_objs.filter(Q(product__product__base_product__seller_sku__icontains=search_string) | Q(order__bundleid__icontains=search_string) | Q(orderid__icontains=search_string) | Q(order__owner__first_name__icontains=search_string) | Q(
+                        order__shipping_address__contact_number__icontains=search_string) | Q(order__merchant_reference__icontains=search_string) | Q(order__sap_final_billing_info__icontains=search_string) | Q(sap_intercompany_info__icontains=search_string))
                 unit_order_objs = temp_unit_order_objs.distinct()
 
+            order_objs = Order.objects.filter(location_group__uuid=location_group_uuid,
+                                              unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
-            order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
-
-            total_revenue = order_objs.aggregate(Sum('real_to_pay'))["real_to_pay__sum"]
-            if total_revenue==None:
+            total_revenue = order_objs.aggregate(Sum('real_to_pay'))[
+                "real_to_pay__sum"]
+            if total_revenue == None:
                 total_revenue = 0
             total_revenue = round(total_revenue, 2)
-            total_sales = order_objs.aggregate(Sum('real_to_pay'))["real_to_pay__sum"]
-            total_sales = 0 if total_sales==None else round(total_sales, 2)
-            order_list =  list(order_objs)
+            total_sales = order_objs.aggregate(Sum('real_to_pay'))[
+                "real_to_pay__sum"]
+            total_sales = 0 if total_sales == None else round(total_sales, 2)
+            order_list = list(order_objs)
             # exclusive of cancelled orders
-            real_total_orders = UnitOrder.objects.filter(order__in=order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-            avg_order_value = 0 if real_total_orders==0 else round(float(total_sales/real_total_orders),2)
-            done_delivery_count = order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+            real_total_orders = UnitOrder.objects.filter(order__in=order_list).exclude(
+                current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+            avg_order_value = 0 if real_total_orders == 0 else round(
+                float(total_sales/real_total_orders), 2)
+            done_delivery_count = order_objs.filter(
+                unitorder__current_status_admin="delivered").distinct().count()
             pending_delivery_count = real_total_orders - done_delivery_count
 
             currency = location_group_obj.location.currency
@@ -6350,9 +7010,12 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             free_delivery_threshold = location_group_obj.free_delivery_threshold
             invoice_logo = location_group_obj.get_email_website_logo()
             website_group_name = location_group_obj.website_group.name.lower()
-            trn_number = json.loads(location_group_obj.website_group.conf).get("trn_number", "NA")
-            support_contact_number = json.loads(location_group_obj.website_group.conf).get("support_contact_number", "NA")
-            footer_text = json.loads(location_group_obj.website_group.conf).get("footer_text", "NA")
+            trn_number = json.loads(
+                location_group_obj.website_group.conf).get("trn_number", "NA")
+            support_contact_number = json.loads(
+                location_group_obj.website_group.conf).get("support_contact_number", "NA")
+            footer_text = json.loads(
+                location_group_obj.website_group.conf).get("footer_text", "NA")
 
             order_list = []
             for order_obj in order_objs:
@@ -6364,44 +7027,51 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["time"] = order_obj.get_time_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
-                    
+
                     if order_obj.payment_mode == "CHEQUE":
                         image_objs = order_obj.cheque_images.all()
                         cheque_images_list = []
                         for image_obj in image_objs:
                             try:
-                                cheque_images_list.append(image_obj.mid_image.url)
+                                cheque_images_list.append(
+                                    image_obj.mid_image.url)
                             except Exception as e:
                                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                                logger.warning("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                                logger.warning(
+                                    "FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
                         temp_dict["cheque_images_list"] = cheque_images_list
-                        temp_dict["cheque_approved"] =  order_obj.cheque_approved
-                        
+                        temp_dict["cheque_approved"] = order_obj.cheque_approved
+
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
-                    cancel_status = UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled").exists()
+                    cancel_status = UnitOrder.objects.filter(
+                        order=order_obj, current_status_admin="cancelled").exists()
                     temp_dict["cancelStatus"] = cancel_status
                     temp_dict["cancelled_by_user"] = False
-                    unit_order_count = UnitOrder.objects.filter(order=order_obj).count()
+                    unit_order_count = UnitOrder.objects.filter(
+                        order=order_obj).count()
                     if UnitOrder.objects.filter(order=order_obj, cancelled_by_user=True).count() == unit_order_count:
                         temp_dict["cancelled_by_user"] = True
                     temp_dict["partially_cancelled_by_user"] = False
-                    if temp_dict["cancelled_by_user"]==False and UnitOrder.objects.filter(order=order_obj, cancelled_by_user=True).exists():
+                    if temp_dict["cancelled_by_user"] == False and UnitOrder.objects.filter(order=order_obj, cancelled_by_user=True).exists():
                         temp_dict["partially_cancelled_by_user"] = True
                     cancelling_note = ""
-                    if cancel_status==True and UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
-                        cancelling_note = UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled")[0].cancelling_note
+                    if cancel_status == True and UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled").count() == unit_order_count:
+                        cancelling_note = UnitOrder.objects.filter(
+                            order=order_obj, current_status_admin="cancelled")[0].cancelling_note
                     temp_dict["cancelling_note"] = cancelling_note
-                    temp_dict["cancellation_request_action_taken"] = UnitOrder.objects.filter(order=order_obj, cancellation_request_action_taken=True).exists()
-                    temp_dict["sap_final_billing_info"] = json.loads(order_obj.sap_final_billing_info)
+                    temp_dict["cancellation_request_action_taken"] = UnitOrder.objects.filter(
+                        order=order_obj, cancellation_request_action_taken=True).exists()
+                    temp_dict["sap_final_billing_info"] = json.loads(
+                        order_obj.sap_final_billing_info)
                     temp_dict["isOrderOffline"] = order_obj.is_order_offline
                     temp_dict["referenceMedium"] = order_obj.reference_medium
                     temp_dict["call_status"] = order_obj.call_status
-                    if order_obj.is_order_offline and order_obj.offline_sales_person!=None:
+                    if order_obj.is_order_offline and order_obj.offline_sales_person != None:
                         temp_dict["salesPerson"] = order_obj.offline_sales_person.username
 
                     address_obj = order_obj.shipping_address
-                    
+
                     shipping_address = {
                         "firstName": address_obj.first_name,
                         "lastName": address_obj.last_name,
@@ -6414,14 +7084,16 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     }
 
                     customer_name = address_obj.first_name
-                    if location_group_obj.is_b2b==True:
+                    if location_group_obj.is_b2b == True:
                         try:
-                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username)
+                            b2b_user_obj = B2BUser.objects.get(
+                                username=order_obj.owner.username)
                             temp_dict["companyName"] = b2b_user_obj.company_name
                         except Exception as e:
                             temp_dict["companyName"] = "NA"
                             exc_type, exc_obj, exc_tb = sys.exc_info()
-                            logger.error("b2b user company name: %s at %s", e, str(exc_tb.tb_lineno))
+                            logger.error(
+                                "b2b user company name: %s at %s", e, str(exc_tb.tb_lineno))
 
                     temp_dict["customerName"] = customer_name
                     temp_dict["emailId"] = order_obj.owner.email
@@ -6433,17 +7105,23 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["bundleId"] = order_obj.bundleid
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
-                    temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[0].shipping_method
+                    temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[
+                        0].shipping_method
 
-                    if temp_dict["partially_cancelled_by_user"]==True:
-                        temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
+                    if temp_dict["partially_cancelled_by_user"] == True:
+                        temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(
+                            current_status_admin="cancelled")[0].current_status_admin
                     else:
-                        temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
+                        temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[
+                            0].current_status_admin
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
-                        voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
-                        voucher_discount_vat = voucher_obj.get_voucher_discount_vat(voucher_discount)
-                        voucher_discount_without_vat = voucher_obj.get_voucher_discount_without_vat(voucher_discount)
+                        voucher_discount = voucher_obj.get_voucher_discount(
+                            order_obj.get_subtotal())
+                        voucher_discount_vat = voucher_obj.get_voucher_discount_vat(
+                            voucher_discount)
+                        voucher_discount_without_vat = voucher_obj.get_voucher_discount_without_vat(
+                            voucher_discount)
                         temp_dict["voucherDiscount"] = voucher_discount
                         temp_dict["voucherDiscountVat"] = voucher_discount_vat
                         temp_dict["voucherDiscountWithoutVat"] = voucher_discount_without_vat
@@ -6457,18 +7135,25 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict2["uuid"] = unit_order_obj.uuid
                         temp_dict2["currentStatus"] = unit_order_obj.current_status_admin
                         temp_dict2["sapStatus"] = unit_order_obj.sap_status
-                        temp_dict2["sap_intercompany_info"] = json.loads(unit_order_obj.sap_intercompany_info)
+                        temp_dict2["sap_intercompany_info"] = json.loads(
+                            unit_order_obj.sap_intercompany_info)
                         temp_dict2["quantity"] = unit_order_obj.quantity
                         temp_dict2["price"] = unit_order_obj.price
-                        temp_dict2["price_without_vat"] = unit_order_obj.get_price_without_vat()
+                        temp_dict2["price_without_vat"] = unit_order_obj.get_price_without_vat(
+                        )
                         temp_dict2["vat"] = unit_order_obj.get_total_vat()
                         temp_dict2["totalPrice"] = unit_order_obj.get_subtotal()
-                        temp_dict2["total_price_without_vat"] = unit_order_obj.get_subtotal_without_vat()
+                        temp_dict2["total_price_without_vat"] = unit_order_obj.get_subtotal_without_vat(
+                        )
                         temp_dict2["currency"] = unit_order_obj.product.get_currency()
-                        temp_dict2["productName"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name()
-                        temp_dict2["productNameAr"] = unit_order_obj.product.get_seller_sku() + " - " + unit_order_obj.product.get_name("ar")
-                        temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url()
-                        temp_dict2["intercompany_order_id"] = unit_order_obj.get_sap_intercompany_order_id()
+                        temp_dict2["productName"] = unit_order_obj.product.get_seller_sku(
+                        ) + " - " + unit_order_obj.product.get_name()
+                        temp_dict2["productNameAr"] = unit_order_obj.product.get_seller_sku(
+                        ) + " - " + unit_order_obj.product.get_name("ar")
+                        temp_dict2["productImageUrl"] = unit_order_obj.product.get_main_image_url(
+                        )
+                        temp_dict2["intercompany_order_id"] = unit_order_obj.get_sap_intercompany_order_id(
+                        )
                         temp_dict2["cancelled_by_user"] = unit_order_obj.cancelled_by_user
                         temp_dict2["user_cancellation_note"] = unit_order_obj.user_cancellation_note
                         temp_dict2["user_cancellation_status"] = unit_order_obj.user_cancellation_status
@@ -6476,33 +7161,42 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         final_qty = unit_order_obj.get_sap_final_order_qty()
 
                         if intercompany_qty != "" and final_qty != "":
-                            if intercompany_qty != final_qty and order_obj.sap_status!="GRN Conflict":
+                            if intercompany_qty != final_qty and order_obj.sap_status != "GRN Conflict":
                                 order_obj.sap_status = "GRN Conflict"
                                 unit_order_obj.sap_status = "GRN Conflict"
                                 order_obj.save()
                                 unit_order_obj.save()
                                 try:
-                                    p1 = threading.Thread(target=notify_grn_error, args=(order_obj,))
+                                    p1 = threading.Thread(
+                                        target=notify_grn_error, args=(order_obj,))
                                     p1.start()
                                 except Exception as e:
                                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                                    logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
+                                    logger.error(
+                                        "notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
 
                         temp_dict2["intercompany_qty"] = intercompany_qty
                         temp_dict2["final_qty"] = final_qty
                         unit_order_list.append(temp_dict2)
-                    temp_dict["approved"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="approved").count()
-                    temp_dict["picked"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="picked").count()
-                    temp_dict["dispatched"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="dispatched").count()
-                    temp_dict["delivered"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="delivered").count()
-                    temp_dict["deliveryFailed"] = UnitOrder.objects.filter(order=order_obj, current_status_admin="delivery failed").count()
+                    temp_dict["approved"] = UnitOrder.objects.filter(
+                        order=order_obj, current_status_admin="approved").count()
+                    temp_dict["picked"] = UnitOrder.objects.filter(
+                        order=order_obj, current_status_admin="picked").count()
+                    temp_dict["dispatched"] = UnitOrder.objects.filter(
+                        order=order_obj, current_status_admin="dispatched").count()
+                    temp_dict["delivered"] = UnitOrder.objects.filter(
+                        order=order_obj, current_status_admin="delivered").count()
+                    temp_dict["deliveryFailed"] = UnitOrder.objects.filter(
+                        order=order_obj, current_status_admin="delivery failed").count()
 
                     temp_dict["sapStatus"] = order_obj.sap_status
                     sap_warning_list = ["GRN Conflict", "Failed"]
-                    sap_warning = True if order_obj.sap_status=="Manual" or UnitOrder.objects.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
+                    sap_warning = True if order_obj.sap_status == "Manual" or UnitOrder.objects.filter(
+                        order=order_obj, sap_status__in=sap_warning_list).exists() else False
                     temp_dict["showSapWarning"] = sap_warning
 
-                    temp_dict["showResendSAPOrder"] = True if UnitOrder.objects.filter(order=order_obj, sap_status__in=sap_warning_list).exists() else False
+                    temp_dict["showResendSAPOrder"] = True if UnitOrder.objects.filter(
+                        order=order_obj, sap_status__in=sap_warning_list).exists() else False
 
                     subtotal = order_obj.get_subtotal()
                     subtotal_vat = order_obj.get_subtotal_vat()
@@ -6516,12 +7210,13 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     to_pay = order_obj.get_total_amount()
                     vat = order_obj.get_vat()
-                    
+
                     temp_dict["subtotalWithoutVat"] = str(subtotal_without_vat)
                     temp_dict["subtotalVat"] = str(subtotal_vat)
                     temp_dict["subtotal"] = str(subtotal)
 
-                    temp_dict["deliveryFeeWithoutVat"] = str(delivery_fee_without_vat)
+                    temp_dict["deliveryFeeWithoutVat"] = str(
+                        delivery_fee_without_vat)
                     temp_dict["deliveryFeeVat"] = str(delivery_fee_vat)
                     temp_dict["deliveryFee"] = str(delivery_fee)
 
@@ -6548,7 +7243,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error(
+                        "FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_available = True
             if int(paginator.num_pages) == int(page):
@@ -6559,18 +7255,19 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             response["orderList"] = order_list
             response["totalRevenue"] = total_revenue
             response["order_analytics"] = {
-                "sales" : total_sales,
-                "orders" : real_total_orders,
-                "avg_order_value" : avg_order_value,
-                "delivered_orders" : done_delivery_count,
-                "pending_orders" : pending_delivery_count
+                "sales": total_sales,
+                "orders": real_total_orders,
+                "avg_order_value": avg_order_value,
+                "delivered_orders": done_delivery_count,
+                "pending_orders": pending_delivery_count
             }
             response["currency"] = currency
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchOrdersForWarehouseManagerAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6583,27 +7280,32 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchOrderRequestsForWarehouseManagerAPI: %s", str(data))
+            logger.info(
+                "FetchOrderRequestsForWarehouseManagerAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("FetchOrderRequestsForWarehouseManagerAPI Restricted Access!")
+                logger.warning(
+                    "FetchOrderRequestsForWarehouseManagerAPI Restricted Access!")
                 return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
-            request_status = data.get("requestStatus","")
+            request_status = data.get("requestStatus", "")
 
             page = data.get("page", 1)
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            order_request_objs = OrderRequest.objects.filter(location_group__uuid=location_group_uuid).distinct().order_by("-date_created")
+            order_request_objs = OrderRequest.objects.filter(
+                location_group__uuid=location_group_uuid).distinct().order_by("-date_created")
 
             if request_status != "":
-                order_request_objs = order_request_objs.filter(request_status=request_status)
+                order_request_objs = order_request_objs.filter(
+                    request_status=request_status)
 
             currency = location_group_obj.location.currency
 
@@ -6614,7 +7316,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
             shipping_charge = location_group_obj.delivery_fee
             free_delivery_threshold = location_group_obj.free_delivery_threshold
             website_group_name = location_group_obj.website_group.name.lower()
-            footer_text = json.loads(location_group_obj.website_group.conf).get("footer_text", "NA")
+            footer_text = json.loads(
+                location_group_obj.website_group.conf).get("footer_text", "NA")
 
             order_request_list = []
             for order_request_obj in order_request_objs:
@@ -6627,7 +7330,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     temp_dict["orderRequestStatus"] = order_request_obj.request_status
                     temp_dict["timeCreated"] = order_request_obj.get_time_created()
                     temp_dict["paymentMode"] = order_request_obj.payment_mode
-                    unit_order_request_count = UnitOrderRequest.objects.filter(order_request=order_request_obj).count()
+                    unit_order_request_count = UnitOrderRequest.objects.filter(
+                        order_request=order_request_obj).count()
                     temp_dict["itemsCount"] = unit_order_request_count
 
                     address_obj = order_request_obj.shipping_address
@@ -6643,14 +7347,16 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                     }
 
                     customer_name = address_obj.first_name
-                    if location_group_obj.is_b2b==True:
+                    if location_group_obj.is_b2b == True:
                         try:
-                            b2b_user_obj = B2BUser.objects.get(username=order_request_obj.owner.username)
+                            b2b_user_obj = B2BUser.objects.get(
+                                username=order_request_obj.owner.username)
                             temp_dict["companyName"] = b2b_user_obj.company_name
                         except Exception as e:
                             temp_dict["companyName"] = "NA"
                             exc_type, exc_obj, exc_tb = sys.exc_info()
-                            logger.error("b2b user company name: %s at %s", e, str(exc_tb.tb_lineno))
+                            logger.error(
+                                "b2b user company name: %s at %s", e, str(exc_tb.tb_lineno))
 
                     temp_dict["customerName"] = customer_name
                     temp_dict["emailId"] = order_request_obj.owner.email
@@ -6665,12 +7371,14 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
 
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
-                        voucher_discount = voucher_obj.get_voucher_discount(order_request_obj.get_subtotal())
+                        voucher_discount = voucher_obj.get_voucher_discount(
+                            order_request_obj.get_subtotal())
                         temp_dict["voucherDiscount"] = voucher_discount
 
                     unit_order_request_list = []
                     subtotal = 0
-                    unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
+                    unit_order_request_objs = UnitOrderRequest.objects.filter(
+                        order_request=order_request_obj)
                     for unit_order_request_obj in unit_order_request_objs:
                         temp_dict2 = {}
                         temp_dict2["orderRequestId"] = unit_order_request_obj.order_req_id
@@ -6680,20 +7388,24 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                         temp_dict2["initialPrice"] = unit_order_request_obj.initial_price
                         temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
                         temp_dict2["finalPrice"] = unit_order_request_obj.final_price
-                        temp_dict2["productName"] = unit_order_request_obj.product.get_seller_sku() + " - " + unit_order_request_obj.product.get_name()
-                        temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_main_image_url()
+                        temp_dict2["productName"] = unit_order_request_obj.product.get_seller_sku(
+                        ) + " - " + unit_order_request_obj.product.get_name()
+                        temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_main_image_url(
+                        )
 
                         unit_order_request_list.append(temp_dict2)
-                    
-                    is_cod = True if order_request_obj.payment_mode=="COD" else False
+
+                    is_cod = True if order_request_obj.payment_mode == "COD" else False
                     subtotal = order_request_obj.get_subtotal()
-                    delivery_fee = order_request_obj.get_delivery_fee(cod=is_cod)
+                    delivery_fee = order_request_obj.get_delivery_fee(
+                        cod=is_cod)
                     cod_fee = order_request_obj.get_cod_charge(cod=is_cod)
                     vat = order_request_obj.get_vat(cod=is_cod)
                     to_pay = order_request_obj.get_total_amount(cod=is_cod)
 
                     temp_dict["subtotal"] = str(subtotal)
-                    temp_dict["totalQuantity"] = unit_order_request_objs.exclude(request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
+                    temp_dict["totalQuantity"] = unit_order_request_objs.exclude(
+                        request_status="Rejected").aggregate(total_quantity=Sum('final_quantity'))["total_quantity"]
                     temp_dict["deliveryFee"] = str(delivery_fee)
                     temp_dict["codFee"] = str(cod_fee)
                     temp_dict["toPay"] = str(to_pay)
@@ -6711,7 +7423,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("FetchOrderRequestsForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error(
+                        "FetchOrderRequestsForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_available = True
             if int(paginator.num_pages) == int(page):
@@ -6725,7 +7438,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrderRequestsForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error(
+                "FetchOrderRequestsForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6737,18 +7451,18 @@ class FetchShippingMethodAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-            
+
             data = request.data
             logger.info("FetchShippingMethodAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("FetchShippingMethodAPI Restricted Access!")
                 return Response(data=response)
-            
+
             shipping_methods = ["WIG Fleet", "P-Plus"]
 
             response["shippingMethods"] = shipping_methods
@@ -6756,7 +7470,8 @@ class FetchShippingMethodAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchShippingMethodAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchShippingMethodAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6774,7 +7489,7 @@ class SetShippingMethodAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("SetShippingMethodAPI Restricted Access!")
                 return Response(data=response)
@@ -6782,15 +7497,17 @@ class SetShippingMethodAPI(APIView):
             shipping_method = data["shippingMethod"]
             unit_order_uuid_list = data["unitOrderUuidList"]
 
-            order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
+            order_obj = UnitOrder.objects.get(
+                uuid=unit_order_uuid_list[0]).order
 
-            if shipping_method.lower()=="logix" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+            if shipping_method.lower() == "logix" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
                 order_info = {}
-                
+
                 order_info["order-id"] = order_obj.bundleid
                 order_info["customer-name"] = order_obj.get_customer_full_name()
                 order_info["customer-address"] = order_obj.shipping_address.get_shipping_address()
-                order_info["customer-contact"] = str(order_obj.owner.contact_number)
+                order_info["customer-contact"] = str(
+                    order_obj.owner.contact_number)
                 order_info["payment-mode"] = order_obj.payment_mode
                 order_info["order-value"] = order_obj.to_pay
                 order_info["currency"] = order_obj.get_currency()
@@ -6810,14 +7527,17 @@ class SetShippingMethodAPI(APIView):
                     'User-ID': '1'
                 }
                 logger.info("Tracking Info Req: %s", str(order_info))
-                resp = requests.post(url="https://qzolve-erp.com/logix2020/track/order/create", data=json.dumps(order_info), headers=headers)
+                resp = requests.post(url="https://qzolve-erp.com/logix2020/track/order/create",
+                                     data=json.dumps(order_info), headers=headers)
                 tracking_info_data = resp.json()
                 logger.info("Tracking Info Data: %s", str(tracking_info_data))
                 tracking_status = str(tracking_info_data['status']).strip()
-                tracking_reference = str(tracking_info_data['tracking_reference']).strip()
+                tracking_reference = str(
+                    tracking_info_data['tracking_reference']).strip()
 
-                if tracking_status!="Success":
-                    logger.warning("SetShippingMethodAPI: failed status from logix api")
+                if tracking_status != "Success":
+                    logger.warning(
+                        "SetShippingMethodAPI: failed status from logix api")
                     response["message"] = "Logix set shipping api failed"
                     return Response(data=response)
                 else:
@@ -6830,7 +7550,6 @@ class SetShippingMethodAPI(APIView):
                 response["sap_info_render"] = []
                 response["status"] = 200
                 return Response(data=response)
-                
 
             brand_company_dict = {
                 "geepas": "1000",
@@ -6840,44 +7559,48 @@ class SetShippingMethodAPI(APIView):
                 "olsenmark": "1100",
                 "ken jardene": "5550",
                 "younglife": "5000",
-                "para john" : "6000",
-                "parry life" : "6000",
+                "para john": "6000",
+                "parry life": "6000",
                 "delcasa": "3050"
             }
 
             sap_info_render = []
-            
-            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
+
+            if order_obj.location_group.website_group.name in ["shopnesto", "shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
 
                 user_input_requirement = {}
-                
+
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
                     company_code = brand_company_dict[brand_name.lower()]
-                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
+                    stock_price_information = fetch_prices_and_stock(
+                        seller_sku, company_code)
 
                     if stock_price_information["status"] == 500:
                         response["status"] = 403
                         response["message"] = stock_price_information["message"]
-                        logger.error("SetShippingMethodAPI: fetch prices and stock gave 500!")
+                        logger.error(
+                            "SetShippingMethodAPI: fetch prices and stock gave 500!")
                         return Response(data=response)
 
-                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information, unit_order_obj.quantity)
+                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(
+                        stock_price_information, unit_order_obj.quantity)
 
                 user_input_sap = data.get("user_input_sap", None)
-                
-                if user_input_sap==None:
-                    
+
+                if user_input_sap == None:
+
                     modal_info_list = []
-                    
+
                     for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
                         company_code = brand_company_dict[brand_name.lower()]
-                        
-                        if user_input_requirement[seller_sku]==True:
-                            result = fetch_prices_and_stock(seller_sku, company_code)
+
+                        if user_input_requirement[seller_sku] == True:
+                            result = fetch_prices_and_stock(
+                                seller_sku, company_code)
                             result["uuid"] = unit_order_obj.uuid
                             result["seller_sku"] = seller_sku
                             result["disable_atp_holding"] = False
@@ -6885,14 +7608,14 @@ class SetShippingMethodAPI(APIView):
                             result["disable_holding"] = False
                             if result["total_holding"] < unit_order_obj.quantity and result["total_atp"] < unit_order_obj.quantity:
                                 result["disable_atp_holding"] = True
-                            elif result["total_atp"] <  unit_order_obj.quantity:
+                            elif result["total_atp"] < unit_order_obj.quantity:
                                 result["disable_atp"] = True
                             elif result["total_holding"] < unit_order_obj.quantity:
                                 result["disable_holding"] = True
 
                             modal_info_list.append(result)
-                    
-                    if len(modal_info_list)>0:
+
+                    if len(modal_info_list) > 0:
                         response["modal_info_list"] = modal_info_list
                         response["status"] = 200
                         return Response(data=response)
@@ -6902,120 +7625,139 @@ class SetShippingMethodAPI(APIView):
 
                 # [ List pf Querysets of (UnitOrder Objects grouped by Brand) ]
 
-                unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
+                unit_order_objs = UnitOrder.objects.filter(
+                    order=order_obj).exclude(current_status_admin="cancelled")
 
                 if unit_order_objs.filter(grn_filename="").exists():
 
-                    grouped_unit_orders = {} 
+                    grouped_unit_orders = {}
 
                     for unit_order_obj in unit_order_objs:
-                        
+
                         brand_name = unit_order_obj.product.get_brand()
-                        
+
                         if brand_name not in grouped_unit_orders:
                             grouped_unit_orders[brand_name] = []
-                        
+
                         grouped_unit_orders[brand_name].append(unit_order_obj)
-                    
-                    for brand_name in grouped_unit_orders: 
-                        if grouped_unit_orders[brand_name][0].sap_status=="In GRN":
+
+                    for brand_name in grouped_unit_orders:
+                        if grouped_unit_orders[brand_name][0].sap_status == "In GRN":
                             continue
 
                         order_information = {}
                         company_code = brand_company_dict[brand_name.lower()]
-                        order_information["order_id"] = order_obj.bundleid.replace("-","")
-                        order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
+                        order_information["order_id"] = order_obj.bundleid.replace(
+                            "-", "")
+                        order_information["refrence_id"] = order_obj.bundleid.replace(
+                            "-", "&#45;")
                         is_b2b = order_obj.location_group.is_b2b
                         order_information["is_b2b"] = is_b2b
-                        if is_b2b==True:
-                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                        if is_b2b == True:
+                            order_information["street"] = json.loads(
+                                order_obj.shipping_address.address_lines)[1]
                             order_information["region"] = order_obj.shipping_address.state
                             order_information["telephone"] = order_obj.shipping_address.contact_number
                             order_information["email"] = order_obj.owner.email
-                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            b2b_user_obj = B2BUser.objects.get(
+                                username=order_obj.owner.username)
                             order_information["trn"] = b2b_user_obj.vat_certificate_id
                             if order_information["trn"] == "":
                                 response["message"] = "TRN number is empty"
                                 response["status"] = 406
                                 return Response(data=response)
                         order_information["items"] = []
-                        
+
                         for unit_order_obj in grouped_unit_orders[brand_name]:
 
                             seller_sku = unit_order_obj.product.get_seller_sku()
                             x_value = ""
-                            
-                            if user_input_requirement[seller_sku]==True:
+
+                            if user_input_requirement[seller_sku] == True:
                                 x_value = user_input_sap[seller_sku]
-                            
-                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, unit_order_obj.quantity)
+
+                            item_list = fetch_order_information_for_sap_punching(
+                                seller_sku, company_code, x_value, unit_order_obj.quantity)
                             for item in item_list:
-                                price = format(unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]),'.2f')
+                                price = format(
+                                    unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]), '.2f')
                                 item.update({"price": price})
                             order_information["items"] += item_list
-                        logger.info("FINAL ORDER INFO: %s", str(order_information))
+                        logger.info("FINAL ORDER INFO: %s",
+                                    str(order_information))
 
-                        orig_result_pre = create_intercompany_sales_order(company_code, order_information)
+                        orig_result_pre = create_intercompany_sales_order(
+                            company_code, order_information)
 
-                        manual_intervention_required = is_manual_intervention_required(orig_result_pre)
+                        manual_intervention_required = is_manual_intervention_required(
+                            orig_result_pre)
 
-                        if manual_intervention_required==True:
+                        if manual_intervention_required == True:
                             order_obj.sap_status = "Manual"
                             order_obj.save()
 
                         for item in order_information["items"]:
-                            
+
                             temp_dict2 = {}
                             temp_dict2["seller_sku"] = item["seller_sku"]
                             temp_dict2["intercompany_sales_info"] = orig_result_pre
-                            
+
                             sap_info_render.append(temp_dict2)
-                            
-                            unit_order_obj = UnitOrder.objects.get(product__product__base_product__seller_sku=item["seller_sku"],order=order_obj)
-                            
+
+                            unit_order_obj = UnitOrder.objects.get(
+                                product__product__base_product__seller_sku=item["seller_sku"], order=order_obj)
+
                             result_pre = orig_result_pre["doc_list"]
                             do_exists = 0
                             so_exists = 0
                             do_id = ""
                             so_id = ""
-                            
+
                             for k in result_pre:
-                                if k["type"]=="DO":
+                                if k["type"] == "DO":
                                     do_exists = 1
                                     do_id = k["id"]
-                                elif k["type"]=="SO":
+                                elif k["type"] == "SO":
                                     so_exists = 1
                                     so_id = k["id"]
-                            
-                            if so_exists==0 or do_exists==0:
+
+                            if so_exists == 0 or do_exists == 0:
                                 error_flag = 1
                                 unit_order_obj.sap_status = "Failed"
-                                unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+                                unit_order_obj.sap_intercompany_info = json.dumps(
+                                    orig_result_pre)
                                 unit_order_obj.save()
                                 try:
-                                    p1 = threading.Thread(target=notify_grn_error, args=(unit_order_obj.order,))
+                                    p1 = threading.Thread(
+                                        target=notify_grn_error, args=(unit_order_obj.order,))
                                     p1.start()
                                 except Exception as e:
                                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                                    logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
+                                    logger.error(
+                                        "notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
 
                                 continue
-                            
+
                             unit_order_information = {}
-                            unit_order_information["intercompany_sales_info"] = {}
-                            item["order_id"] = str(order_information["order_id"])
+                            unit_order_information["intercompany_sales_info"] = {
+                            }
+                            item["order_id"] = str(
+                                order_information["order_id"])
                             unit_order_information["intercompany_sales_info"] = item
-                            unit_order_obj.order_information = json.dumps(unit_order_information)
-                            
+                            unit_order_obj.order_information = json.dumps(
+                                unit_order_information)
+
                             unit_order_obj.grn_filename = str(do_id)
-                            unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+                            unit_order_obj.sap_intercompany_info = json.dumps(
+                                orig_result_pre)
                             unit_order_obj.sap_status = "In GRN"
                             unit_order_obj.save()
-                
+
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                 set_shipping_method(unit_order_obj, shipping_method)
 
-            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            omnycomm_user = OmnyCommUser.objects.get(
+                username=request.user.username)
             order_status_change_information = {
                 "event": "order_status",
                 "information": {
@@ -7025,7 +7767,7 @@ class SetShippingMethodAPI(APIView):
             }
 
             VersionOrder.objects.create(order=order_obj,
-                                        user= omnycomm_user,
+                                        user=omnycomm_user,
                                         change_information=json.dumps(order_status_change_information))
 
             response["sap_info_render"] = sap_info_render
@@ -7033,7 +7775,8 @@ class SetShippingMethodAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SetShippingMethodAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SetShippingMethodAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -7048,7 +7791,7 @@ class ResendSAPOrderAPI(APIView):
             data = request.data
             logger.info("ResendSAPOrderAPI: %s", str(data))
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("ResendSAPOrderAPI Restricted Access!")
                 return Response(data=response)
@@ -7061,7 +7804,7 @@ class ResendSAPOrderAPI(APIView):
             order_obj = Order.objects.get(uuid=order_uuid)
 
             brand_company_dict = {
-                
+
                 "geepas": "1000",
                 "baby plus": "5550",
                 "royalford": "3000",
@@ -7069,49 +7812,52 @@ class ResendSAPOrderAPI(APIView):
                 "olsenmark": "1100",
                 "ken jardene": "5550",
                 "younglife": "5000",
-                "para john" : "6000",
-                "parry life" : "6000",
+                "para john": "6000",
+                "parry life": "6000",
                 "delcasa": "3050"
             }
 
             sap_info_render = []
-            
-            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"]:
+
+            if order_obj.location_group.website_group.name in ["shopnesto", "shopnestob2b"]:
 
                 user_input_requirement = {}
-                
+
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
                     company_code = brand_company_dict[brand_name.lower()]
-                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
+                    stock_price_information = fetch_prices_and_stock(
+                        seller_sku, company_code)
 
                     if stock_price_information["status"] == 500:
                         response["status"] = 403
                         response["message"] = stock_price_information["message"]
                         return Response(data=response)
 
-                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information, unit_order_obj.quantity)
+                    user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(
+                        stock_price_information, unit_order_obj.quantity)
 
                 user_input_sap = data.get("user_input_sap", None)
-                
-                if user_input_sap==None:
-                    
+
+                if user_input_sap == None:
+
                     modal_info_list = []
-                    
+
                     for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
                         company_code = brand_company_dict[brand_name.lower()]
-                        
-                        if user_input_requirement[seller_sku]==True:
-                            result = fetch_prices_and_stock(seller_sku, company_code)
+
+                        if user_input_requirement[seller_sku] == True:
+                            result = fetch_prices_and_stock(
+                                seller_sku, company_code)
                             result["uuid"] = unit_order_obj.uuid
                             result["seller_sku"] = seller_sku
-                            
+
                             modal_info_list.append(result)
-                    
-                    if len(modal_info_list)>0:
+
+                    if len(modal_info_list) > 0:
                         response["modal_info_list"] = modal_info_list
                         response["status"] = 200
                         return Response(data=response)
@@ -7121,102 +7867,118 @@ class ResendSAPOrderAPI(APIView):
 
                 # [ List pf Querysets of (UnitOrder Objects grouped by Brand) ]
 
-                unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
+                unit_order_objs = UnitOrder.objects.filter(
+                    order=order_obj).exclude(current_status_admin="cancelled")
 
                 if unit_order_objs.filter(grn_filename="").exists():
 
-                    grouped_unit_orders = {} 
+                    grouped_unit_orders = {}
 
                     for unit_order_obj in unit_order_objs:
-                        
+
                         brand_name = unit_order_obj.product.get_brand()
-                        
+
                         if brand_name not in grouped_unit_orders:
                             grouped_unit_orders[brand_name] = []
-                        
+
                         grouped_unit_orders[brand_name].append(unit_order_obj)
-                    
-                    for brand_name in grouped_unit_orders: 
-                        if grouped_unit_orders[brand_name][0].sap_status=="In GRN":
+
+                    for brand_name in grouped_unit_orders:
+                        if grouped_unit_orders[brand_name][0].sap_status == "In GRN":
                             continue
 
                         order_information = {}
                         company_code = brand_company_dict[brand_name.lower()]
-                        order_information["order_id"] = order_obj.bundleid.replace("-","")
-                        order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
+                        order_information["order_id"] = order_obj.bundleid.replace(
+                            "-", "")
+                        order_information["refrence_id"] = order_obj.bundleid.replace(
+                            "-", "&#45;")
                         is_b2b = order_obj.location_group.is_b2b
                         order_information["is_b2b"] = is_b2b
-                        if is_b2b==True:
-                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                        if is_b2b == True:
+                            order_information["street"] = json.loads(
+                                order_obj.shipping_address.address_lines)[1]
                             order_information["region"] = order_obj.shipping_address.state
                             order_information["telephone"] = order_obj.shipping_address.contact_number
                             order_information["email"] = order_obj.owner.email
-                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            b2b_user_obj = B2BUser.objects.get(
+                                username=order_obj.owner.username)
                             order_information["trn"] = b2b_user_obj.vat_certificate_id
                         order_information["items"] = []
-                        
+
                         for unit_order_obj in grouped_unit_orders[brand_name]:
 
                             seller_sku = unit_order_obj.product.get_seller_sku()
                             x_value = ""
-                            
-                            if user_input_requirement[seller_sku]==True:
+
+                            if user_input_requirement[seller_sku] == True:
                                 x_value = user_input_sap[seller_sku]
-                            
-                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, unit_order_obj.quantity)
+
+                            item_list = fetch_order_information_for_sap_punching(
+                                seller_sku, company_code, x_value, unit_order_obj.quantity)
                             for item in item_list:
-                                price = format(unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]),'.2f')
+                                price = format(
+                                    unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]), '.2f')
                                 item.update({"price": price})
                             order_information["items"] += item_list
 
-                        orig_result_pre = create_intercompany_sales_order(company_code, order_information)
+                        orig_result_pre = create_intercompany_sales_order(
+                            company_code, order_information)
 
                         for item in order_information["items"]:
-                            
+
                             temp_dict2 = {}
                             temp_dict2["seller_sku"] = item["seller_sku"]
                             temp_dict2["intercompany_sales_info"] = orig_result_pre
-                            
+
                             sap_info_render.append(temp_dict2)
-                            
-                            unit_order_obj = UnitOrder.objects.get(product__product__base_product__seller_sku=item["seller_sku"],order=order_obj)
-                            
+
+                            unit_order_obj = UnitOrder.objects.get(
+                                product__product__base_product__seller_sku=item["seller_sku"], order=order_obj)
+
                             result_pre = orig_result_pre["doc_list"]
                             do_exists = 0
                             so_exists = 0
                             do_id = ""
                             so_id = ""
-                            
+
                             for k in result_pre:
-                                if k["type"]=="DO":
+                                if k["type"] == "DO":
                                     do_exists = 1
                                     do_id = k["id"]
-                                elif k["type"]=="SO":
+                                elif k["type"] == "SO":
                                     so_exists = 1
                                     so_id = k["id"]
-                            
-                            if so_exists==0 or do_exists==0:
+
+                            if so_exists == 0 or do_exists == 0:
                                 error_flag = 1
                                 unit_order_obj.sap_status = "Failed"
-                                unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+                                unit_order_obj.sap_intercompany_info = json.dumps(
+                                    orig_result_pre)
                                 unit_order_obj.save()
                                 try:
-                                    p1 = threading.Thread(target=notify_grn_error, args=(unit_order_obj.order,))
+                                    p1 = threading.Thread(
+                                        target=notify_grn_error, args=(unit_order_obj.order,))
                                     p1.start()
                                 except Exception as e:
                                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                                    logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
+                                    logger.error(
+                                        "notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
 
                                 continue
-                            
+
                             unit_order_information = {}
-                            unit_order_information["intercompany_sales_info"] = {}
-                            item["order_id"] = str(order_information["order_id"])
+                            unit_order_information["intercompany_sales_info"] = {
+                            }
+                            item["order_id"] = str(
+                                order_information["order_id"])
                             unit_order_information["intercompany_sales_info"] = item
-                            unit_order_obj.order_information = json.dumps(unit_order_information)
-                            
+                            unit_order_obj.order_information = json.dumps(
+                                unit_order_information)
+
                             unit_order_obj.grn_filename = str(do_id)
-                            unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+                            unit_order_obj.sap_intercompany_info = json.dumps(
+                                orig_result_pre)
                             unit_order_obj.sap_status = "In GRN"
                             unit_order_obj.save()
 
@@ -7225,11 +7987,14 @@ class ResendSAPOrderAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("ResendSAPOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("ResendSAPOrderAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
-#API with active log
+# API with active log
+
+
 class UpdateManualOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -7243,7 +8008,7 @@ class UpdateManualOrderAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("UpdateManualOrderAPI Restricted Access!")
                 return Response(data=response)
@@ -7255,16 +8020,19 @@ class UpdateManualOrderAPI(APIView):
             order_obj.sap_status = "Success"
             order_obj.save()
             render_value = "Order " + order_obj.bundleid + "sap status updated"
-            activitylog(user=request.user,table_name=Order,action_type='update',location_group_obj=order_obj.location_group,prev_instance=prev_order_instance,current_instance=order_obj,table_item_pk=order_obj.uuid,render=render_value)
+            activitylog(user=request.user, table_name=Order, action_type='update', location_group_obj=order_obj.location_group,
+                        prev_instance=prev_order_instance, current_instance=order_obj, table_item_pk=order_obj.uuid, render=render_value)
 
-            unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
+            unit_order_objs = UnitOrder.objects.filter(
+                order=order_obj).exclude(current_status_admin="cancelled")
             unit_order_objs.update(sap_status="GRN Done")
-            
+
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateManualOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateManualOrderAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -7282,20 +8050,22 @@ class SetOrdersStatusAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("SetOrdersStatusAPI Restricted Access!")
                 return Response(data=response)
 
             order_status = data["orderStatus"]
             unit_order_uuid_list = data["unitOrderUuidList"]
-            first_unit_order_obj  = UnitOrder.objects.get(uuid=unit_order_uuid_list[0])
+            first_unit_order_obj = UnitOrder.objects.get(
+                uuid=unit_order_uuid_list[0])
 
             for unit_order_uuid in unit_order_uuid_list:
                 unit_order_obj = UnitOrder.objects.get(uuid=unit_order_uuid)
                 set_order_status(unit_order_obj, order_status)
-               
-            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+
+            omnycomm_user = OmnyCommUser.objects.get(
+                username=request.user.username)
             order_status_change_information = {
                 "event": "order_status",
                 "information": {
@@ -7305,14 +8075,15 @@ class SetOrdersStatusAPI(APIView):
             }
 
             VersionOrder.objects.create(order=first_unit_order_obj.order,
-                                        user= omnycomm_user,
+                                        user=omnycomm_user,
                                         change_information=json.dumps(order_status_change_information))
 
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SetOrdersStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SetOrdersStatusAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -7330,7 +8101,7 @@ class SetOrdersStatusBulkAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("SetOrdersStatusBulkAPI Restricted Access!")
                 return Response(data=response)
@@ -7345,23 +8116,25 @@ class SetOrdersStatusBulkAPI(APIView):
                         set_order_status(unit_order_obj, order_status)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("SetOrdersStatusBulkAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("SetOrdersStatusBulkAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SetOrdersStatusBulkAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("SetOrdersStatusBulkAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
 
 class UpdateOrderStatusAPI(APIView):
-    
-    authentication_classes = (CsrfExemptSessionAuthentication,) 
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = [AllowAny]
 
-    def post(self,request,*args,**kwargs):
+    def post(self, request, *args, **kwargs):
         response = {}
         response['status'] = 500
         try:
@@ -7370,37 +8143,40 @@ class UpdateOrderStatusAPI(APIView):
             sap_invoice_id = data["sap_invoice_id"]
             incoming_order_status = data["incoming_order_status"]
 
-            order_obj = Order.objects.get(sap_final_billing_info__icontains=sap_invoice_id)
+            order_obj = Order.objects.get(
+                sap_final_billing_info__icontains=sap_invoice_id)
             doc_list = json.loads(order_obj.sap_final_billing_info)["doc_list"]
             flag = False
             for doc in doc_list:
-                if doc["id"]==sap_invoice_id:
+                if doc["id"] == sap_invoice_id:
                     flag = True
                     break
 
-            if flag==False:
-                return Response(data = response)
+            if flag == False:
+                return Response(data=response)
 
-            unit_order_objs = UnitOrder.objects.filter(order = order_obj)
+            unit_order_objs = UnitOrder.objects.filter(order=order_obj)
 
             for unit_order_obj in unit_order_objs:
-                if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":          
+                if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":
                     set_order_status(unit_order_obj, "dispatched")
                 elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
                     set_order_status(unit_order_obj, "delivered")
                 else:
-                    logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
+                    logger.warning(
+                        "UpdateOrderStatusAPI: Bad transition request-400")
                     break
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+            logger.error("UpdateOrderStatusAPI: %s at %s",
+                         str(e), str(exc_tb.tb_lineno))
 
-        return Response(data = response)
+        return Response(data=response)
 
 
 class SetCallStatusAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
@@ -7413,20 +8189,21 @@ class SetCallStatusAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("SetCallStatusAPI Restricted Access!")
                 return Response(data=response)
 
             updated_call_status = data["call_status"]
-            order_uuid  = data["orderUuid"]
+            order_uuid = data["orderUuid"]
 
             order_obj = Order.objects.get(uuid=order_uuid)
             old_call_status = order_obj.call_status
             order_obj.call_status = updated_call_status
             order_obj.save()
 
-            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            omnycomm_user = OmnyCommUser.objects.get(
+                username=request.user.username)
             call_status_change_information = {
                 "event": "call_status",
                 "information": {
@@ -7436,14 +8213,15 @@ class SetCallStatusAPI(APIView):
             }
 
             VersionOrder.objects.create(order=order_obj,
-                                        user= omnycomm_user,
+                                        user=omnycomm_user,
                                         change_information=json.dumps(call_status_change_information))
 
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SetCallStatusAPI: %s at %s",e, str(exc_tb.tb_lineno))
-        
+            logger.error("SetCallStatusAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -7459,39 +8237,42 @@ class FetchOCSalesPersonsAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("FetchOCSalesPersonsAPI Restricted Access!")
                 return Response(data=response)
 
             location_group_uuid = data["locationGroupUuid"]
-            is_sales_executive = data.get("is_sales_executive",False)
-            
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            is_sales_executive = data.get("is_sales_executive", False)
+
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             custom_permission_objs = location_group_obj.custompermission_set.all()
-            
-            if is_sales_executive==True:
+
+            if is_sales_executive == True:
                 sales_custom_permission_objs = CustomPermission.objects.none()
                 for custom_permission_obj in custom_permission_objs:
                     misc = json.loads(custom_permission_obj.misc)
                     if "sales-analytics" in misc:
-                        sales_custom_permission_objs = sales_custom_permission_objs | CustomPermission.objects.filter(pk=custom_permission_obj.pk)
+                        sales_custom_permission_objs = sales_custom_permission_objs | CustomPermission.objects.filter(
+                            pk=custom_permission_obj.pk)
                 custom_permission_objs = sales_custom_permission_objs
 
-            sales_person_list=[]
+            sales_person_list = []
             for custom_permission_obj in custom_permission_objs:
                 temp_dict = {}
                 temp_dict["username"] = custom_permission_obj.user.username
                 temp_dict["firstName"] = custom_permission_obj.user.first_name
                 temp_dict["lastName"] = custom_permission_obj.user.last_name
                 sales_person_list.append(temp_dict)
-        
+
             response["salesPersonList"] = sales_person_list
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOCSalesPersonsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchOCSalesPersonsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -7509,7 +8290,7 @@ class CancelOrdersAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("CancelOrdersAPI Restricted Access!")
                 return Response(data=response)
@@ -7523,17 +8304,19 @@ class CancelOrdersAPI(APIView):
                 cancel_order_admin(unit_order_obj, cancelling_note)
                 order_obj = unit_order_obj.order
 
-            if order_obj!=None:
+            if order_obj != None:
 
-                omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
+                omnycomm_user_obj = OmnyCommUser.objects.get(
+                    username=request.user.username)
                 order_cancel_information = {
-                    "event" : "order_cancel",
-                    "information" : {}
+                    "event": "order_cancel",
+                    "information": {}
                 }
                 VersionOrder.objects.create(order=order_obj,
-                                            user= omnycomm_user_obj,
+                                            user=omnycomm_user_obj,
                                             change_information=json.dumps(order_cancel_information))
-                order_obj.real_to_pay = order_obj.get_total_amount(is_real=True)
+                order_obj.real_to_pay = order_obj.get_total_amount(
+                    is_real=True)
                 order_obj.save()
 
             response["status"] = 200
@@ -7552,67 +8335,74 @@ class ApproveCancellationRequestAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-            
+
             data = request.data
             logger.info("ApproveCancellationRequestAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("ApproveCancellationRequestAPI Restricted Access!")
+                logger.warning(
+                    "ApproveCancellationRequestAPI Restricted Access!")
                 return Response(data=response)
 
             unit_order_uuid_list = data["unit_order_uuid_list"]
 
-            unit_order_objs = UnitOrder.objects.filter(uuid__in=unit_order_uuid_list)
+            unit_order_objs = UnitOrder.objects.filter(
+                uuid__in=unit_order_uuid_list)
 
             for unit_order_obj in unit_order_objs:
-                if unit_order_obj.order.payment_mode=="COD":
-                    unit_order_obj.user_cancellation_status="approved"
-                    unit_order_obj.cancellation_request_action_taken=True
+                if unit_order_obj.order.payment_mode == "COD":
+                    unit_order_obj.user_cancellation_status = "approved"
+                    unit_order_obj.cancellation_request_action_taken = True
                     unit_order_obj.save()
-                    notify_order_cancel_status_to_user(unit_order_obj,"approved")
+                    notify_order_cancel_status_to_user(
+                        unit_order_obj, "approved")
                 else:
-                    unit_order_obj.user_cancellation_status="refund processed"
-                    unit_order_obj.cancellation_request_action_taken=True
+                    unit_order_obj.user_cancellation_status = "refund processed"
+                    unit_order_obj.cancellation_request_action_taken = True
                     unit_order_obj.save()
-                    notify_order_cancel_status_to_user(unit_order_obj,"refund processed")
-                cancel_order_admin(unit_order_obj,unit_order_obj.user_cancellation_note)
-                
-            
+                    notify_order_cancel_status_to_user(
+                        unit_order_obj, "refund processed")
+                cancel_order_admin(
+                    unit_order_obj, unit_order_obj.user_cancellation_note)
+
             if unit_order_objs.exists():
                 order_obj = unit_order_objs[0].order
-                order_obj.real_to_pay = order_obj.get_total_amount(is_real=True)
+                order_obj.real_to_pay = order_obj.get_total_amount(
+                    is_real=True)
                 order_obj.save()
 
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("ApproveCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("ApproveCancellationRequestAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
 class RejectCancellationRequestAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            
+
             data = request.data
             logger.info("RejectCancellationRequestAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("RejectCancellationRequestAPI Restricted Access!")
+                logger.warning(
+                    "RejectCancellationRequestAPI Restricted Access!")
                 return Response(data=response)
 
             unit_order_uuid_list = data["unit_order_uuid_list"]
@@ -7621,34 +8411,37 @@ class RejectCancellationRequestAPI(APIView):
                 unit_order_obj.user_cancellation_status = "rejected"
                 unit_order_obj.cancellation_request_action_taken = True
                 unit_order_obj.save()
-                notify_order_cancel_status_to_user(unit_order_obj,"rejected")
-                
+                notify_order_cancel_status_to_user(unit_order_obj, "rejected")
+
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RejectCancellationRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("RejectCancellationRequestAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
 class UpdateCancellationRequestRefundStatusAPI(APIView):
-    
+
     def post(self, request, *args, **kwargs):
 
         response = {}
         response['status'] = 500
         try:
-            
+
             data = request.data
-            logger.info("UpdateCancellationRequestRefundStatusAPI: %s", str(data))
+            logger.info(
+                "UpdateCancellationRequestRefundStatusAPI: %s", str(data))
 
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("UpdateCancellationRequestRefundStatusAPI Restricted Access!")
+                logger.warning(
+                    "UpdateCancellationRequestRefundStatusAPI Restricted Access!")
                 return Response(data=response)
 
             unit_order_uuid = data["unit_order_uuid"]
@@ -7658,14 +8451,16 @@ class UpdateCancellationRequestRefundStatusAPI(APIView):
             unit_order_obj.user_cancellation_status = "refunded"
             unit_order_obj.save()
 
-            notify_order_cancel_status_to_user(unit_order_obj,"refunded")
-            activitylog(user=request.user,table_name=UnitOrder,action_type='update',location_group_obj=None,prev_instance=prev_unit_order_instance,current_instance=unit_order_obj,table_item_pk=unit_order_obj.pk,render='{} refunded'.format(unit_order_obj))
+            notify_order_cancel_status_to_user(unit_order_obj, "refunded")
+            activitylog(user=request.user, table_name=UnitOrder, action_type='update', location_group_obj=None, prev_instance=prev_unit_order_instance,
+                        current_instance=unit_order_obj, table_item_pk=unit_order_obj.pk, render='{} refunded'.format(unit_order_obj))
             response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateCancellationRequestRefundStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error(
+                "UpdateCancellationRequestRefundStatusAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -7682,7 +8477,7 @@ class DownloadOrdersAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("DownloadOrdersAPI Restricted Access!")
                 return Response(data=response)
@@ -7701,30 +8496,41 @@ class DownloadOrdersAPI(APIView):
 
             report_type = data.get("reportType")
 
-            unit_order_objs = UnitOrder.objects.filter(order__location_group__uuid=location_group_uuid).order_by('-pk')
+            unit_order_objs = UnitOrder.objects.filter(
+                order__location_group__uuid=location_group_uuid).order_by('-pk')
 
-            if from_date!="":
+            if from_date != "":
                 from_date = from_date[:10]+"T00:00:00+04:00"
-                unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
-            if to_date!="":
+                unit_order_objs = unit_order_objs.filter(
+                    order__order_placed_date__gte=from_date)
+            if to_date != "":
                 to_date = to_date[:10]+"T23:59:59+04:00"
-                unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
-            if len(payment_type_list)>0:
-                unit_order_objs = unit_order_objs.filter(order__payment_mode__in=payment_type_list)
-            if len(shipping_method_list)>0:
-                unit_order_objs = unit_order_objs.filter(shipping_method__in=shipping_method_list)
-            if len(tracking_status_list)>0:
-                unit_order_objs = unit_order_objs.filter(current_status_admin__in=tracking_status_list)
-            if max_qty!="":
-                unit_order_objs = unit_order_objs.filter(quantity__lte=int(max_qty))
-            if min_qty!="":
-                unit_order_objs = unit_order_objs.filter(quantity__gte=int(min_qty))
-            if max_price!="":
-                unit_order_objs = unit_order_objs.filter(price__lte=int(max_price))
-            if min_price!="":
-                unit_order_objs = unit_order_objs.filter(price__gte=int(min_price))
+                unit_order_objs = unit_order_objs.filter(
+                    order__order_placed_date__lte=to_date)
+            if len(payment_type_list) > 0:
+                unit_order_objs = unit_order_objs.filter(
+                    order__payment_mode__in=payment_type_list)
+            if len(shipping_method_list) > 0:
+                unit_order_objs = unit_order_objs.filter(
+                    shipping_method__in=shipping_method_list)
+            if len(tracking_status_list) > 0:
+                unit_order_objs = unit_order_objs.filter(
+                    current_status_admin__in=tracking_status_list)
+            if max_qty != "":
+                unit_order_objs = unit_order_objs.filter(
+                    quantity__lte=int(max_qty))
+            if min_qty != "":
+                unit_order_objs = unit_order_objs.filter(
+                    quantity__gte=int(min_qty))
+            if max_price != "":
+                unit_order_objs = unit_order_objs.filter(
+                    price__lte=int(max_price))
+            if min_price != "":
+                unit_order_objs = unit_order_objs.filter(
+                    price__gte=int(min_price))
 
-            order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
+            order_objs = Order.objects.filter(
+                unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
             unit_order_list = []
             for order_obj in order_objs[:500]:
@@ -7749,7 +8555,8 @@ class DownloadOrdersAPI(APIView):
                         subtotal_vat = unit_order_obj.get_total_vat()
                         subtotal_without_vat = unit_order_obj.get_subtotal_without_vat()
 
-                        tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
+                        tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(
+                            unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
 
                         temp_dict = {
                             "orderPlacedDate": str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p")),
@@ -7782,20 +8589,24 @@ class DownloadOrdersAPI(APIView):
 
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("DownloadOrdersAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("DownloadOrdersAPI: %s at %s",
+                                 e, str(exc_tb.tb_lineno))
 
-            if report_type=="sap":
+            if report_type == "sap":
                 generate_sap_order_format(unit_order_list)
-                response["filepath"] = SERVER_IP+"/files/csv/sap-order-format.xlsx?abc=1"
+                response["filepath"] = SERVER_IP + \
+                    "/files/csv/sap-order-format.xlsx?abc=1"
             else:
                 generate_regular_order_format(unit_order_list)
-                response["filepath"] = SERVER_IP+"/files/csv/regular-order-format.xlsx?abc=2"
-            
+                response["filepath"] = SERVER_IP + \
+                    "/files/csv/regular-order-format.xlsx?abc=2"
+
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DownloadOrdersAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DownloadOrdersAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -7813,12 +8624,13 @@ class UploadOrdersAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("UploadOrdersAPI Restricted Access!")
                 return Response(data=response)
-            
-            path = default_storage.save('tmp/temp-orders.xlsx', data["import_file"])
+
+            path = default_storage.save(
+                'tmp/temp-orders.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
             dfs = pd.read_excel(path, sheet_name=None)["Sheet1"]
             rows = len(dfs.iloc[:])
@@ -7836,9 +8648,9 @@ class UploadOrdersAPI(APIView):
                     unit_order_obj = UnitOrder.objects.get(orderid=order_id)
                     if order_status in ["picked", "dispatched", "delivered", "delivery failed"]:
                         set_order_status(unit_order_obj, order_status)
-                    elif order_status=="approved":
+                    elif order_status == "approved":
                         set_shipping_method(unit_order_obj, shipping_method)
-                    elif order_status=="cancelled":
+                    elif order_status == "cancelled":
                         cancel_order_admin(unit_order_obj, description)
                     success += 1
                 except Exception as e:
@@ -7867,22 +8679,24 @@ class ApplyVoucherCodeAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             voucher_code = data["voucher_code"]
 
             is_fast_cart = data.get("is_fast_cart", False)
 
-            if Voucher.objects.filter(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj).exists()==False:
+            if Voucher.objects.filter(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj).exists() == False:
                 response["error_message"] = "INVALID CODE"
                 response["voucher_success"] = False
                 response["status"] = 200
                 return Response(data=response)
 
-            voucher_obj = Voucher.objects.get(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj)
-            if voucher_obj.is_expired()==True:
+            voucher_obj = Voucher.objects.get(
+                is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj)
+            if voucher_obj.is_expired() == True:
                 response["error_message"] = "EXPIRED"
                 response["voucher_success"] = False
                 response["status"] = 200
@@ -7892,35 +8706,37 @@ class ApplyVoucherCodeAPI(APIView):
             owner = None
             cart_obj = None
             fast_cart_obj = None
-            if is_fast_cart==False:
-                cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+            if is_fast_cart == False:
+                cart_obj = Cart.objects.get(
+                    location_group=location_group_obj, owner__username=request.user.username)
                 subtotal = cart_obj.get_subtotal()
                 owner = cart_obj.owner
             else:
-                fast_cart_obj = FastCart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+                fast_cart_obj = FastCart.objects.get(
+                    location_group=location_group_obj, owner__username=request.user.username)
                 subtotal = fast_cart_obj.get_subtotal()
                 owner = fast_cart_obj.owner
 
-            if voucher_obj.is_eligible(subtotal)==False:
+            if voucher_obj.is_eligible(subtotal) == False:
                 response["error_message"] = "NOT APPLICABLE"
                 response["voucher_success"] = False
                 response["status"] = 200
                 return Response(data=response)
 
-            if is_voucher_limt_exceeded_for_customer(owner, voucher_obj)==True:
+            if is_voucher_limt_exceeded_for_customer(owner, voucher_obj) == True:
                 response["error_message"] = "LIMIT EXCEEDED"
                 response["voucher_success"] = False
                 response["status"] = 200
                 return Response(data=response)
-            
-            if is_fast_cart==False:
+
+            if is_fast_cart == False:
                 cart_obj.voucher = voucher_obj
                 cart_obj.save()
 
                 update_cart_bill(cart_obj)
 
                 subtotal = cart_obj.get_subtotal()
-                
+
                 delivery_fee = cart_obj.get_delivery_fee()
                 total_amount = cart_obj.get_total_amount()
                 vat = cart_obj.get_vat()
@@ -7929,13 +8745,14 @@ class ApplyVoucherCodeAPI(APIView):
                 total_amount_with_cod = cart_obj.get_total_amount(cod=True)
                 vat_with_cod = cart_obj.get_vat(cod=True)
 
-                is_voucher_applied = cart_obj.voucher!=None
+                is_voucher_applied = cart_obj.voucher != None
                 voucher_discount = 0
                 voucher_code = ""
                 if is_voucher_applied:
-                    voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                    voucher_discount = cart_obj.voucher.get_voucher_discount(
+                        subtotal)
                     voucher_code = cart_obj.voucher.voucher_code
-                    if cart_obj.voucher.voucher_type=="SD":
+                    if cart_obj.voucher.voucher_type == "SD":
                         delivery_fee = delivery_fee_with_cod
                         voucher_discount = delivery_fee
 
@@ -7966,25 +8783,27 @@ class ApplyVoucherCodeAPI(APIView):
                 update_fast_cart_bill(fast_cart_obj)
 
                 subtotal = fast_cart_obj.get_subtotal()
-                
+
                 delivery_fee = fast_cart_obj.get_delivery_fee()
                 total_amount = fast_cart_obj.get_total_amount()
                 vat = fast_cart_obj.get_vat()
 
-                delivery_fee_with_cod = fast_cart_obj.get_delivery_fee(cod=True)
-                total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
+                delivery_fee_with_cod = fast_cart_obj.get_delivery_fee(
+                    cod=True)
+                total_amount_with_cod = fast_cart_obj.get_total_amount(
+                    cod=True)
                 vat_with_cod = fast_cart_obj.get_vat(cod=True)
 
-                is_voucher_applied = fast_cart_obj.voucher!=None
+                is_voucher_applied = fast_cart_obj.voucher != None
                 voucher_discount = 0
                 voucher_code = ""
                 if is_voucher_applied:
-                    voucher_discount = fast_cart_obj.voucher.get_voucher_discount(subtotal)
+                    voucher_discount = fast_cart_obj.voucher.get_voucher_discount(
+                        subtotal)
                     voucher_code = fast_cart_obj.voucher.voucher_code
-                    if fast_cart_obj.voucher.voucher_type=="SD":
+                    if fast_cart_obj.voucher.voucher_type == "SD":
                         delivery_fee = delivery_fee_with_cod
                         voucher_discount = delivery_fee
-
 
                 response["currency"] = fast_cart_obj.get_currency()
                 response["subtotal"] = subtotal
@@ -8012,7 +8831,8 @@ class ApplyVoucherCodeAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("ApplyVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("ApplyVoucherCodeAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -8029,21 +8849,23 @@ class RemoveVoucherCodeAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             is_fast_cart = data.get("is_fast_cart", False)
 
-            if is_fast_cart==False:
-                cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+            if is_fast_cart == False:
+                cart_obj = Cart.objects.get(
+                    location_group=location_group_obj, owner__username=request.user.username)
                 cart_obj.voucher = None
                 cart_obj.save()
 
                 update_cart_bill(cart_obj)
 
                 subtotal = cart_obj.get_subtotal()
-                
+
                 delivery_fee = cart_obj.get_delivery_fee()
                 total_amount = cart_obj.get_total_amount()
                 vat = cart_obj.get_vat()
@@ -8052,13 +8874,14 @@ class RemoveVoucherCodeAPI(APIView):
                 total_amount_with_cod = cart_obj.get_total_amount(cod=True)
                 vat_with_cod = cart_obj.get_vat(cod=True)
 
-                is_voucher_applied = cart_obj.voucher!=None
+                is_voucher_applied = cart_obj.voucher != None
                 voucher_discount = 0
                 voucher_code = ""
                 if is_voucher_applied:
-                    voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                    voucher_discount = cart_obj.voucher.get_voucher_discount(
+                        subtotal)
                     voucher_code = cart_obj.voucher.voucher_code
-                    if cart_obj.voucher.voucher_type=="SD":
+                    if cart_obj.voucher.voucher_type == "SD":
                         delivery_fee = delivery_fee_with_cod
                         voucher_discount = delivery_fee
 
@@ -8083,29 +8906,33 @@ class RemoveVoucherCodeAPI(APIView):
                     "voucher_code": voucher_code
                 }
             else:
-                fast_cart_obj = FastCart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+                fast_cart_obj = FastCart.objects.get(
+                    location_group=location_group_obj, owner__username=request.user.username)
                 fast_cart_obj.voucher = None
                 fast_cart_obj.save()
 
                 update_fast_cart_bill(fast_cart_obj)
 
                 subtotal = fast_cart_obj.get_subtotal()
-                
+
                 delivery_fee = fast_cart_obj.get_delivery_fee()
                 total_amount = fast_cart_obj.get_total_amount()
                 vat = fast_cart_obj.get_vat()
 
-                delivery_fee_with_cod = fast_cart_obj.get_delivery_fee(cod=True)
-                total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
+                delivery_fee_with_cod = fast_cart_obj.get_delivery_fee(
+                    cod=True)
+                total_amount_with_cod = fast_cart_obj.get_total_amount(
+                    cod=True)
                 vat_with_cod = fast_cart_obj.get_vat(cod=True)
 
-                is_voucher_applied = fast_cart_obj.voucher!=None
+                is_voucher_applied = fast_cart_obj.voucher != None
                 voucher_discount = 0
                 voucher_code = ""
                 if is_voucher_applied:
-                    voucher_discount = fast_cart_obj.voucher.get_voucher_discount(subtotal)
+                    voucher_discount = fast_cart_obj.voucher.get_voucher_discount(
+                        subtotal)
                     voucher_code = fast_cart_obj.voucher.voucher_code
-                    if fast_cart_obj.voucher.voucher_type=="SD":
+                    if fast_cart_obj.voucher.voucher_type == "SD":
                         delivery_fee = delivery_fee_with_cod
                         voucher_discount = delivery_fee
 
@@ -8134,7 +8961,8 @@ class RemoveVoucherCodeAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RemoveVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("RemoveVoucherCodeAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -8152,67 +8980,73 @@ class ApplyOfflineVoucherCodeAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("ApplyOfflineVoucherCodeAPI Restricted Access!")
                 return Response(data=response)
-            
+
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             voucher_code = data["voucher_code"]
 
             username = data["username"]
 
-            if Voucher.objects.filter(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj).exists()==False:
+            if Voucher.objects.filter(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj).exists() == False:
                 response["error_message"] = "INVALID CODE"
                 response["voucher_success"] = False
                 response["status"] = 200
                 return Response(data=response)
 
-            voucher_obj = Voucher.objects.get(is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj)
-            if voucher_obj.is_expired()==True:
+            voucher_obj = Voucher.objects.get(
+                is_deleted=False, is_published=True, voucher_code=voucher_code, location_group=location_group_obj)
+            if voucher_obj.is_expired() == True:
                 response["error_message"] = "EXPIRED"
                 response["voucher_success"] = False
                 response["status"] = 200
                 return Response(data=response)
 
-            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+            cart_obj = Cart.objects.get(
+                location_group=location_group_obj, owner__username=username)
 
-            if voucher_obj.is_eligible(cart_obj.get_subtotal(offline=True))==False:
+            if voucher_obj.is_eligible(cart_obj.get_subtotal(offline=True)) == False:
                 response["error_message"] = "NOT APPLICABLE"
                 response["voucher_success"] = False
                 response["status"] = 200
                 return Response(data=response)
 
-            if is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==True:
+            if is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj) == True:
                 response["error_message"] = "LIMIT EXCEEDED"
                 response["voucher_success"] = False
                 response["status"] = 200
                 return Response(data=response)
-            
+
             cart_obj.voucher = voucher_obj
             cart_obj.save()
 
-            update_cart_bill(cart_obj,cod=True,offline=True)
+            update_cart_bill(cart_obj, cod=True, offline=True)
 
             subtotal = cart_obj.get_subtotal(offline=True)
-            
+
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)
             vat = cart_obj.get_vat(offline=True)
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(
+                cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(
+                cod=True, offline=True)
             vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
 
-            is_voucher_applied = cart_obj.voucher!=None
+            is_voucher_applied = cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
-                if cart_obj.voucher.voucher_type=="SD":
+                if cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -8241,7 +9075,8 @@ class ApplyOfflineVoucherCodeAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("ApplyOfflineVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("ApplyOfflineVoucherCodeAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -8259,39 +9094,45 @@ class RemoveOfflineVoucherCodeAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("RemoveOfflineVoucherCodeAPI Restricted Access!")
+                logger.warning(
+                    "RemoveOfflineVoucherCodeAPI Restricted Access!")
                 return Response(data=response)
-            
+
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             username = data["username"]
 
-            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+            cart_obj = Cart.objects.get(
+                location_group=location_group_obj, owner__username=username)
             cart_obj.voucher = None
             cart_obj.save()
 
-            update_cart_bill(cart_obj,cod=True,offline=True)
+            update_cart_bill(cart_obj, cod=True, offline=True)
 
             subtotal = cart_obj.get_subtotal(offline=True)
-            
+
             delivery_fee = cart_obj.get_delivery_fee(offline=True)
             total_amount = cart_obj.get_total_amount(offline=True)
             vat = cart_obj.get_vat(offline=True)
 
-            delivery_fee_with_cod = cart_obj.get_delivery_fee(cod=True, offline=True)
-            total_amount_with_cod = cart_obj.get_total_amount(cod=True, offline=True)
+            delivery_fee_with_cod = cart_obj.get_delivery_fee(
+                cod=True, offline=True)
+            total_amount_with_cod = cart_obj.get_total_amount(
+                cod=True, offline=True)
             vat_with_cod = cart_obj.get_vat(cod=True, offline=True)
 
-            is_voucher_applied = cart_obj.voucher!=None
+            is_voucher_applied = cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = cart_obj.voucher.voucher_code
-                if cart_obj.voucher.voucher_type=="SD":
+                if cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -8320,9 +9161,11 @@ class RemoveOfflineVoucherCodeAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("RemoveOfflineVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("RemoveOfflineVoucherCodeAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class AddOfflineReferenceMediumAPI(APIView):
 
@@ -8337,27 +9180,32 @@ class AddOfflineReferenceMediumAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("AddOfflineReferenceMediumAPI Restricted Access!")
+                logger.warning(
+                    "AddOfflineReferenceMediumAPI Restricted Access!")
                 return Response(data=response)
-            
+
             location_group_uuid = data["locationGroupUuid"]
             username = data["username"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             reference_medium = data["reference_medium"]
 
-            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+            cart_obj = Cart.objects.get(
+                location_group=location_group_obj, owner__username=username)
             cart_obj.reference_medium = reference_medium
             cart_obj.save()
 
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddOfflineReferenceMediumAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddOfflineReferenceMediumAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 class AddOnlineAdditionalNoteAPI(APIView):
 
@@ -8371,19 +9219,22 @@ class AddOnlineAdditionalNoteAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             additional_note = data["additional_note"]
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             is_fast_cart = data.get("is_fast_cart", False)
 
-            if is_fast_cart==False:
-                cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+            if is_fast_cart == False:
+                cart_obj = Cart.objects.get(
+                    location_group=location_group_obj, owner__username=request.user.username)
                 cart_obj.additional_note = additional_note
                 cart_obj.save()
             else:
-                fast_cart_obj = FastCart.objects.get(location_group=location_group_obj, owner__username=request.user.username)
+                fast_cart_obj = FastCart.objects.get(
+                    location_group=location_group_obj, owner__username=request.user.username)
                 fast_cart_obj.additional_note = additional_note
                 fast_cart_obj.save()
 
@@ -8391,7 +9242,8 @@ class AddOnlineAdditionalNoteAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddOnlineAdditionalNoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddOnlineAdditionalNoteAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -8409,25 +9261,29 @@ class AddOfflineAdditionalNoteAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
-                logger.warning("AddOfflineAdditionalNoteAPI Restricted Access!")
+                logger.warning(
+                    "AddOfflineAdditionalNoteAPI Restricted Access!")
                 return Response(data=response)
-            
+
             location_group_uuid = data["locationGroupUuid"]
             username = data["username"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             additional_note = data["additional_note"]
-            
-            cart_obj = Cart.objects.get(location_group=location_group_obj, owner__username=username)
+
+            cart_obj = Cart.objects.get(
+                location_group=location_group_obj, owner__username=username)
             cart_obj.additional_note = additional_note
             cart_obj.save()
 
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddOfflineAdditionalNoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("AddOfflineAdditionalNoteAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -8444,14 +9300,16 @@ class FetchOrderAnalyticsParamsAPI(APIView):
 
             if not isinstance(data, dict):
                 data = json.loads(data)
-            
+
             import time
             time.sleep(2)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            order_obj = Order.objects.filter(location_group__uuid=location_group_uuid, owner__username=request.user.username).order_by('-pk')[0]
+            order_obj = Order.objects.filter(
+                location_group__uuid=location_group_uuid, owner__username=request.user.username).order_by('-pk')[0]
 
             gtm_params = calculate_gtm(order_obj)
 
@@ -8462,7 +9320,8 @@ class FetchOrderAnalyticsParamsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchOrderAnalyticsParamsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchOrderAnalyticsParamsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -8483,22 +9342,27 @@ class PlaceDaycartOnlineOrderAPI(APIView):
             payment_method = data["paymentMethod"]
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             is_fast_cart = data.get("is_fast_cart", False)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             order_obj = None
-            order_info = get_order_info_from_hyperpay(checkout_id, payment_method, location_group_obj)
-            if order_info["result"]==False:
+            order_info = get_order_info_from_hyperpay(
+                checkout_id, payment_method, location_group_obj)
+            if order_info["result"] == False:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("PlaceDaycartOnlineOrderAPI: HYPERPAY STATUS MISMATCH!")
+                logger.warning(
+                    "PlaceDaycartOnlineOrderAPI: HYPERPAY STATUS MISMATCH!")
                 return Response(data=response)
 
-            if is_fast_cart==False:
+            if is_fast_cart == False:
 
-                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                cart_obj = Cart.objects.get(
+                    owner=dealshub_user_obj, location_group=location_group_obj)
 
                 update_cart_bill(cart_obj)
 
@@ -8506,8 +9370,8 @@ class PlaceDaycartOnlineOrderAPI(APIView):
 
                 try:
                     voucher_obj = cart_obj.voucher
-                    if voucher_obj!=None:
-                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                    if voucher_obj != None:
+                        if voucher_obj.is_expired() == False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj) == False:
                             voucher_obj.total_usage += 1
                             voucher_obj.save()
                         else:
@@ -8515,7 +9379,8 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                             cart_obj.save()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PlaceDaycartOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("PlaceDaycartOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(
+                        exc_tb.tb_lineno))
 
                 payment_info = "NA"
                 payment_mode = "NA"
@@ -8558,11 +9423,13 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                 cart_obj.payment_info = "{}"
                 cart_obj.save()
             else:
-                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                fast_cart_obj = FastCart.objects.get(
+                    owner=dealshub_user_obj, location_group=location_group_obj)
 
                 try:
-                    if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                    if fast_cart_obj.shipping_address == None:
+                        address_obj = Address.objects.filter(
+                            user=dealshub_user_obj)[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -8572,8 +9439,8 @@ class PlaceDaycartOnlineOrderAPI(APIView):
 
                 try:
                     voucher_obj = cart_obj.voucher
-                    if voucher_obj!=None:
-                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                    if voucher_obj != None:
+                        if voucher_obj.is_expired() == False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj) == False:
                             voucher_obj.total_usage += 1
                             voucher_obj.save()
                         else:
@@ -8581,7 +9448,8 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                             cart_obj.save()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PlaceDaycartOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("PlaceDaycartOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(
+                        exc_tb.tb_lineno))
 
                 payment_info = "NA"
                 payment_mode = "NA"
@@ -8622,22 +9490,25 @@ class PlaceDaycartOnlineOrderAPI(APIView):
 
             # Trigger Email
             try:
-                p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                p1 = threading.Thread(
+                    target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("PlaceDaycartOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceDaycartOnlineOrderAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
             # Refresh Stock
-            #refresh_stock(order_obj)
+            # refresh_stock(order_obj)
 
             #response["purchase"] = calculate_gtm(order_obj)
 
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PlaceDaycartOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("PlaceDaycartOnlineOrderAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -8656,41 +9527,47 @@ class PlaceOnlineOrderAPI(APIView):
             merchant_reference = data["merchant_reference"]
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
             is_fast_cart = data.get("is_fast_cart", False)
 
-            online_payment_mode = data.get("online_payment_mode","card")
-            
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            online_payment_mode = data.get("online_payment_mode", "card")
+
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
 
             order_obj = None
 
             if Order.objects.filter(merchant_reference=merchant_reference).exists():
-                logger.warning("PlaceOnlineOrderAPI: Credentials for older order!")
+                logger.warning(
+                    "PlaceOnlineOrderAPI: Credentials for older order!")
                 return Response(data=response)
-            
-            if online_payment_mode.strip().lower()=="spotii":
-                if on_approve_capture_order(merchant_reference)==False:
-                    logger.warning("PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH!")
+
+            if online_payment_mode.strip().lower() == "spotii":
+                if on_approve_capture_order(merchant_reference) == False:
+                    logger.warning(
+                        "PlaceOnlineOrderAPI: SPOTII STATUS MISMATCH!")
                     return Response(data=response)
-            elif online_payment_mode.strip().lower()=="tap":
-                if get_charge_status(data["charge_id"])!="CAPTURED":
+            elif online_payment_mode.strip().lower() == "tap":
+                if get_charge_status(data["charge_id"]) != "CAPTURED":
                     logger.warning("PlaceOnlineOrderAPI: TAP STATUS MISMATCH!")
                     return Response(data=response)
-            elif online_payment_mode.strip().lower()=="network_global_android":
-                if check_order_status_from_network_global_android(merchant_reference, location_group_obj)==False:
-                    logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL ANDROID STATUS MISMATCH!")
-                    return Response(data=response)  
-            else:
-                if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
-                    logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")
+            elif online_payment_mode.strip().lower() == "network_global_android":
+                if check_order_status_from_network_global_android(merchant_reference, location_group_obj) == False:
+                    logger.warning(
+                        "PlaceOnlineOrderAPI: NETWORK GLOBAL ANDROID STATUS MISMATCH!")
                     return Response(data=response)
-            
+            else:
+                if check_order_status_from_network_global(merchant_reference, location_group_obj) == False:
+                    logger.warning(
+                        "PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")
+                    return Response(data=response)
 
-            if is_fast_cart==False:
+            if is_fast_cart == False:
 
-                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                cart_obj = Cart.objects.get(
+                    owner=dealshub_user_obj, location_group=location_group_obj)
 
                 update_cart_bill(cart_obj)
 
@@ -8698,8 +9575,8 @@ class PlaceOnlineOrderAPI(APIView):
 
                 try:
                     voucher_obj = cart_obj.voucher
-                    if voucher_obj!=None:
-                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==False:
+                    if voucher_obj != None:
+                        if voucher_obj.is_expired() == False and is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj) == False:
                             voucher_obj.total_usage += 1
                             voucher_obj.save()
                         else:
@@ -8707,7 +9584,8 @@ class PlaceOnlineOrderAPI(APIView):
                             cart_obj.save()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PlaceOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("PlaceOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(
+                        exc_tb.tb_lineno))
 
                 payment_info = "NA"
                 payment_mode = "NA"
@@ -8720,7 +9598,7 @@ class PlaceOnlineOrderAPI(APIView):
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
                                                  to_pay=cart_obj.to_pay,
-                                                 real_to_pay = cart_obj.to_pay,
+                                                 real_to_pay=cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
                                                  location_group=cart_obj.location_group,
@@ -8753,11 +9631,13 @@ class PlaceOnlineOrderAPI(APIView):
                 cart_obj.payment_info = "{}"
                 cart_obj.save()
             else:
-                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                fast_cart_obj = FastCart.objects.get(
+                    owner=dealshub_user_obj, location_group=location_group_obj)
 
                 try:
-                    if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                    if fast_cart_obj.shipping_address == None:
+                        address_obj = Address.objects.filter(
+                            user=dealshub_user_obj)[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -8767,8 +9647,8 @@ class PlaceOnlineOrderAPI(APIView):
 
                 try:
                     voucher_obj = fast_cart_obj.voucher
-                    if voucher_obj!=None:
-                        if voucher_obj.is_expired()==False and is_voucher_limt_exceeded_for_customer(fast_cart_obj.owner, voucher_obj)==False:
+                    if voucher_obj != None:
+                        if voucher_obj.is_expired() == False and is_voucher_limt_exceeded_for_customer(fast_cart_obj.owner, voucher_obj) == False:
                             voucher_obj.total_usage += 1
                             voucher_obj.save()
                         else:
@@ -8776,7 +9656,8 @@ class PlaceOnlineOrderAPI(APIView):
                             fast_cart_obj.save()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.warning("PlaceOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.warning("PlaceOnlineOrderAPI: voucher code not handled properly! %s at %s", e, str(
+                        exc_tb.tb_lineno))
 
                 payment_info = "NA"
                 payment_mode = "NA"
@@ -8820,25 +9701,30 @@ class PlaceOnlineOrderAPI(APIView):
 
             # Trigger Email
             try:
-                p1 = threading.Thread(target=send_order_confirmation_mail, args=(order_obj,))
+                p1 = threading.Thread(
+                    target=send_order_confirmation_mail, args=(order_obj,))
                 p1.start()
                 website_group = order_obj.location_group.website_group.name
                 unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
-                if website_group=="parajohn":
+                if website_group == "parajohn":
                     message = 'Your order has been confirmed!'
-                    p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
+                    p2 = threading.Thread(
+                        target=send_parajohn_order_status_sms, args=(unit_order_obj, message,))
                     p2.start()
                 elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
                     message = 'Your order has been confirmed!'
-                    p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
+                    p2 = threading.Thread(
+                        target=send_wigme_order_status_sms, args=(unit_order_obj, message,))
                     p2.start()
-                elif website_group=="daycart":
+                elif website_group == "daycart":
                     message = 'Your order has been confirmed!'
-                    p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
+                    p2 = threading.Thread(
+                        target=send_daycart_order_status_sms, args=(unit_order_obj, message,))
                     p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceOnlineOrderAPI: %s at %s",
+                             e, str(exc_tb.tb_lineno))
 
             # Refresh Stock
             refresh_stock(order_obj)
@@ -8848,8 +9734,9 @@ class PlaceOnlineOrderAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("PlaceOnlineOrderAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -8865,14 +9752,15 @@ class FetchPostaPlusTrackingAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            if is_oc_user(request.user)==False:
+            if is_oc_user(request.user) == False:
                 response['status'] = 403
                 logger.warning("FetchPostaPlusTrackingAPI Restricted Access!")
                 return Response(data=response)
 
             order_uuid = data["uuid"]
 
-            awb_number = json.loads(Order.objects.get(uuid=order_uuid).postaplus_info)["awb_number"]
+            awb_number = json.loads(Order.objects.get(
+                uuid=order_uuid).postaplus_info)["awb_number"]
 
             postaplus_tracking_response = fetch_postaplus_tracking(awb_number)
 
@@ -8881,8 +9769,9 @@ class FetchPostaPlusTrackingAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchPostaPlusTrackingAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("FetchPostaPlusTrackingAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -8895,36 +9784,44 @@ class FetchFastCartDetailsAPI(APIView):
         try:
             data = request.data
             logger.info("FetchFastCartDetailsAPI: %s", str(data))
-            language_code = data.get("language","en")
+            language_code = data.get("language", "en")
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-            
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=request.user.username)
+            fast_cart_obj = FastCart.objects.get(
+                owner=dealshub_user_obj, location_group=location_group_obj)
+
             cart_details = {}
             cart_details["uuid"] = fast_cart_obj.uuid
             cart_details["quantity"] = fast_cart_obj.quantity
-            cart_details["price"] = fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
-            cart_details["showNote"] = fast_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+            cart_details["price"] = fast_cart_obj.product.get_actual_price_for_customer(
+                dealshub_user_obj)
+            cart_details["showNote"] = fast_cart_obj.product.is_promo_restriction_note_required(
+                dealshub_user_obj)
             cart_details["moq"] = fast_cart_obj.product.moq
             cart_details["stock"] = fast_cart_obj.product.stock
             cart_details["allowedQty"] = fast_cart_obj.product.get_allowed_qty()
             cart_details["currency"] = fast_cart_obj.product.get_currency()
-            cart_details["productName"] = fast_cart_obj.product.get_name(language_code)
-            cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url()
+            cart_details["productName"] = fast_cart_obj.product.get_name(
+                language_code)
+            cart_details["productImageUrl"] = fast_cart_obj.product.get_display_image_url(
+            )
             cart_details["productUuid"] = fast_cart_obj.product.uuid
             cart_details["link"] = fast_cart_obj.product.url
-            cart_details["brand"] = fast_cart_obj.product.get_brand(language_code)
+            cart_details["brand"] = fast_cart_obj.product.get_brand(
+                language_code)
             cart_details["isStockAvailable"] = fast_cart_obj.product.stock > 0
 
             update_fast_cart_bill(fast_cart_obj)
 
             subtotal = fast_cart_obj.get_subtotal()
-            
+
             delivery_fee = fast_cart_obj.get_delivery_fee()
             total_amount = fast_cart_obj.get_total_amount()
             vat = fast_cart_obj.get_vat()
@@ -8933,13 +9830,14 @@ class FetchFastCartDetailsAPI(APIView):
             total_amount_with_cod = fast_cart_obj.get_total_amount(cod=True)
             vat_with_cod = fast_cart_obj.get_vat(cod=True)
 
-            is_voucher_applied = fast_cart_obj.voucher!=None
+            is_voucher_applied = fast_cart_obj.voucher != None
             voucher_discount = 0
             voucher_code = ""
             if is_voucher_applied:
-                voucher_discount = fast_cart_obj.voucher.get_voucher_discount(subtotal)
+                voucher_discount = fast_cart_obj.voucher.get_voucher_discount(
+                    subtotal)
                 voucher_code = fast_cart_obj.voucher.voucher_code
-                if fast_cart_obj.voucher.voucher_type=="SD":
+                if fast_cart_obj.voucher.voucher_type == "SD":
                     delivery_fee = delivery_fee_with_cod
                     voucher_discount = delivery_fee
 
@@ -8963,13 +9861,14 @@ class FetchFastCartDetailsAPI(APIView):
                 "voucher_discount": voucher_discount,
                 "voucher_code": voucher_code
             }
-            
+
             response["cartDetails"] = cart_details
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchFastCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("FetchFastCartDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -8989,18 +9888,19 @@ class GRNProcessingCronAPI(APIView):
                 data = json.loads(data)
 
             from ftplib import FTP
-            ftp=FTP()
+            ftp = FTP()
             ftp.connect('geepasftp.selfip.com', 2221)
-            ftp.login('mapftpdev','western')
+            ftp.login('mapftpdev', 'western')
             files = []
             files = ftp.nlst(GRN_FOLDER_NAME)
 
             for f in files:
                 search_file = f.split("_")[0]
                 if UnitOrder.objects.filter(grn_filename=search_file).exclude(sap_status="GRN Done").exclude(sap_status="GRN Conflict").exists():
-                    
-                    unit_order_objs = UnitOrder.objects.filter(grn_filename=search_file)
-                    
+
+                    unit_order_objs = UnitOrder.objects.filter(
+                        grn_filename=search_file)
+
                     ftp.cwd('/'+GRN_FOLDER_NAME)
                     with open(f, "wb") as file:
                         # use FTP's RETR command to download the file
@@ -9026,12 +9926,13 @@ class GRNProcessingCronAPI(APIView):
                         GRN_information_dict[seller_sku] = temp_dict
 
                     for unit_order_obj in unit_order_objs:
-                        
-                        unit_order_information = json.loads(unit_order_obj.order_information)
+
+                        unit_order_information = json.loads(
+                            unit_order_obj.order_information)
                         unit_order_information["final_billing_info"] = {}
 
                         seller_sku = unit_order_obj.product.get_seller_sku()
-                        GRN_info = GRN_information_dict.get(seller_sku,None)
+                        GRN_info = GRN_information_dict.get(seller_sku, None)
 
                         if GRN_info != None:
                             GRN_info["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
@@ -9047,86 +9948,102 @@ class GRNProcessingCronAPI(APIView):
                             temp_dict_default["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
                             temp_dict_default["price"] = unit_order_information["intercompany_sales_info"]["price"]
                             unit_order_information["final_billing_info"] = temp_dict_default
-                        
-                        unit_order_obj.order_information = json.dumps(unit_order_information)
+
+                        unit_order_obj.order_information = json.dumps(
+                            unit_order_information)
                         unit_order_obj.grn_filename_exists = True
                         unit_order_obj.sap_status = "GRN Done"
                         unit_order_obj.save()
 
-                    try :
+                    try:
                         ftp.delete(f)
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("GRNProcessingCronAPI FTP delete error for %s: %s at %s", f,e, str(exc_tb.tb_lineno))
+                        logger.error("GRNProcessingCronAPI FTP delete error for %s: %s at %s", f, e, str(
+                            exc_tb.tb_lineno))
                         pass
 
                     order_obj = unit_order_objs[0].order
-                    unit_order_objs = UnitOrder.objects.filter(order=order_obj,grn_filename_exists=False)
+                    unit_order_objs = UnitOrder.objects.filter(
+                        order=order_obj, grn_filename_exists=False)
 
                     if unit_order_objs.count() == 0:
-                    
+
                         order_information = {}
 
-                        if order_obj.payment_status=="paid":
+                        if order_obj.payment_status == "paid":
                             order_information["order_type"] = "ZJCR"
                         else:
                             order_information["order_type"] = "ZJCD"
 
-                        order_information["city"] = str(order_obj.location_group.location.name)
-                        order_information["customer_name"] = order_obj.get_customer_full_name()
-                        order_information["order_id"] = order_obj.bundleid.replace("-","")
-                        order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
-                        order_information["charges"] = get_all_the_charges(order_obj)
-                        order_information["customer_id"] = order_obj.get_customer_id_for_final_sap_billing()
+                        order_information["city"] = str(
+                            order_obj.location_group.location.name)
+                        order_information["customer_name"] = order_obj.get_customer_full_name(
+                        )
+                        order_information["order_id"] = order_obj.bundleid.replace(
+                            "-", "")
+                        order_information["refrence_id"] = order_obj.bundleid.replace(
+                            "-", "&#45;")
+                        order_information["charges"] = get_all_the_charges(
+                            order_obj)
+                        order_information["customer_id"] = order_obj.get_customer_id_for_final_sap_billing(
+                        )
                         is_b2b = order_obj.location_group.is_b2b
                         order_information["is_b2b"] = is_b2b
-                        if is_b2b==True:
-                            order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                        if is_b2b == True:
+                            order_information["street"] = json.loads(
+                                order_obj.shipping_address.address_lines)[1]
                             order_information["region"] = order_obj.shipping_address.state
                             order_information["telephone"] = order_obj.shipping_address.contact_number
                             order_information["email"] = order_obj.owner.email
-                            b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                            b2b_user_obj = B2BUser.objects.get(
+                                username=order_obj.owner.username)
                             order_information["trn"] = b2b_user_obj.vat_certificate_id
 
                         unit_order_information_list = []
 
                         for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
 
-                            unit_order_final_billing_information = json.loads(unit_order_obj.order_information)["final_billing_info"]
-                            
+                            unit_order_final_billing_information = json.loads(
+                                unit_order_obj.order_information)["final_billing_info"]
+
                             if unit_order_final_billing_information != {}:
-                                unit_order_information_list.append(unit_order_final_billing_information)
-                        
+                                unit_order_information_list.append(
+                                    unit_order_final_billing_information)
+
                         order_information["unit_order_information_list"] = unit_order_information_list
 
-                        result = create_final_order(WIGME_COMPANY_CODE, order_information)
-                        
+                        result = create_final_order(
+                            WIGME_COMPANY_CODE, order_information)
+
                         doc_list = result["doc_list"]
                         do_exists = 0
                         so_exists = 0
                         inv_exists = 0
-                        
+
                         for k in doc_list:
                             if k["message_type"] == "S":
-                                if k["type"]=="DO":
-                                    do_exists+=1
-                                elif k["type"]=="SO":
-                                    so_exists+=1
-                                elif k["type"]=="INV":
-                                    inv_exists+=1
+                                if k["type"] == "DO":
+                                    do_exists += 1
+                                elif k["type"] == "SO":
+                                    so_exists += 1
+                                elif k["type"] == "INV":
+                                    inv_exists += 1
 
-                        if do_exists==2 and so_exists==1 and inv_exists==1:
+                        if do_exists == 2 and so_exists == 1 and inv_exists == 1:
                             order_obj.sap_status = "Success"
                             for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                                set_order_status(unit_order_obj,"picked")
+                                set_order_status(unit_order_obj, "picked")
                         else:
                             order_obj.sap_status = "Failed"
                             try:
-                                p1 = threading.Thread(target=notify_grn_error, args=(order_obj,))
+                                p1 = threading.Thread(
+                                    target=notify_grn_error, args=(order_obj,))
                                 p1.start()
                             except Exception as e:
                                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                                logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
+                                logger.error(
+                                    "notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
 
                         order_obj.sap_final_billing_info = json.dumps(result)
                         #order_obj.order_information = json.dumps(order_information)
@@ -9139,8 +10056,9 @@ class GRNProcessingCronAPI(APIView):
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("GRNProcessingCronAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
+            logger.error("GRNProcessingCronAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
         return Response(data=response)
 
 
@@ -9163,12 +10081,14 @@ class UpdateUserNameAndEmailAPI(APIView):
             first_name = data["firstName"]
             email = data["email"]
 
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            location_group_obj = LocationGroup.objects.get(
+                uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
-            dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
-            
+            dealshub_user_obj = DealsHubUser.objects.get(
+                username=contact_number+"-"+website_group_name)
+
             dealshub_user_obj.first_name = first_name
             dealshub_user_obj.email = email
             dealshub_user_obj.save()
@@ -9177,7 +10097,8 @@ class UpdateUserNameAndEmailAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateUserNameAndEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateUserNameAndEmailAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -9196,14 +10117,18 @@ class SendNewProductEmailNotificationAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(is_notified = False)
-            location_group_pks = dealshub_product_objs.values_list("location_group",flat=True)
-            location_group_objs = LocationGroup.objects.filter(pk__in = location_group_pks)
-            
+            dealshub_product_objs = DealsHubProduct.objects.filter(
+                is_notified=False)
+            location_group_pks = dealshub_product_objs.values_list(
+                "location_group", flat=True)
+            location_group_objs = LocationGroup.objects.filter(
+                pk__in=location_group_pks)
+
             for location_group_obj in location_group_objs:
-                temp_dealshub_product_objs = dealshub_product_objs.filter(location_group=location_group_obj)
+                temp_dealshub_product_objs = dealshub_product_objs.filter(
+                    location_group=location_group_obj)
                 location_group_name = location_group_obj.name
-                #generate excel sheet
+                # generate excel sheet
                 product_list = []
                 for temp_dealshub_product_obj in temp_dealshub_product_objs:
                     temp_dict = {
@@ -9221,20 +10146,23 @@ class SendNewProductEmailNotificationAPI(APIView):
                 sheet_name = "new-products-" + location_group_name
                 df = pd.DataFrame(product_list)
                 with pd.ExcelWriter('./'+filepath) as workbook:
-                    df.to_excel(workbook, sheet_name=sheet_name,index=False)
-                #trigger email
+                    df.to_excel(workbook, sheet_name=sheet_name, index=False)
+                # trigger email
                 try:
-                    p1 = threading.Thread(target=notify_new_products_email, args =(filepath,location_group_obj))
+                    p1 = threading.Thread(target=notify_new_products_email, args=(
+                        filepath, location_group_obj))
                     p1.start()
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("SendNewProductEmailNotificationAPI: %s at %s", str(exc_tb.tb_lineno))
+                    logger.error(
+                        "SendNewProductEmailNotificationAPI: %s at %s", str(exc_tb.tb_lineno))
 
             response["status"] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("SendNewProductEmailNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error(
+                "SendNewProductEmailNotificationAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -9263,7 +10191,7 @@ class FetchB2BUserProfileAPI(APIView):
 
             response["vat_certificate"] = ""
             response["vat_certificate_type"] = "EMPTY"
-            if b2b_user_obj.vat_certificate!=None and b2b_user_obj.vat_certificate!="":
+            if b2b_user_obj.vat_certificate != None and b2b_user_obj.vat_certificate != "":
                 response["vat_certificate_type"] = "PDF"
                 response["vat_certificate"] = b2b_user_obj.vat_certificate.url
             elif b2b_user_obj.vat_certificate_images.exists() > 0:
@@ -9279,10 +10207,10 @@ class FetchB2BUserProfileAPI(APIView):
 
             response["passport_copy"] = ""
             response["passport_copy_type"] = "EMPTY"
-            if b2b_user_obj.passport_copy!=None and b2b_user_obj.passport_copy!="":
+            if b2b_user_obj.passport_copy != None and b2b_user_obj.passport_copy != "":
                 response["passport_copy_type"] = "PDF"
                 response["passport_copy"] = b2b_user_obj.passport_copy.url
-            elif b2b_user_obj.passport_copy_images.exists() > 0 :
+            elif b2b_user_obj.passport_copy_images.exists() > 0:
                 response["passport_copy_type"] = "IMG"
                 temp_dict = []
                 passport_copy_image_objs = b2b_user_obj.passport_copy_images.all()
@@ -9295,7 +10223,7 @@ class FetchB2BUserProfileAPI(APIView):
 
             response["trade_license"] = ""
             response["trade_license_type"] = "EMPTY"
-            if b2b_user_obj.trade_license!=None and b2b_user_obj.trade_license!="":
+            if b2b_user_obj.trade_license != None and b2b_user_obj.trade_license != "":
                 response["trade_license_type"] = "PDF"
                 response["trade_license"] = b2b_user_obj.trade_license.url
             elif b2b_user_obj.trade_license_images.exists() > 0:
@@ -9318,7 +10246,8 @@ class FetchB2BUserProfileAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchB2BUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchB2BUserProfileAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -9345,9 +10274,10 @@ class UploadB2BDocumentAPI(APIView):
             b2b_user_obj = B2BUser.objects.get(username=request.user.username)
 
             if vat_certificate_type == "IMG":
-                image_count = int(data.get("vat-certificate-image-count",0))
+                image_count = int(data.get("vat-certificate-image-count", 0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["vat-certificate-image-" + str(i+1)])
+                    image_obj = Image.objects.create(
+                        image=data["vat-certificate-image-" + str(i+1)])
                     b2b_user_obj.vat_certificate_images.add(image_obj)
                 b2b_user_obj.vat_certificate = None
             elif vat_certificate_type == "PDF":
@@ -9358,9 +10288,10 @@ class UploadB2BDocumentAPI(APIView):
                     image_obj.delete()
 
             if passport_copy_type == "IMG":
-                image_count = int(data.get("passport-copy-image-count",0))
+                image_count = int(data.get("passport-copy-image-count", 0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["passport-copy-image-" + str(i+1)])
+                    image_obj = Image.objects.create(
+                        image=data["passport-copy-image-" + str(i+1)])
                     b2b_user_obj.passport_copy_images.add(image_obj)
                 b2b_user_obj.passport_copy = None
             elif passport_copy_type == "PDF":
@@ -9371,9 +10302,10 @@ class UploadB2BDocumentAPI(APIView):
                     image_obj.delete()
 
             if trade_license_type == "IMG":
-                image_count = int(data.get("trade-license-image-count",0))
+                image_count = int(data.get("trade-license-image-count", 0))
                 for i in range(image_count):
-                    image_obj = Image.objects.create(image = data["trade-license-image-" + str(i+1)])
+                    image_obj = Image.objects.create(
+                        image=data["trade-license-image-" + str(i+1)])
                     b2b_user_obj.trade_license_images.add(image_obj)
                 b2b_user_obj.trade_license = None
             elif trade_license_type == "PDF":
@@ -9391,7 +10323,8 @@ class UploadB2BDocumentAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UploadB2BDocumentAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UploadB2BDocumentAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -9422,10 +10355,10 @@ class UpdateB2BCustomerDetailsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("UpdateB2BCustomerDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("UpdateB2BCustomerDetailsAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-
 
 
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
