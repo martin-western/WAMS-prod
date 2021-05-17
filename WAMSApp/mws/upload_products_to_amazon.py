@@ -1,6 +1,6 @@
 from WAMSApp.models import *
 from WAMSApp.utils import *
-from WAMSApp.xml_generators_uae import *
+from WAMSApp.mws.xml_generators_uae import *
 
 from MWS import mws,APIs
 

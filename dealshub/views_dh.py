@@ -13,11 +13,12 @@ from dealshub.constants import *
 from dealshub.utils import *
 from WAMSApp.constants import *
 from WAMSApp.utils import *
-from WAMSApp.utils_SAP_Integration import *
-from dealshub.network_global_integration import *
-from dealshub.hyperpay_integration import *
-from dealshub.spotii_integration import *
-from dealshub.tap_integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
+from dealshub.payments.network_global_integration import *
+from dealshub.payments.hyperpay_integration import *
+from dealshub.payments.spotii_integration import *
+from dealshub.payments.tap_integration import *
+from dealshub.payments.network_global_android_integration import *
 from dealshub.postaplus import *
 from dealshub.views_blog import *
 
@@ -29,7 +30,7 @@ from django.utils import timezone
 #from datetime import datetime
 import datetime
 
-from WAMSApp.utils_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
 
 import sys
 import logging
@@ -1712,6 +1713,48 @@ class DeleteOrderRequestAPI(APIView):
         return Response(data=response)
 
 
+class PlaceInquiryAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("PlaceInquiryAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            message = data["message"]
+            product_uuid = data["productUuid"]
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+
+            if dealshub_product_obj.location_group!=location_group_obj:
+                response["status"] = 403
+                logger.error("PlaceInquiryAPI: Product does not exist in LocationGroup!")
+                return Response(data=response)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            to_email = location_group_obj.get_support_email_id()
+            password = location_group_obj.get_support_email_password()
+
+            try:
+                p1 = threading.Thread(target=send_inquiry_now_mail, args=(message, to_email, password, dealshub_user_obj, dealshub_product_obj))
+                p1.start()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            response["status"] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
 class PlaceB2BOnlineOrderAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -1741,10 +1784,16 @@ class PlaceB2BOnlineOrderAPI(APIView):
                 response["message"] = "Order request not approved"
                 return Response(data=response)
 
-            if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.warning("PlaceB2BOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH! %s at %s", e, str(exc_tb.tb_lineno))
-                return Response(data=response)
+            online_payment_mode = data.get("online_payment_mode","card")
+
+            if online_payment_mode.strip().lower()=="network_global_android":
+                if check_order_status_from_network_global_android(merchant_reference, location_group_obj)==False:
+                    logger.warning("PlaceB2BOnlineOrderAPI: NETWORK GLOBAL ANDROID STATUS MISMATCH!")
+                    return Response(data=response)  
+            else:
+                if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
+                    logger.warning("PlaceB2BOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")
+                    return Response(data=response)
 
             try:
                 voucher_obj = order_request_obj.voucher
@@ -2101,6 +2150,23 @@ class FetchOrderListAPI(APIView):
                     temp_dict = {}
                     temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
+                    
+                    if order_obj.payment_mode == "CHEQUE":
+                        image_objs = order_obj.cheque_images.all()
+                        cheque_images_list = []
+                        for image_obj in image_objs:
+                            try:
+                                if image_obj.mid_image!=None:
+                                    temp_dict_cheque_image = {}
+                                    temp_dict_cheque_image["url"] = image_obj.mid_image.url
+                                    temp_dict_cheque_image["uuid"] = image_obj.pk
+                                    cheque_images_list.append(temp_dict_cheque_image)
+                            except Exception as e:
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                logger.warning("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                        temp_dict["cheque_images_list"] = cheque_images_list
+                        temp_dict["cheque_approved"] =  order_obj.cheque_approved
+
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["customerName"] = order_obj.owner.first_name
                     temp_dict["bundleId"] = order_obj.bundleid
@@ -2282,6 +2348,104 @@ class UpdateUnitOrderRequestAdminAPI(APIView):
         
         return Response(data=response)
 
+
+class SetOrderChequeImageAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SetOrderChequeImageAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            order_uuid = data["uuid"]
+            action = data.get("action","")
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            order_obj = Order.objects.get(uuid=order_uuid)
+            image_count = int(data.get("cheque_image_count",0))
+            current_image_count = order_obj.cheque_images.count()
+            prev_instance = list(order_obj.cheque_images.all())
+
+            if is_oc_user(request.user)==False:
+                # if user is dealshub user and if cheque images already present then restricted access!!
+                if current_image_count:
+                    response['status'] = 403
+                    logger.warning("SetOrderChequeImageAPI Restricted Access!")
+                else:
+                    cheque_images_list = []
+                    for i in range(image_count):
+                        try:
+                            image_obj = Image.objects.create(image = data["cheque_image_" + str(i)])
+                            order_obj.cheque_images.add(image_obj)
+                            temp_dict_cheque_image = {}
+                            temp_dict_cheque_image["url"] = image_obj.mid_image.url
+                            temp_dict_cheque_image["uuid"] = image_obj.pk
+                            cheque_images_list.append(temp_dict_cheque_image)
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.warning("SetOrderChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                            
+                    order_obj.save()
+                    response['status'] = 200
+                    response["cheque_images_list"] = cheque_images_list
+                    response["cheque_approved"] =  order_obj.cheque_approved
+                return Response(data=response)
+            else:
+                if order_obj.cheque_approved:
+                    # once cheque approved OCuser will not able to update it
+                    response['status'] = 200
+                    return Response(data=response)
+
+                if action == "approve":
+                    order_obj.cheque_approved = True
+                    order_obj.save()
+
+                elif action == "disapprove":
+                    send_order_cheque_disapproval_mail(order_obj)
+                    order_obj.cheque_images.clear()
+                    order_obj.save()
+                
+                elif action == "delete":
+                    image_uuid = int(data["image_uuid"])
+                    image_obj = Image.objects.get(pk=image_uuid)
+                    order_obj.cheque_images.remove(image_obj)
+                    order_obj.save()
+
+                elif action == "update":
+                    for i in range(image_count):
+                        image_obj = Image.objects.create(image = data["cheque_image_" + str(i)])
+                        order_obj.cheque_images.add(image_obj)
+                    order_obj.save()  
+                    
+                image_objs = order_obj.cheque_images.all()
+                cheque_images_list = []
+                for image_obj in image_objs:
+                    try:
+                        temp_dict_cheque_image = {}
+                        temp_dict_cheque_image["url"] = image_obj.mid_image.url
+                        temp_dict_cheque_image["uuid"] = image_obj.pk
+                        cheque_images_list.append(temp_dict_cheque_image)
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.warning("SetOrderChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                response["cheque_images_list"] = cheque_images_list
+                response["cheque_approved"] =  order_obj.cheque_approved
+
+                render_value = "Cheque images "+ action +" by username:- " + request.user.username
+                current_instance = list(order_obj.cheque_images.all())
+                activitylog(user=request.user,table_name=Order,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=current_instance,table_item_pk=order_obj.uuid,render=render_value)
+                    
+            response["status"] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SetOrderChequeImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
 
 
 class FetchOrderListAdminAPI(APIView):
@@ -4924,7 +5088,7 @@ class BulkUploadFakeReviewAdminAPI(APIView):
                 logger.warning("BulkUploadFakeReviewAdminAPI Restricted Access!")
                 return Response(data=response)
 
-            location_group_uuid = data["locationGroupUuid"]
+            location_group_uuid_list = data["locationGroupUuidList"]
 
             path = default_storage.save('tmp/bulk-upload-review.xlsx', data["import_file"])
             path = "http://cdn.omnycomm.com.s3.amazonaws.com/"+path
@@ -4941,15 +5105,20 @@ class BulkUploadFakeReviewAdminAPI(APIView):
             note = "report for the bulk upload of the fake review" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
 
-            p1 =  threading.Thread(target=bulk_upload_fake_review , args=(oc_report_obj.uuid, path, filename, location_group_obj, oc_user_obj))
-            p1.start()
-            render_value = 'Bulk update fake reviews with report {} is created'.format(oc_report_obj.name)
-            activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
-
+            for location_group_uuid in json.loads(location_group_uuid_list):
+                try:
+                    location_group_obj = LocationGroup.objects.filter(uuid=location_group_uuid).first()
+                    oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_title, created_by=oc_user_obj, note=note, filename=filename, location_group=location_group_obj, organization=organization_obj)
+                    p1 =  threading.Thread(target=bulk_upload_fake_review , args=(oc_report_obj.uuid, path, filename, location_group_obj, oc_user_obj))
+                    p1.start()
+                    render_value = 'Bulk update fake reviews with report {} is created'.format(oc_report_obj.name)
+                    activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("BulkUploadFakeReviewAdminAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
             response['status'] = 200
             response['approved'] = True
         except Exception as e:
@@ -6161,6 +6330,23 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["time"] = order_obj.get_time_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
+                    
+                    if order_obj.payment_mode == "CHEQUE":
+                        image_objs = order_obj.cheque_images.all()
+                        cheque_images_list = []
+                        for image_obj in image_objs:
+                            try:
+                                if image_obj.mid_image!=None:
+                                    temp_dict_cheque_image = {}
+                                    temp_dict_cheque_image["url"] = image_obj.mid_image.url
+                                    temp_dict_cheque_image["uuid"] = image_obj.pk
+                                    cheque_images_list.append(temp_dict_cheque_image)
+                            except Exception as e:
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                logger.warning("FetchOrdersForWarehouseManagerAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                        temp_dict["cheque_images_list"] = cheque_images_list
+                        temp_dict["cheque_approved"] =  order_obj.cheque_approved
+                        
                     temp_dict["paymentStatus"] = order_obj.payment_status
                     temp_dict["merchant_reference"] = order_obj.merchant_reference
                     cancel_status = UnitOrder.objects.filter(order=order_obj, current_status_admin="cancelled").exists()
@@ -6602,7 +6788,7 @@ class SetShippingMethodAPI(APIView):
 
                 if tracking_status!="Success":
                     logger.warning("SetShippingMethodAPI: failed status from logix api")
-                    reponse["message"] = "Logix set shipping api failed"
+                    response["message"] = "Logix set shipping api failed"
                     return Response(data=response)
                 else:
                     order_obj.logix_tracking_reference = tracking_reference
@@ -8462,6 +8648,10 @@ class PlaceOnlineOrderAPI(APIView):
                 if get_charge_status(data["charge_id"])!="CAPTURED":
                     logger.warning("PlaceOnlineOrderAPI: TAP STATUS MISMATCH!")
                     return Response(data=response)
+            elif online_payment_mode.strip().lower()=="network_global_android":
+                if check_order_status_from_network_global_android(merchant_reference, location_group_obj)==False:
+                    logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL ANDROID STATUS MISMATCH!")
+                    return Response(data=response)  
             else:
                 if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
                     logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")
@@ -9251,6 +9441,10 @@ PlaceOrderRequest = PlaceOrderRequestAPI.as_view()
 DeleteOrderRequest = DeleteOrderRequestAPI.as_view()
 
 UpdateUnitOrderRequestAdmin = UpdateUnitOrderRequestAdminAPI.as_view()
+
+SetOrderChequeImage = SetOrderChequeImageAPI.as_view()
+
+PlaceInquiry = PlaceInquiryAPI.as_view()
 
 PlaceB2BOnlineOrder = PlaceB2BOnlineOrderAPI.as_view()
 

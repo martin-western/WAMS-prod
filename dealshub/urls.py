@@ -123,6 +123,8 @@ urlpatterns = [
     url(r'^order/delete-order-request/$', views.DeleteOrderRequest),
     url(r'^order/update-unit-order-request-admin/$', views.UpdateUnitOrderRequestAdmin),
 
+    url(r'^order/set-order-cheque-image/$', views.SetOrderChequeImage),
+
     url(r'^order/fetch-order-list/$', views.FetchOrderList),
     url(r'^order/fetch-order-list-admin/$', views.FetchOrderListAdmin),
     url(r'^order/fetch-order-details/$', views.FetchOrderDetails),
@@ -153,7 +155,7 @@ urlpatterns = [
     url(r'^delete-b2b-document-image/$',views.DeleteB2BDocumentImage),
     url(r'^delete-b2b-document/$',views.DeleteB2BDocument),
     url(r'^fetch-customer-orders/$', views.FetchCustomerOrders),
-
+    url(r'^place-inquiry/$',views.PlaceInquiry),
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
 
     url(r'^fetch-sales-executive-analysis/$', views.FetchSalesExecutiveAnalysis),
@@ -230,6 +232,8 @@ urlpatterns = [
     url(r'^fetch-order-analytics-params/$', views.FetchOrderAnalyticsParams),
     url(r'^make-payment-network-global/$',views.MakePaymentNetworkGlobal),
     url(r'^make-b2b-payment-network-global/$',views.MakeB2BPaymentNetworkGlobal),
+    url(r'^make-payment-network-global-android/$',views.MakePaymentNetworkGlobalAndroid),
+    url(r'^make-b2b-payment-network-global-android/$',views.MakeB2BPaymentNetworkGlobalAndroid),
 
     url(r'^fetch-postaplus-tracking/$',views.FetchPostaPlusTracking),
 

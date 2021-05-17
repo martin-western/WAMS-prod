@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from WAMSApp.models import *
 from WAMSApp.utils import *
-from WAMSApp.utils_sourcing import *
+from WAMSApp.sourcing.utils_sourcing import *
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login

@@ -20,21 +20,22 @@ from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 
-from WAMSApp.views_sourcing import *
-from WAMSApp.views_mws_report import *
-from WAMSApp.views_mws_orders import *
-from WAMSApp.views_mws_amazon_uk import *
-from WAMSApp.views_mws_amazon_uae import *
-from WAMSApp.views_noon import *
-from WAMSApp.views_amazon_uae import *
-from WAMSApp.views_amazon_uk import *
-from WAMSApp.views_noon_integration import *
+from WAMSApp.sourcing.views_sourcing import *
+from WAMSApp.mws.views_mws_report import *
+from WAMSApp.mws.views_mws_orders import *
+from WAMSApp.mws.views_mws_amazon_uk import *
+from WAMSApp.mws.views_mws_amazon_uae import *
+from WAMSApp.stores.views_noon import *
+from WAMSApp.stores.views_amazon_uae import *
+from WAMSApp.stores.views_amazon_uk import *
+from WAMSApp.stores.views_noon_integration import *
 from WAMSApp.views_statistics import *
 from WAMSApp.oc_reports import *
+from WAMSApp.nesto.nesto_reports import *
 from WAMSApp.views_category_manager import *
-from WAMSApp.views_SAP_Integration import *
-from WAMSApp.utils_SAP_Integration import *
-from WAMSApp.views_nesto import *
+from WAMSApp.sap.views_SAP_Integration import *
+from WAMSApp.sap.utils_SAP_Integration import *
+from WAMSApp.nesto.views_nesto import *
 from WAMSApp.views_cron import *
 
 from PIL import Image as IMage
@@ -6821,14 +6822,14 @@ class CreateOCReportAPI(APIView):
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
-            # note = {
-            #     "report_type": report_type,
-            #     "note":"-" if note=="" else note,
-            #     "brand_list":"all" if brand_list==[] else brand_list,
-            #     "from_date":from_date[:10] if from_date else "-",
-            #     "to_date":to_date[:10] if to_date else "-",
-            #     }
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
+            report_information = {
+                "report_type": report_type,
+                "note":"-" if note=="" else note,
+                "brand_list":"all" if brand_list==[] else brand_list,
+                "from_date":from_date[:10] if from_date else "-",
+                "to_date":to_date[:10] if to_date else "-",
+                }
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=json.dumps(report_information), filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
             if len(brand_list)==0:
@@ -7189,13 +7190,20 @@ class FetchOCReportListAPI(APIView):
                     completion_date = ""
                     if oc_report_obj.completion_date!=None:
                         completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
+
+                        try:
+                            json_note_obj = json.loads(oc_report_obj.note)
+                        except Exception as e:
+                            temp_note = json.dumps({"report_type": oc_report_obj.report_title, "note": oc_report_obj.note, "brand_list": "-", "from_date": "-", "to_date": "-"})
+                            json_note_obj = json.loads(temp_note)
+
                     temp_dict = {
                         "name": oc_report_obj.report_title,
                         "created_date": str(timezone.localtime(oc_report_obj.created_date).strftime("%d %m, %Y %H:%M")),
                         "created_by": str(oc_report_obj.created_by),
                         "is_processed": oc_report_obj.is_processed,
                         "completion_date": completion_date,
-                        "note": oc_report_obj.note,
+                        "note": json_note_obj,
                         "filename": SERVER_IP+"/"+oc_report_obj.filename,
                         "uuid": oc_report_obj.uuid
                     }
