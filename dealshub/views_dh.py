@@ -6816,6 +6816,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "avg_value": today_avg_order_value,
                 "avg_value_delta": today_avg_order_value - yesterday_avg_order_value,
                 "delivered": today_done_delivery,
+                << << << < HEAD
                 "delivered_delta": today_done_delivery - yesterday_done_delivery,
                 "pending": today_pending_delivery,
                 "pending_delta": today_pending_delivery - yesterday_pending_delivery,
@@ -6833,6 +6834,16 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "percent_dispatched": 0 if month_dispatched_delivery == 0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
                 "percent_returned": 0 if month_returned_delivery == 0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
                 "percent_cancelled": 0 if month_cancelled_delivery == 0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
+                == == == =
+                "delivered_delta": today_done_delivery - yesterday_done_delivery,
+                "pending": today_pending_delivery,
+                "pending_delta": today_pending_delivery - yesterday_pending_delivery,
+                "percent_sales": 0 if month_total_sales == 0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
+                "percent_orders": 0 if month_total_orders == 0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
+                "percent_avg": 0 if month_avg_order_value == 0 else round(float(today_avg_order_value/month_avg_order_value)*100),
+                "percent_delivered": 0 if month_done_delivery == 0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
+                "percent_pending": 0 if month_pending_delivery == 0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100)
+                >> >>>> > parent of d7e2f3c3... Feature(dealshub/views.py): Added more delivery status for FetchSalesExecutiveAnalysisAPI and FetchOrderSalesAnalyticsAPI
             }
             response["monthly"] = {
                 "sales": month_total_sales,
@@ -6842,6 +6853,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "avg_value": month_avg_order_value,
                 "avg_value_delta": month_avg_order_value - prev_month_avg_order_value,
                 "delivered": month_done_delivery,
+                << << << < HEAD
                 "delivered_delta": month_done_delivery - prev_month_done_delivery,
                 "pending": month_pending_delivery,
                 "pending_delta": month_pending_delivery - prev_month_pending_delivery,
@@ -6851,6 +6863,11 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "returned_delta": month_returned_delivery - prev_month_returned_delivery,
                 "cancelled": month_cancelled_delivery,
                 "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
+                == == == =
+                "delivered_delta": month_done_delivery - prev_month_done_delivery,
+                "pending": month_pending_delivery,
+                "pending_delta": month_pending_delivery - prev_month_pending_delivery
+                >> >>>> > parent of d7e2f3c3... Feature(dealshub/views.py): Added more delivery status for FetchSalesExecutiveAnalysisAPI and FetchOrderSalesAnalyticsAPI
             }
             response["currency"] = location_group_obj.location.currency
             response['status'] = 200
