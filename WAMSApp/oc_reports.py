@@ -328,11 +328,10 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
     for k in row:
         worksheet.write(cnt, colnum, k)
         colnum += 1
-
+    cnt = 1
     for product in product_objs:
         try:
             common_row = ["" for i in range(266)]
-            cnt += 1
             common_row[0] = str(cnt)
             common_row[1] = product.product_id
             common_row[2] = product.product_name
@@ -573,6 +572,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
             for k in common_row:
                 worksheet.write(cnt, colnum, k)
                 colnum += 1
+            cnt += 1
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Error create_mega_bulk_oc_report %s %s", e, str(exc_tb.tb_lineno))
