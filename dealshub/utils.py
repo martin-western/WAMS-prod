@@ -591,7 +591,7 @@ def send_order_confirmation_mail(order_obj):
                     )
             email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
-            logger.info("send_order_confirmation_mail")
+            logger.info("send_order_confirmation_mail ended")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
