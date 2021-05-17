@@ -498,7 +498,7 @@ def send_order_cheque_disapproval_mail(order_obj):
         if order_obj.owner.email_verified==False:
             return
 
-        location_group_obj = order_request_obj.location_group
+        location_group_obj = order_obj.location_group
 
         with get_connection(
             host=location_group_obj.get_email_host(),
@@ -509,7 +509,7 @@ def send_order_cheque_disapproval_mail(order_obj):
 
             email = EmailMultiAlternatives(
                         subject='Your cheque has been Disapproved', 
-                        body='Dear ' + order_obj.get_customer_full_name() + '\n' + 'Your cheque has been disapproved for your order request dated ' + order_request_obj.get_date_created() + ".",
+                        body='Dear ' + order_obj.get_customer_full_name() + '\n' + 'Your cheque has been disapproved for your order request dated ' + order_obj.get_date_created() + ".",
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[order_obj.owner.email],
                         cc=location_group_obj.get_order_cc_email_list(),
