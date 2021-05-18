@@ -5961,8 +5961,17 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
                 yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
-                today_pending_delivery = today_total_orders - today_done_delivery
-                yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
+                today_pending_delivery = today_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+                yesterday_pending_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+
+                today_dispatched_delivery = today_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+                yesterday_dispatched_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+
+                today_returned_delivery = today_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+                yesterday_returned_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+
+                today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+                yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
 
                 month_order_objs = user_order_objs.filter(date_created__gt = month)
                 prev_month_order_objs = user_order_objs.filter(date_created__gt = prev_month, date_created__lt = month)
@@ -5983,8 +5992,20 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
                 prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
-                month_pending_delivery = month_total_orders - month_done_delivery
-                prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
+                month_pending_delivery = month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+                prev_month_pending_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+
+                month_dispatched_delivery = month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+                prev_month_dispatched_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+
+                month_returned_delivery = month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+                prev_month_returned_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+
+                month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+                prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+
+
+
 
                 days_in_month = float(datetime.datetime.now().day)
                 temp_dict = {}
@@ -6006,11 +6027,20 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "delivered_delta" : today_done_delivery - yesterday_done_delivery,
                     "pending" : today_pending_delivery,
                     "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
-                    "percent_sales" : 0 if month_total_sales==0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
-                    "percent_orders" : 0 if month_total_orders==0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                    "percent_avg" : 0 if month_avg_order_value==0 else round(float(today_avg_order_value/month_avg_order_value)*100),
-                    "percent_delivered" : 0 if month_done_delivery==0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
-                    "percent_pending" : 0 if month_pending_delivery==0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100)
+                    "dispatched": today_dispatched_delivery,
+                    "dispatched_delta": today_dispatched_delivery - yesterday_dispatched_delivery,
+                    "returned": today_returned_delivery,
+                    "returned_delta": today_returned_delivery - yesterday_returned_delivery,
+                    "cancelled": today_cancelled_delivery,
+                    "cancelled_delta": today_cancelled_delivery - yesterday_cancelled_delivery,
+                    "percent_sales": 0 if month_total_sales == 0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
+                    "percent_orders": 0 if month_total_orders == 0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
+                    "percent_avg": 0 if month_avg_order_value == 0 else round(float(today_avg_order_value/month_avg_order_value)*100),
+                    "percent_delivered": 0 if month_done_delivery == 0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
+                    "percent_pending": 0 if month_pending_delivery == 0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
+                    "percent_dispatched": 0 if month_dispatched_delivery == 0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
+                    "percent_returned": 0 if month_returned_delivery == 0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
+                    "percent_cancelled": 0 if month_cancelled_delivery == 0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
                 }
                 temp_dict["monthly"] = {
                     "sales" : month_total_sales,
@@ -6022,7 +6052,13 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "delivered": month_done_delivery,
                     "delivered_delta" : month_done_delivery - prev_month_done_delivery,
                     "pending" : month_pending_delivery,
-                    "pending_delta" : month_pending_delivery - prev_month_pending_delivery
+                    "pending_delta" : month_pending_delivery - prev_month_pending_delivery,
+                    "dispatched": month_dispatched_delivery,
+                    "dispatched_delta": month_dispatched_delivery - prev_month_dispatched_delivery,
+                    "returned": month_returned_delivery,
+                    "returned_delta": month_returned_delivery - prev_month_returned_delivery,
+                    "cancelled": month_cancelled_delivery,
+                    "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
                 }
                 temp_dict["currency"] = location_group_obj.location.currency
                 temp_dict["username"] = sales_target_obj.user.username
@@ -6097,10 +6133,18 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
             yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
-            today_pending_delivery = today_total_orders - today_done_delivery
-            yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
+            today_pending_delivery = today_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+            yesterday_pending_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
 
-            
+            today_dispatched_delivery = today_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+            yesterday_dispatched_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+
+            today_returned_delivery = today_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+            yesterday_returned_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+
+            today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+            yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+        
             # monthly
             month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
             prev_month_value = datetime.datetime.now().month-1
@@ -6129,8 +6173,17 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
             prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
-            month_pending_delivery = month_total_orders - month_done_delivery
-            prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
+            month_pending_delivery = month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+            prev_month_pending_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+
+            month_dispatched_delivery = month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+            prev_month_dispatched_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+
+            month_returned_delivery = month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+            prev_month_returned_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+
+            month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+            prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
 
             days_in_month = float(datetime.datetime.now().day)
             
@@ -6165,11 +6218,20 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "delivered_delta" : today_done_delivery - yesterday_done_delivery,
                 "pending" : today_pending_delivery,
                 "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
-                "percent_sales" : 0 if month_total_sales==0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
-                "percent_orders" : 0 if month_total_orders==0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                "percent_avg" : 0 if month_avg_order_value==0 else round(float(today_avg_order_value/month_avg_order_value)*100),
-                "percent_delivered" : 0 if month_done_delivery==0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
-                "percent_pending" : 0 if month_pending_delivery==0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100)
+                "dispatched": today_dispatched_delivery,
+                "dispatched_delta": today_dispatched_delivery - yesterday_dispatched_delivery,
+                "returned": today_returned_delivery,
+                "returned_delta": today_returned_delivery - yesterday_returned_delivery,
+                "cancelled": today_cancelled_delivery,
+                "cancelled_delta": today_cancelled_delivery - yesterday_cancelled_delivery,
+                "percent_sales": 0 if month_total_sales == 0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
+                "percent_orders": 0 if month_total_orders == 0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
+                "percent_avg": 0 if month_avg_order_value == 0 else round(float(today_avg_order_value/month_avg_order_value)*100),
+                "percent_delivered": 0 if month_done_delivery == 0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
+                "percent_pending": 0 if month_pending_delivery == 0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
+                "percent_dispatched": 0 if month_dispatched_delivery == 0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
+                "percent_returned": 0 if month_returned_delivery == 0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
+                "percent_cancelled": 0 if month_cancelled_delivery == 0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
             }
             response["monthly"] = {
                 "sales" : month_total_sales,
@@ -6181,7 +6243,13 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "delivered": month_done_delivery,
                 "delivered_delta" : month_done_delivery - prev_month_done_delivery,
                 "pending" : month_pending_delivery,
-                "pending_delta" : month_pending_delivery - prev_month_pending_delivery
+                "pending_delta" : month_pending_delivery - prev_month_pending_delivery,
+                "dispatched": month_dispatched_delivery,
+                "dispatched_delta": month_dispatched_delivery - prev_month_dispatched_delivery,
+                "returned": month_returned_delivery,
+                "returned_delta": month_returned_delivery - prev_month_returned_delivery,
+                "cancelled": month_cancelled_delivery,
+                "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
             }
             response["currency"] = location_group_obj.location.currency
             response['status'] = 200
