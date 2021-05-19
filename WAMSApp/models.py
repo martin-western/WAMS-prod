@@ -233,12 +233,13 @@ class LocationGroup(models.Model):
     monthly_orders_target = models.IntegerField(default=0)
     tiled_product_index = models.IntegerField(default=0)
     category_tab_product_index = models.IntegerField(default=0)
+    
     primary_color = models.CharField(max_length=100,default = "#000000")
     secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
     navbar_text_color = models.CharField(max_length=100,default = "#FFFFFF")
     add_to_cart_button_color = models.CharField(max_length=100,default="#000000")
-    buy_now_button_color = models.CharField(max_length=100,default="#000000")
-    add_to_inquire_button_color = models.CharField(max_length=100,default="#000000")
+    buy_now_button_color = models.CharField(max_length=100,default="#D42512")
+    add_to_inquire_button_color = models.CharField(max_length=100,default="#1EADD8")
 
 
     def __str__(self):
