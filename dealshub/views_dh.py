@@ -720,6 +720,8 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
                 temp_dict["link"] = unit_cart_obj.product.url
                 temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
+                temp_dict["category"] = unit_cart_obj.product.category
+                temp_dict["sub_category"] = unit_cart_obj.product.sub_category
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
