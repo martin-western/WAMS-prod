@@ -5903,9 +5903,6 @@ class FetchCompanyProfileAPI(APIView):
             company_data["whatsapp_info"] = website_group_obj.whatsapp_info
             company_data["email_info"] = website_group_obj.email_info
             company_data["address"] = website_group_obj.address
-            company_data["primary_color"] = website_group_obj.primary_color
-            company_data["secondary_color"] = website_group_obj.secondary_color
-            company_data["navbar_text_color"] = website_group_obj.navbar_text_color
             company_data["facebook_link"] = website_group_obj.facebook_link
             company_data["twitter_link"] = website_group_obj.twitter_link
             company_data["instagram_link"] = website_group_obj.instagram_link
@@ -5915,6 +5912,9 @@ class FetchCompanyProfileAPI(APIView):
 
             company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
             
+            company_data["primary_color"] = location_group_obj.primary_color
+            company_data["secondary_color"] = location_group_obj.secondary_color
+            company_data["navbar_text_color"] = location_group_obj.navbar_text_color
             company_data["add_to_cart_button_color"] = location_group_obj.add_to_cart_button_color        
             company_data["buy_now_button_color"] = location_group_obj.buy_now_button_color
             company_data["add_to_inquire_button_color"] = location_group_obj.add_to_inquire_button_color
@@ -6844,14 +6844,14 @@ class CreateOCReportAPI(APIView):
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
-            # note = {
-            #     "report_type": report_type,
-            #     "note":"-" if note=="" else note,
-            #     "brand_list":"all" if brand_list==[] else brand_list,
-            #     "from_date":from_date[:10] if from_date else "-",
-            #     "to_date":to_date[:10] if to_date else "-",
-            #     }
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
+            report_information = {
+                "report_type": report_type,
+                "note":"-" if note=="" else note,
+                "brand_list":"all" if brand_list==[] else brand_list,
+                "from_date":from_date[:10] if from_date else "-",
+                "to_date":to_date[:10] if to_date else "-",
+                }
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=json.dumps(report_information), filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
             if len(brand_list)==0:
