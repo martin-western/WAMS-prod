@@ -1762,7 +1762,7 @@ class Review(models.Model):
             self.modified_date = timezone.now()
         else:
             self.modified_date = timezone.now()
-
+        self.modified_date = timezone.now()
         if self.uuid == None or self.uuid=="":
             self.uuid = str(uuid.uuid4())
 
