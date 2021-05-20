@@ -5895,7 +5895,7 @@ class FetchCompanyProfileAPI(APIView):
 
             
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
-            location_group_uuid = data["locationGroupUuid"]
+            location_group_uuid = data.get("locationGroupUuid","")     
             if location_group_uuid == "":
                 company_data = {}
                 company_data["name"] = website_group_obj.name
@@ -5932,13 +5932,9 @@ class FetchCompanyProfileAPI(APIView):
                     }]
                     company_data["footer_logo"][0]["url"] = website_group_obj.footer_logo.image.url
 
-
-                response["company_data"] = company_data
-                response['status'] = 200
             else:
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
                 company_data = {}
-                company_data["name"] = website_group_obj.name
                 company_data["contact_info"] = json.loads(location_group_obj.contact_info)
                 company_data["whatsapp_info"] = location_group_obj.whatsapp_info
                 company_data["email_info"] = location_group_obj.email_info
@@ -5959,26 +5955,8 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["buy_now_button_color"] = location_group_obj.buy_now_button_color
                 company_data["add_to_inquire_button_color"] = location_group_obj.add_to_inquire_button_color
 
-                company_data["logo"] = []
-                if website_group_obj.logo != None:
-                    company_data["logo"] = [{
-                        "uid" : "123",
-                        "url" : ""
-                    }]
-                    company_data["logo"][0]["url"] = website_group_obj.logo.image.url
-
-                company_data["footer_logo"] = []
-                if website_group_obj.footer_logo != None:
-                    company_data["footer_logo"] = [{
-                        "uid" : "123",
-                        "url" : ""
-                    }]
-                    company_data["footer_logo"][0]["url"] = website_group_obj.footer_logo.image.url
-
-
-                response["company_data"] = company_data
-                response['status'] = 200
-
+            response["company_data"] = company_data
+            response['status'] = 200    
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -6006,13 +5984,13 @@ class SaveCompanyProfileAPI(APIView):
                 return Response(data=response)
 
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
-            location_group_uuid = data["locationGroupUuid"]
+            location_group_uuid = data.get("locationGroupUuid","")
             
-            prev_instance = deepcopy(website_group_obj)
             company_data = data["company_data"]
             
             #name = company_data["name"]
             if location_group_uuid == "":
+                prev_instance = deepcopy(website_group_obj)
                 contact_info = company_data["contact_info"]
                 whatsapp_info = company_data["whatsapp_info"]
                 email_info = company_data["email_info"]
@@ -6055,9 +6033,10 @@ class SaveCompanyProfileAPI(APIView):
                 website_group_obj.save()
                 render_value = 'company profile is updated.'
                 activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
-                response['status'] = 200
+                
             else:
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                prev_instance = deepcopy(website_group_obj)
                 contact_info = company_data["contact_info"]
                 whatsapp_info = company_data["whatsapp_info"]
                 email_info = company_data["email_info"]
@@ -6105,9 +6084,9 @@ class SaveCompanyProfileAPI(APIView):
 
                 location_group_obj.save()
                 render_value = 'company profile is updated.'
-                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
-                response['status'] = 200
-
+                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
+            
+            response['status'] = 200    
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SaveCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -7296,13 +7275,18 @@ class FetchOCReportListAPI(APIView):
                     completion_date = ""
                     if oc_report_obj.completion_date!=None:
                         completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
+                    try:
+                        json_note_obj = json.loads(oc_report_obj.note)
+                    except Exception as e:
+                        temp_note = json.dumps({"report_type": oc_report_obj.report_title, "note": oc_report_obj.note, "brand_list": "-", "from_date": "-", "to_date": "-"})
+                        json_note_obj = json.loads(temp_note)
                     temp_dict = {
                         "name": oc_report_obj.report_title,
                         "created_date": str(timezone.localtime(oc_report_obj.created_date).strftime("%d %m, %Y %H:%M")),
                         "created_by": str(oc_report_obj.created_by),
                         "is_processed": oc_report_obj.is_processed,
                         "completion_date": completion_date,
-                        "note": oc_report_obj.note,
+                        "note": json_note_obj,
                         "filename": SERVER_IP+"/"+oc_report_obj.filename,
                         "uuid": oc_report_obj.uuid
                     }
