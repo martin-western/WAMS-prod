@@ -108,9 +108,12 @@ class HoldingTransferAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-            location_group_obj = LocationGroup.objects.first()
-            dealshub_product_objs = DealsHubProduct.objects.filter(is_published=True, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0)
+            website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+            dealshub_product_objs = DealsHubProduct.objects.none()
+            for website_group_obj in website_group_objs:
+                location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+                dealshub_product_objs |= DealsHubProduct.objects.filter(is_published=True, location_group__in=location_group_objs, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0)
+            dealshub_product_objs = dealshub_product_objs.distinct().order_by('-pk')
             
             p1 = threading.Thread(target=create_holding_transfer_report, args=(dealshub_product_objs,))
             p1.start()
