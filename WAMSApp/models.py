@@ -241,7 +241,7 @@ class LocationGroup(models.Model):
     navbar_text_color = models.CharField(max_length=100,default = "#FFFFFF")
     add_to_cart_button_color = models.CharField(max_length=100,default="#000000")
     buy_now_button_color = models.CharField(max_length=100,default="#D42512")
-    add_to_inquire_button_color = models.CharField(max_length=100,default="#1EADD8")
+    inquire_button_color = models.CharField(max_length=100,default="#1EADD8")
     color_scheme = models.TextField(blank=True, default='[]')
     facebook_link = models.CharField(max_length=100,blank=True, default='')
     twitter_link = models.CharField(max_length=100,blank=True, default='')

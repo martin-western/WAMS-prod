@@ -5949,7 +5949,7 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["navbar_text_color"] = location_group_obj.navbar_text_color
                 company_data["add_to_cart_button_color"] = location_group_obj.add_to_cart_button_color
                 company_data["buy_now_button_color"] = location_group_obj.buy_now_button_color
-                company_data["add_to_inquire_button_color"] = location_group_obj.add_to_inquire_button_color
+                company_data["inquire_button_color"] = location_group_obj.inquire_button_color
 
             response["company_data"] = company_data
             response['status'] = 200    
@@ -6001,26 +6001,18 @@ class SaveCompanyProfileAPI(APIView):
                 youtube_link = company_data["youtube_link"]
                 linkedin_link = company_data["linkedin_link"]
                 crunchbase_link = company_data["crunchbase_link"]
-
                 color_scheme = company_data["color_scheme"]
-            
-                #organization.name=name
                 website_group_obj.contact_info=json.dumps(contact_info)
                 website_group_obj.whatsapp_info=whatsapp_info
                 website_group_obj.email_info=email_info
                 website_group_obj.address=address
-                # website_group_obj.primary_color=primary_color
-                # website_group_obj.secondary_color=secondary_color
-                # website_group_obj.navbar_text_color=navbar_text_color
                 website_group_obj.facebook_link=facebook_link
                 website_group_obj.twitter_link=twitter_link
                 website_group_obj.instagram_link=instagram_link
                 website_group_obj.youtube_link=youtube_link
                 website_group_obj.linkedin_link=linkedin_link
                 website_group_obj.crunchbase_link=crunchbase_link
-
                 website_group_obj.color_scheme = json.dumps(color_scheme)
-                
                 website_group_obj.primary_color = primary_color
                 website_group_obj.secondary_color = secondary_color
                 website_group_obj.navbar_text_color = navbar_text_color
@@ -6040,7 +6032,7 @@ class SaveCompanyProfileAPI(APIView):
                 navbar_text_color = company_data["navbar_text_color"]
                 add_to_cart_button_color = company_data["add_to_cart_button_color"]        
                 buy_now_button_color = company_data["buy_now_button_color"]
-                add_to_inquire_button_color = company_data["add_to_inquire_button_color"]
+                inquire_button_color = company_data["inquire_button_color"]
 
                 facebook_link = company_data["facebook_link"]
                 twitter_link = company_data["twitter_link"]
@@ -6059,15 +6051,13 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.youtube_link=youtube_link
                 location_group_obj.linkedin_link=linkedin_link
                 location_group_obj.crunchbase_link=crunchbase_link
-
                 location_group_obj.color_scheme = json.dumps(color_scheme)
-                
                 location_group_obj.primary_color = primary_color
                 location_group_obj.secondary_color = secondary_color
                 location_group_obj.navbar_text_color = navbar_text_color
                 location_group_obj.add_to_cart_button_color = add_to_cart_button_color
                 location_group_obj.buy_now_button_color = buy_now_button_color
-                location_group_obj.add_to_inquire_button_color = add_to_inquire_button_color
+                location_group_obj.inquire_button_color = inquire_button_color
                 
                 location_group_obj.save()
                 render_value = 'company profile is updated.'
