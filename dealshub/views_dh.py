@@ -712,6 +712,7 @@ class FetchCartDetailsAPI(APIView):
                     temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
                     temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                     temp_dict["moq"] = unit_cart_obj.product.get_moq(dealshub_user_obj)
+                    logger.info("FetchCartDetailsAPI")
                     temp_dict["stock"] = unit_cart_obj.product.stock
                     temp_dict["super_category"] = unit_cart_obj.product.get_super_category()        
                     temp_dict["category"] = unit_cart_obj.product.get_category()
