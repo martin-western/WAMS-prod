@@ -705,23 +705,30 @@ class FetchCartDetailsAPI(APIView):
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             unit_cart_list = []
             for unit_cart_obj in unit_cart_objs:
-                temp_dict = {}
-                temp_dict["uuid"] = unit_cart_obj.uuid
-                temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
-                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
-                temp_dict["moq"] = unit_cart_obj.product.get_moq(dealshub_user_obj)
-                temp_dict["stock"] = unit_cart_obj.product.stock
-                temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
-                temp_dict["currency"] = unit_cart_obj.product.get_currency()
-                temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
-                temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
-                temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
-                temp_dict["productUuid"] = unit_cart_obj.product.uuid
-                temp_dict["link"] = unit_cart_obj.product.url
-                temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
-                temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
-                unit_cart_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["uuid"] = unit_cart_obj.uuid
+                    temp_dict["quantity"] = unit_cart_obj.quantity
+                    temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                    temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+                    temp_dict["moq"] = unit_cart_obj.product.get_moq(dealshub_user_obj)
+                    temp_dict["stock"] = unit_cart_obj.product.stock
+                    temp_dict["super_category"] = unit_cart_obj.product.get_super_category()        
+                    temp_dict["category"] = unit_cart_obj.product.get_category()
+                    temp_dict["sub_category"] = unit_cart_obj.product.get_sub_category()
+                    temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
+                    temp_dict["currency"] = unit_cart_obj.product.get_currency()
+                    temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
+                    temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
+                    temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
+                    temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                    temp_dict["link"] = unit_cart_obj.product.url
+                    temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
+                    temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
+                    unit_cart_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             update_cart_bill(cart_obj)
 
@@ -3334,6 +3341,12 @@ class UpdateB2BCustomerStatusAPI(APIView):
             trade_license_type = data["tradeLicenseType"]
             passport_copy_type = data["passportCopyType"]
 
+            if B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count() or B2BUser.objects.filter(trade_license_id=trade_license_id).count():
+                response["status"] = 403
+                response["message"] = "Vat Certificate number or Trade License number already exists!"
+                logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
+                return Response(data=response)
+
             is_notify = False
             if vat_certificate_status != b2b_user_obj.vat_certificate_status or trade_license_status != b2b_user_obj.trade_license_status or passport_copy_status != b2b_user_obj.passport_copy_status:
                 is_notify = True
@@ -4377,6 +4390,12 @@ class SignUpCompletionAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
+
+            if vat_certificate_id!="" and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count() or B2BUser.objects.filter(trade_license_id=trade_license_id).count():
+                response["status"] = 403
+                response["message"] = "Vat Certificate number or Trade License number already exists!"
+                logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
+                return Response(data=response)
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number + "-" + website_group_name)
@@ -5961,8 +5980,17 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
                 yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
-                today_pending_delivery = today_total_orders - today_done_delivery
-                yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
+                today_pending_delivery = today_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+                yesterday_pending_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+
+                today_dispatched_delivery = today_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+                yesterday_dispatched_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+
+                today_returned_delivery = today_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+                yesterday_returned_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+
+                today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+                yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
 
                 month_order_objs = user_order_objs.filter(date_created__gt = month)
                 prev_month_order_objs = user_order_objs.filter(date_created__gt = prev_month, date_created__lt = month)
@@ -5983,8 +6011,20 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
                 prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
-                month_pending_delivery = month_total_orders - month_done_delivery
-                prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
+                month_pending_delivery = month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+                prev_month_pending_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+
+                month_dispatched_delivery = month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+                prev_month_dispatched_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+
+                month_returned_delivery = month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+                prev_month_returned_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+
+                month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+                prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+
+
+
 
                 days_in_month = float(datetime.datetime.now().day)
                 temp_dict = {}
@@ -6006,11 +6046,20 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "delivered_delta" : today_done_delivery - yesterday_done_delivery,
                     "pending" : today_pending_delivery,
                     "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
-                    "percent_sales" : 0 if month_total_sales==0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
-                    "percent_orders" : 0 if month_total_orders==0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                    "percent_avg" : 0 if month_avg_order_value==0 else round(float(today_avg_order_value/month_avg_order_value)*100),
-                    "percent_delivered" : 0 if month_done_delivery==0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
-                    "percent_pending" : 0 if month_pending_delivery==0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100)
+                    "dispatched": today_dispatched_delivery,
+                    "dispatched_delta": today_dispatched_delivery - yesterday_dispatched_delivery,
+                    "returned": today_returned_delivery,
+                    "returned_delta": today_returned_delivery - yesterday_returned_delivery,
+                    "cancelled": today_cancelled_delivery,
+                    "cancelled_delta": today_cancelled_delivery - yesterday_cancelled_delivery,
+                    "percent_sales": 0 if month_total_sales == 0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
+                    "percent_orders": 0 if month_total_orders == 0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
+                    "percent_avg": 0 if month_avg_order_value == 0 else round(float(today_avg_order_value/month_avg_order_value)*100),
+                    "percent_delivered": 0 if month_done_delivery == 0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
+                    "percent_pending": 0 if month_pending_delivery == 0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
+                    "percent_dispatched": 0 if month_dispatched_delivery == 0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
+                    "percent_returned": 0 if month_returned_delivery == 0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
+                    "percent_cancelled": 0 if month_cancelled_delivery == 0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
                 }
                 temp_dict["monthly"] = {
                     "sales" : month_total_sales,
@@ -6022,7 +6071,13 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "delivered": month_done_delivery,
                     "delivered_delta" : month_done_delivery - prev_month_done_delivery,
                     "pending" : month_pending_delivery,
-                    "pending_delta" : month_pending_delivery - prev_month_pending_delivery
+                    "pending_delta" : month_pending_delivery - prev_month_pending_delivery,
+                    "dispatched": month_dispatched_delivery,
+                    "dispatched_delta": month_dispatched_delivery - prev_month_dispatched_delivery,
+                    "returned": month_returned_delivery,
+                    "returned_delta": month_returned_delivery - prev_month_returned_delivery,
+                    "cancelled": month_cancelled_delivery,
+                    "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
                 }
                 temp_dict["currency"] = location_group_obj.location.currency
                 temp_dict["username"] = sales_target_obj.user.username
@@ -6097,10 +6152,18 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
             yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
-            today_pending_delivery = today_total_orders - today_done_delivery
-            yesterday_pending_delivery = yesterday_total_orders - yesterday_done_delivery
+            today_pending_delivery = today_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+            yesterday_pending_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
 
-            
+            today_dispatched_delivery = today_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+            yesterday_dispatched_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+
+            today_returned_delivery = today_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+            yesterday_returned_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+
+            today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+            yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+        
             # monthly
             month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
             prev_month_value = datetime.datetime.now().month-1
@@ -6129,8 +6192,17 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
             prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
-            month_pending_delivery = month_total_orders - month_done_delivery
-            prev_month_pending_delivery = prev_month_total_orders - prev_month_done_delivery
+            month_pending_delivery = month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+            prev_month_pending_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+
+            month_dispatched_delivery = month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+            prev_month_dispatched_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+
+            month_returned_delivery = month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+            prev_month_returned_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+
+            month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+            prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
 
             days_in_month = float(datetime.datetime.now().day)
             
@@ -6165,11 +6237,20 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "delivered_delta" : today_done_delivery - yesterday_done_delivery,
                 "pending" : today_pending_delivery,
                 "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
-                "percent_sales" : 0 if month_total_sales==0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
-                "percent_orders" : 0 if month_total_orders==0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                "percent_avg" : 0 if month_avg_order_value==0 else round(float(today_avg_order_value/month_avg_order_value)*100),
-                "percent_delivered" : 0 if month_done_delivery==0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
-                "percent_pending" : 0 if month_pending_delivery==0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100)
+                "dispatched": today_dispatched_delivery,
+                "dispatched_delta": today_dispatched_delivery - yesterday_dispatched_delivery,
+                "returned": today_returned_delivery,
+                "returned_delta": today_returned_delivery - yesterday_returned_delivery,
+                "cancelled": today_cancelled_delivery,
+                "cancelled_delta": today_cancelled_delivery - yesterday_cancelled_delivery,
+                "percent_sales": 0 if month_total_sales == 0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
+                "percent_orders": 0 if month_total_orders == 0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
+                "percent_avg": 0 if month_avg_order_value == 0 else round(float(today_avg_order_value/month_avg_order_value)*100),
+                "percent_delivered": 0 if month_done_delivery == 0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
+                "percent_pending": 0 if month_pending_delivery == 0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
+                "percent_dispatched": 0 if month_dispatched_delivery == 0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
+                "percent_returned": 0 if month_returned_delivery == 0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
+                "percent_cancelled": 0 if month_cancelled_delivery == 0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
             }
             response["monthly"] = {
                 "sales" : month_total_sales,
@@ -6181,7 +6262,13 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "delivered": month_done_delivery,
                 "delivered_delta" : month_done_delivery - prev_month_done_delivery,
                 "pending" : month_pending_delivery,
-                "pending_delta" : month_pending_delivery - prev_month_pending_delivery
+                "pending_delta" : month_pending_delivery - prev_month_pending_delivery,
+                "dispatched": month_dispatched_delivery,
+                "dispatched_delta": month_dispatched_delivery - prev_month_dispatched_delivery,
+                "returned": month_returned_delivery,
+                "returned_delta": month_returned_delivery - prev_month_returned_delivery,
+                "cancelled": month_cancelled_delivery,
+                "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
             }
             response["currency"] = location_group_obj.location.currency
             response['status'] = 200
@@ -9313,6 +9400,12 @@ class UploadB2BDocumentAPI(APIView):
             vat_certificate_id = data["vat-certificate-id"]
             trade_license_id = data["trade-license-id"]
             passport_copy_id = data["passport-copy-id"]
+
+            if B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count() or B2BUser.objects.filter(trade_license_id=trade_license_id).count():
+                response["status"] = 403
+                response["message"] = "Vat Certificate number or Trade License number already exists!"
+                logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
+                return Response(data=response)
 
             b2b_user_obj = B2BUser.objects.get(username=request.user.username)
 
