@@ -705,23 +705,32 @@ class FetchCartDetailsAPI(APIView):
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             unit_cart_list = []
             for unit_cart_obj in unit_cart_objs:
-                temp_dict = {}
-                temp_dict["uuid"] = unit_cart_obj.uuid
-                temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
-                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
-                temp_dict["moq"] = unit_cart_obj.product.get_moq(dealshub_user_obj)
-                temp_dict["stock"] = unit_cart_obj.product.stock
-                temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
-                temp_dict["currency"] = unit_cart_obj.product.get_currency()
-                temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
-                temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
-                temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
-                temp_dict["productUuid"] = unit_cart_obj.product.uuid
-                temp_dict["link"] = unit_cart_obj.product.url
-                temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
-                temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
-                unit_cart_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["uuid"] = unit_cart_obj.uuid
+                    temp_dict["quantity"] = unit_cart_obj.quantity
+                    temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                    temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+                    temp_dict["moq"] = unit_cart_obj.product.get_moq(dealshub_user_obj)
+                    logger.info("FetchCartDetailsAPI")
+                    temp_dict["stock"] = unit_cart_obj.product.stock
+                    temp_dict["super_category"] = unit_cart_obj.product.get_super_category()        
+                    temp_dict["category"] = unit_cart_obj.product.get_category()
+                    temp_dict["sub_category"] = unit_cart_obj.product.get_sub_category()
+                    logger.info("FetchCartDetailsAPI: %s, %s , %s",unit_cart_obj.product.get_super_category(),unit_cart_obj.product.get_category(),unit_cart_obj.product.get_sub_category() )
+                    temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
+                    temp_dict["currency"] = unit_cart_obj.product.get_currency()
+                    temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
+                    temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
+                    temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
+                    temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                    temp_dict["link"] = unit_cart_obj.product.url
+                    temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
+                    temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
+                    unit_cart_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             update_cart_bill(cart_obj)
 

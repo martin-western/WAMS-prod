@@ -288,7 +288,6 @@ class DealsHubProduct(models.Model):
         additional_sub_categories = []
         additional_categories = []
         additional_super_categories = []
-
         additional_sub_categories_objs = self.additional_sub_categories.prefetch_related('category').prefetch_related('category__super_category').all()
         for additional_sub_category_obj in additional_sub_categories_objs:
             if additional_sub_category_obj != None:
@@ -1740,7 +1739,7 @@ class Review(models.Model):
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
     content = models.ForeignKey(ReviewContent, default=None, null=True, blank=True,on_delete=models.SET_DEFAULT)
-    created_date = models.DateTimeField(default=timezone.now,blank=True)
+    created_date = models.DateTimeField(default=timezone.now, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
 
     is_deleted = models.BooleanField(default=False)
@@ -1757,6 +1756,11 @@ class Review(models.Model):
 
     def save(self, *args, **kwargs):
 
+        # if self.pk == None:
+        #     self.created_date = timezone.now()
+        #     self.modified_date = timezone.now()
+        # else:
+        #     self.modified_date = timezone.now()
         self.modified_date = timezone.now()
         if self.uuid == None or self.uuid=="":
             self.uuid = str(uuid.uuid4())
