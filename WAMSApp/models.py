@@ -234,6 +234,12 @@ class LocationGroup(models.Model):
     tiled_product_index = models.IntegerField(default=0)
     category_tab_product_index = models.IntegerField(default=0)
     
+
+    contact_info = models.CharField(max_length=100,blank=True, default='[]')
+    whatsapp_info = models.CharField(max_length=100,blank=True, default='')
+    address = models.TextField(blank=True, default='')
+    email_info = models.CharField(max_length=100,blank=True, default='')
+
     primary_color = models.CharField(max_length=100,default = "#000000")
     secondary_color = models.CharField(max_length=100,default = "#FFFFFF")
     navbar_text_color = models.CharField(max_length=100,default = "#FFFFFF")
@@ -241,6 +247,14 @@ class LocationGroup(models.Model):
     buy_now_button_color = models.CharField(max_length=100,default="#D42512")
     add_to_inquire_button_color = models.CharField(max_length=100,default="#1EADD8")
 
+    color_scheme = models.TextField(blank=True, default='[]')
+
+    facebook_link = models.CharField(max_length=100,blank=True, default='')
+    twitter_link = models.CharField(max_length=100,blank=True, default='')
+    instagram_link = models.CharField(max_length=100,blank=True, default='')
+    youtube_link = models.CharField(max_length=100,blank=True, default='')
+    linkedin_link = models.CharField(max_length=100,blank=True, default='')
+    crunchbase_link = models.CharField(max_length=100,blank=True, default='')
 
     def __str__(self):
         return str(self.name)

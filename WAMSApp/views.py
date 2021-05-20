@@ -5893,51 +5893,91 @@ class FetchCompanyProfileAPI(APIView):
                 logger.warning("FetchCompanyProfileAPI Restricted Access!")
                 return Response(data=response)
 
+            
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            if location_group_uuid == "":
+                company_data = {}
+                company_data["name"] = website_group_obj.name
+                company_data["contact_info"] = json.loads(website_group_obj.contact_info)
+                company_data["whatsapp_info"] = website_group_obj.whatsapp_info
+                company_data["email_info"] = website_group_obj.email_info
+                company_data["address"] = website_group_obj.address
+                company_data["facebook_link"] = website_group_obj.facebook_link
+                company_data["twitter_link"] = website_group_obj.twitter_link
+                company_data["instagram_link"] = website_group_obj.instagram_link
+                company_data["youtube_link"] = website_group_obj.youtube_link
+                company_data["linkedin_link"] = website_group_obj.linkedin_link
+                company_data["crunchbase_link"] = website_group_obj.crunchbase_link
 
-            company_data = {}
-            company_data["name"] = website_group_obj.name
-            company_data["contact_info"] = json.loads(website_group_obj.contact_info)
-            company_data["whatsapp_info"] = website_group_obj.whatsapp_info
-            company_data["email_info"] = website_group_obj.email_info
-            company_data["address"] = website_group_obj.address
-            company_data["facebook_link"] = website_group_obj.facebook_link
-            company_data["twitter_link"] = website_group_obj.twitter_link
-            company_data["instagram_link"] = website_group_obj.instagram_link
-            company_data["youtube_link"] = website_group_obj.youtube_link
-            company_data["linkedin_link"] = website_group_obj.linkedin_link
-            company_data["crunchbase_link"] = website_group_obj.crunchbase_link
+                company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
+                
+                company_data["primary_color"] = website_group_obj.primary_color
+                company_data["secondary_color"] = website_group_obj.secondary_color
+                company_data["navbar_text_color"] = website_group_obj.navbar_text_color
+                
+                company_data["logo"] = []
+                if website_group_obj.logo != None:
+                    company_data["logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["logo"][0]["url"] = website_group_obj.logo.image.url
 
-            company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
-            
-            company_data["primary_color"] = location_group_obj.primary_color
-            company_data["secondary_color"] = location_group_obj.secondary_color
-            company_data["navbar_text_color"] = location_group_obj.navbar_text_color
-            company_data["add_to_cart_button_color"] = location_group_obj.add_to_cart_button_color        
-            company_data["buy_now_button_color"] = location_group_obj.buy_now_button_color
-            company_data["add_to_inquire_button_color"] = location_group_obj.add_to_inquire_button_color
-
-            company_data["logo"] = []
-            if website_group_obj.logo != None:
-                company_data["logo"] = [{
-                    "uid" : "123",
-                    "url" : ""
-                }]
-                company_data["logo"][0]["url"] = website_group_obj.logo.image.url
-
-            company_data["footer_logo"] = []
-            if website_group_obj.footer_logo != None:
-                company_data["footer_logo"] = [{
-                    "uid" : "123",
-                    "url" : ""
-                }]
-                company_data["footer_logo"][0]["url"] = website_group_obj.footer_logo.image.url
+                company_data["footer_logo"] = []
+                if website_group_obj.footer_logo != None:
+                    company_data["footer_logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["footer_logo"][0]["url"] = website_group_obj.footer_logo.image.url
 
 
-            response["company_data"] = company_data
-            response['status'] = 200
+                response["company_data"] = company_data
+                response['status'] = 200
+            else:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                company_data = {}
+                company_data["name"] = website_group_obj.name
+                company_data["contact_info"] = json.loads(location_group_obj.contact_info)
+                company_data["whatsapp_info"] = location_group_obj.whatsapp_info
+                company_data["email_info"] = location_group_obj.email_info
+                company_data["address"] = location_group_obj.address
+                company_data["facebook_link"] = location_group_obj.facebook_link
+                company_data["twitter_link"] = location_group_obj.twitter_link
+                company_data["instagram_link"] = location_group_obj.instagram_link
+                company_data["youtube_link"] = location_group_obj.youtube_link
+                company_data["linkedin_link"] = location_group_obj.linkedin_link
+                company_data["crunchbase_link"] = location_group_obj.crunchbase_link
+
+                company_data["color_scheme"] = json.loads(location_group_obj.color_scheme)
+                
+                company_data["primary_color"] = location_group_obj.primary_color
+                company_data["secondary_color"] = location_group_obj.secondary_color
+                company_data["navbar_text_color"] = location_group_obj.navbar_text_color
+                company_data["add_to_cart_button_color"] = location_group_obj.add_to_cart_button_color
+                company_data["buy_now_button_color"] = location_group_obj.buy_now_button_color
+                company_data["add_to_inquire_button_color"] = location_group_obj.add_to_inquire_button_color
+
+                company_data["logo"] = []
+                if website_group_obj.logo != None:
+                    company_data["logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["logo"][0]["url"] = website_group_obj.logo.image.url
+
+                company_data["footer_logo"] = []
+                if website_group_obj.footer_logo != None:
+                    company_data["footer_logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["footer_logo"][0]["url"] = website_group_obj.footer_logo.image.url
+
+
+                response["company_data"] = company_data
+                response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
