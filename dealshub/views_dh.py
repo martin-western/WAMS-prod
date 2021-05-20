@@ -716,6 +716,7 @@ class FetchCartDetailsAPI(APIView):
                     temp_dict["super_category"] = unit_cart_obj.product.get_super_category()        
                     temp_dict["category"] = unit_cart_obj.product.get_category()
                     temp_dict["sub_category"] = unit_cart_obj.product.get_sub_category()
+                    logger.info("FetchCartDetailsAPI: %s, %s , %s",unit_cart_obj.product.get_super_category(),unit_cart_obj.product.get_category(),unit_cart_obj.product.get_sub_category() )
                     temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
                     temp_dict["currency"] = unit_cart_obj.product.get_currency()
                     temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
