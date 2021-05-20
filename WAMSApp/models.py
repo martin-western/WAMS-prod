@@ -237,7 +237,7 @@ class LocationGroup(models.Model):
 
     contact_info = models.CharField(max_length=100,blank=True, default='[]')
     whatsapp_info = models.CharField(max_length=100,blank=True, default='')
-    address = models.TextField(blank=True, default='')
+    addressField = models.TextField(blank=True, default='')
     email_info = models.CharField(max_length=100,blank=True, default='')
 
     primary_color = models.CharField(max_length=100,default = "#000000")

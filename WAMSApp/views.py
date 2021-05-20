@@ -5942,7 +5942,7 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["contact_info"] = json.loads(location_group_obj.contact_info)
                 company_data["whatsapp_info"] = location_group_obj.whatsapp_info
                 company_data["email_info"] = location_group_obj.email_info
-                company_data["address"] = location_group_obj.address
+                company_data["address"] = location_group_obj.addressField
                 company_data["facebook_link"] = location_group_obj.facebook_link
                 company_data["twitter_link"] = location_group_obj.twitter_link
                 company_data["instagram_link"] = location_group_obj.instagram_link
@@ -6007,63 +6007,107 @@ class SaveCompanyProfileAPI(APIView):
 
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
             location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             
             prev_instance = deepcopy(website_group_obj)
             company_data = data["company_data"]
             
             #name = company_data["name"]
-            contact_info = company_data["contact_info"]
-            whatsapp_info = company_data["whatsapp_info"]
-            email_info = company_data["email_info"]
-            address = company_data["address"]
-            primary_color = company_data["primary_color"]
-            secondary_color = company_data["secondary_color"]
-            navbar_text_color = company_data["navbar_text_color"]
-            add_to_cart_button_color = company_data["add_to_cart_button_color"]        
-            buy_now_button_color = company_data["buy_now_button_color"]
-            add_to_inquire_button_color = company_data["add_to_inquire_button_color"]
+            if location_group_uuid == "":
+                contact_info = company_data["contact_info"]
+                whatsapp_info = company_data["whatsapp_info"]
+                email_info = company_data["email_info"]
+                address = company_data["address"]
+                primary_color = company_data["primary_color"]
+                secondary_color = company_data["secondary_color"]
+                navbar_text_color = company_data["navbar_text_color"]
+                
+                facebook_link = company_data["facebook_link"]
+                twitter_link = company_data["twitter_link"]
+                instagram_link = company_data["instagram_link"]
+                youtube_link = company_data["youtube_link"]
+                linkedin_link = company_data["linkedin_link"]
+                crunchbase_link = company_data["crunchbase_link"]
 
-            facebook_link = company_data["facebook_link"]
-            twitter_link = company_data["twitter_link"]
-            instagram_link = company_data["instagram_link"]
-            youtube_link = company_data["youtube_link"]
-            linkedin_link = company_data["linkedin_link"]
-            crunchbase_link = company_data["crunchbase_link"]
-
-            color_scheme = company_data["color_scheme"]
-        
-            #organization.name=name
-            website_group_obj.contact_info=json.dumps(contact_info)
-            website_group_obj.whatsapp_info=whatsapp_info
-            website_group_obj.email_info=email_info
-            website_group_obj.address=address
-            # website_group_obj.primary_color=primary_color
-            # website_group_obj.secondary_color=secondary_color
-            # website_group_obj.navbar_text_color=navbar_text_color
-            website_group_obj.facebook_link=facebook_link
-            website_group_obj.twitter_link=twitter_link
-            website_group_obj.instagram_link=instagram_link
-            website_group_obj.youtube_link=youtube_link
-            website_group_obj.linkedin_link=linkedin_link
-            website_group_obj.crunchbase_link=crunchbase_link
-
-            website_group_obj.color_scheme = json.dumps(color_scheme)
+                color_scheme = company_data["color_scheme"]
             
-            location_group_obj.primary_color = primary_color
-            location_group_obj.secondary_color = secondary_color
-            location_group_obj.navbar_text_color = navbar_text_color
-            location_group_obj.add_to_cart_button_color = add_to_cart_button_color
-            location_group_obj.buy_now_button_color = buy_now_button_color
-            location_group_obj.add_to_inquire_button_color = add_to_inquire_button_color
-            
+                #organization.name=name
+                website_group_obj.contact_info=json.dumps(contact_info)
+                website_group_obj.whatsapp_info=whatsapp_info
+                website_group_obj.email_info=email_info
+                website_group_obj.address=address
+                # website_group_obj.primary_color=primary_color
+                # website_group_obj.secondary_color=secondary_color
+                # website_group_obj.navbar_text_color=navbar_text_color
+                website_group_obj.facebook_link=facebook_link
+                website_group_obj.twitter_link=twitter_link
+                website_group_obj.instagram_link=instagram_link
+                website_group_obj.youtube_link=youtube_link
+                website_group_obj.linkedin_link=linkedin_link
+                website_group_obj.crunchbase_link=crunchbase_link
 
-            website_group_obj.save()
-            location_group_obj.save()
-            render_value = 'company profile is updated.'
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
-            response['status'] = 200
-        
+                website_group_obj.color_scheme = json.dumps(color_scheme)
+                
+                website_group_obj.primary_color = primary_color
+                website_group_obj.secondary_color = secondary_color
+                website_group_obj.navbar_text_color = navbar_text_color
+                
+
+                website_group_obj.save()
+                render_value = 'company profile is updated.'
+                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
+                response['status'] = 200
+            else:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                contact_info = company_data["contact_info"]
+                whatsapp_info = company_data["whatsapp_info"]
+                email_info = company_data["email_info"]
+                address = company_data["address"]
+                primary_color = company_data["primary_color"]
+                secondary_color = company_data["secondary_color"]
+                navbar_text_color = company_data["navbar_text_color"]
+                add_to_cart_button_color = company_data["add_to_cart_button_color"]        
+                buy_now_button_color = company_data["buy_now_button_color"]
+                add_to_inquire_button_color = company_data["add_to_inquire_button_color"]
+
+                facebook_link = company_data["facebook_link"]
+                twitter_link = company_data["twitter_link"]
+                instagram_link = company_data["instagram_link"]
+                youtube_link = company_data["youtube_link"]
+                linkedin_link = company_data["linkedin_link"]
+                crunchbase_link = company_data["crunchbase_link"]
+
+                color_scheme = company_data["color_scheme"]
+            
+                #organization.name=name
+                location_group_obj.contact_info=json.dumps(contact_info)
+                location_group_obj.whatsapp_info=whatsapp_info
+                location_group_obj.email_info=email_info
+                location_group_obj.addressField=address
+                # website_group_obj.primary_color=primary_color
+                # website_group_obj.secondary_color=secondary_color
+                # website_group_obj.navbar_text_color=navbar_text_color
+                location_group_obj.facebook_link=facebook_link
+                location_group_obj.twitter_link=twitter_link
+                location_group_obj.instagram_link=instagram_link
+                location_group_obj.youtube_link=youtube_link
+                location_group_obj.linkedin_link=linkedin_link
+                location_group_obj.crunchbase_link=crunchbase_link
+
+                location_group_obj.color_scheme = json.dumps(color_scheme)
+                
+                location_group_obj.primary_color = primary_color
+                location_group_obj.secondary_color = secondary_color
+                location_group_obj.navbar_text_color = navbar_text_color
+                location_group_obj.add_to_cart_button_color = add_to_cart_button_color
+                location_group_obj.buy_now_button_color = buy_now_button_color
+                location_group_obj.add_to_inquire_button_color = add_to_inquire_button_color
+                
+
+                location_group_obj.save()
+                render_value = 'company profile is updated.'
+                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
+                response['status'] = 200
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SaveCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
