@@ -5892,8 +5892,7 @@ class FetchCompanyProfileAPI(APIView):
                 response['status'] = 403
                 logger.warning("FetchCompanyProfileAPI Restricted Access!")
                 return Response(data=response)
-
-            
+ 
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
             location_group_uuid = data.get("locationGroupUuid","")     
             if location_group_uuid == "":
@@ -5909,9 +5908,7 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["youtube_link"] = website_group_obj.youtube_link
                 company_data["linkedin_link"] = website_group_obj.linkedin_link
                 company_data["crunchbase_link"] = website_group_obj.crunchbase_link
-
-                company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
-                
+                company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)      
                 company_data["primary_color"] = website_group_obj.primary_color
                 company_data["secondary_color"] = website_group_obj.secondary_color
                 company_data["navbar_text_color"] = website_group_obj.navbar_text_color
@@ -5947,7 +5944,6 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["crunchbase_link"] = location_group_obj.crunchbase_link
 
                 company_data["color_scheme"] = json.loads(location_group_obj.color_scheme)
-                
                 company_data["primary_color"] = location_group_obj.primary_color
                 company_data["secondary_color"] = location_group_obj.secondary_color
                 company_data["navbar_text_color"] = location_group_obj.navbar_text_color
@@ -6029,14 +6025,12 @@ class SaveCompanyProfileAPI(APIView):
                 website_group_obj.secondary_color = secondary_color
                 website_group_obj.navbar_text_color = navbar_text_color
                 
-
                 website_group_obj.save()
                 render_value = 'company profile is updated.'
-                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
-                
+                activitylog(user=request.user,table_name=WebsiteGroup,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)                
             else:
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-                prev_instance = deepcopy(website_group_obj)
+                prev_instance = deepcopy(location_group_obj)
                 contact_info = company_data["contact_info"]
                 whatsapp_info = company_data["whatsapp_info"]
                 email_info = company_data["email_info"]
@@ -6054,17 +6048,11 @@ class SaveCompanyProfileAPI(APIView):
                 youtube_link = company_data["youtube_link"]
                 linkedin_link = company_data["linkedin_link"]
                 crunchbase_link = company_data["crunchbase_link"]
-
                 color_scheme = company_data["color_scheme"]
-            
-                #organization.name=name
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.email_info=email_info
                 location_group_obj.addressField=address
-                # website_group_obj.primary_color=primary_color
-                # website_group_obj.secondary_color=secondary_color
-                # website_group_obj.navbar_text_color=navbar_text_color
                 location_group_obj.facebook_link=facebook_link
                 location_group_obj.twitter_link=twitter_link
                 location_group_obj.instagram_link=instagram_link
@@ -6081,10 +6069,9 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.buy_now_button_color = buy_now_button_color
                 location_group_obj.add_to_inquire_button_color = add_to_inquire_button_color
                 
-
                 location_group_obj.save()
                 render_value = 'company profile is updated.'
-                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
+                activitylog(user=request.user,table_name=LocationGroup,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
             
             response['status'] = 200    
         except Exception as e:
@@ -7275,11 +7262,11 @@ class FetchOCReportListAPI(APIView):
                     completion_date = ""
                     if oc_report_obj.completion_date!=None:
                         completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
-                    try:
-                        json_note_obj = json.loads(oc_report_obj.note)
-                    except Exception as e:
-                        temp_note = json.dumps({"report_type": oc_report_obj.report_title, "note": oc_report_obj.note, "brand_list": "-", "from_date": "-", "to_date": "-"})
-                        json_note_obj = json.loads(temp_note)
+                        try:
+                            json_note_obj = json.loads(oc_report_obj.note)
+                        except Exception as e:
+                            temp_note = json.dumps({"report_type": oc_report_obj.report_title, "note": oc_report_obj.note, "brand_list": "-", "from_date": "-", "to_date": "-"})
+                            json_note_obj = json.loads(temp_note)
                     temp_dict = {
                         "name": oc_report_obj.report_title,
                         "created_date": str(timezone.localtime(oc_report_obj.created_date).strftime("%d %m, %Y %H:%M")),
