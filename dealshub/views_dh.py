@@ -712,6 +712,8 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
                 temp_dict["moq"] = unit_cart_obj.product.get_moq(dealshub_user_obj)
                 temp_dict["stock"] = unit_cart_obj.product.stock
+                temp_dict["category"] = unit_cart_obj.product.category
+                temp_dict["sub_category"] = unit_cart_obj.product.sub_category
                 temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
                 temp_dict["currency"] = unit_cart_obj.product.get_currency()
                 temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
@@ -720,8 +722,6 @@ class FetchCartDetailsAPI(APIView):
                 temp_dict["productUuid"] = unit_cart_obj.product.uuid
                 temp_dict["link"] = unit_cart_obj.product.url
                 temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
-                temp_dict["category"] = unit_cart_obj.product.category
-                temp_dict["sub_category"] = unit_cart_obj.product.sub_category
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
 
