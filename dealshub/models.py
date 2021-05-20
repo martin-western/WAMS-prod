@@ -1740,7 +1740,7 @@ class Review(models.Model):
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
     content = models.ForeignKey(ReviewContent, default=None, null=True, blank=True,on_delete=models.SET_DEFAULT)
-    created_date = models.DateTimeField(default=timezone.now,blank=true)
+    created_date = models.DateTimeField(default=timezone.now,blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
 
     is_deleted = models.BooleanField(default=False)
