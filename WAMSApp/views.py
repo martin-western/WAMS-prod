@@ -6899,6 +6899,9 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="sales":
                 p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
+            elif report_type.lower()=="daily_sales_order":
+                p1 = threading.Thread(target=create_daily_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
+                p1.start()
             elif report_type.lower()=="order":
                 p1 = threading.Thread(target=create_order_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
