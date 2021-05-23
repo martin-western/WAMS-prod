@@ -5942,15 +5942,8 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["youtube_link"] = location_group_obj.youtube_link
                 company_data["linkedin_link"] = location_group_obj.linkedin_link
                 company_data["crunchbase_link"] = location_group_obj.crunchbase_link
-
                 company_data["color_scheme"] = json.loads(location_group_obj.color_scheme)
-                company_data["primary_color"] = location_group_obj.primary_color
-                company_data["secondary_color"] = location_group_obj.secondary_color
-                company_data["navbar_text_color"] = location_group_obj.navbar_text_color
-                company_data["add_to_cart_button_color"] = location_group_obj.add_to_cart_button_color
-                company_data["buy_now_button_color"] = location_group_obj.buy_now_button_color
-                company_data["inquire_button_color"] = location_group_obj.inquire_button_color
-
+  
             response["company_data"] = company_data
             response['status'] = 200    
         except Exception as e:
@@ -6013,9 +6006,9 @@ class SaveCompanyProfileAPI(APIView):
                 website_group_obj.linkedin_link=linkedin_link
                 website_group_obj.crunchbase_link=crunchbase_link
                 website_group_obj.color_scheme = json.dumps(color_scheme)
-                website_group_obj.primary_color = primary_color
-                website_group_obj.secondary_color = secondary_color
-                website_group_obj.navbar_text_color = navbar_text_color
+                # website_group_obj.primary_color = primary_color
+                # website_group_obj.secondary_color = secondary_color
+                # website_group_obj.navbar_text_color = navbar_text_color
                 
                 website_group_obj.save()
                 render_value = 'company profile is updated.'
@@ -6027,13 +6020,6 @@ class SaveCompanyProfileAPI(APIView):
                 whatsapp_info = company_data["whatsapp_info"]
                 email_info = company_data["email_info"]
                 address = company_data["address"]
-                primary_color = company_data["primary_color"]
-                secondary_color = company_data["secondary_color"]
-                navbar_text_color = company_data["navbar_text_color"]
-                add_to_cart_button_color = company_data["add_to_cart_button_color"]        
-                buy_now_button_color = company_data["buy_now_button_color"]
-                inquire_button_color = company_data["inquire_button_color"]
-
                 facebook_link = company_data["facebook_link"]
                 twitter_link = company_data["twitter_link"]
                 instagram_link = company_data["instagram_link"]
@@ -6052,12 +6038,6 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.linkedin_link=linkedin_link
                 location_group_obj.crunchbase_link=crunchbase_link
                 location_group_obj.color_scheme = json.dumps(color_scheme)
-                location_group_obj.primary_color = primary_color
-                location_group_obj.secondary_color = secondary_color
-                location_group_obj.navbar_text_color = navbar_text_color
-                location_group_obj.add_to_cart_button_color = add_to_cart_button_color
-                location_group_obj.buy_now_button_color = buy_now_button_color
-                location_group_obj.inquire_button_color = inquire_button_color
                 
                 location_group_obj.save()
                 render_value = 'company profile is updated.'
