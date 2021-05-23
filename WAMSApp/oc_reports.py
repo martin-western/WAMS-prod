@@ -61,7 +61,7 @@ def email_daily_sales_report_to_user(oc_report_obj):
             email = EmailMessage(subject='Omnycomm Daily Sales Report Generated', 
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
-                                 to="animesh.kumar@omnycomm.com",
+                                 to=["animesh.kumar@omnycomm.com"],
                                  cc=["jay@omnycomm.com", "24animesh11@gmail.com"],
                                  connection=connection)
             email.attach_file(oc_report_obj.filename)
@@ -1168,7 +1168,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[17] = "offline" if order_obj.is_order_offline else "online"
                 common_row[18] = order_obj.sap_status
                 common_row[19] = order_obj.reference_medium
-                common_row[20] = order_obj.additional_note
+                # common_row[20] = order_obj.additional_note
                 
                 colnum = 0
                 for k in common_row:
