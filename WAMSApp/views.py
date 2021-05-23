@@ -5873,6 +5873,7 @@ class RefreshPagePriceAndStockAPI(APIView):
 
         return Response(data=response)
 
+
 class FetchCompanyProfileAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5951,6 +5952,8 @@ class FetchCompanyProfileAPI(APIView):
             logger.error("FetchCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
 #API with active log
 class SaveCompanyProfileAPI(APIView):
 
@@ -5984,10 +5987,9 @@ class SaveCompanyProfileAPI(APIView):
                 whatsapp_info = company_data["whatsapp_info"]
                 email_info = company_data["email_info"]
                 address = company_data["address"]
-                primary_color = company_data["primary_color"]
-                secondary_color = company_data["secondary_color"]
-                navbar_text_color = company_data["navbar_text_color"]
-                
+                # primary_color = company_data["primary_color"]
+                # secondary_color = company_data["secondary_color"]
+                # navbar_text_color = company_data["navbar_text_color"]
                 facebook_link = company_data["facebook_link"]
                 twitter_link = company_data["twitter_link"]
                 instagram_link = company_data["instagram_link"]
@@ -6009,8 +6011,8 @@ class SaveCompanyProfileAPI(APIView):
                 # website_group_obj.primary_color = primary_color
                 # website_group_obj.secondary_color = secondary_color
                 # website_group_obj.navbar_text_color = navbar_text_color
-                
                 website_group_obj.save()
+                
                 render_value = 'company profile is updated.'
                 activitylog(user=request.user,table_name=WebsiteGroup,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)                
             else:
