@@ -1164,7 +1164,9 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[13] = unit_order_obj.shipping_method
                 common_row[14] = unit_order_obj.current_status_admin
                 common_row[15] = tracking_status_time
-                common_row[16] = order_obj.offline_sales_person.username
+                common_row[16] = "-"
+                if order_obj.is_order_offline and order_obj.offline_sales_person!=None:
+                    common_row[16] = order_obj.offline_sales_person.username
                 common_row[17] = "offline" if order_obj.is_order_offline else "online"
                 common_row[18] = order_obj.sap_status
                 common_row[19] = order_obj.reference_medium
