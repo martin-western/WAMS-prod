@@ -5892,47 +5892,67 @@ class FetchCompanyProfileAPI(APIView):
                 response['status'] = 403
                 logger.warning("FetchCompanyProfileAPI Restricted Access!")
                 return Response(data=response)
-
+ 
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
+            location_group_uuid = data.get("locationGroupUuid","")     
+            if location_group_uuid == "":
+                company_data = {}
+                company_data["name"] = website_group_obj.name
+                company_data["contact_info"] = json.loads(website_group_obj.contact_info)
+                company_data["whatsapp_info"] = website_group_obj.whatsapp_info
+                company_data["email_info"] = website_group_obj.email_info
+                company_data["address"] = website_group_obj.address
+                company_data["facebook_link"] = website_group_obj.facebook_link
+                company_data["twitter_link"] = website_group_obj.twitter_link
+                company_data["instagram_link"] = website_group_obj.instagram_link
+                company_data["youtube_link"] = website_group_obj.youtube_link
+                company_data["linkedin_link"] = website_group_obj.linkedin_link
+                company_data["crunchbase_link"] = website_group_obj.crunchbase_link
+                company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)      
+                company_data["primary_color"] = website_group_obj.primary_color
+                company_data["secondary_color"] = website_group_obj.secondary_color
+                company_data["navbar_text_color"] = website_group_obj.navbar_text_color
+                
+                company_data["logo"] = []
+                if website_group_obj.logo != None:
+                    company_data["logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["logo"][0]["url"] = website_group_obj.logo.image.url
 
-            company_data = {}
-            company_data["name"] = website_group_obj.name
-            company_data["contact_info"] = json.loads(website_group_obj.contact_info)
-            company_data["whatsapp_info"] = website_group_obj.whatsapp_info
-            company_data["email_info"] = website_group_obj.email_info
-            company_data["address"] = website_group_obj.address
-            company_data["primary_color"] = website_group_obj.primary_color
-            company_data["secondary_color"] = website_group_obj.secondary_color
-            company_data["navbar_text_color"] = website_group_obj.navbar_text_color
-            company_data["facebook_link"] = website_group_obj.facebook_link
-            company_data["twitter_link"] = website_group_obj.twitter_link
-            company_data["instagram_link"] = website_group_obj.instagram_link
-            company_data["youtube_link"] = website_group_obj.youtube_link
-            company_data["linkedin_link"] = website_group_obj.linkedin_link
-            company_data["crunchbase_link"] = website_group_obj.crunchbase_link
+                company_data["footer_logo"] = []
+                if website_group_obj.footer_logo != None:
+                    company_data["footer_logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["footer_logo"][0]["url"] = website_group_obj.footer_logo.image.url
 
-            company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
-            
-            company_data["logo"] = []
-            if website_group_obj.logo != None:
-                company_data["logo"] = [{
-                    "uid" : "123",
-                    "url" : ""
-                }]
-                company_data["logo"][0]["url"] = website_group_obj.logo.image.url
+            else:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                company_data = {}
+                company_data["contact_info"] = json.loads(location_group_obj.contact_info)
+                company_data["whatsapp_info"] = location_group_obj.whatsapp_info
+                company_data["email_info"] = location_group_obj.email_info
+                company_data["address"] = location_group_obj.addressField
+                company_data["facebook_link"] = location_group_obj.facebook_link
+                company_data["twitter_link"] = location_group_obj.twitter_link
+                company_data["instagram_link"] = location_group_obj.instagram_link
+                company_data["youtube_link"] = location_group_obj.youtube_link
+                company_data["linkedin_link"] = location_group_obj.linkedin_link
+                company_data["crunchbase_link"] = location_group_obj.crunchbase_link
 
-            company_data["footer_logo"] = []
-            if website_group_obj.footer_logo != None:
-                company_data["footer_logo"] = [{
-                    "uid" : "123",
-                    "url" : ""
-                }]
-                company_data["footer_logo"][0]["url"] = website_group_obj.footer_logo.image.url
-
+                company_data["color_scheme"] = json.loads(location_group_obj.color_scheme)
+                company_data["primary_color"] = location_group_obj.primary_color
+                company_data["secondary_color"] = location_group_obj.secondary_color
+                company_data["navbar_text_color"] = location_group_obj.navbar_text_color
+                company_data["add_to_cart_button_color"] = location_group_obj.add_to_cart_button_color
+                company_data["buy_now_button_color"] = location_group_obj.buy_now_button_color
+                company_data["inquire_button_color"] = location_group_obj.inquire_button_color
 
             response["company_data"] = company_data
-            response['status'] = 200
-
+            response['status'] = 200    
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5960,48 +5980,90 @@ class SaveCompanyProfileAPI(APIView):
                 return Response(data=response)
 
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
-            prev_instance = deepcopy(website_group_obj)
+            location_group_uuid = data.get("locationGroupUuid","")
+            
             company_data = data["company_data"]
             
             #name = company_data["name"]
-            contact_info = company_data["contact_info"]
-            whatsapp_info = company_data["whatsapp_info"]
-            email_info = company_data["email_info"]
-            address = company_data["address"]
-            # primary_color = company_data["primary_color"]
-            # secondary_color = company_data["secondary_color"]
-            # navbar_text_color = company_data["navbar_text_color"]
-            facebook_link = company_data["facebook_link"]
-            twitter_link = company_data["twitter_link"]
-            instagram_link = company_data["instagram_link"]
-            youtube_link = company_data["youtube_link"]
-            linkedin_link = company_data["linkedin_link"]
-            crunchbase_link = company_data["crunchbase_link"]
+            if location_group_uuid == "":
+                prev_instance = deepcopy(website_group_obj)
+                contact_info = company_data["contact_info"]
+                whatsapp_info = company_data["whatsapp_info"]
+                email_info = company_data["email_info"]
+                address = company_data["address"]
+                primary_color = company_data["primary_color"]
+                secondary_color = company_data["secondary_color"]
+                navbar_text_color = company_data["navbar_text_color"]
+                
+                facebook_link = company_data["facebook_link"]
+                twitter_link = company_data["twitter_link"]
+                instagram_link = company_data["instagram_link"]
+                youtube_link = company_data["youtube_link"]
+                linkedin_link = company_data["linkedin_link"]
+                crunchbase_link = company_data["crunchbase_link"]
+                color_scheme = company_data["color_scheme"]
+                website_group_obj.contact_info=json.dumps(contact_info)
+                website_group_obj.whatsapp_info=whatsapp_info
+                website_group_obj.email_info=email_info
+                website_group_obj.address=address
+                website_group_obj.facebook_link=facebook_link
+                website_group_obj.twitter_link=twitter_link
+                website_group_obj.instagram_link=instagram_link
+                website_group_obj.youtube_link=youtube_link
+                website_group_obj.linkedin_link=linkedin_link
+                website_group_obj.crunchbase_link=crunchbase_link
+                website_group_obj.color_scheme = json.dumps(color_scheme)
+                website_group_obj.primary_color = primary_color
+                website_group_obj.secondary_color = secondary_color
+                website_group_obj.navbar_text_color = navbar_text_color
+                
+                website_group_obj.save()
+                render_value = 'company profile is updated.'
+                activitylog(user=request.user,table_name=WebsiteGroup,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)                
+            else:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                prev_instance = deepcopy(location_group_obj)
+                contact_info = company_data["contact_info"]
+                whatsapp_info = company_data["whatsapp_info"]
+                email_info = company_data["email_info"]
+                address = company_data["address"]
+                primary_color = company_data["primary_color"]
+                secondary_color = company_data["secondary_color"]
+                navbar_text_color = company_data["navbar_text_color"]
+                add_to_cart_button_color = company_data["add_to_cart_button_color"]        
+                buy_now_button_color = company_data["buy_now_button_color"]
+                inquire_button_color = company_data["inquire_button_color"]
 
-            color_scheme = company_data["color_scheme"]
-        
-            #organization.name=name
-            website_group_obj.contact_info=json.dumps(contact_info)
-            website_group_obj.whatsapp_info=whatsapp_info
-            website_group_obj.email_info=email_info
-            website_group_obj.address=address
-            # website_group_obj.primary_color=primary_color
-            # website_group_obj.secondary_color=secondary_color
-            # website_group_obj.navbar_text_color=navbar_text_color
-            website_group_obj.facebook_link=facebook_link
-            website_group_obj.twitter_link=twitter_link
-            website_group_obj.instagram_link=instagram_link
-            website_group_obj.youtube_link=youtube_link
-            website_group_obj.linkedin_link=linkedin_link
-            website_group_obj.crunchbase_link=crunchbase_link
-
-            website_group_obj.color_scheme = json.dumps(color_scheme)
+                facebook_link = company_data["facebook_link"]
+                twitter_link = company_data["twitter_link"]
+                instagram_link = company_data["instagram_link"]
+                youtube_link = company_data["youtube_link"]
+                linkedin_link = company_data["linkedin_link"]
+                crunchbase_link = company_data["crunchbase_link"]
+                color_scheme = company_data["color_scheme"]
+                location_group_obj.contact_info=json.dumps(contact_info)
+                location_group_obj.whatsapp_info=whatsapp_info
+                location_group_obj.email_info=email_info
+                location_group_obj.addressField=address
+                location_group_obj.facebook_link=facebook_link
+                location_group_obj.twitter_link=twitter_link
+                location_group_obj.instagram_link=instagram_link
+                location_group_obj.youtube_link=youtube_link
+                location_group_obj.linkedin_link=linkedin_link
+                location_group_obj.crunchbase_link=crunchbase_link
+                location_group_obj.color_scheme = json.dumps(color_scheme)
+                location_group_obj.primary_color = primary_color
+                location_group_obj.secondary_color = secondary_color
+                location_group_obj.navbar_text_color = navbar_text_color
+                location_group_obj.add_to_cart_button_color = add_to_cart_button_color
+                location_group_obj.buy_now_button_color = buy_now_button_color
+                location_group_obj.inquire_button_color = inquire_button_color
+                
+                location_group_obj.save()
+                render_value = 'company profile is updated.'
+                activitylog(user=request.user,table_name=LocationGroup,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
             
-            website_group_obj.save()
-            render_value = 'company profile is updated.'
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
-            response['status'] = 200
-        
+            response['status'] = 200    
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SaveCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -7190,13 +7252,11 @@ class FetchOCReportListAPI(APIView):
                     completion_date = ""
                     if oc_report_obj.completion_date!=None:
                         completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
-
                         try:
                             json_note_obj = json.loads(oc_report_obj.note)
                         except Exception as e:
                             temp_note = json.dumps({"report_type": oc_report_obj.report_title, "note": oc_report_obj.note, "brand_list": "-", "from_date": "-", "to_date": "-"})
                             json_note_obj = json.loads(temp_note)
-
                     temp_dict = {
                         "name": oc_report_obj.report_title,
                         "created_date": str(timezone.localtime(oc_report_obj.created_date).strftime("%d %m, %Y %H:%M")),
