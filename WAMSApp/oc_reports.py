@@ -1106,7 +1106,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                "Channel",
                "Seller SKU & Quantity",
                "Currency",
-               "Order Amount"
+               "Order Amount",
                "Total Quantity",
                "Customer Name",
                "Customer Email ID",
@@ -1170,7 +1170,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[17] = "offline" if order_obj.is_order_offline else "online"
                 common_row[18] = order_obj.sap_status
                 common_row[19] = order_obj.reference_medium
-                # common_row[20] = order_obj.additional_note
+                common_row[20] = order_obj.additional_note
                 
                 colnum = 0
                 for k in common_row:
