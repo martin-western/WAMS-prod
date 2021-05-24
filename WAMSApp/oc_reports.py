@@ -61,8 +61,8 @@ def email_daily_sales_report_to_user(oc_report_obj):
             email = EmailMessage(subject='Omnycomm Daily Sales Report Generated', 
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
-                                 to=["animesh.kumar@omnycomm.com"],
-                                 cc=["jay@omnycomm.com", "24animesh11@gmail.com"],
+                                 to=["hari.pk@westernint.com"],
+                                 cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
                                  connection=connection)
             email.attach_file(oc_report_obj.filename)
             email.send(fail_silently=True)
