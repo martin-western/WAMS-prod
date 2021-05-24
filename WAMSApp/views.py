@@ -1309,7 +1309,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload product price"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the price" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1370,7 +1370,7 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload b2b product price"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the price" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1431,7 +1431,7 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload b2b product MOQ"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the MOQ" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1493,7 +1493,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload product stock"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the stock" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1549,7 +1549,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload publish status"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the publish status" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1605,7 +1605,7 @@ class BulkUpdateDealshubProductStatusAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload product status"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the status" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1661,7 +1661,7 @@ class BulkDownloadDealshubProductAPI(APIView):
             #  have to add this report type in custom permission
             report_type = "download product details"
             report_title = "Products Details"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the download product details" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -6647,7 +6647,7 @@ class DownloadBulkExportAPI(APIView):
             data_point_list = data["data_point_list"]
             product_uuid_list = data["product_uuid_list"]
 
-            filename = str(datetime.datetime.now().strftime("%d%m%Y%H%M_dynamic_export"))+".xlsx"
+            filename = str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_dynamic_export"))+".xlsx"
 
             generate_dynamic_export(filename, product_uuid_list, data_point_list)
 
@@ -6861,7 +6861,7 @@ class CreateOCReportAPI(APIView):
             if location_group_uuid!="":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -6989,7 +6989,7 @@ class CreateSEOReportAPI(APIView):
             note = data["note"]
             location_group_uuid = data["locationGroupUuid"]
 
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -7129,7 +7129,7 @@ class CreateContentReportAPI(APIView):
 
             report_type = "Mega"
 
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
 
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 

@@ -5120,7 +5120,7 @@ class BulkUploadFakeReviewAdminAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload fake review"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the fake review" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
