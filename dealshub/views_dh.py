@@ -3341,12 +3341,6 @@ class UpdateB2BCustomerStatusAPI(APIView):
             trade_license_type = data["tradeLicenseType"]
             passport_copy_type = data["passportCopyType"]
 
-            if B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count() or B2BUser.objects.filter(trade_license_id=trade_license_id).count():
-                response["status"] = 403
-                response["message"] = "Vat Certificate number or Trade License number already exists!"
-                logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
-                return Response(data=response)
-
             is_notify = False
             if vat_certificate_status != b2b_user_obj.vat_certificate_status or trade_license_status != b2b_user_obj.trade_license_status or passport_copy_status != b2b_user_obj.passport_copy_status:
                 is_notify = True
@@ -3397,6 +3391,14 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.trade_license_status = trade_license_status
             b2b_user_obj.passport_copy_status = passport_copy_status
             b2b_user_obj.cohort = cohort
+            b2b_user_obj.save()
+
+            if (b2b_user_obj.vat_certificate_id != vat_certificate_id and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count()) or (b2b_user_obj.trade_license_id != trade_license_id and B2BUser.objects.filter(trade_license_id=trade_license_id).count()):
+                response["status"] = 403
+                response["message"] = "Vat Certificate number or Trade License number already exists!"
+                logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
+                return Response(data=response)
+                
             b2b_user_obj.vat_certificate_id = vat_certificate_id
             b2b_user_obj.trade_license_id = trade_license_id
             b2b_user_obj.passport_copy_id = passport_copy_id
@@ -4391,12 +4393,11 @@ class SignUpCompletionAPI(APIView):
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
-            if vat_certificate_id!="" and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count() or B2BUser.objects.filter(trade_license_id=trade_license_id).count():
+            if (b2b_user_obj.vat_certificate_id != vat_certificate_id and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count()) or (b2b_user_obj.trade_license_id != trade_license_id and B2BUser.objects.filter(trade_license_id=trade_license_id).count()):
                 response["status"] = 403
                 response["message"] = "Vat Certificate number or Trade License number already exists!"
                 logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
                 return Response(data=response)
-
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number + "-" + website_group_name)
                 if Cart.objects.filter(owner=dealshub_user_obj,location_group=location_group_obj).exists() == True:
@@ -5119,7 +5120,7 @@ class BulkUploadFakeReviewAdminAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload fake review"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the fake review" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -6612,7 +6613,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             is_available = True
             if int(paginator.num_pages) == int(page):
                 is_available = False
-
+            response["pendingOrderRequestCount"] = OrderRequest.objects.filter(location_group__uuid=location_group_uuid,request_status="Pending").distinct().count()
             response["isAvailable"] = is_available
             response["totalOrders"] = total_orders
             response["orderList"] = order_list
@@ -9401,7 +9402,7 @@ class UploadB2BDocumentAPI(APIView):
             trade_license_id = data["trade-license-id"]
             passport_copy_id = data["passport-copy-id"]
 
-            if B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count() or B2BUser.objects.filter(trade_license_id=trade_license_id).count():
+            if (b2b_user_obj.vat_certificate_id != vat_certificate_id and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count()) or (b2b_user_obj.trade_license_id != trade_license_id and B2BUser.objects.filter(trade_license_id=trade_license_id).count()):
                 response["status"] = 403
                 response["message"] = "Vat Certificate number or Trade License number already exists!"
                 logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")

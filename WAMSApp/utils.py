@@ -2984,3 +2984,11 @@ def convert_django_object_to_object(model_name,django_object):
             pass
     return result
 
+# utility for create_daily_sales_report()
+def get_sellersku_and_quantity(order_obj):
+    sellersku_and_quantity =  ""
+    for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+        seller_sku = unit_order_obj.product.get_seller_sku()
+        data = f"{seller_sku}({unit_order_obj.quantity}), "
+        sellersku_and_quantity += data
+    return sellersku_and_quantity[:-2]

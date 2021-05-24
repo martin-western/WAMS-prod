@@ -178,12 +178,21 @@ base_dimensions_json = {
     "giftbox_h_metric": ""
 }
 
+colors_json = {
+    "primary_color" : "#000000",
+    "secondary_color" : "#FFFFFF",
+    "navbar_text_color" : "#FFFFFF",
+    "add_to_cart_button_color" :"#000000",
+    "buy_now_button_color" : "#D42512",
+    "inquire_button_color" : "#1EADD8"
+}
+
 noon_product_json  = json.dumps(noon_product_json)
 amazon_uk_product_json = json.dumps(amazon_uk_product_json)
 amazon_uae_product_json = json.dumps(amazon_uae_product_json)
 ebay_product_json = json.dumps(ebay_product_json)
 base_dimensions_json = json.dumps(base_dimensions_json)
-
+colors_json =  json.dumps(colors_json)
 
 class Location(models.Model):
 
@@ -226,13 +235,23 @@ class LocationGroup(models.Model):
     circular_category_index = models.IntegerField(default=0)
     is_b2b = models.BooleanField(default = False)
     region_list = models.TextField(default="[]")
-
     today_sales_target = models.FloatField(default=0)
     monthly_sales_target = models.FloatField(default=0)
     today_orders_target = models.IntegerField(default=0)
     monthly_orders_target = models.IntegerField(default=0)
     tiled_product_index = models.IntegerField(default=0)
     category_tab_product_index = models.IntegerField(default=0)
+    contact_info = models.CharField(max_length=100,blank=True, default='[]')
+    whatsapp_info = models.CharField(max_length=100,blank=True, default='')
+    addressField = models.TextField(blank=True, default='')
+    email_info = models.CharField(max_length=100,blank=True, default='')
+    color_scheme = models.TextField(blank=True, default=colors_json)
+    facebook_link = models.CharField(max_length=100,blank=True, default='')
+    twitter_link = models.CharField(max_length=100,blank=True, default='')
+    instagram_link = models.CharField(max_length=100,blank=True, default='')
+    youtube_link = models.CharField(max_length=100,blank=True, default='')
+    linkedin_link = models.CharField(max_length=100,blank=True, default='')
+    crunchbase_link = models.CharField(max_length=100,blank=True, default='')
 
     def __str__(self):
         return str(self.name)

@@ -42,6 +42,33 @@ def notify_user_for_report(oc_report_obj):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error notify_user_for_report %s %s", e, str(exc_tb.tb_lineno))
 
+def email_daily_sales_report_to_user(oc_report_obj):
+
+    if oc_report_obj.created_by.email=="":
+        return
+
+    try:
+        body = """
+            This is to inform you that your requested report has been generated on Omnycomm.
+            Report note: """+ str(oc_report_obj.note) +"""
+        """
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username="nisarg@omnycomm.com", 
+            password="verjtzgeqareribg",
+            use_tls=True) as connection:
+            email = EmailMessage(subject='Omnycomm Daily Sales Report Generated', 
+                                 body=body,
+                                 from_email='nisarg@omnycomm.com',
+                                 to=["hari.pk@westernint.com"],
+                                 cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
+                                 connection=connection)
+            email.attach_file(oc_report_obj.filename)
+            email.send(fail_silently=True)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error email_daily_sales_report_to_user %s %s", e, str(exc_tb.tb_lineno))
 
 def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="", organization_obj=None):
 
@@ -352,11 +379,11 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
             common_row[19] = str(product.material_type)
             common_row[20] = "" if product.standard_price==None else str(product.standard_price)
             common_row[21] = "" if product.quantity==None else str(product.quantity)
-            common_row[22] = str(product.barcode_string)
+            common_row[22] = "" if product.barcode_string==None else str(product.barcode_string)
             dimensions = json.loads(product.base_product.dimensions)
             common_row[23] = str(dimensions.get("export_carton_quantity_l", ""))
             common_row[24] = str(dimensions.get("export_carton_quantity_l_metric", ""))
-            common_row[25] = str(dimensions.get("export_carton_quantity_b"))
+            common_row[25] = str(dimensions.get("export_carton_quantity_b",""))
             common_row[26] = str(dimensions.get("export_carton_quantity_b_metric", ""))
             common_row[27] = str(dimensions.get("export_carton_quantity_h", ""))
             common_row[28] = str(dimensions.get("export_carton_quantity_h_metric", ""))
@@ -1064,6 +1091,107 @@ def create_order_report(filename, uuid, from_date, to_date, brand_list, custom_p
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("create_order_report: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj,location_group_obj):
+
+    try:
+        logger.info("create_daily_sales_report started!")
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["Sr. No.",
+               "Datetime",
+               "Order ID",
+               "Channel",
+               "Seller SKU & Quantity",
+               "Currency",
+               "Order Amount",
+               "Total Quantity",
+               "Customer Name",
+               "Customer Email ID",
+               "Customer Phone Number",
+               "Shipping Address",
+               "Payment Status",
+               "Shipping Method",
+               "Order Tracking Status",
+               "Order Tracking Status Time",
+               "Sales Person",
+               "Order Type",
+               "SAP Status",
+               "Medium",
+               "Order Note"]
+               
+        cnt = 0
+            
+        colnum = 0
+        for k in row:
+            worksheet.write(cnt, colnum, k)
+            colnum += 1
+
+        location_group_objs = custom_permission_obj.location_groups.all()
+        if location_group_obj!=None:
+            location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
+        unit_order_objs = UnitOrder.objects.filter(order__location_group__in=location_group_objs).order_by('-pk')
+        if from_date!="":
+            from_date = from_date[:10]+"T00:00:00+04:00"
+            unit_order_objs = unit_order_objs.filter(order__order_placed_date__gte=from_date)
+        if to_date!="":
+            to_date = to_date[:10]+"T23:59:59+04:00"
+            unit_order_objs = unit_order_objs.filter(order__order_placed_date__lte=to_date)
+        order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
+
+        for order_obj in order_objs:
+            try:
+                unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
+                tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
+                cnt += 1
+
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p"))
+                common_row[2] = order_obj.bundleid
+                common_row[3] = unit_order_obj.product.location_group.name
+                common_row[4] = get_sellersku_and_quantity(order_obj)
+                common_row[5] = unit_order_obj.product.get_currency()
+                common_row[6] = order_obj.get_total_amount()
+                common_row[7] = order_obj.get_total_quantity()
+                common_row[8] = order_obj.get_customer_full_name()
+                common_row[9] = order_obj.owner.email
+                common_row[10] = str(order_obj.owner.contact_number)
+                common_row[11] = str(order_obj.shipping_address.get_shipping_address())
+                common_row[12] = order_obj.payment_status
+                common_row[13] = unit_order_obj.shipping_method
+                common_row[14] = unit_order_obj.current_status_admin
+                common_row[15] = tracking_status_time
+                common_row[16] = "-"
+                if order_obj.is_order_offline and order_obj.offline_sales_person!=None:
+                    common_row[16] = order_obj.offline_sales_person.username
+                common_row[17] = "offline" if order_obj.is_order_offline else "online"
+                common_row[18] = order_obj.sap_status
+                common_row[19] = order_obj.reference_medium
+                common_row[20] = order_obj.additional_note
+                
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("create_daily_sales_report: %s at %s", e, str(exc_tb.tb_lineno))
+
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+        email_daily_sales_report_to_user(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("create_daily_sales_report: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def create_verified_products_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj):
