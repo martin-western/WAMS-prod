@@ -6613,7 +6613,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             is_available = True
             if int(paginator.num_pages) == int(page):
                 is_available = False
-
+            response["pendingOrderRequestCount"] = OrderRequest.objects.filter(location_group__uuid=location_group_uuid,request_status="Pending").distinct().count()
             response["isAvailable"] = is_available
             response["totalOrders"] = total_orders
             response["orderList"] = order_list
