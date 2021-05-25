@@ -9401,14 +9401,13 @@ class UploadB2BDocumentAPI(APIView):
             vat_certificate_id = data["vat-certificate-id"]
             trade_license_id = data["trade-license-id"]
             passport_copy_id = data["passport-copy-id"]
+            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
 
             if (b2b_user_obj.vat_certificate_id != vat_certificate_id and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count()) or (b2b_user_obj.trade_license_id != trade_license_id and B2BUser.objects.filter(trade_license_id=trade_license_id).count()):
                 response["status"] = 403
                 response["message"] = "Vat Certificate number or Trade License number already exists!"
                 logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
                 return Response(data=response)
-
-            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
 
             if vat_certificate_type == "IMG":
                 image_count = int(data.get("vat-certificate-image-count",0))
