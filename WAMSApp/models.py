@@ -272,6 +272,13 @@ class LocationGroup(models.Model):
     def get_support_email_id(self):
         return json.loads(self.email_info)["support"]["email_id"]
 
+    def set_support_email_id(self,email_id):
+        try:
+            self.email_info["support"]["email_id"] = email_id
+            super(DealsHubProduct, self).save()
+        except Exception as e:
+            pass
+
     def get_support_email_password(self):
         return json.loads(self.email_info)["support"]["password"]
 
