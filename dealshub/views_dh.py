@@ -4393,6 +4393,8 @@ class SignUpCompletionAPI(APIView):
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
+            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+
             if (b2b_user_obj.vat_certificate_id != vat_certificate_id and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count()) or (b2b_user_obj.trade_license_id != trade_license_id and B2BUser.objects.filter(trade_license_id=trade_license_id).count()):
                 response["status"] = 403
                 response["message"] = "Vat Certificate number or Trade License number already exists!"
@@ -4406,8 +4408,6 @@ class SignUpCompletionAPI(APIView):
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
 
             if vat_certificate_type == "IMG":
                 image_count = int(data.get("vatCertificateImageCount",0))
