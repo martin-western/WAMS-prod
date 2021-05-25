@@ -5935,7 +5935,7 @@ class FetchCompanyProfileAPI(APIView):
                 company_data = {}
                 company_data["contact_info"] = json.loads(location_group_obj.contact_info)
                 company_data["whatsapp_info"] = location_group_obj.whatsapp_info
-                company_data["email_info"] = location_group_obj.email_info
+                company_data["email_info"] = location_group_obj.get_support_email_id()
                 company_data["address"] = location_group_obj.addressField
                 company_data["facebook_link"] = location_group_obj.facebook_link
                 company_data["twitter_link"] = location_group_obj.twitter_link
@@ -6020,7 +6020,7 @@ class SaveCompanyProfileAPI(APIView):
                 prev_instance = deepcopy(location_group_obj)
                 contact_info = company_data["contact_info"]
                 whatsapp_info = company_data["whatsapp_info"]
-                email_info = company_data["email_info"]
+                email_id = company_data["email_info"]
                 address = company_data["address"]
                 facebook_link = company_data["facebook_link"]
                 twitter_link = company_data["twitter_link"]
@@ -6031,7 +6031,7 @@ class SaveCompanyProfileAPI(APIView):
                 color_scheme = company_data["color_scheme"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
-                location_group_obj.email_info=email_info
+                location_group_obj.set_support_email_id(email_id)
                 location_group_obj.addressField=address
                 location_group_obj.facebook_link=facebook_link
                 location_group_obj.twitter_link=twitter_link
