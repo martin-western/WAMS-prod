@@ -1309,7 +1309,7 @@ class BulkUpdateDealshubProductPriceAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload product price"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the price" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1370,7 +1370,7 @@ class BulkUpdateB2BDealshubProductPriceAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload b2b product price"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the price" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1431,7 +1431,7 @@ class BulkUpdateB2BDealshubProductMOQAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload b2b product MOQ"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the MOQ" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1493,7 +1493,7 @@ class BulkUpdateDealshubProductStockAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload product stock"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the stock" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1549,7 +1549,7 @@ class BulkUpdateDealshubProductPublishStatusAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload publish status"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the publish status" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1605,7 +1605,7 @@ class BulkUpdateDealshubProductStatusAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload product status"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the status" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -1661,7 +1661,7 @@ class BulkDownloadDealshubProductAPI(APIView):
             #  have to add this report type in custom permission
             report_type = "download product details"
             report_title = "Products Details"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the download product details" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -5873,6 +5873,7 @@ class RefreshPagePriceAndStockAPI(APIView):
 
         return Response(data=response)
 
+
 class FetchCompanyProfileAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5934,7 +5935,7 @@ class FetchCompanyProfileAPI(APIView):
                 company_data = {}
                 company_data["contact_info"] = json.loads(location_group_obj.contact_info)
                 company_data["whatsapp_info"] = location_group_obj.whatsapp_info
-                company_data["email_info"] = location_group_obj.email_info
+                company_data["email_info"] = location_group_obj.get_support_email_id()
                 company_data["address"] = location_group_obj.addressField
                 company_data["facebook_link"] = location_group_obj.facebook_link
                 company_data["twitter_link"] = location_group_obj.twitter_link
@@ -5951,6 +5952,8 @@ class FetchCompanyProfileAPI(APIView):
             logger.error("FetchCompanyProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
 #API with active log
 class SaveCompanyProfileAPI(APIView):
 
@@ -5984,10 +5987,9 @@ class SaveCompanyProfileAPI(APIView):
                 whatsapp_info = company_data["whatsapp_info"]
                 email_info = company_data["email_info"]
                 address = company_data["address"]
-                primary_color = company_data["primary_color"]
-                secondary_color = company_data["secondary_color"]
-                navbar_text_color = company_data["navbar_text_color"]
-                
+                # primary_color = company_data["primary_color"]
+                # secondary_color = company_data["secondary_color"]
+                # navbar_text_color = company_data["navbar_text_color"]
                 facebook_link = company_data["facebook_link"]
                 twitter_link = company_data["twitter_link"]
                 instagram_link = company_data["instagram_link"]
@@ -6009,8 +6011,8 @@ class SaveCompanyProfileAPI(APIView):
                 # website_group_obj.primary_color = primary_color
                 # website_group_obj.secondary_color = secondary_color
                 # website_group_obj.navbar_text_color = navbar_text_color
-                
                 website_group_obj.save()
+                
                 render_value = 'company profile is updated.'
                 activitylog(user=request.user,table_name=WebsiteGroup,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)                
             else:
@@ -6018,7 +6020,7 @@ class SaveCompanyProfileAPI(APIView):
                 prev_instance = deepcopy(location_group_obj)
                 contact_info = company_data["contact_info"]
                 whatsapp_info = company_data["whatsapp_info"]
-                email_info = company_data["email_info"]
+                email_id = company_data["email_info"]
                 address = company_data["address"]
                 facebook_link = company_data["facebook_link"]
                 twitter_link = company_data["twitter_link"]
@@ -6029,7 +6031,7 @@ class SaveCompanyProfileAPI(APIView):
                 color_scheme = company_data["color_scheme"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
-                location_group_obj.email_info=email_info
+                location_group_obj.set_support_email_id(email_id)
                 location_group_obj.addressField=address
                 location_group_obj.facebook_link=facebook_link
                 location_group_obj.twitter_link=twitter_link
@@ -6645,7 +6647,7 @@ class DownloadBulkExportAPI(APIView):
             data_point_list = data["data_point_list"]
             product_uuid_list = data["product_uuid_list"]
 
-            filename = str(datetime.datetime.now().strftime("%d%m%Y%H%M_dynamic_export"))+".xlsx"
+            filename = str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_dynamic_export"))+".xlsx"
 
             generate_dynamic_export(filename, product_uuid_list, data_point_list)
 
@@ -6859,7 +6861,7 @@ class CreateOCReportAPI(APIView):
             if location_group_uuid!="":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -6896,6 +6898,9 @@ class CreateOCReportAPI(APIView):
                 p1.start()
             elif report_type.lower()=="sales":
                 p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
+                p1.start()
+            elif report_type.lower()=="daily_sales_order":
+                p1 = threading.Thread(target=create_daily_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="order":
                 p1 = threading.Thread(target=create_order_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
@@ -6984,7 +6989,7 @@ class CreateSEOReportAPI(APIView):
             note = data["note"]
             location_group_uuid = data["locationGroupUuid"]
 
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -7124,7 +7129,7 @@ class CreateContentReportAPI(APIView):
 
             report_type = "Mega"
 
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
 
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
 
