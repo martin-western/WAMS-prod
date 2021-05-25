@@ -2113,9 +2113,9 @@ def create_seo_supercategory(sender, instance, **kwargs):
                 location_group=location_group_obj,
                 seo_title=str(super_category_obj.name) + "_" + str(location_group_obj.name),
                 seo_keywords=json.dumps(sorted(list(set(super_category_obj.description.split(" "))),key=len,reverse=True)[:30]),
-                seo_description="",
-                short_description="", 
-                long_description="",
+                seo_description=json.dumps(super_category_obj.description),
+                short_description=json.dumps(super_category_obj.short_description), 
+                long_description=json.dumps(super_category_obj.long_description),
             )
 
 @receiver(post_save, sender=Category, dispatch_uid="create_seo_category")
@@ -2130,9 +2130,9 @@ def create_seo_category(sender, instance, **kwargs):
                 location_group=location_group_obj,
                 seo_title=str(category_obj.name) + "_" + str(location_group_obj.name),
                 seo_keywords=json.dumps(sorted(list(set(category_obj.description.split(" "))),key=len,reverse=True)[:30]),
-                seo_description="",
-                short_description="", 
-                long_description="",     
+                seo_description=json.dumps(category_obj.seo_description),
+                short_description=json.dumps(category_obj.short_description), 
+                long_description=json.dumps(category_obj.long_description),   
             )
 
 @receiver(post_save, sender=SubCategory, dispatch_uid="create_seo_subcategory")
@@ -2147,9 +2147,9 @@ def create_seo_subcategory(sender, instance, **kwargs):
                 location_group=location_group_obj,
                 seo_title=str(sub_category_obj.name) + "_" + str(location_group_obj.name),
                 seo_keywords=json.dumps(sorted(list(set(sub_category_obj.description.split(" "))),key=len,reverse=True)[:30]),
-                seo_description="",
-                short_description="", 
-                long_description="",  
+                seo_description=json.dumps(sub_category_obj.seo_description),
+                short_description=json.dumps(sub_category_obj.short_description), 
+                long_description=json.dumps(sub_category_obj.long_description),
             )
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_seobrand")
@@ -2164,9 +2164,9 @@ def create_seobrand(sender, instance, **kwargs):
                 location_group=location_group_obj,
                 seo_title=str(brand_obj.name) + "_" + str(location_group_obj.name),
                 seo_keywords=json.dumps(sorted(list(set(brand_obj.description.split(" "))),key=len,reverse=True)[:30]),
-                seo_description="",
-                short_description="", 
-                long_description="", 
+                seo_description=json.dumps(brand_obj.seo_description),
+                short_description=json.dumps(brand_obj.short_description), 
+                long_description=json.dumps(brand_obj.long_description), 
             )
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_brand_supercategory_brand_instance")
@@ -2184,9 +2184,9 @@ def create_brand_supercategory_brand_instance(sender, instance, **kwargs):
                     location_group=location_group_obj,
                     seo_title=str(brand_obj.name) + "_" + str(super_category_obj.name) + "_" + str(location_group_obj.name),
                     seo_keywords=json.dumps(sorted(list(set(super_category_obj.description.split(" ") + brand_obj.description.split(" "))),key=len,reverse=True)[:30]),
-                    seo_description="",
-                    short_description="", 
-                    long_description="", 
+                    seo_description=json.dumps(super_category_obj.seo_description),
+                    short_description=json.dumps(super_category_obj.short_description), 
+                    long_description=json.dumps(super_category_obj.long_description), 
                 )
 
 @receiver(post_save, sender=SuperCategory, dispatch_uid="create_brand_supercategory_supercategory_instance")
@@ -2204,9 +2204,9 @@ def create_brand_supercategory_supercategory_instance(sender, instance, **kwargs
                     location_group=location_group_obj,
                     seo_title=str(brand_obj.name) + "_" + str(super_category_obj.name) + "_" + str(location_group_obj.name),
                     seo_keywords=json.dumps(sorted(list(set(super_category_obj.description.split(" ") + brand_obj.description.split(" "))),key=len,reverse=True)[:30]),
-                    seo_description="",
-                    short_description="", 
-                    long_description="", 
+                    seo_description=json.dumps(super_category_obj.seo_description),
+                    short_description=json.dumps(super_category_obj.short_description), 
+                    long_description=json.dumps(super_category_obj.long_description), 
                 )
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_brand_category_brand_instance")
@@ -2224,9 +2224,9 @@ def create_brand_category_brand_instance(sender, instance, **kwargs):
                     location_group=location_group_obj,
                     seo_title=str(brand_obj.name) + "_" + str(category_obj.name) + "_" + str(location_group_obj.name),
                     seo_keywords=json.dumps(sorted(list(set(category_obj.description.split(" ") + brand_obj.description.split(" "))),key=len,reverse=True)[:30]),
-                    seo_description="",
-                    short_description="", 
-                    long_description="", 
+                    seo_description=json.dumps(category_obj.seo_description),
+                    short_description=json.dumps(category_obj.short_description), 
+                    long_description=json.dumps(category_obj.long_description), 
                 )
 
 @receiver(post_save, sender=Category, dispatch_uid="create_brand_category_category_instance")
@@ -2244,9 +2244,9 @@ def create_brand_category_category_instance(sender, instance, **kwargs):
                     location_group=location_group_obj,
                     seo_title=str(brand_obj.name) + "_" + str(category_obj.name) + "_" + str(location_group_obj.name),
                     seo_keywords=json.dumps(sorted(list(set(category_obj.description.split(" ") + brand_obj.description.split(" "))),key=len,reverse=True)[:30]),
-                    seo_description="",
-                    short_description="", 
-                    long_description="", 
+                    seo_description=json.dumps(category_obj.seo_description),
+                    short_description=json.dumps(category_obj.short_description), 
+                    long_description=json.dumps(category_obj.long_description),
                 )
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_brand_subcategory_brand_instance")
@@ -2265,9 +2265,9 @@ def create_brand_subcategory_brand_instance(sender, instance, **kwargs):
                     location_group=location_group_obj,
                     seo_title=str(brand_obj.name) + "_" + str(sub_category_obj.name) + "_" + str(location_group_obj.name),
                     seo_keywords=json.dumps(sorted(list(set(sub_category_obj.description.split(" ") + brand_obj.description.split(" "))),key=len,reverse=True)[:30]),
-                    seo_description="",
-                    short_description="", 
-                    long_description="", 
+                    seo_description=json.dumps(sub_category_obj.seo_description),
+                    short_description=json.dumps(sub_category_obj.short_description), 
+                    long_description=json.dumps(sub_category_obj.long_description), 
                 )
 
 @receiver(post_save, sender=SubCategory, dispatch_uid="create_brand_subcategory_subcategory_instance")
@@ -2285,7 +2285,7 @@ def create_brand_subcategory_subcategory_instance(sender, instance, **kwargs):
                     location_group=location_group_obj,
                     seo_title=str(brand_obj.name) + "_" + str(sub_category_obj.name) + "_" + str(location_group_obj.name),
                     seo_keywords=json.dumps(sorted(list(set(sub_category_obj.description.split(" ") + brand_obj.description.split(" "))),key=len,reverse=True)[:30]),
-                    seo_description="",
-                    short_description="", 
-                    long_description=""
+                    seo_description=json.dumps(sub_category_obj.seo_description),
+                    short_description=json.dumps(sub_category_obj.short_description), 
+                    long_description=json.dumps(sub_category_obj.long_description), 
                 )
