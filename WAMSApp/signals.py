@@ -9,7 +9,6 @@ import json
 
 # sorted(list(set(split(" "))),key=len,reverse=True)[:30] to fetch 30 distinct words with sorted reverse so that the, a ,is, from, words could easily eliminated from string
 
-
 @receiver(post_save, sender=SuperCategory, dispatch_uid="create_seo_supercategory")
 def create_seo_supercategory(sender, instance, **kwargs):
     website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
@@ -27,8 +26,6 @@ def create_seo_supercategory(sender, instance, **kwargs):
                 long_description="",
             )
 
-
-##################################################################
 
 @receiver(post_save, sender=Category, dispatch_uid="create_seo_category")
 def create_seo_category(sender, instance, **kwargs):
@@ -48,8 +45,6 @@ def create_seo_category(sender, instance, **kwargs):
             )
 
 
-##################################################################
-
 @receiver(post_save, sender=SubCategory, dispatch_uid="create_seo_subcategory")
 def create_seo_subcategory(sender, instance, **kwargs):
     website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
@@ -66,8 +61,6 @@ def create_seo_subcategory(sender, instance, **kwargs):
                 short_description="", 
                 long_description="",  
             )
-
-##################################################################
 
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_seobrand")
@@ -86,9 +79,6 @@ def create_seobrand(sender, instance, **kwargs):
                 short_description="", 
                 long_description="", 
             )
-
-
-##################################################################
 
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_brand_supercategory_brand_instance")
@@ -131,8 +121,6 @@ def create_brand_supercategory_supercategory_instance(sender, instance, **kwargs
                     short_description="", 
                     long_description="", 
                 )
-
-##################################################################
 
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_brand_category_brand_instance")
@@ -177,8 +165,6 @@ def create_brand_category_category_instance(sender, instance, **kwargs):
                 )
 
 
-##################################################################
-
 @receiver(post_save, sender=Brand, dispatch_uid="create_brand_subcategory_brand_instance")
 def create_brand_subcategory_brand_instance(sender, instance, **kwargs):
     website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
@@ -220,6 +206,3 @@ def create_brand_subcategory_subcategory_instance(sender, instance, **kwargs):
                     short_description="", 
                     long_description=""
                 )
-
-
-##################################################################
