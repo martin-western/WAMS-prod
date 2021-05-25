@@ -274,7 +274,9 @@ class LocationGroup(models.Model):
 
     def set_support_email_id(self,email_id):
         try:
-            self.email_info["support"]["email_id"] = email_id
+            email_info = json.loads(self.email_info)
+            email_info["support"]["email_id"] = email_id
+            self.email_info = json.dumps(email_info)
             super(DealsHubProduct, self).save()
         except Exception as e:
             pass
