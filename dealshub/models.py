@@ -610,6 +610,12 @@ class DealsHubProduct(models.Model):
                 self.search_keywords = search_keywords
             except Exception as e:
                 pass
+        
+        if seo_title == "":
+            self.seo_title = self.product_name
+
+        if seo_keywords == "":
+            self.seo_keywords = json.dumps(sorted(list(set(self.product_description.split(" "))),key=len,reverse=True)[:30])
 
         if self.url=="":
             try:
@@ -1367,6 +1373,12 @@ class Order(models.Model):
         if shipping_method=="standard" and self.payment_status.lower()=="paid":
             return CUSTOMER_ID_FINAL_BILLING_STANDARD_ONLINE
 
+    def get_total_quantity(self):
+        total_quantity = 0
+        unit_order_objs = UnitOrder.objects.filter(order=self).exclude(current_status_admin="cancelled")
+        for unit_order_obj in unit_order_objs:
+            total_quantity += unit_order_obj.quantity
+        return total_quantity
 
 
 class UnitOrder(models.Model):
