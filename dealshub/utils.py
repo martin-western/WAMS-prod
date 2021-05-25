@@ -1963,3 +1963,31 @@ def get_sendex_api_response(sendex_dict, request_url):
     response = requests.post(url=request_url, headers=http_header, data=json.dumps(sendex_dict))
     response_dict = json.loads(response)
     return response_dict
+
+# [SENDEX] updates the shipping status of all the orders which were registered as a consignment.
+def update_sendex_consignment_status(order_objs):
+    request_url = "https://portal.sendex.me/webservice/GetTracking"
+    awb_numbers_list = []
+    for order_obj in order_objs:
+        if order_obj.sendex_awb != "":
+            awb_numbers_list.append(order_obj.sendex_awb)
+    sendex_dict = {}
+    sendex_dict["AwbNumber"] = awb_numbers_list
+    response = get_sendex_api_response(sendex_dict, request_url)
+    i = 0
+    for order_obj in order_objs:
+        sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
+        current_status_admin = get_mapped_admin_status(sendex_status)
+        update_shipping_status_in_unit_orders(order_obj, current_status_admin)
+        i += 1
+
+
+def update_shipping_status_in_unit_orders(order_obj, current_status):
+    unit_order_objs = UnitOrder.objects.filter(self=order_obj)
+    for unit_order_obj in unit_order_objs:
+        unit_order_obj.current_status_admin = current_status
+        unit_order_obj.save()
+    
+# maps the status present in sendex response to locally maintained statuses 
+def get_mapped_admin_status(sendex_status):
+    pass
