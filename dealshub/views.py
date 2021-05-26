@@ -6323,25 +6323,16 @@ class FetchProductCompareDetailsAPI(APIView):
                 logger.warning("FetchProductCompareDetailsAPI Restricted Access!")
                 return Response(data=response)
             
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             product_uuid_list = data["product_uuid_list"]
             dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=product_uuid_list)
-            check = ""
+            products_comparison_list = []
             for dealshub_product_obj in dealshub_product_objs:
-                if check == "":
-                    check = dealshub_product_obj.sub_category
-                elif dealshub_product_obj.sub_category != check:
-                    check = ""
-                    break
+                temp_dict = dealshub_product_detail_in_dict(location_group_obj,dealshub_product_obj)
+                products_comparison_list.append(temp_dict)
             
-            if check == "":
-                response['status'] = 403
-                logger.warning("Cannot compare different products!")
-                return Response(data=response)
-
-            dealshub_user_obj = DealsHubUser.objects.get(username = request.user.username)
-            products = get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj)
-            
-            response['products'] = products
+            response['products_comparison'] = products_comparison_list
             response['status'] = 200
             
         except Exception as e:
