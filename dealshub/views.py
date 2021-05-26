@@ -6251,6 +6251,7 @@ class FetchProductReviewMailAPI(APIView):
             response["products"] = products_for_review
             response["username"] = dh_user_obj.username
             response["order_date"] = order_obj.get_date_created()
+            response['order_id'] = order_obj.bundleid
             response["shipping_address"] = order_obj.shipping_address.get_shipping_address()
             response['status'] = 200
 
