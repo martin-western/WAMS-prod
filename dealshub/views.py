@@ -6308,6 +6308,48 @@ class SubmitProductReviewMailAPI(APIView):
 
         return Response(data=response)
 
+class ProductCompareAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("ProductCompareAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("ProductCompareAPI Restricted Access!")
+                return Response(data=response)
+            
+            product_uuid_list = data["product_uuid_list"]
+            dealshub_product_objs = DealsHubProduct.objects.filter(uuid__in=product_uuid_list)
+            check = ""
+            for dealshub_product_obj in dealshub_product_objs:
+                if check == "":
+                    check = dealshub_product_obj.sub_category
+                elif dealshub_product_obj.sub_category != check:
+                    check = ""
+                    break
+            
+            if check == "":
+                response['status'] = 403
+                logger.warning("Cannot compare different products!")
+                return Response(data=response)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username = request.user.username)
+            products = get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj)
+            
+            response['products'] = products
+            response['status'] = 200
+            
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ProductCompareAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 
 FetchProductDetails = FetchProductDetailsAPI.as_view()
 
@@ -6484,3 +6526,5 @@ AskProductReviewsCron = AskProductReviewsCronAPI.as_view()
 FetchProductReviewMail = FetchProductReviewMailAPI.as_view()
 
 SubmitProductReviewMail = SubmitProductReviewMailAPI.as_view()
+
+ProductCompare = ProductCompareAPI.as_view()
