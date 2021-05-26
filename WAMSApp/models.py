@@ -360,7 +360,7 @@ class LocationGroup(models.Model):
     category_tab_product_index = models.IntegerField(default=0)
     contact_info = models.CharField(max_length=100,blank=True, default='[]')
     whatsapp_info = models.CharField(max_length=100,blank=True, default='')
-    address_info = models.TextField(blank=True, default='')
+    addressField = models.TextField(blank=True, default='')
     color_scheme = models.TextField(blank=True, default=colors_json)
     facebook_link = models.CharField(max_length=100,blank=True, default='')
     twitter_link = models.CharField(max_length=100,blank=True, default='')
