@@ -6308,7 +6308,7 @@ class SubmitProductReviewMailAPI(APIView):
 
         return Response(data=response)
 
-class ProductCompareAPI(APIView):
+class FetchProductCompareDetailsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -6316,11 +6316,11 @@ class ProductCompareAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("ProductCompareAPI: %s", str(data))
+            logger.info("FetchProductCompareDetailsAPI: %s", str(data))
 
             if is_oc_user(request.user)==False:
                 response['status'] = 403
-                logger.warning("ProductCompareAPI Restricted Access!")
+                logger.warning("FetchProductCompareDetailsAPI Restricted Access!")
                 return Response(data=response)
             
             product_uuid_list = data["product_uuid_list"]
@@ -6346,7 +6346,7 @@ class ProductCompareAPI(APIView):
             
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("ProductCompareAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+            logger.error("FetchProductCompareDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -6527,4 +6527,4 @@ FetchProductReviewMail = FetchProductReviewMailAPI.as_view()
 
 SubmitProductReviewMail = SubmitProductReviewMailAPI.as_view()
 
-ProductCompare = ProductCompareAPI.as_view()
+FetchProductCompareDetails = FetchProductCompareDetailsAPI.as_view()
