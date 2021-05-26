@@ -5935,7 +5935,7 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["contact_info"] = json.loads(location_group_obj.contact_info)
                 company_data["whatsapp_info"] = location_group_obj.whatsapp_info
                 company_data["email_info"] = location_group_obj.email_info
-                company_data["address"] = location_group_obj.addressField
+                company_data["address"] = location_group_obj.address_info
                 company_data["facebook_link"] = location_group_obj.facebook_link
                 company_data["twitter_link"] = location_group_obj.twitter_link
                 company_data["instagram_link"] = location_group_obj.instagram_link
@@ -5943,7 +5943,23 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["linkedin_link"] = location_group_obj.linkedin_link
                 company_data["crunchbase_link"] = location_group_obj.crunchbase_link
                 company_data["color_scheme"] = json.loads(location_group_obj.color_scheme)
-  
+
+                company_data["logo"] = []
+                if location_group_obj.logo != None:
+                    company_data["logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["logo"][0]["url"] = location_group_obj.logo.image.url
+
+                company_data["footer_logo"] = []
+                if location_group_obj.footer_logo != None:
+                    company_data["footer_logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["footer_logo"][0]["url"] = location_group_obj.footer_logo.image.url
+
             response["company_data"] = company_data
             response['status'] = 200    
         except Exception as e:
@@ -6030,7 +6046,7 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.email_info=email_info
-                location_group_obj.addressField=address
+                location_group_obj.address_info=address
                 location_group_obj.facebook_link=facebook_link
                 location_group_obj.twitter_link=twitter_link
                 location_group_obj.instagram_link=instagram_link
