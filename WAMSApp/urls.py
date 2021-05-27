@@ -183,5 +183,7 @@ urlpatterns = [
     url(r'^reset-omnycomm-user-password/$',views.ResetOmnyCommUserPassword),
     url(r'^logout-ocuser/$',views.LogoutOCUser),
     url(r'^unpublished-wigme-product-report/$', views.UnPublishedWIGmeProductReport),
+
+    url(r'^add-email-for-newsletter-signup/$',views.AddEmailForNewsletterSignup),
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

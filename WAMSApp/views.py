@@ -8378,6 +8378,33 @@ class LogoutOCUserAPI(APIView):
 
         return Response(data=response)
 
+class AddEmailForNewsletterSignupAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("AddEmailForNewsletterSignupAPI: %s", str(data))
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            email = data["email"]
+            email_list = location_group_obj.blog_email.split(',')
+            email_list.append(email)
+            location_group_obj.blog_email = str(email_list)
+            location_group_obj.save()
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddEmailForNewsletterSignupAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
 
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
 
@@ -8591,3 +8618,5 @@ FetchDefaultPermissionsList = FetchDefaultPermissionsListAPI.as_view()
 ResetOmnyCommUserPassword = ResetOmnyCommUserPasswordAPI.as_view()
 
 LogoutOCUser = LogoutOCUserAPI.as_view()
+
+AddEmailForNewsletterSignup = AddEmailForNewsletterSignupAPI.as_view()
