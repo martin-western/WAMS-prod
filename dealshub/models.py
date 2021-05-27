@@ -614,7 +614,7 @@ class DealsHubProduct(models.Model):
             self.seo_title = self.product_name
 
         if self.seo_keywords == "":
-            self.seo_keywords = json.dumps(sorted(list(set(self.product_description.split(" "))),key=len,reverse=True)[:30])
+            self.seo_keywords = ",".join(sorted(list(set(self.product_description.split(" "))),key=len,reverse=True)[:30])
 
         if self.url=="":
             try:
