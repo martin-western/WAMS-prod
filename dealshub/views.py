@@ -5423,7 +5423,7 @@ class FetchSEOAdminAutocompleteAPI(APIView):
                 for seo_brand_obj in seo_brand_objs:
                     temp_dict = {}
                     temp_dict["name"] = seo_brand_obj.brand.name
-                    temp_dict["uuid"] = seo_brand_obj.brand.name
+                    temp_dict["uuid"] = seo_brand_obj.uuid
                     autocomplete_list.append(temp_dict)
             elif page_type=="product":
                 dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj).filter(Q(product_name__icontains=search_string) | Q(product__base_product__seller_sku__icontains=search_string))[:5]
