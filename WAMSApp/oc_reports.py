@@ -2271,7 +2271,7 @@ def bulk_upload_product_seo_details_report(dfs, seo_type, location_group_obj):
                 product_name = str(dfs.iloc[i][2]).strip()
                 product_seller_sku = str(dfs.iloc[i][3]).strip()
                 page_description = str(dfs.iloc[i][4]).strip()
-                # seo_title = str(dfs.iloc[i][5]).strip()
+                seo_title = str(dfs.iloc[i][5]).strip()
                 seo_keywords = str(dfs.iloc[i][6]).strip()
                 seo_description = str(dfs.iloc[i][7]).strip()
                 search_keywords = str(dfs.iloc[i][8]).strip()
@@ -2279,7 +2279,7 @@ def bulk_upload_product_seo_details_report(dfs, seo_type, location_group_obj):
                 dh_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
 
                 dh_product_obj.page_description = page_description
-                # dh_product_obj.seo_title = "seo_title"
+                dh_product_obj.seo_title = seo_title
                 dh_product_obj.seo_keywords = seo_keywords
                 dh_product_obj.seo_description = seo_description
                 dh_product_obj.search_keywords = search_keywords
