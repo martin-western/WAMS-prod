@@ -66,7 +66,6 @@ def email_daily_sales_report_to_user(oc_report_obj):
                                  connection=connection)
             email.attach_file(oc_report_obj.filename)
             email.send(fail_silently=True)
-            #  to=["animesh.kumar@omnycomm.com"], #test email
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error email_daily_sales_report_to_user %s %s", e, str(exc_tb.tb_lineno))
