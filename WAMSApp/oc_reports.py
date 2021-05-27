@@ -1144,8 +1144,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
 
         for order_obj in order_objs:
             try:
-                unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
-
+                unit_order_obj = UnitOrder.objects.filter(order=order_obj).filter(product__product__base_product__brand__name__in=brand_list)[0]           
                 tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
                 cnt += 1
 
