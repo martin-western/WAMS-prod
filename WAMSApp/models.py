@@ -2103,8 +2103,8 @@ class BlackListToken(models.Model):
 
 @receiver(post_save, sender=SuperCategory, dispatch_uid="create_seo_supercategory")
 def create_seo_supercategory(sender, instance, **kwargs):
-    website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-    location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+    website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+    location_group_objs = LocationGroup.objects.filter(website_group__in=website_group_objs)
     super_category_obj = instance
     for location_group_obj in location_group_objs:
         if SEOSuperCategory.objects.filter(super_category=super_category_obj,location_group=location_group_obj).exists() == False:
@@ -2120,8 +2120,8 @@ def create_seo_supercategory(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Category, dispatch_uid="create_seo_category")
 def create_seo_category(sender, instance, **kwargs):
-    website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-    location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+    website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+    location_group_objs = LocationGroup.objects.filter(website_group__in=website_group_objs)
     category_obj = instance
     for location_group_obj in location_group_objs:   
         if SEOCategory.objects.filter(category=category_obj,location_group=location_group_obj).exists() == False:
@@ -2137,8 +2137,8 @@ def create_seo_category(sender, instance, **kwargs):
 
 @receiver(post_save, sender=SubCategory, dispatch_uid="create_seo_subcategory")
 def create_seo_subcategory(sender, instance, **kwargs):
-    website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-    location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+    website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+    location_group_objs = LocationGroup.objects.filter(website_group__in=website_group_objs)
     sub_category_obj = instance
     for location_group_obj in location_group_objs:
         if SEOSubCategory.objects.filter(sub_category=sub_category_obj,location_group=location_group_obj).exists() == False:
@@ -2154,8 +2154,8 @@ def create_seo_subcategory(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_seobrand")
 def create_seobrand(sender, instance, **kwargs):
-    website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-    location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+    website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+    location_group_objs = LocationGroup.objects.filter(website_group__in=website_group_objs)
     brand_obj = instance
     for location_group_obj in location_group_objs:
         if SEOBrand.objects.filter(brand=brand_obj,location_group=location_group_obj).exists() == False:
@@ -2171,8 +2171,8 @@ def create_seobrand(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_brand_supercategory_brand_instance")
 def create_brand_supercategory_brand_instance(sender, instance, **kwargs):
-    website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-    location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+    website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+    location_group_objs = LocationGroup.objects.filter(website_group__in=website_group_objs)
     brand_obj = instance
     super_category_objs = website_group_obj.super_categories.all()
     for location_group_obj in location_group_objs:    
@@ -2191,8 +2191,8 @@ def create_brand_supercategory_brand_instance(sender, instance, **kwargs):
 
 @receiver(post_save, sender=SuperCategory, dispatch_uid="create_brand_supercategory_supercategory_instance")
 def create_brand_supercategory_supercategory_instance(sender, instance, **kwargs):
-    website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-    location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+    website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+    location_group_objs = LocationGroup.objects.filter(website_group__in=website_group_objs)
     brand_objs = website_group_obj.brands.all()
     super_category_obj = instance
     for location_group_obj in location_group_objs:    
@@ -2211,8 +2211,8 @@ def create_brand_supercategory_supercategory_instance(sender, instance, **kwargs
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_brand_category_brand_instance")
 def create_brand_category_brand_instance(sender, instance, **kwargs):
-    website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-    location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+    website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+    location_group_objs = LocationGroup.objects.filter(website_group__in=website_group_objs)
     brand_obj = instance
     category_objs = website_group_obj.categories.all()
     for location_group_obj in location_group_objs:    
@@ -2231,8 +2231,8 @@ def create_brand_category_brand_instance(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Category, dispatch_uid="create_brand_category_category_instance")
 def create_brand_category_category_instance(sender, instance, **kwargs):
-    website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-    location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+    website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+    location_group_objs = LocationGroup.objects.filter(website_group__in=website_group_objs)
     brand_objs = website_group_obj.brands.all()
     category_obj = instance
     for location_group_obj in location_group_objs:    
@@ -2251,8 +2251,8 @@ def create_brand_category_category_instance(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Brand, dispatch_uid="create_brand_subcategory_brand_instance")
 def create_brand_subcategory_brand_instance(sender, instance, **kwargs):
-    website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-    location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+    website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+    location_group_objs = LocationGroup.objects.filter(website_group__in=website_group_objs)
     brand_obj = instance
     category_objs = website_group_obj.categories.all()
     sub_category_objs = SubCategory.objects.filter(category__in=category_objs)
@@ -2272,8 +2272,8 @@ def create_brand_subcategory_brand_instance(sender, instance, **kwargs):
 
 @receiver(post_save, sender=SubCategory, dispatch_uid="create_brand_subcategory_subcategory_instance")
 def create_brand_subcategory_subcategory_instance(sender, instance, **kwargs):
-    website_group_obj = WebsiteGroup.objects.get(name="shopnesto")
-    location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+    website_group_objs = WebsiteGroup.objects.filter(name__in=["shopnesto","shopnestob2b"])
+    location_group_objs = LocationGroup.objects.filter(website_group__in=website_group_objs)
     brand_objs = website_group_obj.brands.all()
     sub_category_obj = instance
     for location_group_obj in location_group_objs:    
