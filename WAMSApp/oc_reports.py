@@ -61,11 +61,12 @@ def email_daily_sales_report_to_user(oc_report_obj):
             email = EmailMessage(subject='Omnycomm Daily Sales Report Generated', 
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
-                                 to=["hari.pk@westernint.com"],
-                                 cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
+                                 to=["animesh.kumar@omnycomm.com"],
                                  connection=connection)
             email.attach_file(oc_report_obj.filename)
             email.send(fail_silently=True)
+            #  to=["hari.pk@westernint.com"],
+            #  cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error email_daily_sales_report_to_user %s %s", e, str(exc_tb.tb_lineno))
