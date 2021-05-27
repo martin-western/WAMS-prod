@@ -610,10 +610,10 @@ class DealsHubProduct(models.Model):
             except Exception as e:
                 pass
         
-        if seo_title == "":
+        if self.seo_title == "":
             self.seo_title = self.product_name
 
-        if seo_keywords == "":
+        if self.seo_keywords == "":
             self.seo_keywords = json.dumps(sorted(list(set(self.product_description.split(" "))),key=len,reverse=True)[:30])
 
         if self.url=="":
