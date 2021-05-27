@@ -610,6 +610,12 @@ class DealsHubProduct(models.Model):
                 self.search_keywords = search_keywords
             except Exception as e:
                 pass
+        
+        if self.seo_title == "":
+            self.seo_title = self.product_name
+
+        if self.seo_keywords == "":
+            self.seo_keywords = ",".join(sorted(list(set(self.product_description.split(" "))),key=len,reverse=True)[:30])
 
         if self.url=="":
             try:
