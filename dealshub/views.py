@@ -5516,7 +5516,7 @@ class FetchSEOAdminDetailsAPI(APIView):
                 short_description = seo_sub_category_obj.short_description
                 long_description = seo_sub_category_obj.long_description
             elif page_type=="brand":
-                seo_brand_obj = SEOBrand.objects.get(brand__name=uuid, brand__organization__name="WIG")
+                seo_brand_obj = SEOBrand.objects.get(uuid=uuid, brand__organization__name="WIG")
                 page_description = seo_brand_obj.page_description
                 seo_title = seo_brand_obj.seo_title
                 seo_keywords = seo_brand_obj.seo_keywords
