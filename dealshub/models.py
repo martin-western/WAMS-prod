@@ -874,6 +874,9 @@ class Address(models.Model):
     def get_shipping_address(self):
         return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.neighbourhood+"\n"+self.emirates
 
+    def get_pure_address(self): # returns the pure address (without the first_name and last_name)
+        return json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.neighbourhood+"\n"+self.emirates
+
     class Meta:
         verbose_name = "Address"
         verbose_name_plural = "Addresses"

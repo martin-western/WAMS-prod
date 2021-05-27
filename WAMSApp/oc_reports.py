@@ -1143,7 +1143,8 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
 
         for order_obj in order_objs:
             try:
-                unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
+                unit_order_obj = UnitOrder.objects.filter(order=order_obj).exclude(product__product__base_product__brand__name__in=["PARA JOHN", "Krypton"])[0]
+
                 tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
                 cnt += 1
 
@@ -1159,8 +1160,8 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[8] = order_obj.get_customer_full_name()
                 common_row[9] = order_obj.owner.email
                 common_row[10] = str(order_obj.owner.contact_number)
-                common_row[11] = str(order_obj.shipping_address.get_shipping_address())
-                common_row[12] = order_obj.payment_status
+                common_row[11] = str(order_obj.shipping_address.get_pure_address())
+                common_row[12] = order_obj.payment_mode
                 common_row[13] = unit_order_obj.shipping_method
                 common_row[14] = unit_order_obj.current_status_admin
                 common_row[15] = tracking_status_time
