@@ -6043,6 +6043,8 @@ class SaveCompanyProfileAPI(APIView):
                 linkedin_link = company_data["linkedin_link"]
                 crunchbase_link = company_data["crunchbase_link"]
                 color_scheme = company_data["color_scheme"]
+                logo_image_url = company_data["logo_image_url"]
+                footer_logo_image_url = data["footer_logo_image_url"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.email_info=email_info
@@ -6055,6 +6057,14 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.crunchbase_link=crunchbase_link
                 location_group_obj.color_scheme = json.dumps(color_scheme)
                 
+                if logo_image_url != "":
+                    image_obj = Image.objects.create(image=logo_image_url)
+                    location_group_obj.logo = image_obj
+                
+                if footer_logo_image_url != "":
+                    image_obj = Image.objects.create(image=footer_logo_image_url)
+                    location_group_obj.footer_logo = image_obj
+                    
                 location_group_obj.save()
                 render_value = 'company profile is updated.'
                 activitylog(user=request.user,table_name=LocationGroup,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
