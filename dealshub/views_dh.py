@@ -6505,7 +6505,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                             if status == currentStatus:
                                 break
                             currentStatusList.append(status)
-                        temp_dict["currentStatus"] = currentStatusList
+                        temp_dict["currentStatusList"] = currentStatusList
+                        temp_dict["currentStatus"] = currentStatus
                     else:
                         #temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
                         currentStatus = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
@@ -6515,6 +6516,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                                 break
                             currentStatusList.append(status)
                         temp_dict["currentStatus"] = currentStatusList
+                        temp_dict["currentStatus"] = currentStatus
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
