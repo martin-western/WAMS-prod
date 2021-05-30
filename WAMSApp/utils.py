@@ -2997,8 +2997,9 @@ def get_sellersku_and_quantity(order_obj):
 def send_notification_for_blog(blog_post_obj,location_group_obj):
     
     try:
+        blog_link = "https://"+str(location_group_obj.location)+".wigme.com/blogs/description/"+str(location_group_obj.uuid)
         body = """
-            This is to notify you about our recent Blog post:  """+ str(blog_post_obj.headline) +"""
+            This is to notify you about our recent Blog post:  """+ str(blog_post_obj.headline) +""", link to view: """+ str(blog_link) +"""
         """
 
         with get_connection(
@@ -3008,9 +3009,9 @@ def send_notification_for_blog(blog_post_obj,location_group_obj):
             password="verjtzgeqareribg",
             use_tls=True) as connection:
             email = EmailMessage(subject='New Blog Post', 
-                                 body=str(blog_post_obj),
+                                 body=body,
                                  from_email='nisarg@omnycomm.com',
-                                 to=[location_group_obj.blog_email],
+                                 to=json.loads(location_group_obj.blog_email),
                                  connection=connection)
             email.send(fail_silently=True)
     except Exception as e:
