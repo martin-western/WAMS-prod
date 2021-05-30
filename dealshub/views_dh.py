@@ -6299,6 +6299,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 logger.warning("FetchOrdersForWarehouseManagerAPI Restricted Access!")
                 return Response(data=response)
 
+            status_list = ["Pending","Approved","Picked","Dispatched","Delivered","Delivery Failed","Returned"]
+
             from_date = data.get("fromDate", "")
             to_date = data.get("toDate", "")
             payment_type_list = data.get("paymentTypeList", [])
@@ -6496,9 +6498,23 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[0].shipping_method
 
                     if temp_dict["partially_cancelled_by_user"]==True:
-                        temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
+                        #temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
+                        currentStatus = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
+                        currentStatusList = []
+                        for status in status_list:
+                            if status == currentStatus:
+                                break
+                            currentStatusList.append(status)
+                        temp_dict["currentStatus"] = currentStatusList
                     else:
-                        temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
+                        #temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
+                        currentStatus = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
+                        currentStatusList = []
+                        for status in status_list:
+                            if status == currentStatus:
+                                break
+                            currentStatusList.append(status)
+                        temp_dict["currentStatus"] = currentStatusList
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
