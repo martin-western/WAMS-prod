@@ -252,7 +252,7 @@ class LocationGroup(models.Model):
     youtube_link = models.CharField(max_length=100,blank=True, default='')
     linkedin_link = models.CharField(max_length=100,blank=True, default='')
     crunchbase_link = models.CharField(max_length=100,blank=True, default='')
-    blog_email = models.TextField(null=True,blank=True, default='[]')
+    blog_emails = models.TextField(null=True,blank=True, default='[]')
 
     def __str__(self):
         return str(self.name)
