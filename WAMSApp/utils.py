@@ -3011,7 +3011,7 @@ def send_notification_for_blog(blog_post_obj,location_group_obj):
             email = EmailMessage(subject='New Blog Post', 
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
-                                 to=json.loads(location_group_obj.blog_email),
+                                 to=json.loads(location_group_obj.blog_emails),
                                  connection=connection)
             email.send(fail_silently=True)
     except Exception as e:
