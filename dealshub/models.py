@@ -610,6 +610,12 @@ class DealsHubProduct(models.Model):
                 self.search_keywords = search_keywords
             except Exception as e:
                 pass
+        
+        if self.seo_title == "":
+            self.seo_title = self.product_name
+
+        if self.seo_keywords == "":
+            self.seo_keywords = ",".join(sorted(list(set(self.product_description.split(" "))),key=len,reverse=True)[:30])
 
         if self.url=="":
             try:
@@ -1367,6 +1373,12 @@ class Order(models.Model):
         if shipping_method=="standard" and self.payment_status.lower()=="paid":
             return CUSTOMER_ID_FINAL_BILLING_STANDARD_ONLINE
 
+    def get_total_quantity(self):
+        total_quantity = 0
+        unit_order_objs = UnitOrder.objects.filter(order=self).exclude(current_status_admin="cancelled")
+        for unit_order_obj in unit_order_objs:
+            total_quantity += unit_order_obj.quantity
+        return total_quantity
 
 
 class UnitOrder(models.Model):
@@ -1740,7 +1752,7 @@ class Review(models.Model):
     product = models.ForeignKey(DealsHubProduct, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
     content = models.ForeignKey(ReviewContent, default=None, null=True, blank=True,on_delete=models.SET_DEFAULT)
-    created_date = models.DateTimeField(blank=True)
+    created_date = models.DateTimeField(default=timezone.now, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
 
     is_deleted = models.BooleanField(default=False)
@@ -1757,12 +1769,12 @@ class Review(models.Model):
 
     def save(self, *args, **kwargs):
 
-        if self.pk == None:
-            self.created_date = timezone.now()
-            self.modified_date = timezone.now()
-        else:
-            self.modified_date = timezone.now()
-
+        # if self.pk == None:
+        #     self.created_date = timezone.now()
+        #     self.modified_date = timezone.now()
+        # else:
+        #     self.modified_date = timezone.now()
+        self.modified_date = timezone.now()
         if self.uuid == None or self.uuid=="":
             self.uuid = str(uuid.uuid4())
 

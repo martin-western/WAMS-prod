@@ -216,7 +216,6 @@ class Location(models.Model):
         verbose_name = "Location"
         verbose_name_plural = "Location"
 
-
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -2099,4 +2098,3 @@ class BlackListToken(models.Model):
 
     def __str__(self):
         return str(self.token)
-

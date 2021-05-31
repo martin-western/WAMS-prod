@@ -2984,3 +2984,36 @@ def convert_django_object_to_object(model_name,django_object):
             pass
     return result
 
+# utility for create_daily_sales_report()
+def get_sellersku_and_quantity(order_obj):
+    sellersku_and_quantity =  ""
+    for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
+        seller_sku = unit_order_obj.product.get_seller_sku()
+        data = f"{seller_sku}({unit_order_obj.quantity}), "
+        sellersku_and_quantity += data
+    return sellersku_and_quantity[:-2]
+
+
+def send_notification_for_blog(blog_post_obj,location_group_obj):
+    
+    try:
+        blog_link = "https://"+str(location_group_obj.location)+".wigme.com/blogs/description/"+str(location_group_obj.uuid)
+        body = """
+            This is to notify you about our recent Blog post:  """+ str(blog_post_obj.headline) +""", link to view: """+ str(blog_link) +"""
+        """
+
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username="nisarg@omnycomm.com", 
+            password="verjtzgeqareribg",
+            use_tls=True) as connection:
+            email = EmailMessage(subject='New Blog Post', 
+                                 body=body,
+                                 from_email='nisarg@omnycomm.com',
+                                 to=json.loads(location_group_obj.blog_emails),
+                                 connection=connection)
+            email.send(fail_silently=True)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error notify_user_for_blog %s %s", e, str(exc_tb.tb_lineno))

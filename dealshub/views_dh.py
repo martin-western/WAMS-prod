@@ -705,23 +705,30 @@ class FetchCartDetailsAPI(APIView):
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             unit_cart_list = []
             for unit_cart_obj in unit_cart_objs:
-                temp_dict = {}
-                temp_dict["uuid"] = unit_cart_obj.uuid
-                temp_dict["quantity"] = unit_cart_obj.quantity
-                temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
-                temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
-                temp_dict["moq"] = unit_cart_obj.product.get_moq(dealshub_user_obj)
-                temp_dict["stock"] = unit_cart_obj.product.stock
-                temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
-                temp_dict["currency"] = unit_cart_obj.product.get_currency()
-                temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
-                temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
-                temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
-                temp_dict["productUuid"] = unit_cart_obj.product.uuid
-                temp_dict["link"] = unit_cart_obj.product.url
-                temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
-                temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
-                unit_cart_list.append(temp_dict)
+                try:
+                    temp_dict = {}
+                    temp_dict["uuid"] = unit_cart_obj.uuid
+                    temp_dict["quantity"] = unit_cart_obj.quantity
+                    temp_dict["price"] = unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj)
+                    temp_dict["showNote"] = unit_cart_obj.product.is_promo_restriction_note_required(dealshub_user_obj)
+                    temp_dict["moq"] = unit_cart_obj.product.get_moq(dealshub_user_obj)
+                    temp_dict["stock"] = unit_cart_obj.product.stock
+                    temp_dict["super_category"] = unit_cart_obj.product.get_super_category()        
+                    temp_dict["category"] = unit_cart_obj.product.get_category()
+                    temp_dict["sub_category"] = unit_cart_obj.product.get_sub_category()
+                    temp_dict["allowedQty"] = unit_cart_obj.product.get_allowed_qty()
+                    temp_dict["currency"] = unit_cart_obj.product.get_currency()
+                    temp_dict["dateCreated"] = unit_cart_obj.get_date_created()
+                    temp_dict["productName"] = unit_cart_obj.product.get_name(language_code)
+                    temp_dict["productImageUrl"] = unit_cart_obj.product.get_display_image_url()
+                    temp_dict["productUuid"] = unit_cart_obj.product.uuid
+                    temp_dict["link"] = unit_cart_obj.product.url
+                    temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
+                    temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
+                    unit_cart_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             update_cart_bill(cart_obj)
 
@@ -3384,6 +3391,14 @@ class UpdateB2BCustomerStatusAPI(APIView):
             b2b_user_obj.trade_license_status = trade_license_status
             b2b_user_obj.passport_copy_status = passport_copy_status
             b2b_user_obj.cohort = cohort
+            b2b_user_obj.save()
+
+            if (b2b_user_obj.vat_certificate_id != vat_certificate_id and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count()) or (b2b_user_obj.trade_license_id != trade_license_id and B2BUser.objects.filter(trade_license_id=trade_license_id).count()):
+                response["status"] = 403
+                response["message"] = "Vat Certificate number or Trade License number already exists!"
+                logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
+                return Response(data=response)
+                
             b2b_user_obj.vat_certificate_id = vat_certificate_id
             b2b_user_obj.trade_license_id = trade_license_id
             b2b_user_obj.passport_copy_id = passport_copy_id
@@ -4378,6 +4393,13 @@ class SignUpCompletionAPI(APIView):
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
+            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+
+            if (b2b_user_obj.vat_certificate_id != vat_certificate_id and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count()) or (b2b_user_obj.trade_license_id != trade_license_id and B2BUser.objects.filter(trade_license_id=trade_license_id).count()):
+                response["status"] = 403
+                response["message"] = "Vat Certificate number or Trade License number already exists!"
+                logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
+                return Response(data=response)
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=contact_number + "-" + website_group_name)
                 if Cart.objects.filter(owner=dealshub_user_obj,location_group=location_group_obj).exists() == True:
@@ -4386,8 +4408,6 @@ class SignUpCompletionAPI(APIView):
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
 
             if vat_certificate_type == "IMG":
                 image_count = int(data.get("vatCertificateImageCount",0))
@@ -5100,7 +5120,7 @@ class BulkUploadFakeReviewAdminAPI(APIView):
 
             report_type = "bulk upload product"
             report_title = "bulk upload fake review"
-            filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+            filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
             note = "report for the bulk upload of the fake review" 
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
@@ -6278,7 +6298,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 response['status'] = 403
                 logger.warning("FetchOrdersForWarehouseManagerAPI Restricted Access!")
                 return Response(data=response)
-
+ 
             from_date = data.get("fromDate", "")
             to_date = data.get("toDate", "")
             payment_type_list = data.get("paymentTypeList", [])
@@ -6479,6 +6499,13 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
                     else:
                         temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
+
+                    version_order_info = VersionOrder.objects.filter(user = request.user, order_obj=order_obj).last().__dict__
+                    change_information_info = VersionOrder['change_information']
+                    change_information_info_json = json.loads(change_information_info)
+                    if change_information_info_json["information"]['old_status'] != "":
+                        temp_dict["oldStatus"] = change_information_info_json["information"]['old_status']    
+                    
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
@@ -6593,7 +6620,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             is_available = True
             if int(paginator.num_pages) == int(page):
                 is_available = False
-
+            response["pendingOrderRequestCount"] = OrderRequest.objects.filter(location_group__uuid=location_group_uuid,request_status="Pending").distinct().count()
             response["isAvailable"] = is_available
             response["totalOrders"] = total_orders
             response["orderList"] = order_list
@@ -9381,8 +9408,13 @@ class UploadB2BDocumentAPI(APIView):
             vat_certificate_id = data["vat-certificate-id"]
             trade_license_id = data["trade-license-id"]
             passport_copy_id = data["passport-copy-id"]
-
             b2b_user_obj = B2BUser.objects.get(username=request.user.username)
+
+            if (b2b_user_obj.vat_certificate_id != vat_certificate_id and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count()) or (b2b_user_obj.trade_license_id != trade_license_id and B2BUser.objects.filter(trade_license_id=trade_license_id).count()):
+                response["status"] = 403
+                response["message"] = "Vat Certificate number or Trade License number already exists!"
+                logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
+                return Response(data=response)
 
             if vat_certificate_type == "IMG":
                 image_count = int(data.get("vat-certificate-image-count",0))

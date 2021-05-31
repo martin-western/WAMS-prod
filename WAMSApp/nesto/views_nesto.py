@@ -526,7 +526,7 @@ class FetchNestoProductListAPI(APIView):
                         return Response(data=response)
                     note = data["note"]
                     report_type = "filtered nesto products"
-                    filename = "files/reports/"+str(datetime.datetime.now().strftime("%d%m%Y%H%M_"))+report_type+".xlsx"
+                    filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
                     oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
                     
                     custom_permission_obj = CustomPermission.objects.get(user=request.user)

@@ -177,6 +177,13 @@ def set_order_status(unit_order_obj, order_status):
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
         return
 
+    if unit_order_obj.current_status_admin=="delivered" and order_status in ["returned"]:
+        unit_order_obj.current_status_admin = order_status
+        unit_order_obj.current_status = "returned"
+        unit_order_obj.save()
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="returned", status_admin=order_status)
+        return
+
     if unit_order_obj.current_status_admin=="delivery failed" and order_status in ["returned"]:
         unit_order_obj.current_status_admin = order_status
         unit_order_obj.current_status = "returned"
@@ -1559,6 +1566,7 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
                     content = str(dfs.iloc[i][3]).strip()
                     rating = int(dfs.iloc[i][4])
                     is_published = str(dfs.iloc[i][5]).strip().lower()
+                    created_date = datetime.datetime.strptime(str(dfs.iloc[i][6]), "%Y-%m-%d %H:%M:%S")
                     if is_published =='yes':
                         is_published = True
                     elif is_published =='no':
@@ -1574,7 +1582,8 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
                                                         content=review_content_obj,
                                                         fake_customer_name=fake_customer_name,
                                                         fake_oc_user=oc_user_obj,
-                                                        is_published = is_published)
+                                                        is_published = is_published,
+                                                        created_date=created_date)
                         common_row[2] = "Success"
 
                 else:
