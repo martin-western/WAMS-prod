@@ -6298,7 +6298,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 response['status'] = 403
                 logger.warning("FetchOrdersForWarehouseManagerAPI Restricted Access!")
                 return Response(data=response)
-
+ 
             from_date = data.get("fromDate", "")
             to_date = data.get("toDate", "")
             payment_type_list = data.get("paymentTypeList", [])
@@ -6499,6 +6499,13 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
                     else:
                         temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
+
+                    version_order_info = VersionOrder.objects.filter(user = request.user, order_obj=order_obj).last().__dict__
+                    change_information_info = VersionOrder['change_information']
+                    change_information_info_json = json.loads(change_information_info)
+                    if change_information_info_json["information"]['old_status'] != "":
+                        temp_dict["oldStatus"] = change_information_info_json["information"]['old_status']    
+                    
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
