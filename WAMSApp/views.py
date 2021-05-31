@@ -1975,6 +1975,14 @@ class SaveProductAPI(APIView):
             
 
             product_obj.save()
+            dealshub_product_objs = custom_permission_filter_dealshub_product(request.user)
+            dealshub_product_objs = dealshub_product_objs.filter(product=product_obj)
+            for dealshub_product_obj in dealshub_product_objs:
+                dealshub_product_obj.product_name = product_name
+                dealshub_product_obj.product_description = product_description
+                dealshub_product_obj.save()
+
+
 
             response['status'] = 200
 
