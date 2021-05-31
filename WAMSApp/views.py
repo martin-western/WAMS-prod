@@ -8378,6 +8378,7 @@ class LogoutOCUserAPI(APIView):
 
         return Response(data=response)
 
+
 class AddEmailForNewsletterSignupAPI(APIView):
 
     def post(self, request, *args, **kwargs):
