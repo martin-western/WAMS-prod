@@ -6504,7 +6504,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     change_information_info = VersionOrder['change_information']
                     change_information_info_json = json.loads(change_information_info)
                     if change_information_info_json["information"]['old_status'] != "":
-                        temp_dict["OldStatus"] = change_information_info_json["information"]['old_status']    
+                        temp_dict["oldStatus"] = change_information_info_json["information"]['old_status']    
                     
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
