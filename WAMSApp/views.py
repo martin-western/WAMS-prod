@@ -6057,11 +6057,18 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.crunchbase_link=crunchbase_link
                 location_group_obj.color_scheme = json.dumps(color_scheme)
                 
-                if logo_image_url != "":
+                prev_company_profile_logo = location_group_obj.logo
+                prev_company_profile_footer_logo = location_group_obj.footer_logo
+                
+                if logo_image_url == "":
+                    location_group_obj.logo = ""
+                elif logo_image_url != prev_company_profile_logo:
                     image_obj = Image.objects.create(image=logo_image_url)
                     location_group_obj.logo = image_obj
                 
-                if footer_logo_image_url != "":
+                if footer_logo_image_url == "":
+                    location_group_obj.footer_logo = ""
+                elif footer_logo_image_url != prev_company_profile_footer_logo:
                     image_obj = Image.objects.create(image=footer_logo_image_url)
                     location_group_obj.footer_logo = image_obj
                     
