@@ -8394,9 +8394,9 @@ class AddEmailForNewsletterSignupAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             email = data["email"]
-            blog_email = json.loads(location_group_obj.blog_email)
-            blog_email.append(email)
-            location_group_obj.blog_email = json.dumps(blog_email)
+            blog_emails = json.loads(location_group_obj.blog_emails)
+            blog_emails.append(email)
+            location_group_obj.blog_emails = json.dumps(blog_emails)
             location_group_obj.save()
             response['status'] = 200
 
