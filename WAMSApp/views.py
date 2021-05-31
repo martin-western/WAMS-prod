@@ -7235,6 +7235,7 @@ class FetchOCReportListAPI(APIView):
             for oc_report_obj in oc_report_objs:
                 try:
                     completion_date = ""
+                    json_note_obj = ""
                     if oc_report_obj.completion_date!=None:
                         completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
                         try:
