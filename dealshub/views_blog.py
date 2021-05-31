@@ -46,9 +46,6 @@ class CreateBlogPostAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            to_email = location_group_obj.get_support_email_id()
-            password = location_group_obj.get_support_email_password()
-
             blog_post_obj = BlogPost.objects.create(
                 title=title,
                 author=author,
