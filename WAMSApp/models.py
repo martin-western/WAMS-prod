@@ -216,132 +216,6 @@ class Location(models.Model):
         verbose_name = "Location"
         verbose_name_plural = "Location"
 
-
-class LocationGroup(models.Model):
-
-    name = models.CharField(max_length=100, default="")
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    website_group = models.ForeignKey('WebsiteGroup', on_delete=models.CASCADE)
-    delivery_fee = models.FloatField(default=0)
-    free_delivery_threshold = models.FloatField(default=100)
-    cod_charge = models.FloatField(default=5)
-    vat = models.FloatField(default=5)
-    email_info = models.TextField(default="{}")
-    mshastra_info = models.TextField(default="{}")
-    sms_country_info = models.TextField(default="{}")
-    postaplus_info = models.TextField(default="{}")
-    is_voucher_allowed_on_cod = models.BooleanField(default=False)
-    uuid = models.CharField(max_length=200, default="")
-    circular_category_index = models.IntegerField(default=0)
-    is_b2b = models.BooleanField(default = False)
-    region_list = models.TextField(default="[]")
-    today_sales_target = models.FloatField(default=0)
-    monthly_sales_target = models.FloatField(default=0)
-    today_orders_target = models.IntegerField(default=0)
-    monthly_orders_target = models.IntegerField(default=0)
-    tiled_product_index = models.IntegerField(default=0)
-    category_tab_product_index = models.IntegerField(default=0)
-    contact_info = models.CharField(max_length=100,blank=True, default='[]')
-    whatsapp_info = models.CharField(max_length=100,blank=True, default='')
-    addressField = models.TextField(blank=True, default='')
-    email_info = models.CharField(max_length=100,blank=True, default='')
-    color_scheme = models.TextField(blank=True, default=colors_json)
-    facebook_link = models.CharField(max_length=100,blank=True, default='')
-    twitter_link = models.CharField(max_length=100,blank=True, default='')
-    instagram_link = models.CharField(max_length=100,blank=True, default='')
-    youtube_link = models.CharField(max_length=100,blank=True, default='')
-    linkedin_link = models.CharField(max_length=100,blank=True, default='')
-    crunchbase_link = models.CharField(max_length=100,blank=True, default='')
-    blog_emails = models.TextField(null=True,blank=True, default='[]')
-
-    def __str__(self):
-        return str(self.name)
-
-    def save(self, *args, **kwargs):
-
-        if self.uuid == None or self.uuid=="":
-            self.uuid = str(uuid.uuid4())
-
-        super(LocationGroup, self).save(*args, **kwargs)
-
-    def get_email_host(self):
-        return json.loads(self.email_info)["host"]
-
-    def get_email_port(self):
-        return int(json.loads(self.email_info)["port"])
-
-    def get_support_email_id(self):
-        return json.loads(self.email_info)["support"]["email_id"]
-
-    def set_support_email_id(self,email_id):
-        try:
-            email_info = json.loads(self.email_info)
-            email_info["support"]["email_id"] = email_id
-            self.email_info = json.dumps(email_info)
-            super(DealsHubProduct, self).save()
-        except Exception as e:
-            pass
-
-    def get_support_email_password(self):
-        return json.loads(self.email_info)["support"]["password"]
-
-    def get_order_from_email_id(self):
-        return json.loads(self.email_info)["order"]["email_id"]
-
-    def get_order_from_email_password(self):
-        return json.loads(self.email_info)["order"]["password"]
-
-    def get_order_to_email_list(self):
-        return json.loads(self.email_info)["order_to_list"]
-
-    def get_order_cc_email_list(self):
-        return json.loads(self.email_info)["order_cc_list"]
-
-    def get_order_bcc_email_list(self):
-        return json.loads(self.email_info)["order_bcc_list"]
-
-    def get_email_website_logo(self):
-        if self.website_group.footer_logo!=None:
-            return self.website_group.footer_logo.image.url
-        if self.website_group.logo!=None:
-            return self.website_group.logo.image.url
-        return ""
-
-    def get_email_content(self):
-        return json.loads(self.website_group.conf)["email_content"]
-
-    class Meta:
-        verbose_name = "LocationGroup"
-        verbose_name_plural = "LocationGroup"
-
-
-class ActivityLog(models.Model):
-    user = models.ForeignKey(User, null=True)
-    uuid = models.CharField(max_length=256, blank=True, default='')
-    location_group = models.ForeignKey(LocationGroup, null=True, blank=True)
-    created_date = models.DateTimeField(auto_now_add=True) #auto
-    table_name = models.CharField(max_length=256, blank=True, default='') #model name
-    table_item_pk = models.CharField(max_length=256, blank=True, default='') # item pk is id of change in that item 
-    action_type = models.CharField(max_length=64,blank=True,default='') # created updated deleted 
-    prev_instance = models.TextField(blank = True,default='{}')
-    current_instance = models.TextField(blank = True,default='{}')
-    render =  models.TextField(default='',blank = True) #messages
-
-    def __str__(self):
-        return str(self.uuid)
-
-    def save(self, *args, **kwargs):
-
-        if self.uuid == None or self.uuid=="":
-            self.uuid = str(uuid.uuid4())
-
-        super(ActivityLog, self).save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = "ActivityLog"
-        verbose_name_plural = "ActivityLog"
-
-
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -459,6 +333,123 @@ class Image(models.Model):
 
         super(Image, self).save(*args, **kwargs)
     
+
+
+class LocationGroup(models.Model):
+
+    name = models.CharField(max_length=100, default="")
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    website_group = models.ForeignKey('WebsiteGroup', on_delete=models.CASCADE)
+    delivery_fee = models.FloatField(default=0)
+    free_delivery_threshold = models.FloatField(default=100)
+    cod_charge = models.FloatField(default=5)
+    vat = models.FloatField(default=5)
+    email_info = models.TextField(default="{}")
+    mshastra_info = models.TextField(default="{}")
+    sms_country_info = models.TextField(default="{}")
+    postaplus_info = models.TextField(default="{}")
+    is_voucher_allowed_on_cod = models.BooleanField(default=False)
+    uuid = models.CharField(max_length=200, default="")
+    circular_category_index = models.IntegerField(default=0)
+    is_b2b = models.BooleanField(default = False)
+    region_list = models.TextField(default="[]")
+    today_sales_target = models.FloatField(default=0)
+    monthly_sales_target = models.FloatField(default=0)
+    today_orders_target = models.IntegerField(default=0)
+    monthly_orders_target = models.IntegerField(default=0)
+    tiled_product_index = models.IntegerField(default=0)
+    category_tab_product_index = models.IntegerField(default=0)
+    contact_info = models.CharField(max_length=100,blank=True, default='[]')
+    whatsapp_info = models.CharField(max_length=100,blank=True, default='')
+    addressField = models.TextField(blank=True, default='')
+    color_scheme = models.TextField(blank=True, default=colors_json)
+    facebook_link = models.CharField(max_length=100,blank=True, default='')
+    twitter_link = models.CharField(max_length=100,blank=True, default='')
+    instagram_link = models.CharField(max_length=100,blank=True, default='')
+    youtube_link = models.CharField(max_length=100,blank=True, default='')
+    linkedin_link = models.CharField(max_length=100,blank=True, default='')
+    crunchbase_link = models.CharField(max_length=100,blank=True, default='')
+    logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
+    footer_logo = models.ForeignKey(Image, related_name="footer_logo_location_group", null=True, blank=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(LocationGroup, self).save(*args, **kwargs)
+
+    def get_email_host(self):
+        return json.loads(self.email_info)["host"]
+
+    def get_email_port(self):
+        return int(json.loads(self.email_info)["port"])
+
+    def get_support_email_id(self):
+        return json.loads(self.email_info)["support"]["email_id"]
+
+    def get_support_email_password(self):
+        return json.loads(self.email_info)["support"]["password"]
+
+    def get_order_from_email_id(self):
+        return json.loads(self.email_info)["order"]["email_id"]
+
+    def get_order_from_email_password(self):
+        return json.loads(self.email_info)["order"]["password"]
+
+    def get_order_to_email_list(self):
+        return json.loads(self.email_info)["order_to_list"]
+
+    def get_order_cc_email_list(self):
+        return json.loads(self.email_info)["order_cc_list"]
+
+    def get_order_bcc_email_list(self):
+        return json.loads(self.email_info)["order_bcc_list"]
+
+    def get_email_website_logo(self):
+        if self.website_group.footer_logo!=None:
+            return self.website_group.footer_logo.image.url
+        if self.website_group.logo!=None:
+            return self.website_group.logo.image.url
+        return ""
+
+    def get_email_content(self):
+        return json.loads(self.website_group.conf)["email_content"]
+
+    class Meta:
+        verbose_name = "LocationGroup"
+        verbose_name_plural = "LocationGroup"
+
+
+class ActivityLog(models.Model):
+    user = models.ForeignKey(User, null=True)
+    uuid = models.CharField(max_length=256, blank=True, default='')
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True) #auto
+    table_name = models.CharField(max_length=256, blank=True, default='') #model name
+    table_item_pk = models.CharField(max_length=256, blank=True, default='') # item pk is id of change in that item 
+    action_type = models.CharField(max_length=64,blank=True,default='') # created updated deleted 
+    prev_instance = models.TextField(blank = True,default='{}')
+    current_instance = models.TextField(blank = True,default='{}')
+    render =  models.TextField(default='',blank = True) #messages
+
+    def __str__(self):
+        return str(self.uuid)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(ActivityLog, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "ActivityLog"
+        verbose_name_plural = "ActivityLog"
+
 
 class Bank(models.Model): 
 
