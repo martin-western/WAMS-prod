@@ -6054,7 +6054,7 @@ class SaveCompanyProfileAPI(APIView):
                 crunchbase_link = company_data["crunchbase_link"]
                 color_scheme = company_data["color_scheme"]
                 logo_image_url = company_data["logo_image_url"]
-                footer_logo_image_url = data["footer_logo_image_url"]
+                footer_logo_image_url = company_data["footer_logo_image_url"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.set_support_email_id(email_id)
