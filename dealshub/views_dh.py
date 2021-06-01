@@ -6502,9 +6502,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     if VersionOrder.objects.filter(user=request.user,order=order_obj).exists():
                         try:
-                            version_order_info = VersionOrder.objects.filter(user=request.user,order=order_obj).last().__dict__
-                            change_information_info = version_order_info['change_information']
-                            temp_dict["oldStatus"] = change_information_info["information"]['old_status']
+                            version_order_obj = VersionOrder.objects.filter(user=request.user,order=order_obj).last()
+                            change_information = json.loads(version_order_obj.change_information)
+                            temp_dict["oldStatus"] = change_information["information"]['old_status']
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
                             logger.error("version order issue: %s at %s", e, str(exc_tb.tb_lineno))
