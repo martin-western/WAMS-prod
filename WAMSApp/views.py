@@ -6053,8 +6053,8 @@ class SaveCompanyProfileAPI(APIView):
                 linkedin_link = company_data["linkedin_link"]
                 crunchbase_link = company_data["crunchbase_link"]
                 color_scheme = company_data["color_scheme"]
-                logo_image_url = company_data["logo_image_url"]
-                footer_logo_image_url = company_data["footer_logo_image_url"]
+                # logo_image_url = company_data["logo_image_url"]
+                # footer_logo_image_url = company_data["footer_logo_image_url"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.set_support_email_id(email_id)
@@ -6070,19 +6070,19 @@ class SaveCompanyProfileAPI(APIView):
                 prev_company_profile_logo = location_group_obj.logo
                 prev_company_profile_footer_logo = location_group_obj.footer_logo
                 
-                if logo_image_url == "":
-                    pass
-                    # location_group_obj.logo = ""
-                elif logo_image_url != prev_company_profile_logo:
-                    image_obj = Image.objects.create(image=logo_image_url)
-                    location_group_obj.logo = image_obj
+                # if logo_image_url == "":
+                #     pass
+                #     # location_group_obj.logo = ""
+                # elif logo_image_url != prev_company_profile_logo:
+                #     image_obj = Image.objects.create(image=logo_image_url)
+                #     location_group_obj.logo = image_obj
                 
-                if footer_logo_image_url == "":
-                    pass
-                    # location_group_obj.footer_logo = ""
-                elif footer_logo_image_url != prev_company_profile_footer_logo:
-                    image_obj = Image.objects.create(image=footer_logo_image_url)
-                    location_group_obj.footer_logo = image_obj
+                # if footer_logo_image_url == "":
+                #     pass
+                #     # location_group_obj.footer_logo = ""
+                # elif footer_logo_image_url != prev_company_profile_footer_logo:
+                #     image_obj = Image.objects.create(image=footer_logo_image_url)
+                #     location_group_obj.footer_logo = image_obj
                     
                 location_group_obj.save()
                 render_value = 'company profile is updated.'
@@ -6116,18 +6116,31 @@ class UploadCompanyLogoAPI(APIView):
 
             data = request.data
             logger.info("UploadCompanyLogoAPI: %s", str(data))
-            
-            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
-            prev_instance = deepcopy(website_group_obj)
-            logo_image_url = data["logo_image_url"]
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid == "":
 
-            if logo_image_url != "":
-                image_obj = Image.objects.create(image=logo_image_url)
-                website_group_obj.logo = image_obj
-                website_group_obj.save()
-                response["image_url"] = image_obj.mid_image.url
+                website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
+                prev_instance = deepcopy(website_group_obj)
+                logo_image_url = data["logo_image_url"]
+
+                if logo_image_url != "":
+                    image_obj = Image.objects.create(image=logo_image_url)
+                    website_group_obj.logo = image_obj
+                    website_group_obj.save()
+                    response["image_url"] = image_obj.mid_image.url
+            else:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                prev_instance = deepcopy(location_group_obj)
+                logo_image_url = data["logo_image_url"]
+
+                if logo_image_url != "":
+                    image_obj = Image.objects.create(image=logo_image_url)
+                    location_group_obj.logo = image_obj
+                    location_group_obj.save()
+                    response["image_url"] = image_obj.mid_image.url
+
             render_value = "company logo is updated."
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
             response['status'] = 200
 
         except Exception as e:
