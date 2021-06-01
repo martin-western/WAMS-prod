@@ -216,6 +216,7 @@ class Location(models.Model):
         verbose_name = "Location"
         verbose_name_plural = "Location"
 
+
 class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
@@ -371,6 +372,7 @@ class LocationGroup(models.Model):
     crunchbase_link = models.CharField(max_length=100,blank=True, default='')
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     footer_logo = models.ForeignKey(Image, related_name="footer_logo_location_group", null=True, blank=True, on_delete=models.SET_NULL)
+    blog_emails = models.TextField(null=True,blank=True, default='[]')
 
     def __str__(self):
         return str(self.name)

@@ -297,4 +297,5 @@ urlpatterns = [
     url(r'^fetch-blog-section-home-page/$',views.FetchBlogSectionHomePage),
     url(r'^fetch-blog-post-details/$',views.FetchBlogPostDetails),
     url(r'^fetch-all-blog-posts/$',views.FetchAllBlogPosts),
+    url(r'^add-email-for-newsletter-signup/$',views.AddEmailForNewsletterSignup),
 ]
