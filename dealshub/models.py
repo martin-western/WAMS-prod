@@ -608,7 +608,8 @@ class DealsHubProduct(models.Model):
                 search_keywords = ","+",".join(search_keywords)+","
                 self.search_keywords = search_keywords
             except Exception as e:
-                pass
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
         
         if self.seo_title == "":
             self.seo_title = self.product_name
@@ -625,7 +626,8 @@ class DealsHubProduct(models.Model):
                 url = url.replace("/", "-")
                 self.url = url
             except Exception as e:
-                pass
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
 
         try:
             if self.location_group.name in ["WIGMe - UAE","WIGme - Dubai"]:
