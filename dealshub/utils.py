@@ -1923,3 +1923,35 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("FetchDealshubAdminSectionsAPI get_banner_image_objects: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_update_order_status(list_of_orders):
+    try:
+        for order in list_of_orders:
+            sap_invoice_id = order["sap_invoice_id"]
+            incoming_order_status = order["incoming_order_status"]
+
+            order_obj = Order.objects.get(sap_final_billing_info__icontains=sap_invoice_id)
+            doc_list = json.loads(order_obj.sap_final_billing_info)["doc_list"]
+            flag = False
+            for doc in doc_list:
+                if doc["id"]==sap_invoice_id:
+                    flag = True
+                    break
+
+            if flag==False:
+                break
+
+            unit_order_objs = UnitOrder.objects.filter(order = order_obj)
+
+            for unit_order_obj in unit_order_objs:
+                if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":          
+                    set_order_status(unit_order_obj, "dispatched")
+                elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
+                    set_order_status(unit_order_obj, "delivered")
+                else:
+                    logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
+                    break
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("UpdateOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))

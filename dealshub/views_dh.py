@@ -7469,6 +7469,27 @@ class UpdateOrderStatusAPI(APIView):
         return Response(data = response)
 
 
+class BulkUpdateOrderStatusAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self,request,*args,**kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateOrderStatusAPI: %s", str(data))
+            list_of_orders = json.loads(data["list_of_orders"])
+            p1 =  threading.Thread(target=bulk_update_order_status , args=(list_of_orders))
+            p1.start()
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data = response)
+
 class SetCallStatusAPI(APIView):
     
     def post(self, request, *args, **kwargs):
