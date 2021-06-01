@@ -61,8 +61,10 @@ def email_daily_sales_report_to_user(oc_report_obj):
             email = EmailMessage(subject='Omnycomm Daily Sales Report Generated', 
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
-                                 to=["hari.pk@westernint.com"],
-                                 cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
+                                 to=["24animesh11@gmail.com"],
+                                 cc=["jay@omnycomm.com", "animesh.kumar@omnycomm.com"],
+                                #  to=["hari.pk@westernint.com"],
+                                #  cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
                                  connection=connection)
             email.attach_file(oc_report_obj.filename)
             email.send(fail_silently=True)
@@ -1143,7 +1145,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
 
         for order_obj in order_objs:
             try:
-                unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
+                unit_order_obj = UnitOrder.objects.filter(order=order_obj).filter(product__product__base_product__brand__name__in=brand_list)[0]           
                 tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
                 cnt += 1
 
@@ -1160,7 +1162,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[9] = order_obj.owner.email
                 common_row[10] = str(order_obj.owner.contact_number)
                 common_row[11] = str(order_obj.shipping_address.get_shipping_address())
-                common_row[12] = order_obj.payment_status
+                common_row[12] = order_obj.payment_mode
                 common_row[13] = unit_order_obj.shipping_method
                 common_row[14] = unit_order_obj.current_status_admin
                 common_row[15] = tracking_status_time

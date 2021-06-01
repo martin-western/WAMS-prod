@@ -1975,6 +1975,14 @@ class SaveProductAPI(APIView):
             
 
             product_obj.save()
+            dealshub_product_objs = custom_permission_filter_dealshub_product(request.user)
+            dealshub_product_objs = dealshub_product_objs.filter(product=product_obj)
+            for dealshub_product_obj in dealshub_product_objs:
+                dealshub_product_obj.product_name = product_name
+                dealshub_product_obj.product_description = product_description
+                dealshub_product_obj.save()
+
+
 
             response['status'] = 200
 
@@ -5944,7 +5952,23 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["linkedin_link"] = location_group_obj.linkedin_link
                 company_data["crunchbase_link"] = location_group_obj.crunchbase_link
                 company_data["color_scheme"] = json.loads(location_group_obj.color_scheme)
-  
+
+                company_data["logo"] = []
+                if location_group_obj.logo != None:
+                    company_data["logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["logo"][0]["url"] = location_group_obj.logo.image.url
+
+                company_data["footer_logo"] = []
+                if location_group_obj.footer_logo != None:
+                    company_data["footer_logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["footer_logo"][0]["url"] = location_group_obj.footer_logo.image.url
+
             response["company_data"] = company_data
             response['status'] = 200    
         except Exception as e:
@@ -6029,6 +6053,8 @@ class SaveCompanyProfileAPI(APIView):
                 linkedin_link = company_data["linkedin_link"]
                 crunchbase_link = company_data["crunchbase_link"]
                 color_scheme = company_data["color_scheme"]
+                logo_image_url = company_data["logo_image_url"]
+                footer_logo_image_url = data["footer_logo_image_url"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.set_support_email_id(email_id)
@@ -6041,6 +6067,21 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.crunchbase_link=crunchbase_link
                 location_group_obj.color_scheme = json.dumps(color_scheme)
                 
+                prev_company_profile_logo = location_group_obj.logo
+                prev_company_profile_footer_logo = location_group_obj.footer_logo
+                
+                if logo_image_url == "":
+                    location_group_obj.logo = ""
+                elif logo_image_url != prev_company_profile_logo:
+                    image_obj = Image.objects.create(image=logo_image_url)
+                    location_group_obj.logo = image_obj
+                
+                if footer_logo_image_url == "":
+                    location_group_obj.footer_logo = ""
+                elif footer_logo_image_url != prev_company_profile_footer_logo:
+                    image_obj = Image.objects.create(image=footer_logo_image_url)
+                    location_group_obj.footer_logo = image_obj
+                    
                 location_group_obj.save()
                 render_value = 'company profile is updated.'
                 activitylog(user=request.user,table_name=LocationGroup,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
