@@ -6503,7 +6503,6 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     if VersionOrder.objects.filter(user=request.user,order=order_obj).exists():
                         version_order_info = VersionOrder.objects.filter(user=request.user,order=order_obj).last().__dict__
                         change_information_info = VersionOrder['change_information']
-                        # change_information_info_json = json.loads(change_information_info)
                         if change_information_info["information"]['old_status'] != "":
                             temp_dict["oldStatus"] = change_information_info["information"]['old_status']    
                     
