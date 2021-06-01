@@ -243,16 +243,25 @@ REST_FRAMEWORK = {
     ),
 }
 
-# CORS_ORIGIN_WHITELIST = (
-#     'http://127.0.0.1:3000',
-# )
+CORS_ORIGIN_WHITELIST = (
+     'http://127.0.0.1:3000',
+     'http://127.0.0.1:3001',
+     'http://localhost:3000',
+     'http://localhost:3001',
+     'http://localhost:3010',
+     'https://localhost:3010',
+     'https://qa.wigme.com',
+     'https://qa.omnycomm.com',
+     'https://qakrypton.omnycomm.com',
+     'https://qa-omnycomm.netlify.app',
+)
 
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'WAMSApp.utils.my_jwt_response_handler',
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=2592000),
 }
 
-CORS_ORIGIN_ALLOW_ALL = True
+#CORS_ORIGIN_ALLOW_ALL = True
 
 FILE_UPLOAD_HANDLERS = [
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
