@@ -6501,10 +6501,14 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
 
                     if VersionOrder.objects.filter(user=request.user,order=order_obj).exists():
-                        version_order_info = VersionOrder.objects.filter(user=request.user,order=order_obj).last().__dict__
-                        change_information_info = VersionOrder['change_information']
-                        if change_information_info["information"]['old_status'] != "":
-                            temp_dict["oldStatus"] = change_information_info["information"]['old_status']    
+                        try:
+                            version_order_info = VersionOrder.objects.filter(user=request.user,order=order_obj).last().__dict__
+                            change_information_info = version_order_info['change_information']
+                            if change_information_info["information"]['old_status'] != "":
+                                temp_dict["oldStatus"] = change_information_info["information"]['old_status']
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.error("version order issue: %s at %s", e, str(exc_tb.tb_lineno))
                     
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
