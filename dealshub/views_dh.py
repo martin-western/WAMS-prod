@@ -6500,7 +6500,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     else:
                         temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
 
-                    version_order_info = VersionOrder.objects.filter(user = request.user, order_obj=order_obj).last().__dict__
+                    version_order_info = VersionOrder.objects.filter(user=request.user,order=order_obj).last()
                     change_information_info = VersionOrder['change_information']
                     change_information_info_json = json.loads(change_information_info)
                     if change_information_info_json["information"]['old_status'] != "":
