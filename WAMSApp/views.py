@@ -6071,13 +6071,20 @@ class SaveCompanyProfileAPI(APIView):
                 prev_company_profile_footer_logo = location_group_obj.footer_logo
                 
                 if logo_image_url == "":
-                    location_group_obj.logo = ""
+                    try:
+                        Image.objects.get(image=logo_image_url).delete()
+                    except:
+                        pass           
                 elif logo_image_url != prev_company_profile_logo:
                     image_obj = Image.objects.create(image=logo_image_url)
                     location_group_obj.logo = image_obj
                 
                 if footer_logo_image_url == "":
-                    location_group_obj.footer_logo = ""
+                    try:
+                        Image.objects.get(image=footer_logo_image_url).delete()
+                    except:
+                        pass
+                    
                 elif footer_logo_image_url != prev_company_profile_footer_logo:
                     image_obj = Image.objects.create(image=footer_logo_image_url)
                     location_group_obj.footer_logo = image_obj
