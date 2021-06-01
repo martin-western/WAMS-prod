@@ -6138,9 +6138,9 @@ class UploadCompanyLogoAPI(APIView):
                     location_group_obj.logo = image_obj
                     location_group_obj.save()
                     response["image_url"] = image_obj.mid_image.url
-
-            render_value = "company logo is updated."
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
+                render_value = "company logo is updated."
+                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
+            
             response['status'] = 200
 
         except Exception as e:
@@ -6173,17 +6173,31 @@ class UploadCompanyFooterLogoAPI(APIView):
                 logger.warning("UploadCompanyFooterLogoAPI Restricted Access!")
                 return Response(data=response)
 
-            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
-            prev_instance = deepcopy(website_group_obj)
-            logo_image_url = data["logo_image_url"]
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid == "":
 
-            if logo_image_url != "":
-                image_obj = Image.objects.create(image=logo_image_url)
-                website_group_obj.footer_logo = image_obj
-                website_group_obj.save()
-                response["image_url"] = image_obj.mid_image.url
-                render_value = 'company footer logo is updated.'
-                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
+                website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
+                prev_instance = deepcopy(website_group_obj)
+                logo_image_url = data["logo_image_url"]
+
+                if logo_image_url != "":
+                    image_obj = Image.objects.create(image=logo_image_url)
+                    website_group_obj.footer_logo = image_obj
+                    website_group_obj.save()
+                    response["image_url"] = image_obj.mid_image.url
+            else:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                prev_instance = deepcopy(location_group_obj)
+                logo_image_url = data["logo_image_url"]
+
+                if logo_image_url != "":
+                    image_obj = Image.objects.create(image=logo_image_url)
+                    location_group_obj.footer_logo = image_obj
+                    location_group_obj.save()
+                    response["image_url"] = image_obj.mid_image.url
+                render_value = "company Footer Logo is updated."
+                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
+            
             response['status'] = 200
 
         except Exception as e:
