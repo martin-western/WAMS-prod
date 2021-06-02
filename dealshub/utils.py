@@ -100,6 +100,12 @@ def set_shipping_method(unit_order_obj, shipping_method):
 
 def set_order_status(unit_order_obj, order_status):
 
+    if unit_order_obj.current_status_admin == "pending" and order_status in ["approved"]:
+        if unit_order_obj.order.sap_manual_update_status:
+            unit_order_obj.current_status_admin = "approved"
+            unit_order_obj.save()
+            UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="ordered", status_admin="approved")
+
     if unit_order_obj.current_status_admin=="approved" and order_status in ["picked"]:
         unit_order_obj.current_status = "shipped"
         unit_order_obj.current_status_admin = order_status
