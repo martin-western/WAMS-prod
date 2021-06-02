@@ -6415,7 +6415,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     is_voucher_applied = voucher_obj is not None
 
                     temp_dict = {}
-                    temp_dict["sapManualUpdate"] = order_obj.sap_manual_update_status
+                    temp_dict["isSapManualUpdate"] = order_obj.sap_manual_update_status
                     temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["time"] = order_obj.get_time_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
