@@ -703,6 +703,7 @@ class AddEmailForNewsletterSignupAPI(APIView):
         response = {}
         response['status'] = 500
         try:
+            logger.info("AddEmailForNewsletterSignupAPI started")
             data = request.data
             logger.info("AddEmailForNewsletterSignupAPI: %s", str(data))
 
