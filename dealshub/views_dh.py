@@ -6851,7 +6851,7 @@ class SetShippingMethodAPI(APIView):
 
             shipping_method = data["shippingMethod"]
             unit_order_uuid_list = data["unitOrderUuidList"]
-
+            sap_manual_update = data["sapManualUpdate"]
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
 
             if shipping_method.lower()=="logix" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
@@ -6901,6 +6901,15 @@ class SetShippingMethodAPI(APIView):
                 response["status"] = 200
                 return Response(data=response)
                 
+            # after checking for all the shipping methods possible
+            sap_info_render = []
+            if sap_manual_update:
+                order_obj.sap_manual_update_status = sap_manual_update
+                order_obj.save()
+                response["sap_info_render"] = sap_info_render
+                response["status"] = 200
+                logger.info("SetShippingMethodAPI: sap_manual_update: %s", str(sap_info_render))
+                return Response(data=response)
 
             brand_company_dict = {
                 "geepas": "1000",
@@ -6915,8 +6924,6 @@ class SetShippingMethodAPI(APIView):
                 "delcasa": "3050"
             }
 
-            sap_info_render = []
-            
             if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
 
                 user_input_requirement = {}
