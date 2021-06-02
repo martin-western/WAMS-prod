@@ -6902,6 +6902,11 @@ class SetShippingMethodAPI(APIView):
                 response["status"] = 200
                 return Response(data=response)
                 
+            # remove this for loop when you add a working shipping method
+            for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
+                unit_order_obj.shipping_method = shipping_method
+                unit_order_obj.save()
+
             # after checking for all the shipping methods possible
             sap_info_render = []
             if sap_manual_update_status:
