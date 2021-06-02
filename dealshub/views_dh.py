@@ -9714,6 +9714,8 @@ SetOrdersStatusBulk = SetOrdersStatusBulkAPI.as_view()
 
 UpdateOrderStatus = UpdateOrderStatusAPI.as_view()
 
+BulkUpdateOrderStatus = BulkUpdateOrderStatusAPI.as_view()
+
 SetCallStatus = SetCallStatusAPI.as_view()
 
 CancelOrders = CancelOrdersAPI.as_view()

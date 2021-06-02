@@ -168,6 +168,7 @@ urlpatterns = [
     url(r'^set-orders-status/$', views.SetOrdersStatus),
     url(r'^set-orders-status-bulk/$', views.SetOrdersStatusBulk),
     url(r'^update-order-status/$', views.UpdateOrderStatus),
+    url(r'^bulk-update-order-status/$', views.BulkUpdateOrderStatus),
     url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
     url(r'^approve-cancellation-request/$', views.ApproveCancellationRequest),
