@@ -4135,8 +4135,13 @@ class FetchCompanyProfileDealshubAPI(APIView):
                 temp_dict["delivery_fee"] = location_group_obj.delivery_fee
                 temp_dict["free_delivery_threshold"] = location_group_obj.free_delivery_threshold
                 temp_dict["cod_charge"] = location_group_obj.cod_charge
+                temp_dict["logo_url"] = ""
+                if location_group_obj.logo != None:
+                    temp_dict["logo_url"] = location_group_obj.logo.image.url
+                temp_dict["footer_logo_url"] = ""
+                if location_group_obj.footer_logo != None:
+                    temp_dict["footer_logo_url"] = location_group_obj.footer_logo.image.url
                 location_info.append(temp_dict)
-
 
             company_data = {}
             company_data["name"] = website_group_obj.name
