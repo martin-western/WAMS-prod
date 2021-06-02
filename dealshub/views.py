@@ -4135,9 +4135,11 @@ class FetchCompanyProfileDealshubAPI(APIView):
                 temp_dict["delivery_fee"] = location_group_obj.delivery_fee
                 temp_dict["free_delivery_threshold"] = location_group_obj.free_delivery_threshold
                 temp_dict["cod_charge"] = location_group_obj.cod_charge
+                
                 temp_dict["logo_url"] = ""
                 if location_group_obj.logo != None:
                     temp_dict["logo_url"] = location_group_obj.logo.image.url
+                
                 temp_dict["footer_logo_url"] = ""
                 if location_group_obj.footer_logo != None:
                     temp_dict["footer_logo_url"] = location_group_obj.footer_logo.image.url
@@ -4158,10 +4160,8 @@ class FetchCompanyProfileDealshubAPI(APIView):
             company_data["youtube_link"] = website_group_obj.youtube_link
             company_data["linkedin_link"] = website_group_obj.linkedin_link
             company_data["crunchbase_link"] = website_group_obj.crunchbase_link
-
             company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
-
-
+            
             company_data["logo_url"] = ""
             if website_group_obj.logo != None:
                 company_data["logo_url"] = website_group_obj.logo.image.url
