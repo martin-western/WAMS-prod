@@ -1234,6 +1234,7 @@ class Order(models.Model):
         ("Manual", "Manual")
     )
     sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
+    sap_manual_update_status = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if self.pk == None:
