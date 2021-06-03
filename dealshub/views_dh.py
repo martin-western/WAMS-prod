@@ -1492,7 +1492,9 @@ class PlaceOrderRequestAPI(APIView):
                 if payment_mode=="COD":
                     cart_obj.to_pay += cart_obj.location_group.cod_charge
                     cart_obj.save()
-
+                cod_charge = cart_obj.location_group.cod_charge
+                if payment_mode=="CHEQUE":
+                    cod_charge = 0
                 order_request_obj = OrderRequest.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
                                                  to_pay=cart_obj.to_pay,
@@ -1501,7 +1503,7 @@ class PlaceOrderRequestAPI(APIView):
                                                  location_group=cart_obj.location_group,
                                                  delivery_fee=cart_obj.get_delivery_fee(),
                                                  payment_mode = payment_mode,
-                                                 cod_charge=cart_obj.location_group.cod_charge,
+                                                 cod_charge=cod_charge,
                                                  additional_note=cart_obj.additional_note)
 
                 for unit_cart_obj in unit_cart_objs:
@@ -1632,6 +1634,9 @@ class ProcessOrderRequestAPI(APIView):
                     order_request_obj.save()
 
                 update_order_request_bill(order_request_obj,cod=True if order_request_obj.payment_mode == "COD" else False)
+                cod_charge = order_request_obj.location_group.cod_charge
+                if order_request_obj.payment_mode == "CHEQUE":
+                    cod_charge = 0
 
                 order_obj = Order.objects.create(owner = order_request_obj.owner,
                                                  shipping_address=order_request_obj.shipping_address,
@@ -1643,7 +1648,7 @@ class ProcessOrderRequestAPI(APIView):
                                                  voucher=order_request_obj.voucher,
                                                  location_group=order_request_obj.location_group,
                                                  delivery_fee=order_request_obj.get_delivery_fee(),
-                                                 cod_charge=order_request_obj.location_group.cod_charge,
+                                                 cod_charge=cod_charge,
                                                  additional_note=order_request_obj.additional_note,
                                                  admin_note = order_request_obj.admin_note)
 
