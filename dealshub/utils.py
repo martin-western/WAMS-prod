@@ -2005,4 +2005,39 @@ def update_shipping_status_in_unit_orders(order_obj, order_status, oc_user):
     
 # maps the status present in sendex response to locally maintained statuses 
 def get_mapped_admin_status(sendex_status):
-    pass
+    sendex_status_to_admin_status = {
+        "TR" : "dispatched",
+        "DD" : "delivered",
+        "IN" : "dispatched",
+        "RTO" : "returned",
+        "RSH" : "returned",
+        "SCD" : "picked",
+        "NR" : "dispatched",
+        "CSD" : "dispatched",
+        "MSO" : "dispatched",
+        "IDN" : "dispatched",       
+        "UND" : "dispatched",
+        "RTO" : "returned",
+        "WLO" : "dispatched",
+        "VOM" : "dispatched",
+        "CST" : "dispatched",
+        "POD" : "delivered",
+        "NTN" : "dispatched",       
+        "LOC" : "dispatched",
+        "OFD" : "dispatched",
+        "WNO" : "dispatched",
+        "LC" : "dispatched",
+        "SRH" : "dispatched",
+        "MOS" : "dispatched",
+        "SHE" : "dispatched",
+        "CNR" : "dispatched",
+        "OCL" : "returned",
+        "CC" : "dispatched",
+        "TD" : "dispatched",
+        "CN" : "dispatched",
+        "SD" : "dispatched",
+        "RF" : "dispatched",
+        "7" : "dispatched",
+        "WA" : "dispatched" 
+    }
+    return sendex_status_to_admin_status[sendex_status]
