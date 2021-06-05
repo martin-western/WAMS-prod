@@ -6902,20 +6902,8 @@ class SetShippingMethodAPI(APIView):
                 response["status"] = 200
                 return Response(data=response)
                 
-            # remove this for loop when you add a working shipping method
-            for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
-                unit_order_obj.shipping_method = shipping_method
-                unit_order_obj.save()
-
             # after checking for all the shipping methods possible
             sap_info_render = []
-            if sap_manual_update_status:
-                order_obj.sap_manual_update_status = sap_manual_update_status
-                order_obj.save()
-                response["sap_info_render"] = sap_info_render
-                response["status"] = 200
-                logger.info("SetShippingMethodAPI: sap_manual_update_status: %s", str(sap_info_render))
-                return Response(data=response)
 
             brand_company_dict = {
                 "geepas": "1000",
@@ -6930,7 +6918,7 @@ class SetShippingMethodAPI(APIView):
                 "delcasa": "3050"
             }
 
-            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
+            if not(sap_manual_update_status) and order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
 
                 user_input_requirement = {}
                 
@@ -7110,6 +7098,9 @@ class SetShippingMethodAPI(APIView):
             VersionOrder.objects.create(order=order_obj,
                                         user= omnycomm_user,
                                         change_information=json.dumps(order_status_change_information))
+            if sap_manual_update_status:
+                sap_manual_update(order_obj, omnycomm_user)
+                logger.info("SetShippingMethodAPI: sap_manual_update_status: %s", str(sap_manual_update_status))
 
             response["sap_info_render"] = sap_info_render
             response["status"] = 200
