@@ -99,13 +99,6 @@ def set_shipping_method(unit_order_obj, shipping_method):
 
 
 def set_order_status(unit_order_obj, order_status):
-
-    if unit_order_obj.current_status_admin == "pending" and order_status in ["approved"]:
-        if unit_order_obj.order.sap_manual_update_status:
-            unit_order_obj.current_status_admin = "approved"
-            unit_order_obj.save()
-            UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="ordered", status_admin="approved")
-
     if unit_order_obj.current_status_admin=="approved" and order_status in ["picked"]:
         unit_order_obj.current_status = "shipped"
         unit_order_obj.current_status_admin = order_status
@@ -1961,3 +1954,20 @@ def bulk_update_order_status(list_of_orders):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("UpdateOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+def sap_manual_update(order_obj, oc_user): 
+    for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
+        set_order_status(unit_order_obj,"picked")
+    order_obj.sap_status = "Success"
+    order_obj.sap_manual_update_status = True
+    order_obj.save()
+    order_status_change_information = {
+        "event": "order_status",
+        "information": {
+            "old_status": "approved",
+            "new_status": "picked"
+        }
+    }
+    VersionOrder.objects.create(order=order_obj,
+                                user=oc_user,
+                                change_information=json.dumps(order_status_change_information))
