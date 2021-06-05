@@ -6859,68 +6859,9 @@ class SetShippingMethodAPI(APIView):
             unit_order_uuid_list = data["unitOrderUuidList"]
             sap_manual_update_status = data["isSapManualUpdate"]
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
-
-            if shipping_method.lower()=="logix" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
-                order_info = {}
-                
-                order_info["order-id"] = order_obj.bundleid
-                order_info["customer-name"] = order_obj.get_customer_full_name()
-                order_info["customer-address"] = order_obj.shipping_address.get_shipping_address()
-                order_info["customer-contact"] = str(order_obj.owner.contact_number)
-                order_info["payment-mode"] = order_obj.payment_mode
-                order_info["order-value"] = order_obj.to_pay
-                order_info["currency"] = order_obj.get_currency()
-                order_info["item-list"] = []
-                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                    temp_dict = {}
-                    temp_dict["product-name"] = unit_order_obj.product.get_name()
-                    temp_dict["seller-sku"] = unit_order_obj.product.get_seller_sku()
-                    temp_dict["qty"] = unit_order_obj.quantity
-                    order_info["item-list"].append(temp_dict)
-
-                headers = {
-                    'content-type': 'application/json',
-                    'Client-Service': 'logix',
-                    'Auth-Key': 'trackapi',
-                    'token': 'bf6c7d89b71732b9362aa0e7b51b4d92',
-                    'User-ID': '1'
-                }
-                logger.info("Tracking Info Req: %s", str(order_info))
-                resp = requests.post(url="https://qzolve-erp.com/logix2020/track/order/create", data=json.dumps(order_info), headers=headers)
-                tracking_info_data = resp.json()
-                logger.info("Tracking Info Data: %s", str(tracking_info_data))
-                tracking_status = str(tracking_info_data['status']).strip()
-                tracking_reference = str(tracking_info_data['tracking_reference']).strip()
-
-                if tracking_status!="Success":
-                    logger.warning("SetShippingMethodAPI: failed status from logix api")
-                    response["message"] = "Logix set shipping api failed"
-                    return Response(data=response)
-                else:
-                    order_obj.logix_tracking_reference = tracking_reference
-                    order_obj.save()
-
-                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                    set_shipping_method(unit_order_obj, shipping_method)
-
-                response["sap_info_render"] = []
-                response["status"] = 200
-                return Response(data=response)
-                
-            # remove this for loop when you add a working shipping method
-            for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
-                unit_order_obj.shipping_method = shipping_method
-                unit_order_obj.save()
-
+  
             # after checking for all the shipping methods possible
             sap_info_render = []
-            if sap_manual_update_status:
-                order_obj.sap_manual_update_status = sap_manual_update_status
-                order_obj.save()
-                response["sap_info_render"] = sap_info_render
-                response["status"] = 200
-                logger.info("SetShippingMethodAPI: sap_manual_update_status: %s", str(sap_info_render))
-                return Response(data=response)
 
             brand_company_dict = {
                 "geepas": "1000",
@@ -6935,7 +6876,7 @@ class SetShippingMethodAPI(APIView):
                 "delcasa": "3050"
             }
 
-            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
+            if not(sap_manual_update_status) and order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
 
                 user_input_requirement = {}
                 
@@ -7115,6 +7056,9 @@ class SetShippingMethodAPI(APIView):
             VersionOrder.objects.create(order=order_obj,
                                         user= omnycomm_user,
                                         change_information=json.dumps(order_status_change_information))
+            if sap_manual_update_status:
+                sap_manual_update(order_obj, omnycomm_user)
+                logger.info("SetShippingMethodAPI: sap_manual_update_status: %s", str(sap_manual_update_status))
 
             response["sap_info_render"] = sap_info_render
             response["status"] = 200
