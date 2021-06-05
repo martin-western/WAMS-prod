@@ -6896,9 +6896,9 @@ class SetShippingMethodAPI(APIView):
             if shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
                 modified_weight = data["weight"]
                 if sendex_add_consignment(order_obj, modified_weight) == "failure":
-                    logger.error("sendex add consignment failed")
+                    logger.warning("SetShippingMethodAPI: failed status from sendex api")
                 else:
-                    logger.error("sendex add consignment successful")
+                    logger.info("SetShippingMethodAPI: Success in sendex api")
  
             brand_company_dict = {
                 "geepas": "1000",

@@ -1951,7 +1951,7 @@ def sendex_add_consignment(order_obj, modified_weight):
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("SetShippingMethodAPI - sendex add consignment: %s at %s", e, str(exc_tb.tb_lineno))
+        logger.error("SetShippingMethodAPI's utility - sendex add consignment: %s at %s", e, str(exc_tb.tb_lineno))
 
     return api_response
 
@@ -1977,13 +1977,29 @@ def update_sendex_consignment_status(order_objs):
     i = 0
     for order_obj in order_objs:
         sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
-        current_status_admin = get_mapped_admin_status(sendex_status)
-        update_shipping_status_in_unit_orders(order_obj, current_status_admin)
+        status_admin = get_mapped_admin_status(sendex_status)
+        update_shipping_status_in_unit_orders(order_obj, status_admin)
         i += 1
 
 
-def update_shipping_status_in_unit_orders(order_obj, current_status):
-    unit_order_objs = UnitOrder.objects.filter(self=order_obj)
+def update_shipping_status_in_unit_orders(order_obj, order_status):
+    unit_order_objs = UnitOrder.objects.filter(self=order_obj).exclude(current_status_admin="cancelled")
+    for unit_order_obj in unit_order_objs:
+        set_order_status(unit_order_obj, order_status)
+        
+    omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+    order_status_change_information = {
+        "event": "order_status",
+        "information": {
+            "old_status": unit_order_objs[0],
+            "new_status": order_status
+        }
+    }
+
+    VersionOrder.objects.create(order=first_unit_order_obj.order,
+                                user= omnycomm_user,
+                                change_information=json.dumps(order_status_change_information))
+
     for unit_order_obj in unit_order_objs:
         unit_order_obj.current_status_admin = current_status
         unit_order_obj.save()
