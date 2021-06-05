@@ -6381,7 +6381,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
             order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
             
-            update_sendex_consignment_status(order_objs)
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            update_sendex_consignment_status(order_objs, omnycomm_user)
             total_revenue = order_objs.aggregate(Sum('real_to_pay'))["real_to_pay__sum"]
             if total_revenue==None:
                 total_revenue = 0

@@ -1965,7 +1965,7 @@ def get_sendex_api_response(sendex_dict, request_url):
     return response_dict
 
 # [SENDEX] updates the shipping status of all the orders which were registered as a consignment.
-def update_sendex_consignment_status(order_objs):
+def update_sendex_consignment_status(order_objs, oc_user):
     request_url = "https://portal.sendex.me/webservice/GetTracking"
     awb_numbers_list = []
     for order_obj in order_objs:
@@ -1978,31 +1978,30 @@ def update_sendex_consignment_status(order_objs):
     for order_obj in order_objs:
         sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
         status_admin = get_mapped_admin_status(sendex_status)
-        update_shipping_status_in_unit_orders(order_obj, status_admin)
+        update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
         i += 1
 
 
-def update_shipping_status_in_unit_orders(order_obj, order_status):
+def update_shipping_status_in_unit_orders(order_obj, order_status, oc_user):
     unit_order_objs = UnitOrder.objects.filter(self=order_obj).exclude(current_status_admin="cancelled")
+
+    if order_status == unit_order_objs[0].current_status_admin:
+        return
+
     for unit_order_obj in unit_order_objs:
         set_order_status(unit_order_obj, order_status)
         
-    omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
     order_status_change_information = {
         "event": "order_status",
         "information": {
-            "old_status": unit_order_objs[0],
+            "old_status": unit_order_objs[0].current_status_admin,
             "new_status": order_status
         }
     }
-
-    VersionOrder.objects.create(order=first_unit_order_obj.order,
-                                user= omnycomm_user,
+    VersionOrder.objects.create(order=order_obj,
+                                user= oc_user,
                                 change_information=json.dumps(order_status_change_information))
 
-    for unit_order_obj in unit_order_objs:
-        unit_order_obj.current_status_admin = current_status
-        unit_order_obj.save()
     
 # maps the status present in sendex response to locally maintained statuses 
 def get_mapped_admin_status(sendex_status):
