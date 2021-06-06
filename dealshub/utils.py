@@ -982,7 +982,11 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
 def send_notification_for_blog_publish(blog_post_obj,location_group_obj):
     
     try:
-        blog_link = "https://"+str(location_group_obj.location)+".wigme.com/blogs/description/"+str(location_group_obj.uuid)
+        website_link = location_group_obj.website_group.link
+        if website_link[-1] != "/":
+            website_link = str(website_link)+'/'
+
+        blog_link = str(website_link)+"/blogs/description/"+str(blog_post_obj.uuid)
         body = """
             This is to notify you about our recent Blog post:  """+ str(blog_post_obj.title) +""", link to view: """+ str(blog_link) +"""
         """
