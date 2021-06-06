@@ -153,7 +153,7 @@ class ModifyBlogPostStatusAPI(APIView):
                     p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("CreateBlogPostAPI: %s at %s", e, str(exc_tb.tb_lineno)) 
+                logger.error("ModifyBlogPostStatusAPI: %s at %s", e, str(exc_tb.tb_lineno)) 
             response['status'] = 200
 
         except Exception as e:
