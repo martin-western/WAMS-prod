@@ -979,7 +979,7 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
         logger.error("send_order_review_mail: %s at %s", e, str(exc_tb.tb_lineno))
     
 
-def send_notification_for_new_blog(blog_post_obj,location_group_obj):
+def send_notification_for_blog_publish(blog_post_obj,location_group_obj):
     
     try:
         blog_link = "https://"+str(location_group_obj.location)+".wigme.com/blogs/description/"+str(location_group_obj.uuid)
@@ -1001,7 +1001,7 @@ def send_notification_for_new_blog(blog_post_obj,location_group_obj):
             email.send(fail_silently=True)
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("Error send_notification_for_new_blog %s %s", e, str(exc_tb.tb_lineno))
+        logger.error("Error send_notification_for_blog_publish %s %s", e, str(exc_tb.tb_lineno))
 
 
 def contact_us_send_email(your_email, message, to_email, password):
