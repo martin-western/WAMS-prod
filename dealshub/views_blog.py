@@ -715,7 +715,7 @@ class AddEmailForNewsletterSignupAPI(APIView):
             email = data["email"]
             blog_emails = json.loads(location_group_obj.blog_emails)
             blog_emails.append(email)
-            location_group_obj.blog_emails = json.dumps(blog_emails)
+            location_group_obj.blog_emails = json.dumps(list(set(blog_emails))) # for distinct values
             location_group_obj.save()
             response['status'] = 200
 
