@@ -17,7 +17,7 @@ from django.conf import settings
 
 from WAMSApp.models import *
 from dealshub.models import *
-from WAMSApp.utils import activitylog,send_notification_for_blog
+from WAMSApp.utils import activitylog,send_notification_for_new_blog
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class CreateBlogPostAPI(APIView):
                 body=body)
             # Trigger Email
             try:
-                p1 = threading.Thread(target=send_notification_for_blog, args=(blog_post_obj,location_group_obj))
+                p1 = threading.Thread(target=send_notification_for_new_blog, args=(blog_post_obj,location_group_obj))
                 p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()

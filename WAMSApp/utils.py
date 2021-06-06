@@ -2994,7 +2994,7 @@ def get_sellersku_and_quantity(order_obj):
     return sellersku_and_quantity[:-2]
 
 
-def send_notification_for_blog(blog_post_obj,location_group_obj):
+def send_notification_for_new_blog(blog_post_obj,location_group_obj):
     
     try:
         blog_link = "https://"+str(location_group_obj.location)+".wigme.com/blogs/description/"+str(location_group_obj.uuid)
