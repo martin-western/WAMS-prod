@@ -17,8 +17,8 @@ from django.conf import settings
 
 from WAMSApp.models import *
 from dealshub.models import *
-from WAMSApp.utils import activitylog,send_notification_for_new_blog
-
+from WAMSApp.utils import activitylog
+from dealshub.utils import send_notification_for_new_blog
 logger = logging.getLogger(__name__)
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
