@@ -142,7 +142,7 @@ class ModifyBlogPostStatusAPI(APIView):
             logger.info("ModifyBlogPostStatusAPI: %s",str(data))
             if not isinstance(data,dict):
                 data = json.loads(data)
-            is_published = is_data["isPublished"]
+            is_published = data["isPublished"]
             blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
             blog_post_obj.is_published = is_published
             blog_post_obj.save()
