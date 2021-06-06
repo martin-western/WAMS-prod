@@ -984,7 +984,7 @@ def send_notification_for_blog_publish(blog_post_obj,location_group_obj):
     try:
         blog_link = "https://"+str(location_group_obj.location)+".wigme.com/blogs/description/"+str(location_group_obj.uuid)
         body = """
-            This is to notify you about our recent Blog post:  """+ str(blog_post_obj.headline) +""", link to view: """+ str(blog_link) +"""
+            This is to notify you about our recent Blog post:  """+ str(blog_post_obj.title) +""", link to view: """+ str(blog_link) +"""
         """
 
         with get_connection(
