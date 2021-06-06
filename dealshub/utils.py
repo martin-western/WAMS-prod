@@ -979,10 +979,10 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
         logger.error("send_order_review_mail: %s at %s", e, str(exc_tb.tb_lineno))
     
 
-def send_notification_for_blog_publish(blog_post_obj,location_group_obj):
+def send_notification_for_blog_publish(blog_post_obj):
     
     try:
-        website_link = location_group_obj.website_group.link
+        website_link = blog_post_obj.location_group.website_group.link
         if website_link[-1] != "/":
             website_link = str(website_link)+'/'
 
