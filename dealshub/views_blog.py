@@ -149,7 +149,7 @@ class ModifyBlogPostStatusAPI(APIView):
             # Trigger Email
             try:
                 if is_published=="True":
-                    p1 = threading.Thread(target=send_notification_for_blog_publish, args=(blog_post_obj,location_group_obj))
+                    p1 = threading.Thread(target=send_notification_for_blog_publish, args=(blog_post_obj))
                     p1.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
