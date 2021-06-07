@@ -6064,8 +6064,6 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.linkedin_link=linkedin_link
                 location_group_obj.crunchbase_link=crunchbase_link
                 location_group_obj.color_scheme = json.dumps(color_scheme)
-                prev_company_profile_logo = location_group_obj.logo
-                prev_company_profile_footer_logo = location_group_obj.footer_logo
                 location_group_obj.save()
                 render_value = 'company profile is updated.'
                 activitylog(user=request.user,table_name=LocationGroup,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
