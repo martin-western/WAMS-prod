@@ -2008,4 +2008,5 @@ def sap_manual_update(order_obj, oc_user):
     }
     VersionOrder.objects.create(order=order_obj,
                                 user=oc_user,
-                                change_information=json.dumps(order_status_change_information))
+                                change_information=json.dumps(order_status_change_information)
+                                )
