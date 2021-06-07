@@ -4125,9 +4125,9 @@ class FetchCompanyProfileDealshubAPI(APIView):
 
             website_group_obj = WebsiteGroup.objects.get(name=data["websiteGroupName"])
 
-            location_group_obj = LocationGroup.objects.filter(website_group=website_group_obj).first()
+            location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
             location_info = []
-            for location_group_obj in location_group_obj:
+            for location_group_obj in location_group_objs:
                 temp_dict = {}
                 temp_dict["name"] = location_group_obj.location.name
                 temp_dict["uuid"] = location_group_obj.uuid
@@ -4146,6 +4146,7 @@ class FetchCompanyProfileDealshubAPI(APIView):
                 location_info.append(temp_dict)
 
             company_data = {}
+            location_group_obj = location_group_objs.first()
             company_data["name"] = location_group_obj.name
             company_data["contact_info"] = json.loads(location_group_obj.contact_info)
             company_data["whatsapp_info"] = location_group_obj.whatsapp_info
