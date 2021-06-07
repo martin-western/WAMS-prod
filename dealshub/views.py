@@ -4125,9 +4125,9 @@ class FetchCompanyProfileDealshubAPI(APIView):
 
             website_group_obj = WebsiteGroup.objects.get(name=data["websiteGroupName"])
 
-            location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
+            location_group_obj = LocationGroup.objects.filter(website_group=website_group_obj).first()
             location_info = []
-            for location_group_obj in location_group_objs:
+            for location_group_obj in location_group_obj:
                 temp_dict = {}
                 temp_dict["name"] = location_group_obj.location.name
                 temp_dict["uuid"] = location_group_obj.uuid
@@ -4146,29 +4146,29 @@ class FetchCompanyProfileDealshubAPI(APIView):
                 location_info.append(temp_dict)
 
             company_data = {}
-            company_data["name"] = website_group_obj.name
-            company_data["contact_info"] = json.loads(website_group_obj.contact_info)
-            company_data["whatsapp_info"] = website_group_obj.whatsapp_info
-            company_data["email_info"] = website_group_obj.email_info
-            company_data["address"] = website_group_obj.address
-            company_data["primary_color"] = website_group_obj.primary_color
-            company_data["secondary_color"] = website_group_obj.secondary_color
-            company_data["navbar_text_color"] = website_group_obj.navbar_text_color
-            company_data["facebook_link"] = website_group_obj.facebook_link
-            company_data["twitter_link"] = website_group_obj.twitter_link
-            company_data["instagram_link"] = website_group_obj.instagram_link
-            company_data["youtube_link"] = website_group_obj.youtube_link
-            company_data["linkedin_link"] = website_group_obj.linkedin_link
-            company_data["crunchbase_link"] = website_group_obj.crunchbase_link
-            company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
+            company_data["name"] = location_group_obj.name
+            company_data["contact_info"] = json.loads(location_group_obj.contact_info)
+            company_data["whatsapp_info"] = location_group_obj.whatsapp_info
+            company_data["email_info"] = location_group_obj.email_info
+            company_data["address"] = location_group_obj.addressField
+            company_data["primary_color"] = location_group_obj.primary_color
+            company_data["secondary_color"] = location_group_obj.secondary_color
+            company_data["navbar_text_color"] = location_group_obj.navbar_text_color
+            company_data["facebook_link"] = location_group_obj.facebook_link
+            company_data["twitter_link"] = location_group_obj.twitter_link
+            company_data["instagram_link"] = location_group_obj.instagram_link
+            company_data["youtube_link"] = location_group_obj.youtube_link
+            company_data["linkedin_link"] = location_group_obj.linkedin_link
+            company_data["crunchbase_link"] = location_group_obj.crunchbase_link
+            company_data["color_scheme"] = json.loads(location_group_obj.color_scheme)
             
             company_data["logo_url"] = ""
             if website_group_obj.logo != None:
-                company_data["logo_url"] = website_group_obj.logo.image.url
+                company_data["logo_url"] = location_group_obj.logo.image.url
 
             company_data["footer_logo_url"] = ""
             if website_group_obj.footer_logo != None:
-                company_data["footer_logo_url"] = website_group_obj.footer_logo.image.url
+                company_data["footer_logo_url"] = location_group_obj.footer_logo.image.url
 
             company_data["logo_ar_url"] = ""
             if website_group_obj.logo_ar != None:
