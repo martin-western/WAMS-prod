@@ -999,7 +999,6 @@ def send_notification_for_blog_publish(blog_post_obj):
             
             Link to view: """+ str(blog_link) +""".
         """
-        logger.info(json.loads(blog_post_obj.location_group.blog_emails))
         with get_connection(
             host="smtp.gmail.com",
             port=587, 
@@ -1009,7 +1008,8 @@ def send_notification_for_blog_publish(blog_post_obj):
             email = EmailMessage(subject=str(blog_post_obj.title), 
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
-                                 to=json.loads(blog_post_obj.location_group.blog_emails),
+                                 to=[],
+                                 bcc=json.loads(blog_post_obj.location_group.blog_emails),
                                  connection=connection)
             email.send(fail_silently=True)
     except Exception as e:
