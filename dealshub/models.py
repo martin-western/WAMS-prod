@@ -609,7 +609,14 @@ class DealsHubProduct(models.Model):
                 search_keywords = ","+",".join(search_keywords)+","
                 self.search_keywords = search_keywords
             except Exception as e:
-                pass
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        if self.seo_title == "":
+            self.seo_title = self.product_name
+
+        if self.seo_keywords == "":
+            self.seo_keywords = ",".join(sorted(list(set(self.product_description.split(" "))),key=len,reverse=True)[:30])
 
         if self.url=="":
             try:
@@ -620,7 +627,8 @@ class DealsHubProduct(models.Model):
                 url = url.replace("/", "-")
                 self.url = url
             except Exception as e:
-                pass
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
 
         try:
             if self.location_group.name in ["WIGMe - UAE","WIGme - Dubai"]:
@@ -1226,6 +1234,7 @@ class Order(models.Model):
         ("Manual", "Manual")
     )
     sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
+    sap_manual_update_status = models.BooleanField(default=False)
 
     sendex_awb = models.CharField(max_length=100, default="") # AWB Number
     sendex_awb_pdf = models.CharField(max_length=100, default="") # Link to AWB PDF

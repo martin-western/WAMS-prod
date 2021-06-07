@@ -4135,8 +4135,15 @@ class FetchCompanyProfileDealshubAPI(APIView):
                 temp_dict["delivery_fee"] = location_group_obj.delivery_fee
                 temp_dict["free_delivery_threshold"] = location_group_obj.free_delivery_threshold
                 temp_dict["cod_charge"] = location_group_obj.cod_charge
+                
+                temp_dict["logo_url"] = ""
+                if location_group_obj.logo != None:
+                    temp_dict["logo_url"] = location_group_obj.logo.image.url
+                
+                temp_dict["footer_logo_url"] = ""
+                if location_group_obj.footer_logo != None:
+                    temp_dict["footer_logo_url"] = location_group_obj.footer_logo.image.url
                 location_info.append(temp_dict)
-
 
             company_data = {}
             company_data["name"] = website_group_obj.name
@@ -4153,10 +4160,8 @@ class FetchCompanyProfileDealshubAPI(APIView):
             company_data["youtube_link"] = website_group_obj.youtube_link
             company_data["linkedin_link"] = website_group_obj.linkedin_link
             company_data["crunchbase_link"] = website_group_obj.crunchbase_link
-
             company_data["color_scheme"] = json.loads(website_group_obj.color_scheme)
-
-
+            
             company_data["logo_url"] = ""
             if website_group_obj.logo != None:
                 company_data["logo_url"] = website_group_obj.logo.image.url
@@ -5423,7 +5428,7 @@ class FetchSEOAdminAutocompleteAPI(APIView):
                 for seo_brand_obj in seo_brand_objs:
                     temp_dict = {}
                     temp_dict["name"] = seo_brand_obj.brand.name
-                    temp_dict["uuid"] = seo_brand_obj.brand.name
+                    temp_dict["uuid"] = seo_brand_obj.uuid
                     autocomplete_list.append(temp_dict)
             elif page_type=="product":
                 dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj).filter(Q(product_name__icontains=search_string) | Q(product__base_product__seller_sku__icontains=search_string))[:5]
@@ -5516,7 +5521,7 @@ class FetchSEOAdminDetailsAPI(APIView):
                 short_description = seo_sub_category_obj.short_description
                 long_description = seo_sub_category_obj.long_description
             elif page_type=="brand":
-                seo_brand_obj = SEOBrand.objects.get(brand__name=uuid, brand__organization__name="WIG")
+                seo_brand_obj = SEOBrand.objects.get(uuid=uuid, brand__organization__name="WIG")
                 page_description = seo_brand_obj.page_description
                 seo_title = seo_brand_obj.seo_title
                 seo_keywords = seo_brand_obj.seo_keywords
@@ -5622,7 +5627,7 @@ class SaveSEOAdminDetailsAPI(APIView):
                 seo_sub_category_obj.long_description = long_description
                 seo_sub_category_obj.save()
             elif page_type=="brand":
-                seo_brand_obj = SEOBrand.objects.get(brand__name=uuid, brand__organization__name="WIG")
+                seo_brand_obj = SEOBrand.objects.get(uuid=uuid, brand__organization__name="WIG")
                 seo_brand_obj.page_description = page_description
                 seo_brand_obj.seo_title = seo_title
                 seo_brand_obj.seo_keywords = seo_keywords
@@ -6251,6 +6256,7 @@ class FetchProductReviewMailAPI(APIView):
             response["products"] = products_for_review
             response["username"] = dh_user_obj.username
             response["order_date"] = order_obj.get_date_created()
+            response['order_id'] = order_obj.bundleid
             response["shipping_address"] = order_obj.shipping_address.get_shipping_address()
             response['status'] = 200
 

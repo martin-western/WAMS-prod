@@ -61,8 +61,10 @@ def email_daily_sales_report_to_user(oc_report_obj):
             email = EmailMessage(subject='Omnycomm Daily Sales Report Generated', 
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
-                                 to=["hari.pk@westernint.com"],
-                                 cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
+                                 to=["24animesh11@gmail.com"],
+                                 cc=["jay@omnycomm.com", "animesh.kumar@omnycomm.com"],
+                                #  to=["hari.pk@westernint.com"],
+                                #  cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
                                  connection=connection)
             email.attach_file(oc_report_obj.filename)
             email.send(fail_silently=True)
@@ -357,8 +359,8 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
         colnum += 1
     cnt = 1
     for product in product_objs:
+        common_row = ["" for i in range(266)]
         try:
-            common_row = ["" for i in range(266)]
             common_row[0] = str(cnt)
             common_row[1] = product.product_id
             common_row[2] = product.product_name
@@ -595,14 +597,16 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
             common_row[264] = noon_product_json.get("msrp_ae", "")
             common_row[265] = noon_product_json.get("msrp_ae_unit", "")
             #common_row[210] = noon_verified
-            colnum = 0
-            for k in common_row:
-                worksheet.write(cnt, colnum, k)
-                colnum += 1
-            cnt += 1
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Error create_mega_bulk_oc_report %s %s", e, str(exc_tb.tb_lineno))
+        
+        colnum = 0
+        for k in common_row:
+            worksheet.write(cnt, colnum, k)
+            colnum += 1
+        cnt += 1
 
     workbook.close()
 
@@ -1142,12 +1146,12 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
         order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
         for order_obj in order_objs:
+            common_row = ["" for i in range(len(row))]
             try:
-                unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
+                unit_order_obj = UnitOrder.objects.filter(order=order_obj).filter(product__product__base_product__brand__name__in=brand_list)[0]           
                 tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
                 cnt += 1
 
-                common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
                 common_row[1] = str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p"))
                 common_row[2] = order_obj.bundleid
@@ -1160,7 +1164,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[9] = order_obj.owner.email
                 common_row[10] = str(order_obj.owner.contact_number)
                 common_row[11] = str(order_obj.shipping_address.get_shipping_address())
-                common_row[12] = order_obj.payment_status
+                common_row[12] = order_obj.payment_mode
                 common_row[13] = unit_order_obj.shipping_method
                 common_row[14] = unit_order_obj.current_status_admin
                 common_row[15] = tracking_status_time
@@ -1172,14 +1176,14 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[19] = order_obj.reference_medium
                 common_row[20] = order_obj.additional_note
                 
-                colnum = 0
-                for k in common_row:
-                    worksheet.write(cnt, colnum, k)
-                    colnum += 1
-
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("create_daily_sales_report: %s at %s", e, str(exc_tb.tb_lineno))
+                
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
 
         workbook.close()
 
@@ -2266,23 +2270,27 @@ def bulk_upload_product_seo_details_report(dfs, seo_type, location_group_obj):
         rows = len(dfs.iloc[:])
 
         for i in range(2,rows):
-            product_uuid = str(dfs.iloc[i][1]).strip()
-            product_name = str(dfs.iloc[i][2]).strip()
-            product_seller_sku = str(dfs.iloc[i][3]).strip()
-            page_description = str(dfs.iloc[i][4]).strip()
-            seo_title = str(dfs.iloc[i][5]).strip()
-            seo_keywords = str(dfs.iloc[i][6]).strip()
-            seo_description = str(dfs.iloc[i][7]).strip()
-            search_keywords = str(dfs.iloc[i][8]).strip()
+            try:
+                product_uuid = str(dfs.iloc[i][1]).strip()
+                product_name = str(dfs.iloc[i][2]).strip()
+                product_seller_sku = str(dfs.iloc[i][3]).strip()
+                page_description = str(dfs.iloc[i][4]).strip()
+                seo_title = str(dfs.iloc[i][5]).strip()
+                seo_keywords = str(dfs.iloc[i][6]).strip()
+                seo_description = str(dfs.iloc[i][7]).strip()
+                search_keywords = str(dfs.iloc[i][8]).strip()
 
-            dh_product_obj = DealsHubProduct.objects.get(location_group=location_group_obj, uuid=product_uuid)
+                dh_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
 
-            dh_product_obj.page_description = page_description
-            dh_product_obj.seo_title = seo_title
-            dh_product_obj.seo_keywords = seo_keywords
-            dh_product_obj.seo_description = seo_description
-            dh_product_obj.search_keywords = search_keywords
-            dh_product_obj.save()
+                dh_product_obj.page_description = page_description
+                dh_product_obj.seo_title = seo_title
+                dh_product_obj.seo_keywords = seo_keywords
+                dh_product_obj.seo_description = seo_description
+                dh_product_obj.search_keywords = search_keywords
+                dh_product_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error bulk_upload_product_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2296,32 +2304,35 @@ def bulk_upload_categories_seo_details_report(dfs, seo_type, location_group_obj)
         rows = len(dfs.iloc[:])
 
         for i in range(2,rows):
-            generic_category_uuid = str(dfs.iloc[i][1]).strip()
-            generic_category_name = str(dfs.iloc[i][2]).strip()
-            page_description = str(dfs.iloc[i][3]).strip()
-            seo_title = str(dfs.iloc[i][4]).strip()
-            seo_keywords = str(dfs.iloc[i][5]).strip()
-            seo_description = str(dfs.iloc[i][6]).strip()
-            short_description = str(dfs.iloc[i][7]).strip()
-            long_description = str(dfs.iloc[i][8]).strip()
-            
-            generic_category_obj = None
-            if seo_type=="subcategory":
-                generic_category_obj = SEOSubCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
-            elif seo_type=="category":
-                generic_category_obj = SEOCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
-            elif seo_type=="supercategory":
-                generic_category_obj = SEOSuperCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
+            try:
+                generic_category_uuid = str(dfs.iloc[i][1]).strip()
+                generic_category_name = str(dfs.iloc[i][2]).strip()
+                page_description = str(dfs.iloc[i][3]).strip()
+                seo_title = str(dfs.iloc[i][4]).strip()
+                seo_keywords = str(dfs.iloc[i][5]).strip()
+                seo_description = str(dfs.iloc[i][6]).strip()
+                short_description = str(dfs.iloc[i][7]).strip()
+                long_description = str(dfs.iloc[i][8]).strip()
+                
+                generic_category_obj = None
+                if seo_type=="subcategory":
+                    generic_category_obj = SEOSubCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
+                elif seo_type=="category":
+                    generic_category_obj = SEOCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
+                elif seo_type=="supercategory":
+                    generic_category_obj = SEOSuperCategory.objects.get(uuid=generic_category_uuid, location_group=location_group_obj)
 
-            if generic_category_obj!=None:
-                generic_category_obj.page_description = page_description
-                generic_category_obj.seo_title = seo_title
-                generic_category_obj.seo_keywords = seo_keywords
-                generic_category_obj.seo_description = seo_description
-                generic_category_obj.short_description = short_description
-                generic_category_obj.long_description = long_description
-                generic_category_obj.save()
-
+                if generic_category_obj!=None:
+                    generic_category_obj.page_description = page_description
+                    generic_category_obj.seo_title = seo_title
+                    generic_category_obj.seo_keywords = seo_keywords
+                    generic_category_obj.seo_description = seo_description
+                    generic_category_obj.short_description = short_description
+                    generic_category_obj.long_description = long_description
+                    generic_category_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error bulk_upload_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error bulk_upload_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
@@ -2334,33 +2345,36 @@ def bulk_upload_brand_categories_seo_details_report(dfs, seo_type, location_grou
         rows = len(dfs.iloc[:])
 
         for i in range(2,rows):
-            generic_brand_category_uuid = str(dfs.iloc[i][1]).strip()
-            generic_category_name = str(dfs.iloc[i][2]).strip()
-            brand_name = str(dfs.iloc[i][3]).strip()
-            page_description = str(dfs.iloc[i][4]).strip()
-            seo_title = str(dfs.iloc[i][5]).strip()
-            seo_keywords = str(dfs.iloc[i][6]).strip()
-            seo_description = str(dfs.iloc[i][7]).strip()
-            short_description = str(dfs.iloc[i][8]).strip()
-            long_description = str(dfs.iloc[i][9]).strip()
-            
-            generic_brand_category_obj = None
-            if seo_type=="subcategory":
-                generic_brand_category_obj = BrandSubCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
-            elif seo_type=="category":
-                generic_brand_category_obj = BrandCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
-            elif seo_type=="supercategory":
-                generic_brand_category_obj = BrandSuperCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+            try:
+                generic_brand_category_uuid = str(dfs.iloc[i][1]).strip()
+                generic_category_name = str(dfs.iloc[i][2]).strip()
+                brand_name = str(dfs.iloc[i][3]).strip()
+                page_description = str(dfs.iloc[i][4]).strip()
+                seo_title = str(dfs.iloc[i][5]).strip()
+                seo_keywords = str(dfs.iloc[i][6]).strip()
+                seo_description = str(dfs.iloc[i][7]).strip()
+                short_description = str(dfs.iloc[i][8]).strip()
+                long_description = str(dfs.iloc[i][9]).strip()
+                
+                generic_brand_category_obj = None
+                if seo_type=="subcategory":
+                    generic_brand_category_obj = BrandSubCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+                elif seo_type=="category":
+                    generic_brand_category_obj = BrandCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+                elif seo_type=="supercategory":
+                    generic_brand_category_obj = BrandSuperCategory.objects.get(uuid=generic_brand_category_uuid, location_group=location_group_obj, brand__organization__name="WIG")
 
-            if generic_brand_category_obj!=None:
-                generic_brand_category_obj.page_description = page_description
-                generic_brand_category_obj.seo_title = seo_title
-                generic_brand_category_obj.seo_keywords = seo_keywords
-                generic_brand_category_obj.seo_description = seo_description
-                generic_brand_category_obj.short_description = short_description
-                generic_brand_category_obj.long_description = long_description
-                generic_brand_category_obj.save()
-
+                if generic_brand_category_obj!=None:
+                    generic_brand_category_obj.page_description = page_description
+                    generic_brand_category_obj.seo_title = seo_title
+                    generic_brand_category_obj.seo_keywords = seo_keywords
+                    generic_brand_category_obj.seo_description = seo_description
+                    generic_brand_category_obj.short_description = short_description
+                    generic_brand_category_obj.long_description = long_description
+                    generic_brand_category_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error bulk_upload_brand_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error bulk_upload_brand_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
@@ -2373,25 +2387,28 @@ def bulk_upload_brand_seo_details_report(dfs, seo_type, location_group_obj):
         rows = len(dfs.iloc[:])
 
         for i in range(2,rows):
-            brand_uuid = str(dfs.iloc[i][1]).strip()
-            brand_name = str(dfs.iloc[i][2]).strip()
-            page_description = str(dfs.iloc[i][3]).strip()
-            seo_title = str(dfs.iloc[i][4]).strip()
-            seo_keywords = str(dfs.iloc[i][5]).strip()
-            seo_description = str(dfs.iloc[i][6]).strip()
-            short_description = str(dfs.iloc[i][7]).strip()
-            long_description = str(dfs.iloc[i][8]).strip()
+            try:
+                brand_uuid = str(dfs.iloc[i][1]).strip()
+                brand_name = str(dfs.iloc[i][2]).strip()
+                page_description = str(dfs.iloc[i][3]).strip()
+                seo_title = str(dfs.iloc[i][4]).strip()
+                seo_keywords = str(dfs.iloc[i][5]).strip()
+                seo_description = str(dfs.iloc[i][6]).strip()
+                short_description = str(dfs.iloc[i][7]).strip()
+                long_description = str(dfs.iloc[i][8]).strip()
 
-            brand_obj = SEOBrand.objects.get(uuid=brand_uuid, location_group=location_group_obj, brand__organization__name="WIG")
+                brand_obj = SEOBrand.objects.get(uuid=brand_uuid, location_group=location_group_obj, brand__organization__name="WIG")
 
-            brand_obj.page_description = page_description
-            brand_obj.seo_title = seo_title
-            brand_obj.seo_keywords = seo_keywords
-            brand_obj.seo_description = seo_description
-            brand_obj.short_description = short_description
-            brand_obj.long_description = long_description
-            brand_obj.save()
-
+                brand_obj.page_description = page_description
+                brand_obj.seo_title = seo_title
+                brand_obj.seo_keywords = seo_keywords
+                brand_obj.seo_description = seo_description
+                brand_obj.short_description = short_description
+                brand_obj.long_description = long_description
+                brand_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error bulk_upload_brand_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error bulk_upload_brand_seo_details_report %s %s", e, str(exc_tb.tb_lineno))

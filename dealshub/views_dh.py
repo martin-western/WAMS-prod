@@ -1492,7 +1492,9 @@ class PlaceOrderRequestAPI(APIView):
                 if payment_mode=="COD":
                     cart_obj.to_pay += cart_obj.location_group.cod_charge
                     cart_obj.save()
-
+                cod_charge = cart_obj.location_group.cod_charge
+                if payment_mode=="CHEQUE":
+                    cod_charge = 0
                 order_request_obj = OrderRequest.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
                                                  to_pay=cart_obj.to_pay,
@@ -1501,7 +1503,7 @@ class PlaceOrderRequestAPI(APIView):
                                                  location_group=cart_obj.location_group,
                                                  delivery_fee=cart_obj.get_delivery_fee(),
                                                  payment_mode = payment_mode,
-                                                 cod_charge=cart_obj.location_group.cod_charge,
+                                                 cod_charge=cod_charge,
                                                  additional_note=cart_obj.additional_note)
 
                 for unit_cart_obj in unit_cart_objs:
@@ -1632,6 +1634,9 @@ class ProcessOrderRequestAPI(APIView):
                     order_request_obj.save()
 
                 update_order_request_bill(order_request_obj,cod=True if order_request_obj.payment_mode == "COD" else False)
+                cod_charge = order_request_obj.location_group.cod_charge
+                if order_request_obj.payment_mode == "CHEQUE":
+                    cod_charge = 0
 
                 order_obj = Order.objects.create(owner = order_request_obj.owner,
                                                  shipping_address=order_request_obj.shipping_address,
@@ -1643,7 +1648,7 @@ class ProcessOrderRequestAPI(APIView):
                                                  voucher=order_request_obj.voucher,
                                                  location_group=order_request_obj.location_group,
                                                  delivery_fee=order_request_obj.get_delivery_fee(),
-                                                 cod_charge=order_request_obj.location_group.cod_charge,
+                                                 cod_charge=cod_charge,
                                                  additional_note=order_request_obj.additional_note,
                                                  admin_note = order_request_obj.admin_note)
 
@@ -4393,6 +4398,8 @@ class SignUpCompletionAPI(APIView):
             website_group_obj = location_group_obj.website_group
             website_group_name = website_group_obj.name.lower()
 
+            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
+
             if (b2b_user_obj.vat_certificate_id != vat_certificate_id and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count()) or (b2b_user_obj.trade_license_id != trade_license_id and B2BUser.objects.filter(trade_license_id=trade_license_id).count()):
                 response["status"] = 403
                 response["message"] = "Vat Certificate number or Trade License number already exists!"
@@ -4406,8 +4413,6 @@ class SignUpCompletionAPI(APIView):
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-            b2b_user_obj = B2BUser.objects.get(username = contact_number + "-" + website_group_name)
 
             if vat_certificate_type == "IMG":
                 image_count = int(data.get("vatCertificateImageCount",0))
@@ -6298,7 +6303,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 response['status'] = 403
                 logger.warning("FetchOrdersForWarehouseManagerAPI Restricted Access!")
                 return Response(data=response)
-
+ 
             from_date = data.get("fromDate", "")
             to_date = data.get("toDate", "")
             payment_type_list = data.get("paymentTypeList", [])
@@ -6417,6 +6422,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     is_voucher_applied = voucher_obj is not None
 
                     temp_dict = {}
+                    temp_dict["isSapManualUpdate"] = order_obj.sap_manual_update_status
                     temp_dict["dateCreated"] = order_obj.get_date_created()
                     temp_dict["time"] = order_obj.get_time_created()
                     temp_dict["paymentMode"] = order_obj.payment_mode
@@ -6502,6 +6508,16 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
                     else:
                         temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj)[0].current_status_admin
+
+                    if VersionOrder.objects.filter(user=request.user,order=order_obj).exists():
+                        try:
+                            version_order_obj = VersionOrder.objects.filter(user=request.user,order=order_obj).last()
+                            change_information = json.loads(version_order_obj.change_information)
+                            temp_dict["oldStatus"] = change_information["information"]['old_status']
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.error("version order issue: %s at %s", e, str(exc_tb.tb_lineno))
+                    
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                         voucher_discount = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
@@ -6844,56 +6860,9 @@ class SetShippingMethodAPI(APIView):
 
             shipping_method = data["shippingMethod"]
             unit_order_uuid_list = data["unitOrderUuidList"]
-
+            sap_manual_update_status = data["isSapManualUpdate"]
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
-
-            if shipping_method.lower()=="logix" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
-                order_info = {}
-                
-                order_info["order-id"] = order_obj.bundleid
-                order_info["customer-name"] = order_obj.get_customer_full_name()
-                order_info["customer-address"] = order_obj.shipping_address.get_shipping_address()
-                order_info["customer-contact"] = str(order_obj.owner.contact_number)
-                order_info["payment-mode"] = order_obj.payment_mode
-                order_info["order-value"] = order_obj.to_pay
-                order_info["currency"] = order_obj.get_currency()
-                order_info["item-list"] = []
-                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                    temp_dict = {}
-                    temp_dict["product-name"] = unit_order_obj.product.get_name()
-                    temp_dict["seller-sku"] = unit_order_obj.product.get_seller_sku()
-                    temp_dict["qty"] = unit_order_obj.quantity
-                    order_info["item-list"].append(temp_dict)
-
-                headers = {
-                    'content-type': 'application/json',
-                    'Client-Service': 'logix',
-                    'Auth-Key': 'trackapi',
-                    'token': 'bf6c7d89b71732b9362aa0e7b51b4d92',
-                    'User-ID': '1'
-                }
-                logger.info("Tracking Info Req: %s", str(order_info))
-                resp = requests.post(url="https://qzolve-erp.com/logix2020/track/order/create", data=json.dumps(order_info), headers=headers)
-                tracking_info_data = resp.json()
-                logger.info("Tracking Info Data: %s", str(tracking_info_data))
-                tracking_status = str(tracking_info_data['status']).strip()
-                tracking_reference = str(tracking_info_data['tracking_reference']).strip()
-
-                if tracking_status!="Success":
-                    logger.warning("SetShippingMethodAPI: failed status from logix api")
-                    response["message"] = "Logix set shipping api failed"
-                    return Response(data=response)
-                else:
-                    order_obj.logix_tracking_reference = tracking_reference
-                    order_obj.save()
-
-                for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-                    set_shipping_method(unit_order_obj, shipping_method)
-
-                response["sap_info_render"] = []
-                response["status"] = 200
-                return Response(data=response)
-                
+  
             if shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
                 modified_weight = data["weight"]
                 if sendex_add_consignment(order_obj, modified_weight) == "failure":
@@ -6901,6 +6870,9 @@ class SetShippingMethodAPI(APIView):
                 else:
                     logger.info("SetShippingMethodAPI: Success in sendex api")
  
+            # after checking for all the shipping methods possible
+            sap_info_render = []
+
             brand_company_dict = {
                 "geepas": "1000",
                 "baby plus": "5550",
@@ -6914,9 +6886,7 @@ class SetShippingMethodAPI(APIView):
                 "delcasa": "3050"
             }
 
-            sap_info_render = []
-            
-            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
+            if not(sap_manual_update_status) and order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
 
                 user_input_requirement = {}
                 
@@ -7096,6 +7066,9 @@ class SetShippingMethodAPI(APIView):
             VersionOrder.objects.create(order=order_obj,
                                         user= omnycomm_user,
                                         change_information=json.dumps(order_status_change_information))
+            if sap_manual_update_status:
+                sap_manual_update(order_obj, omnycomm_user)
+                logger.info("SetShippingMethodAPI: sap_manual_update_status: %s", str(sap_manual_update_status))
 
             response["sap_info_render"] = sap_info_render
             response["status"] = 200
@@ -7467,6 +7440,27 @@ class UpdateOrderStatusAPI(APIView):
 
         return Response(data = response)
 
+
+class BulkUpdateOrderStatusAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self,request,*args,**kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("BulkUpdateOrderStatusAPI: %s", str(data))
+            list_of_orders = json.loads(data["list_of_orders"])
+            p1 =  threading.Thread(target=bulk_update_order_status , args=(list_of_orders))
+            p1.start()
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("BulkUpdateOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+        return Response(data = response)
 
 class SetCallStatusAPI(APIView):
     
@@ -9410,14 +9404,13 @@ class UploadB2BDocumentAPI(APIView):
             vat_certificate_id = data["vat-certificate-id"]
             trade_license_id = data["trade-license-id"]
             passport_copy_id = data["passport-copy-id"]
+            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
 
             if (b2b_user_obj.vat_certificate_id != vat_certificate_id and B2BUser.objects.filter(vat_certificate_id=vat_certificate_id).count()) or (b2b_user_obj.trade_license_id != trade_license_id and B2BUser.objects.filter(trade_license_id=trade_license_id).count()):
                 response["status"] = 403
                 response["message"] = "Vat Certificate number or Trade License number already exists!"
                 logger.error("UploadB2BDocumentAPI: Vat Certificate number or Trade License number already exists!")
                 return Response(data=response)
-
-            b2b_user_obj = B2BUser.objects.get(username=request.user.username)
 
             if vat_certificate_type == "IMG":
                 image_count = int(data.get("vat-certificate-image-count",0))
@@ -9692,6 +9685,8 @@ SetOrdersStatus = SetOrdersStatusAPI.as_view()
 SetOrdersStatusBulk = SetOrdersStatusBulkAPI.as_view()
 
 UpdateOrderStatus = UpdateOrderStatusAPI.as_view()
+
+BulkUpdateOrderStatus = BulkUpdateOrderStatusAPI.as_view()
 
 SetCallStatus = SetCallStatusAPI.as_view()
 

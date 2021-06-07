@@ -18,7 +18,7 @@ from django.conf import settings
 from WAMSApp.models import *
 from dealshub.models import *
 from WAMSApp.utils import activitylog
-
+from dealshub.utils import send_notification_for_blog_publish
 logger = logging.getLogger(__name__)
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
@@ -51,7 +51,8 @@ class CreateBlogPostAPI(APIView):
                 author=author,
                 headline=headline,
                 location_group = location_group_obj,
-                body=body)
+                body=body)   
+            
             response["blogPostUuid"] = blog_post_obj.uuid
             response['status'] = 200
 
@@ -141,11 +142,18 @@ class ModifyBlogPostStatusAPI(APIView):
             logger.info("ModifyBlogPostStatusAPI: %s",str(data))
             if not isinstance(data,dict):
                 data = json.loads(data)
-
+            is_published = data["isPublished"]
             blog_post_obj = BlogPost.objects.get(uuid=data["blogPostUuid"])
-            blog_post_obj.is_published = data["isPublished"]
+            blog_post_obj.is_published = is_published
             blog_post_obj.save()
-
+            # Trigger Email
+            try:
+                if is_published=="True":
+                    p1 = threading.Thread(target=send_notification_for_blog_publish, args=(blog_post_obj))
+                    p1.start()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("ModifyBlogPostStatusAPI: %s at %s", e, str(exc_tb.tb_lineno)) 
             response['status'] = 200
 
         except Exception as e:
@@ -688,6 +696,36 @@ class FetchAllBlogPostsAPI(APIView):
 
         return Response(data=response)
 
+class AddEmailForNewsletterSignupAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            logger.info("AddEmailForNewsletterSignupAPI started")
+            data = request.data
+            logger.info("AddEmailForNewsletterSignupAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            email = data["email"]
+            blog_emails = json.loads(location_group_obj.blog_emails)
+            blog_emails.append(email)
+            location_group_obj.blog_emails = json.dumps(list(set(blog_emails))) # for distinct values
+            location_group_obj.save()
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("AddEmailForNewsletterSignupAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+AddEmailForNewsletterSignup = AddEmailForNewsletterSignupAPI.as_view()
 
 CreateBlogPost = CreateBlogPostAPI.as_view()
 

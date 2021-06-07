@@ -168,6 +168,7 @@ urlpatterns = [
     url(r'^set-orders-status/$', views.SetOrdersStatus),
     url(r'^set-orders-status-bulk/$', views.SetOrdersStatusBulk),
     url(r'^update-order-status/$', views.UpdateOrderStatus),
+    url(r'^bulk-update-order-status/$', views.BulkUpdateOrderStatus),
     url(r'^set-call-status/$', views.SetCallStatus),
     url(r'^cancel-orders/$', views.CancelOrders),
     url(r'^approve-cancellation-request/$', views.ApproveCancellationRequest),
@@ -297,4 +298,5 @@ urlpatterns = [
     url(r'^fetch-blog-section-home-page/$',views.FetchBlogSectionHomePage),
     url(r'^fetch-blog-post-details/$',views.FetchBlogPostDetails),
     url(r'^fetch-all-blog-posts/$',views.FetchAllBlogPosts),
+    url(r'^add-email-for-newsletter-signup/$',views.AddEmailForNewsletterSignup),
 ]
