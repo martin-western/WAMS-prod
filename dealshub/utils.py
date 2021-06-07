@@ -990,7 +990,7 @@ def send_notification_for_blog_publish(blog_post_obj):
         body = """
             This is to notify you about our recent Blog post:  """+ str(blog_post_obj.title) +""", link to view: """+ str(blog_link) +"""
         """
-
+        logger.info(json.loads(location_group_obj.blog_emails))
         with get_connection(
             host="smtp.gmail.com",
             port=587, 
