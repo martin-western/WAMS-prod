@@ -4164,11 +4164,11 @@ class FetchCompanyProfileDealshubAPI(APIView):
             company_data["color_scheme"] = json.loads(location_group_obj.color_scheme)
             
             company_data["logo_url"] = ""
-            if website_group_obj.logo != None:
+            if location_group_obj.logo != None:
                 company_data["logo_url"] = location_group_obj.logo.image.url
 
             company_data["footer_logo_url"] = ""
-            if website_group_obj.footer_logo != None:
+            if location_group_obj.footer_logo != None:
                 company_data["footer_logo_url"] = location_group_obj.footer_logo.image.url
 
             company_data["logo_ar_url"] = ""
