@@ -2109,3 +2109,20 @@ class BlackListToken(models.Model):
 
     def __str__(self):
         return str(self.token)
+
+
+class CompanyCodeSAP(models.Model):
+    code = models.CharField(max_length=100, default="")
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
+
+    def get_company_code(self):
+        return self.code
+    
+    def get_website_group_name(self):
+        return self.location_group.website_group.name
+
+    def get_brand_name(self):
+        return self.brand.name
+
+    
