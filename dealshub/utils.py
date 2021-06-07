@@ -2011,9 +2011,14 @@ def update_sendex_consignment_status(order_objs, oc_user):
     response = get_sendex_api_response(sendex_dict, request_url)
     i = 0
     for order_obj in order_objs:
-        sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
-        status_admin = get_mapped_admin_status(sendex_status)
-        update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
+        try:
+            sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
+            status_admin = get_mapped_admin_status(sendex_status)
+            update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))    
         i += 1
 
 
@@ -2040,42 +2045,13 @@ def update_shipping_status_in_unit_orders(order_obj, order_status, oc_user):
     
 # maps the status present in sendex response to locally maintained statuses 
 def get_mapped_admin_status(sendex_status):
-    sendex_status_to_admin_status = {
-        "TR" : "dispatched",
-        "DD" : "delivered",
-        "IN" : "dispatched",
-        "RTO" : "returned",
-        "RSH" : "returned",
-        "SCD" : "picked",
-        "NR" : "dispatched",
-        "CSD" : "dispatched",
-        "MSO" : "dispatched",
-        "IDN" : "dispatched",       
-        "UND" : "dispatched",
-        "RTO" : "returned",
-        "WLO" : "dispatched",
-        "VOM" : "dispatched",
-        "CST" : "dispatched",
-        "POD" : "delivered",
-        "NTN" : "dispatched",       
-        "LOC" : "dispatched",
-        "OFD" : "dispatched",
-        "WNO" : "dispatched",
-        "LC" : "dispatched",
-        "SRH" : "dispatched",
-        "MOS" : "dispatched",
-        "SHE" : "dispatched",
-        "CNR" : "dispatched",
-        "OCL" : "returned",
-        "CC" : "dispatched",
-        "TD" : "dispatched",
-        "CN" : "dispatched",
-        "SD" : "dispatched",
-        "RF" : "dispatched",
-        "7" : "dispatched",
-        "WA" : "dispatched" 
-    }
-    return sendex_status_to_admin_status[sendex_status]
+    if sendex_status.lower() in SENDEX_PHRASE_TO_STATUS:
+        return SENDEX_PHRASE_TO_STATUS[sendex_status.lower()]
+    elif sendex_status in SENDEX_CODE_TO_STATUS:
+        return SENDEX_CODE_TO_STATUS[sendex_status]
+    else:
+        raise ValueError("update_sendex_consignment_status: Sendex API returned an unknown status code")
+
 
 def bulk_update_order_status(list_of_orders):
     try:
