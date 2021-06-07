@@ -359,8 +359,8 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
         colnum += 1
     cnt = 1
     for product in product_objs:
+        common_row = ["" for i in range(266)]
         try:
-            common_row = ["" for i in range(266)]
             common_row[0] = str(cnt)
             common_row[1] = product.product_id
             common_row[2] = product.product_name
@@ -597,14 +597,16 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
             common_row[264] = noon_product_json.get("msrp_ae", "")
             common_row[265] = noon_product_json.get("msrp_ae_unit", "")
             #common_row[210] = noon_verified
-            colnum = 0
-            for k in common_row:
-                worksheet.write(cnt, colnum, k)
-                colnum += 1
-            cnt += 1
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Error create_mega_bulk_oc_report %s %s", e, str(exc_tb.tb_lineno))
+        
+        colnum = 0
+        for k in common_row:
+            worksheet.write(cnt, colnum, k)
+            colnum += 1
+        cnt += 1
 
     workbook.close()
 
@@ -1144,12 +1146,12 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
         order_objs = Order.objects.filter(unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
 
         for order_obj in order_objs:
+            common_row = ["" for i in range(len(row))]
             try:
                 unit_order_obj = UnitOrder.objects.filter(order=order_obj).filter(product__product__base_product__brand__name__in=brand_list)[0]           
                 tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
                 cnt += 1
 
-                common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
                 common_row[1] = str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p"))
                 common_row[2] = order_obj.bundleid
@@ -1174,14 +1176,14 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[19] = order_obj.reference_medium
                 common_row[20] = order_obj.additional_note
                 
-                colnum = 0
-                for k in common_row:
-                    worksheet.write(cnt, colnum, k)
-                    colnum += 1
-
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("create_daily_sales_report: %s at %s", e, str(exc_tb.tb_lineno))
+                
+            colnum = 0
+            for k in common_row:
+                worksheet.write(cnt, colnum, k)
+                colnum += 1
 
         workbook.close()
 

@@ -1975,6 +1975,14 @@ class SaveProductAPI(APIView):
             
 
             product_obj.save()
+            dealshub_product_objs = custom_permission_filter_dealshub_product(request.user)
+            dealshub_product_objs = dealshub_product_objs.filter(product=product_obj)
+            for dealshub_product_obj in dealshub_product_objs:
+                dealshub_product_obj.product_name = data["product_name"]
+                dealshub_product_obj.product_description = data["product_description"]
+                dealshub_product_obj.save()
+
+
 
             response['status'] = 200
 
@@ -5944,7 +5952,23 @@ class FetchCompanyProfileAPI(APIView):
                 company_data["linkedin_link"] = location_group_obj.linkedin_link
                 company_data["crunchbase_link"] = location_group_obj.crunchbase_link
                 company_data["color_scheme"] = json.loads(location_group_obj.color_scheme)
-  
+
+                company_data["logo"] = []
+                if location_group_obj.logo != None:
+                    company_data["logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["logo"][0]["url"] = location_group_obj.logo.image.url
+
+                company_data["footer_logo"] = []
+                if location_group_obj.footer_logo != None:
+                    company_data["footer_logo"] = [{
+                        "uid" : "123",
+                        "url" : ""
+                    }]
+                    company_data["footer_logo"][0]["url"] = location_group_obj.footer_logo.image.url
+
             response["company_data"] = company_data
             response['status'] = 200    
         except Exception as e:
@@ -6040,7 +6064,6 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.linkedin_link=linkedin_link
                 location_group_obj.crunchbase_link=crunchbase_link
                 location_group_obj.color_scheme = json.dumps(color_scheme)
-                
                 location_group_obj.save()
                 render_value = 'company profile is updated.'
                 activitylog(user=request.user,table_name=LocationGroup,action_type='updated',location_group_obj=location_group_obj,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
@@ -6073,18 +6096,31 @@ class UploadCompanyLogoAPI(APIView):
 
             data = request.data
             logger.info("UploadCompanyLogoAPI: %s", str(data))
-            
-            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
-            prev_instance = deepcopy(website_group_obj)
-            logo_image_url = data["logo_image_url"]
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid == "":
 
-            if logo_image_url != "":
-                image_obj = Image.objects.create(image=logo_image_url)
-                website_group_obj.logo = image_obj
-                website_group_obj.save()
-                response["image_url"] = image_obj.mid_image.url
-            render_value = "company logo is updated."
-            activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
+                website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
+                prev_instance = deepcopy(website_group_obj)
+                logo_image_url = data["logo_image_url"]
+
+                if logo_image_url != "":
+                    image_obj = Image.objects.create(image=logo_image_url)
+                    website_group_obj.logo = image_obj
+                    website_group_obj.save()
+                    response["image_url"] = image_obj.mid_image.url
+            else:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                prev_instance = deepcopy(location_group_obj)
+                logo_image_url = data["logo_image_url"]
+
+                if logo_image_url != "":
+                    image_obj = Image.objects.create(image=logo_image_url)
+                    location_group_obj.logo = image_obj
+                    location_group_obj.save()
+                    response["image_url"] = image_obj.mid_image.url
+                render_value = "company logo is updated."
+                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
+            
             response['status'] = 200
 
         except Exception as e:
@@ -6117,17 +6153,31 @@ class UploadCompanyFooterLogoAPI(APIView):
                 logger.warning("UploadCompanyFooterLogoAPI Restricted Access!")
                 return Response(data=response)
 
-            website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
-            prev_instance = deepcopy(website_group_obj)
-            logo_image_url = data["logo_image_url"]
+            location_group_uuid = data.get("locationGroupUuid","")
+            if location_group_uuid == "":
 
-            if logo_image_url != "":
-                image_obj = Image.objects.create(image=logo_image_url)
-                website_group_obj.footer_logo = image_obj
-                website_group_obj.save()
-                response["image_url"] = image_obj.mid_image.url
-                render_value = 'company footer logo is updated.'
-                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=website_group_obj,table_item_pk=website_group_obj.pk,render=render_value)
+                website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
+                prev_instance = deepcopy(website_group_obj)
+                logo_image_url = data["logo_image_url"]
+
+                if logo_image_url != "":
+                    image_obj = Image.objects.create(image=logo_image_url)
+                    website_group_obj.footer_logo = image_obj
+                    website_group_obj.save()
+                    response["image_url"] = image_obj.mid_image.url
+            else:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                prev_instance = deepcopy(location_group_obj)
+                logo_image_url = data["logo_image_url"]
+
+                if logo_image_url != "":
+                    image_obj = Image.objects.create(image=logo_image_url)
+                    location_group_obj.footer_logo = image_obj
+                    location_group_obj.save()
+                    response["image_url"] = image_obj.mid_image.url
+                render_value = "company Footer Logo is updated."
+                activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=location_group_obj,table_item_pk=location_group_obj.pk,render=render_value)
+            
             response['status'] = 200
 
         except Exception as e:
@@ -8378,36 +8428,6 @@ class LogoutOCUserAPI(APIView):
 
         return Response(data=response)
 
-class AddEmailForNewsletterSignupAPI(APIView):
-
-    def post(self, request, *args, **kwargs):
-
-        response = {}
-        response['status'] = 500
-        try:
-            data = request.data
-            logger.info("AddEmailForNewsletterSignupAPI: %s", str(data))
-
-            if not isinstance(data, dict):
-                data = json.loads(data)
-
-            location_group_uuid = data["locationGroupUuid"]
-            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            email = data["email"]
-            blog_emails = json.loads(location_group_obj.blog_emails)
-            blog_emails.append(email)
-            location_group_obj.blog_emails = json.dumps(blog_emails)
-            location_group_obj.save()
-            response['status'] = 200
-
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("AddEmailForNewsletterSignupAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
-        return Response(data=response)
-
-
-AddEmailForNewsletterSignup = AddEmailForNewsletterSignupAPI.as_view()
 
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
 

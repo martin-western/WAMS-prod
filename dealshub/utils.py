@@ -99,7 +99,6 @@ def set_shipping_method(unit_order_obj, shipping_method):
 
 
 def set_order_status(unit_order_obj, order_status):
-
     if unit_order_obj.current_status_admin=="approved" and order_status in ["picked"]:
         unit_order_obj.current_status = "shipped"
         unit_order_obj.current_status_admin = order_status
@@ -175,6 +174,13 @@ def set_order_status(unit_order_obj, order_status):
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
+        return
+
+    if unit_order_obj.current_status_admin=="delivered" and order_status in ["returned"]:
+        unit_order_obj.current_status_admin = order_status
+        unit_order_obj.current_status = "returned"
+        unit_order_obj.save()
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="returned", status_admin=order_status)
         return
 
     if unit_order_obj.current_status_admin=="delivery failed" and order_status in ["returned"]:
@@ -972,6 +978,44 @@ def send_order_review_mail(order_obj, unit_order_objs, user_token):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_order_review_mail: %s at %s", e, str(exc_tb.tb_lineno))
     
+
+def send_notification_for_blog_publish(blog_post_obj):
+    
+    try:
+        website_link = blog_post_obj.location_group.website_group.link
+        if website_link[-1] != "/":
+            website_link = str(website_link)+'/'
+
+        blog_link = str(website_link)+"/blogs/description/"+str(blog_post_obj.uuid)
+        body = """
+
+            Hey,
+
+            Our new BLOG is finally here!!
+            Title:- """+ str(blog_post_obj.title) +""".
+
+            What makes our blogs different are, it gives an introduction to our products and why people want to buy it. 
+            You can order directly from our website.
+            
+            Link to view: """+ str(blog_link) +""".
+        """
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username="nisarg@omnycomm.com", 
+            password="verjtzgeqareribg",
+            use_tls=True) as connection:
+            email = EmailMessage(subject=str(blog_post_obj.title), 
+                                 body=body,
+                                 from_email='nisarg@omnycomm.com',
+                                 to=[],
+                                 bcc=json.loads(blog_post_obj.location_group.blog_emails),
+                                 connection=connection)
+            email.send(fail_silently=True)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error send_notification_for_blog_publish %s %s", e, str(exc_tb.tb_lineno))
+
 
 def contact_us_send_email(your_email, message, to_email, password):
     try:
@@ -1916,3 +1960,57 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("FetchDealshubAdminSectionsAPI get_banner_image_objects: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def bulk_update_order_status(list_of_orders):
+    try:
+        for order in list_of_orders:
+            try:
+                sap_invoice_id = order["sap_invoice_id"]
+                incoming_order_status = order["incoming_order_status"]
+
+                order_obj = Order.objects.get(sap_final_billing_info__icontains=sap_invoice_id)
+                doc_list = json.loads(order_obj.sap_final_billing_info)["doc_list"]
+                flag = False
+                for doc in doc_list:
+                    if doc["id"]==sap_invoice_id:
+                        flag = True
+                        break
+
+                if flag==False:
+                    break
+
+                unit_order_objs = UnitOrder.objects.filter(order = order_obj)
+
+                for unit_order_obj in unit_order_objs:
+                    if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":          
+                        set_order_status(unit_order_obj, "dispatched")
+                    elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
+                        set_order_status(unit_order_obj, "delivered")
+                    else:
+                        logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
+                        break
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("UpdateOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("UpdateOrderStatusAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+def sap_manual_update(order_obj, oc_user): 
+    for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
+        set_order_status(unit_order_obj,"picked")
+    order_obj.sap_status = "Success"
+    order_obj.sap_manual_update_status = True
+    order_obj.save()
+    order_status_change_information = {
+        "event": "order_status",
+        "information": {
+            "old_status": "approved",
+            "new_status": "picked"
+        }
+    }
+    VersionOrder.objects.create(order=order_obj,
+                                user=oc_user,
+                                change_information=json.dumps(order_status_change_information)
+                                )
