@@ -988,7 +988,16 @@ def send_notification_for_blog_publish(blog_post_obj):
 
         blog_link = str(website_link)+"/blogs/description/"+str(blog_post_obj.uuid)
         body = """
-            This is to notify you about our recent Blog post:  """+ str(blog_post_obj.title) +""", link to view: """+ str(blog_link) +"""
+
+            Hey,
+
+            Our new BLOG is finally here!!
+            Title:- """+ str(blog_post_obj.title) +""".
+
+            What makes our blogs different are, it gives an introduction to our products and why people want to buy it. 
+            You can order directly from our website.
+            
+            Link to view: """+ str(blog_link) +""".
         """
         logger.info(json.loads(blog_post_obj.location_group.blog_emails))
         with get_connection(
@@ -997,7 +1006,7 @@ def send_notification_for_blog_publish(blog_post_obj):
             username="nisarg@omnycomm.com", 
             password="verjtzgeqareribg",
             use_tls=True) as connection:
-            email = EmailMessage(subject='New Blog Post', 
+            email = EmailMessage(subject=str(blog_post_obj.title), 
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
                                  to=json.loads(blog_post_obj.location_group.blog_emails),
