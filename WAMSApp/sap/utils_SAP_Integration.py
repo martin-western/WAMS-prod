@@ -21,7 +21,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
     try:
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
         
         body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,CUSTOMER_ID)
         logger.info("price and stock req body :%s", str(body))
@@ -189,7 +189,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
     try:
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
         # credentials = ("WIABAP", "pradeepabap456")
 
         transfer_information = []
@@ -349,7 +349,7 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
     try:
         logger.info("holind_atp_transfer start: %s", str(final_holding))
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
         # credentials = ("WIABAP", "pradeepabap456")
 
         transfer_information = []
@@ -485,7 +485,7 @@ def create_intercompany_sales_order(company_code,order_information):
     try:
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
         logger.info(order_information)
 
         body = xml_generator_for_intercompany_tansfer(company_code,CUSTOMER_ID,order_information)
@@ -611,7 +611,7 @@ def create_final_order(company_code,order_information):
     try:
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
 
         charges = order_information["charges"]
         header_charges = []
@@ -856,7 +856,7 @@ def fetch_product_holding_details(dealshub_product_obj):
 
         if company_code != "BRAND NOT RECOGNIZED":
             headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            credentials = (SAP_USERNAME, SAP_PASSWORD)
             
             body = xml_generator_for_product_holding_details(company_code,seller_sku)
 

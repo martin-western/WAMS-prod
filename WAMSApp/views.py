@@ -5037,7 +5037,7 @@ class SapIntegrationAPI(APIView):
             #headers = {'content-type': 'text/xml'}
             headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
 
-            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            credentials = (SAP_USERNAME, SAP_PASSWORD)
 
             company_codes = []
 

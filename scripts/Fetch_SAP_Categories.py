@@ -26,7 +26,7 @@ cnt=0
 
 url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
 headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+credentials = (SAP_USERNAME, SAP_PASSWORD)
 
 company_code_dict ={
     
