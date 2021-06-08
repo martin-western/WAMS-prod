@@ -6863,27 +6863,16 @@ class SetShippingMethodAPI(APIView):
             # after checking for all the shipping methods possible
             sap_info_render = []
 
-            brand_company_dict = {
-                "geepas": "1000",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "para john" : "6000",
-                "parry life" : "6000",
-                "delcasa": "3050"
-            }
-
-            if not(sap_manual_update_status) and order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
-
+            website_group_name = order_obj.location_group.website_group.name
+            allowed_website_groups = ["shopnesto","shopnestob2b", "shopnestokuwait", "shopnestobahrain"]
+            first_unit_order_obj = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0]
+            if not(sap_manual_update_status) and website_group_name in allowed_website_groups and first_unit_order_obj.shipping_method != shipping_method:
                 user_input_requirement = {}
                 
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
-                    company_code = brand_company_dict[brand_name.lower()]
+                    company_code = CompanyCodeSAP.objects.filter(location_group=order_obj.location_group, brand__name=brand_name)
                     stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
 
                     if stock_price_information["status"] == 500:
@@ -6903,7 +6892,7 @@ class SetShippingMethodAPI(APIView):
                     for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code = CompanyCodeSAP.objects.filter(location_group=order_obj.location_group, brand__name=brand_name)
                         
                         if user_input_requirement[seller_sku]==True:
                             result = fetch_prices_and_stock(seller_sku, company_code)
@@ -6951,7 +6940,7 @@ class SetShippingMethodAPI(APIView):
                             continue
 
                         order_information = {}
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code = CompanyCodeSAP.objects.filter(location_group=order_obj.location_group, brand__name=brand_name)
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         is_b2b = order_obj.location_group.is_b2b
@@ -7089,33 +7078,19 @@ class ResendSAPOrderAPI(APIView):
                 data = json.loads(data)
 
             order_uuid = data["orderUuid"]
-
             order_obj = Order.objects.get(uuid=order_uuid)
 
-            brand_company_dict = {
-                
-                "geepas": "1000",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "para john" : "6000",
-                "parry life" : "6000",
-                "delcasa": "3050"
-            }
-
             sap_info_render = []
-            
-            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"]:
+            website_group_name = order_obj.location_group.website_group.name
+            allowed_website_groups = ["shopnesto","shopnestob2b", "shopnestokuwait", "shopnestobahrain"]
+            if website_group_name in allowed_website_groups:
 
                 user_input_requirement = {}
                 
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
-                    company_code = brand_company_dict[brand_name.lower()]
+                    company_code = CompanyCodeSAP.objects.filter(location_group=order_obj.location_group, brand__name=brand_name)
                     stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
 
                     if stock_price_information["status"] == 500:
@@ -7134,7 +7109,7 @@ class ResendSAPOrderAPI(APIView):
                     for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code = CompanyCodeSAP.objects.filter(location_group=order_obj.location_group, brand__name=brand_name)
                         
                         if user_input_requirement[seller_sku]==True:
                             result = fetch_prices_and_stock(seller_sku, company_code)
@@ -7173,7 +7148,7 @@ class ResendSAPOrderAPI(APIView):
                             continue
 
                         order_information = {}
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code = CompanyCodeSAP.objects.filter(location_group=order_obj.location_group, brand__name=brand_name)
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         is_b2b = order_obj.location_group.is_b2b
