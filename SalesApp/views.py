@@ -252,7 +252,9 @@ class SearchProductByBrandAPI(APIView):
                     temp_dict["image_url"] = product_obj.get_display_image_url()
                     try:
                         seller_sku = product_obj.base_product.seller_sku
-                        company_code = BRAND_COMPANY_DICT[seller_sku.lower()]
+                        location_group_uuid = "" # need to hardcode this for WIGME UAE
+                        location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                        company_code = product_obj.base_product.brand.get_company_code(location_group_obj)
                         price_and_stock_information = fetch_prices_and_stock(seller_sku, company_code)
                         temp_dict["outdoor_price"] = price_and_stock_information["prices"]["OD_EA"]
                     except Exception as e:
@@ -399,7 +401,9 @@ class FetchFavouriteProductsAPI(APIView):
                     temp_dict["product_name"] = product_obj.product_name
                     try:
                         seller_sku = product_obj.base_product.seller_sku
-                        company_code = BRAND_COMPANY_DICT[seller_sku.lower()]
+                        location_group_uuid = "" # need to hardcode this for WIGME UAE
+                        location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                        company_code = product_obj.base_product.brand.get_company_code(location_group_obj)
                         price_and_stock_information = fetch_prices_and_stock(seller_sku, company_code)
                         temp_dict["outdoor_price"] = price_and_stock_information["prices"]["OD_EA"]
                     except Exception as e:
@@ -955,7 +959,9 @@ class FetchProductListByCategoryAPI(APIView):
                     temp_dict["product_name"] = product_obj.product_name
                     try:
                         seller_sku = product_obj.base_product.seller_sku
-                        company_code = BRAND_COMPANY_DICT[seller_sku.lower()]
+                        location_group_uuid = "" # need to hardcode this for WIGME UAE
+                        location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                        company_code = product_obj.base_product.brand.get_company_code(location_group_obj)
                         price_and_stock_information = fetch_prices_and_stock(seller_sku, company_code)
                         temp_dict["outdoor_price"] = price_and_stock_information["prices"]["OD_EA"]
                     except Exception as e:

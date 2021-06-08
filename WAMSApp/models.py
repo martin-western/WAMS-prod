@@ -885,6 +885,10 @@ class Brand(models.Model):
     def __str__(self):
         return str(self.name)
 
+    def get_company_code(self, location_group_obj):
+        company_code_obj = CompanyCodeSAP.objects.filter(location_group=location_group_obj, brand=self)
+        return company_code_obj.get_company_code()
+
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.created_date = timezone.now()
