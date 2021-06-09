@@ -2005,7 +2005,7 @@ def get_sendex_api_response(sendex_dict, request_url):
         "API-KEY" : "818f251c7eb1c890478f1aca6c171189"
     }
     response = requests.post(url=request_url, headers=http_header, data=json.dumps(sendex_dict))
-    response_dict = json.loads(response)
+    response_dict = json.loads(response.content)
     return response_dict
 
 # [SENDEX] updates the shipping status of all the orders which were registered as a consignment.
