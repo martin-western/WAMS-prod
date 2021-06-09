@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.core.files.storage import default_storage
-
+from WAMSApp.nesto.nesto_reports import bulk_download_nesto_detailed_product_report
 from WAMSApp.oc_reports import *
 
 import logging
