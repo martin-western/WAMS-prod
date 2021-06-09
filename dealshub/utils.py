@@ -2064,7 +2064,7 @@ def get_mapped_admin_status(sendex_status):
     elif sendex_status in SENDEX_CODE_TO_STATUS:
         return SENDEX_CODE_TO_STATUS[sendex_status]
     else:
-        raise ValueError("update_sendex_consignment_status: Sendex API returned an unknown status code")
+        raise ValueError("update_sendex_consignment_status: Sendex API returned an unknown status code: %s", str(sendex_status))
 
 
 def bulk_update_order_status(list_of_orders):
