@@ -1,3 +1,4 @@
+import math
 from dealshub.models import *
 from dealshub.core_utils import *
 from WAMSApp.sap.utils_SAP_Integration import *
@@ -1975,19 +1976,18 @@ def sendex_add_consignment(order_obj, modified_weight):
         sendex_dict["ToMobileno"] = ""
         sendex_dict["ReferenceNumber"] = order_obj.bundleid
         sendex_dict["CompanyCode"] = ""
-        sendex_dict["Weight"] = modified_weight
+        sendex_dict["Weight"] = math.ceil(float(modified_weight))
         sendex_dict["Pieces"] = order_obj.get_total_quantity()
         sendex_dict["PackageType"] = "Parcel"
         sendex_dict["CurrencyCode"] = order_obj.get_currency()
-        sendex_dict["NcndAmount"] = order_obj.get_sendex_ncnd_amount()
+        sendex_dict["NcndAmount"] = math.ceil(order_obj.get_sendex_ncnd_amount())
         sendex_dict["ItemDescription"] = ""
         sendex_dict["SpecialInstruction"] = ""
         sendex_dict["BranchName"] = "Dubai"
-        request_url = "https://portal.sendex.me/webservice/CustomerBooking"
+        response = get_sendex_api_response(sendex_dict, SENDEX_ADD_CONSIGNMENT_URL)
         order_obj.sendex_request_json = json.dumps(sendex_dict)
+        order_obj.sendex_response_json = json.dumps(response)
         order_obj.save()
-        
-        response = get_sendex_api_response(sendex_dict, request_url)
         logger.info("sendex_add_consignment: req:%s response:%s", str(sendex_dict), str(response))
         if response["success"] == '1':
             order_obj.sendex_awb = response["AwbNumber"]
@@ -2013,14 +2013,12 @@ def get_sendex_api_response(sendex_dict, request_url):
 # [SENDEX] updates the shipping status of all the orders which were registered as a consignment.
 def update_sendex_consignment_status(order_objs, oc_user):
     try:
-        request_url = "https://portal.sendex.me/webservice/GetTracking"
-        awb_numbers_list = []
-        for order_obj in order_objs:
-            if order_obj.sendex_awb != "":
-                awb_numbers_list.append(order_obj.sendex_awb)
-        sendex_dict = {}
-        sendex_dict["AwbNumber"] = awb_numbers_list
-        response = get_sendex_api_response(sendex_dict, request_url)
+        sendex_dict = {
+            "AwbNumber": list(order_objs.exclude(sendex_awb="").values_list('sendex_awb', flat=True).distinct())
+        }
+        if len(sendex_dict["AwbNumber"]) <= 0:
+            return
+        response = get_sendex_api_response(sendex_dict, SENDEX_TRACK_CONSIGNMENT_STATUS_URL)
         i = 0
         for order_obj in order_objs:
             try:

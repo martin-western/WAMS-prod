@@ -1238,6 +1238,7 @@ class Order(models.Model):
     sendex_awb = models.CharField(max_length=100, default="") # AWB Number
     sendex_awb_pdf = models.CharField(max_length=100, default="") # Link to AWB PDF
     sendex_request_json = models.CharField(max_length=3000, default="") # Add Consignment data in json stringified format
+    sendex_response_json = models.CharField(max_length=3000, default="") # Add Consignment response in json stringified format
 
     def save(self, *args, **kwargs):
         if self.pk == None:
