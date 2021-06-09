@@ -1989,7 +1989,7 @@ def sendex_add_consignment(order_obj, modified_weight):
         order_obj.sendex_response_json = json.dumps(response)
         order_obj.save()
         logger.info("sendex_add_consignment: req:%s response:%s", str(sendex_dict), str(response))
-        if response["success"] == '1':
+        if response["success"] == 1:
             order_obj.sendex_awb = response["AwbNumber"]
             order_obj.sendex_awb_pdf = response["AwbPdf"]
             order_obj.save()
