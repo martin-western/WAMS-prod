@@ -2037,7 +2037,7 @@ def update_sendex_consignment_status(order_objs, oc_user):
         logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))
 
 def update_shipping_status_in_unit_orders(order_obj, order_status, oc_user):
-    unit_order_objs = UnitOrder.objects.filter(self=order_obj).exclude(current_status_admin="cancelled")
+    unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
 
     if order_status == unit_order_objs[0].current_status_admin:
         return
