@@ -2010,26 +2010,29 @@ def get_sendex_api_response(sendex_dict, request_url):
 
 # [SENDEX] updates the shipping status of all the orders which were registered as a consignment.
 def update_sendex_consignment_status(order_objs, oc_user):
-    request_url = "https://portal.sendex.me/webservice/GetTracking"
-    awb_numbers_list = []
-    for order_obj in order_objs:
-        if order_obj.sendex_awb != "":
-            awb_numbers_list.append(order_obj.sendex_awb)
-    sendex_dict = {}
-    sendex_dict["AwbNumber"] = awb_numbers_list
-    response = get_sendex_api_response(sendex_dict, request_url)
-    i = 0
-    for order_obj in order_objs:
-        try:
-            sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
-            status_admin = get_mapped_admin_status(sendex_status)
-            update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
+    try:
+        request_url = "https://portal.sendex.me/webservice/GetTracking"
+        awb_numbers_list = []
+        for order_obj in order_objs:
+            if order_obj.sendex_awb != "":
+                awb_numbers_list.append(order_obj.sendex_awb)
+        sendex_dict = {}
+        sendex_dict["AwbNumber"] = awb_numbers_list
+        response = get_sendex_api_response(sendex_dict, request_url)
+        i = 0
+        for order_obj in order_objs:
+            try:
+                sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
+                status_admin = get_mapped_admin_status(sendex_status)
+                update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
 
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))    
-        i += 1
-
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))    
+            i += 1
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))
 
 def update_shipping_status_in_unit_orders(order_obj, order_status, oc_user):
     unit_order_objs = UnitOrder.objects.filter(self=order_obj).exclude(current_status_admin="cancelled")
