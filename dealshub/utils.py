@@ -1986,7 +1986,9 @@ def sendex_add_consignment(order_obj, modified_weight):
         request_url = "https://portal.sendex.me/webservice/CustomerBooking"
         order_obj.sendex_request_json = json.dumps(sendex_dict)
         order_obj.save()
+        
         response = get_sendex_api_response(sendex_dict, request_url)
+        logger.info("sendex_add_consignment: req:%s response:%s", str(sendex_dict), str(response))
         if response["success"] == '1':
             order_obj.sendex_awb = response["AwbNumber"]
             order_obj.sendex_awb_pdf = response["AwbPdf"]
