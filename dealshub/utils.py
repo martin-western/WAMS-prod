@@ -1968,7 +1968,7 @@ def sendex_add_consignment(order_obj, modified_weight):
         sendex_dict = {}
         address = order_obj.shipping_address
         sendex_dict["ToCompany"] = order_obj.get_customer_full_name()
-        sendex_dict["ToAddress"] = address.get_shipping_address() + ', Post Code ' + address.postcode
+        sendex_dict["ToAddress"] = address.get_address()
         sendex_dict["ToLocation"] = address.emirates
         sendex_dict["ToCountry"] = address.get_country()
         sendex_dict["ToCPerson"] = order_obj.get_customer_full_name()
@@ -2027,6 +2027,8 @@ def update_sendex_consignment_status(order_objs, oc_user):
                     sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
                     status_admin = get_mapped_admin_status(sendex_status)
                     update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
+                    order_obj.sendex_tracking_reference = json.dumps(response["TrackResponse"][i]["Shipment"])
+                    order_obj.save()
                     i += 1
 
             except Exception as e:
