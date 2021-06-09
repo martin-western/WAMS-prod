@@ -46,7 +46,17 @@ SENDEX_CODE_TO_STATUS = {
     "SD" : "dispatched",
     "RF" : "dispatched",
     "7" : "dispatched",
-    "WA" : "dispatched" 
+    "WA" : "dispatched",
+    "SO" : "dispatched",
+    "AAF" : "dispatched",
+    "LL" : "dispatched",
+    "LC" : "dispatched",
+    "LCT" : "dispatched",
+    "MCN" : "dispatched",
+    "NXT" : "dispatched",
+    "NN" : "dispatched",
+    "TR" : "dispatched",
+    "WNO" : "dispatched" 
 }
 
 SENDEX_PHRASE_TO_STATUS = {
@@ -83,7 +93,17 @@ SENDEX_PHRASE_TO_STATUS = {
     "consginee refused" : "dispatched",
     "dispatched" : "dispatched",
     "wrong address" : "dispatched", 
-    "request submitted" : "dispatched"      # doubtful
+    "request submitted" : "dispatched",      # doubtful
+    "shipment on hold" : "dispatched",
+    "arrived at facility" : "dispatched",
+    "location change" : "dispatched",
+    "location changed" : "dispatched",
+    "location change taken" : "dispatched",
+    "mobile number changed" : "dispatched",
+    "next day delivery" : "dispatched",
+    "no answer" : "dispatched",
+    "transit" : "dispatched",
+    "wrong number" : "dispatched"
 }
 
 #********************************************************************************************
