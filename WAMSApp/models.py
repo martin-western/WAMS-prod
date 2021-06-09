@@ -1375,7 +1375,8 @@ class NestoProduct(models.Model):
     nutrition_images_count = models.IntegerField(default=0)
     product_content_images_count = models.IntegerField(default=0)
     sub_category = models.ForeignKey(SubCategory, null=True, blank=True, on_delete=models.SET_NULL)
-
+    primary_keywords = models.TextField(default=json.dumps([]))
+    secondary_keywords = models.TextField(default=json.dumps([]))
     created_date = models.DateTimeField(null=True, blank=True)
     modified_date = models.DateTimeField(null=True, blank=True)
     uuid = models.CharField(default="", max_length=200, unique=True)
