@@ -15,7 +15,7 @@ SENDEX_CODE_TO_STATUS = {
     "IN" : "dispatched",
     "RTO" : "returned",
     "RSH" : "returned",
-    "SCD" : "picked",
+    "SCD" : "dispatched",
     "NR" : "dispatched",
     "CSD" : "dispatched",
     "MSO" : "dispatched",
@@ -51,7 +51,7 @@ SENDEX_PHRASE_TO_STATUS = {
     "inscan" : "dispatched",
     "return delivery" : "returned",
     "return to hub" : "returned",
-    "scheduled" : "picked",
+    "scheduled" : "dispatched",
     "no response" : "dispatched",
     "pkg with customer service" : "dispatched",
     "mobile switched off" : "dispatched",
@@ -79,7 +79,7 @@ SENDEX_PHRASE_TO_STATUS = {
     "consginee refused" : "dispatched",
     "dispatched" : "dispatched",
     "wrong address" : "dispatched", 
-    "request submitted" : "picked"      # doubtful
+    "request submitted" : "dispatched"      # doubtful
 }
 
 #********************************************************************************************
