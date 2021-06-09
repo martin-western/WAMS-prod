@@ -1976,11 +1976,11 @@ def sendex_add_consignment(order_obj, modified_weight):
         sendex_dict["ToMobileno"] = ""
         sendex_dict["ReferenceNumber"] = order_obj.bundleid
         sendex_dict["CompanyCode"] = ""
-        sendex_dict["Weight"] = math.ceil(float(modified_weight))
+        sendex_dict["Weight"] = float(modified_weight)
         sendex_dict["Pieces"] = order_obj.get_total_quantity()
         sendex_dict["PackageType"] = "Parcel"
         sendex_dict["CurrencyCode"] = order_obj.get_currency()
-        sendex_dict["NcndAmount"] = math.ceil(order_obj.get_sendex_ncnd_amount())
+        sendex_dict["NcndAmount"] = float(order_obj.get_sendex_ncnd_amount())
         sendex_dict["ItemDescription"] = ""
         sendex_dict["SpecialInstruction"] = ""
         sendex_dict["BranchName"] = "Dubai"
@@ -2004,7 +2004,7 @@ def sendex_add_consignment(order_obj, modified_weight):
 def get_sendex_api_response(sendex_dict, request_url):
     http_header = {
         "Content-Type" : "application/json",
-        "API-KEY" : "818f251c7eb1c890478f1aca6c171189"
+        "API-KEY" : SENDEX_API_KEY
     }
     response = requests.post(url=request_url, headers=http_header, data=json.dumps(sendex_dict))
     response_dict = json.loads(response.content)
