@@ -2020,6 +2020,7 @@ def update_sendex_consignment_status(order_objs, oc_user):
             return
         response = get_sendex_api_response(sendex_dict, SENDEX_TRACK_CONSIGNMENT_STATUS_URL)
         i = 0
+        logger.info("update_sendex_consignment_status: request: %s, response: %s", str(sendex_dict), str(response))
         for order_obj in order_objs:
             try:
                 if order_obj.sendex_awb == response["TrackResponse"][i]["Shipment"]["awb_number"]:
