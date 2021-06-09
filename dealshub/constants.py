@@ -10,7 +10,7 @@ TAP_IP = "https://api.tap.company/v2"
 
 SENDEX_ADD_CONSIGNMENT_URL = "https://portal.sendex.me/webservice/CustomerBooking"
 SENDEX_TRACK_CONSIGNMENT_STATUS_URL = "https://portal.sendex.me/webservice/GetTracking"
-
+SENDEX_API_KEY = "818f251c7eb1c890478f1aca6c171189"
 
 #Mapping from sendex status codes to the current_status_admin codes we maintain ******
 SENDEX_CODE_TO_STATUS = {
