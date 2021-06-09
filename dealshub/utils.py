@@ -1974,13 +1974,13 @@ def sendex_add_consignment(order_obj, modified_weight):
         sendex_dict["ToCPerson"] = order_obj.get_customer_full_name()
         sendex_dict["ToContactno"] = address.contact_number
         sendex_dict["ToMobileno"] = ""
-        sendex_dict["ReferenceNumber"] = order_obj.bundleid
+        sendex_dict["ReferenceNumber"] = str(order_obj.bundleid)
         sendex_dict["CompanyCode"] = ""
-        sendex_dict["Weight"] = float(modified_weight)
-        sendex_dict["Pieces"] = order_obj.get_total_quantity()
+        sendex_dict["Weight"] = str(float(modified_weight))
+        sendex_dict["Pieces"] = str(order_obj.get_total_quantity())
         sendex_dict["PackageType"] = "Parcel"
         sendex_dict["CurrencyCode"] = order_obj.get_currency()
-        sendex_dict["NcndAmount"] = float(order_obj.get_sendex_ncnd_amount())
+        sendex_dict["NcndAmount"] = str(float(order_obj.get_sendex_ncnd_amount()))
         sendex_dict["ItemDescription"] = ""
         sendex_dict["SpecialInstruction"] = ""
         sendex_dict["BranchName"] = "Dubai"
