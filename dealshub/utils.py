@@ -2022,6 +2022,7 @@ def update_sendex_consignment_status(order_objs, oc_user):
         i = 0
         for order_obj in order_objs:
             try:
+                logger.info("update_sendex_consignment_status: %s and i:%s", str(response), str(i))
                 if order_obj.sendex_awb == response["TrackResponse"][i]["Shipment"]["awb_number"]:
                     sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
                     status_admin = get_mapped_admin_status(sendex_status)
