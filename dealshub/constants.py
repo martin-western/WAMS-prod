@@ -6,9 +6,13 @@ WIGME_IP = "https://qa.wigme.com"
 TAP_IP = "https://api.tap.company/v2"
 
 
+#******************************* SENDEX Courier Integration *****************************#
 
-#****** Mapping from sendex status codes to the current_status_admin codes we maintain ******
+SENDEX_ADD_CONSIGNMENT_URL = "https://portal.sendex.me/webservice/CustomerBooking"
+SENDEX_TRACK_CONSIGNMENT_STATUS_URL = "https://portal.sendex.me/webservice/GetTracking"
 
+
+#Mapping from sendex status codes to the current_status_admin codes we maintain ******
 SENDEX_CODE_TO_STATUS = {
     "TR" : "dispatched",
     "DD" : "delivered",
