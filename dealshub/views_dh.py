@@ -6385,7 +6385,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
 
             order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
-
+            
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            update_sendex_consignment_status(order_objs, omnycomm_user)
             total_revenue = order_objs.aggregate(Sum('real_to_pay'))["real_to_pay__sum"]
             if total_revenue==None:
                 total_revenue = 0
@@ -6500,6 +6502,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[0].shipping_method
+                    temp_dict["weight"] = order_obj.get_weight()
 
                     if temp_dict["partially_cancelled_by_user"]==True:
                         temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
@@ -6860,6 +6863,13 @@ class SetShippingMethodAPI(APIView):
             sap_manual_update_status = data["isSapManualUpdate"]
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
   
+            if shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+                modified_weight = data["weight"]
+                if sendex_add_consignment(order_obj, modified_weight) == "failure":
+                    logger.warning("SetShippingMethodAPI: failed status from sendex api")
+                else:
+                    logger.info("SetShippingMethodAPI: Success in sendex api")
+ 
             # after checking for all the shipping methods possible
             sap_info_render = []
 
