@@ -2013,8 +2013,9 @@ def get_sendex_api_response(sendex_dict, request_url):
 # [SENDEX] updates the shipping status of all the orders which were registered as a consignment.
 def update_sendex_consignment_status(order_objs, oc_user):
     try:
+        order_objs = order_objs.exclude(sendex_awb="")
         sendex_dict = {
-            "AwbNumber": list(order_objs.exclude(sendex_awb="").values_list('sendex_awb', flat=True).distinct())
+            "AwbNumber": list(order_objs.values_list('sendex_awb', flat=True).distinct())
         }
         if len(sendex_dict["AwbNumber"]) <= 0:
             return
@@ -2023,7 +2024,7 @@ def update_sendex_consignment_status(order_objs, oc_user):
         logger.info("update_sendex_consignment_status: request: %s, response: %s", str(sendex_dict), str(response))
         for order_obj in order_objs:
             try:
-                if order_obj.sendex_awb == response["TrackResponse"][i]["Shipment"]["awb_number"]:
+                if (i < len(response["TrackResponse"])) and order_obj.sendex_awb == response["TrackResponse"][i]["Shipment"]["awb_number"]:
                     sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
                     status_admin = get_mapped_admin_status(sendex_status)
                     update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
