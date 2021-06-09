@@ -2022,14 +2022,16 @@ def update_sendex_consignment_status(order_objs, oc_user):
         i = 0
         for order_obj in order_objs:
             try:
-                sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
-                status_admin = get_mapped_admin_status(sendex_status)
-                update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
+                if order_obj.sendex_awb == response["TrackResponse"][i]["Shipment"]["awb_number"]:
+                    sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
+                    status_admin = get_mapped_admin_status(sendex_status)
+                    update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
+                    i += 1
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))    
-            i += 1
+                logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))
