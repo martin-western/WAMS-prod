@@ -235,8 +235,8 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.is_online = is_online
             nesto_product_obj.is_verified = is_verified
             nesto_product_obj.sub_category = sub_category_obj
-            nesto_product_obj.primary_keywords = json.dumps(primary_keywords)
-            nesto_product_obj.secondary_keywords = json.dumps(secondary_keywords)     
+            nesto_product_obj.primary_keywords = primary_keywords
+            nesto_product_obj.secondary_keywords = secondary_keywords    
 
             for available_store in available_stores:
 
