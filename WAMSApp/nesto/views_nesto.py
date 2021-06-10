@@ -361,12 +361,9 @@ class FetchNestoProductDetailsAPI(APIView):
             response["is_verified"] = nesto_product_obj.is_verified
             response["is_online"] = nesto_product_obj.is_online
             response["vendor_category"] = nesto_product_obj.vendor_category
-            # try:
-            response["primary_keywords"] = json.loads(str(nesto_product_obj.primary_keywords))
-            response["secondary_keywords"] = json.loads(str(nesto_product_obj.secondary_keywords))
-            # except:
-            #     response["primary_keywords"] = nesto_product_obj.primary_keywords
-            #     response["secondary_keywords"] = nesto_product_obj.secondary_keywords  
+            response["primary_keywords"] = nesto_product_obj.primary_keywords)
+            response["secondary_keywords"] = nesto_product_obj.secondary_keywords
+
             if nesto_product_obj.sub_category!=None:
                 response["sub_category"] = nesto_product_obj.sub_category.name
                 response["sub_category_uuid"] = nesto_product_obj.sub_category.uuid
