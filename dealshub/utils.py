@@ -1140,6 +1140,7 @@ def refresh_stock(order_obj):
 
             try :
                 company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+                company_code = company_code_obj.code
             except Exception as e:
                 continue
 

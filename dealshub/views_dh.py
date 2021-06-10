@@ -6863,10 +6863,8 @@ class SetShippingMethodAPI(APIView):
             # after checking for all the shipping methods possible
             sap_info_render = []
 
-            website_group_name = order_obj.location_group.website_group.name
-            allowed_website_groups = ["shopnesto","shopnestob2b", "shopnestokuwait", "shopnestobahrain"]
-            first_unit_order_obj = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0]
-            if not(sap_manual_update_status) and website_group_name in allowed_website_groups and first_unit_order_obj.shipping_method != shipping_method:
+            order_shipping_method = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method
+            if not(sap_manual_update_status) and order_obj.location_group.is_sap_enabled and order_shipping_method != shipping_method:
                 user_input_requirement = {}
                 
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
@@ -7081,10 +7079,7 @@ class ResendSAPOrderAPI(APIView):
             order_obj = Order.objects.get(uuid=order_uuid)
 
             sap_info_render = []
-            website_group_name = order_obj.location_group.website_group.name
-            allowed_website_groups = ["shopnesto","shopnestob2b", "shopnestokuwait", "shopnestobahrain"]
-            if website_group_name in allowed_website_groups:
-
+            if order_obj.location_group.is_sap_enabled:
                 user_input_requirement = {}
                 
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
