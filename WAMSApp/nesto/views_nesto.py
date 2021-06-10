@@ -361,8 +361,8 @@ class FetchNestoProductDetailsAPI(APIView):
             response["is_verified"] = nesto_product_obj.is_verified
             response["is_online"] = nesto_product_obj.is_online
             response["vendor_category"] = nesto_product_obj.vendor_category
-            response["primary_keywords"] = json.loads(nesto_product_obj.primary_keywords)
-            response["secondary_keywords"] = json.loads(nesto_product_obj.secondary_keywords)
+            response["primary_keywords"] = nesto_product_obj.primary_keywords
+            response["secondary_keywords"] = nesto_product_obj.secondary_keywords
 
             if nesto_product_obj.sub_category!=None:
                 response["sub_category"] = nesto_product_obj.sub_category.name
@@ -1251,13 +1251,13 @@ class BulkUploadNestoProductsAPI(APIView):
                     ingredients = "" if str(dfs.iloc[i][16]).strip()=="nan" else str(dfs.iloc[i][16]).strip()
                     primary_keywords = [] if str(dfs.iloc[i][17]).strip()=="nan" else dfs.iloc[i][17]
                     secondary_keywords = [] if str(dfs.iloc[i][18]).strip()=="nan" else dfs.iloc[i][18]
-                    try:
+                    # try:
                         
-                        primary_keywords_json = primary_keywords
-                        secondary_keywords_json = secondary_keywords
-                    except:
-                        primary_keywords_json = json.dumps([])
-                        secondary_keywords_json = json.dumps([])
+                    #     primary_keywords_json = primary_keywords
+                    #     secondary_keywords_json = secondary_keywords
+                    # except:
+                    #     primary_keywords_json = []
+                    #     secondary_keywords_json = []
                     product_status = ""
                     barcode = barcode.split(".")[0]
                     article_no = article_no.split(".")[0]
