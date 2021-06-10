@@ -1253,8 +1253,8 @@ class BulkUploadNestoProductsAPI(APIView):
                     secondary_keywords = [] if str(dfs.iloc[i][18]).strip()=="nan" else dfs.iloc[i][18]
                     try:
                         
-                        primary_keywords_json = json.dumps(primary_keywords)
-                        secondary_keywords_json = json.dumps(secondary_keywords)
+                        primary_keywords_json = primary_keywords
+                        secondary_keywords_json = secondary_keywords
                     except:
                         primary_keywords_json = json.dumps([])
                         secondary_keywords_json = json.dumps([])
