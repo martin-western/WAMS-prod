@@ -1324,6 +1324,7 @@ class BulkUploadNestoProductsAPI(APIView):
                             "article_no":barcode,
                             "message":"barcode is not unique"
                         })
+                    logger.info(nesto_product_obj.__dict__)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("BulkUploadNestoProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
