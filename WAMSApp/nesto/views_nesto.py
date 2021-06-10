@@ -1291,8 +1291,8 @@ class BulkUploadNestoProductsAPI(APIView):
                                                                         ingredients=ingredients,
                                                                         product_status=product_status,
                                                                         return_days=return_days,
-                                                                        primary_keywords=primary_keywords_json,
-                                                                        secondary_keywords=secondary_keywords_json
+                                                                        primary_keywords=primary_keywords,
+                                                                        secondary_keywords=secondary_keywords
                                                                         )
                     elif nesto_product_objs.count()==1:
                         nesto_product_obj = nesto_product_objs[0]
