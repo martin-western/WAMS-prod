@@ -291,8 +291,8 @@ def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_obj
                 common_row[35] = str(p.ads_images.count())
                 common_row[36] = str(p.box_images.count())
                 common_row[37] = str(p.highlight_images.count())
-                common_row[38] = p.primary_keywords
-                common_row[39] = p.secondary_keywords
+                common_row[38] = ','.join(p.primary_keywords)
+                common_row[39] = ','.join(p.secondary_keywords)
                 colnum = 0
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
