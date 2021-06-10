@@ -5983,6 +5983,9 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 for status in status_list:
                     today_status_objs = today_order_objs.filter(unitorder__current_status_admin = status).distinct()
                     total_orders_count_list.append(today_status_objs.count())
+                    if today_status_objs.count() == 0:
+                        total_amount_list.append(0)
+                        continue
                     for total_status_obj in today_status_objs:
                             total_amount_list.append(total_status_obj.get_total_amount())
 
@@ -6001,6 +6004,9 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 for status in status_list:
                     month_status_objs = month_order_objs.filter(unitorder__current_status_admin = status).distinct()
                     total_monthly_orders_count_list.append(month_status_objs.count())
+                    if month_status_objs.count() == 0:
+                        total_monthly_amount_list.append(0)
+                        continue
                     for total_status_obj in month_status_objs:
                             total_monthly_amount_list.append(total_status_obj.get_total_amount())    
                 
@@ -6113,6 +6119,9 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             for status in status_list:
                 today_status_objs = today_order_objs.filter(unitorder__current_status_admin = status).distinct()
                 total_orders_count_list.append(today_status_objs.count())
+                if today_status_objs.count() == 0:
+                        total_amount_list.append(0)
+                        continue
                 for total_status_obj in today_status_objs:
                         total_amount_list.append(total_status_obj.get_total_amount())
 
@@ -6142,6 +6151,9 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             for status in status_list:
                 month_status_objs = month_order_objs.filter(unitorder__current_status_admin = status).distinct()
                 total_monthly_orders_count_list.append(month_status_objs.count())
+                if month_status_objs.count() == 0:
+                        total_monthly_amount_list.append(0)
+                        continue
                 for total_status_obj in month_status_objs:
                         total_monthly_amount_list.append(total_status_obj.get_total_amount())
 
