@@ -1249,9 +1249,10 @@ class BulkUploadNestoProductsAPI(APIView):
                     prod_description = "" if str(dfs.iloc[i][14]).strip()=="nan" else str(dfs.iloc[i][14]).strip()
                     nutrition_facts = "" if str(dfs.iloc[i][15]).strip()=="nan" else str(dfs.iloc[i][15]).strip()
                     ingredients = "" if str(dfs.iloc[i][16]).strip()=="nan" else str(dfs.iloc[i][16]).strip()
-                    primary_keywords = [] if str(dfs.iloc[i][17]).strip()=="nan" else (dfs.iloc[i][17])
-                    secondary_keywords = [] if str(dfs.iloc[i][18]).strip()=="nan" else (dfs.iloc[i][18])
+                    primary_keywords = [] if str(dfs.iloc[i][17]).strip()=="nan" else str(dfs.iloc[i][17])
+                    secondary_keywords = [] if str(dfs.iloc[i][18]).strip()=="nan" else str(dfs.iloc[i][18])
                     try:
+                        
                         primary_keywords_json = json.dumps(primary_keywords)
                         secondary_keywords_json = json.dumps(secondary_keywords)
                     except:
