@@ -583,8 +583,8 @@ class FetchNestoProductListAPI(APIView):
                     temp_dict["is_verified"] = nesto_product_obj.is_verified
                     temp_dict["is_online"] = nesto_product_obj.is_online
                     temp_dict["vendor_category"] = nesto_product_obj.vendor_category
-                    temp_dict["primary_keywords"] = json.loads(nesto_product_obj.primary_keywords)
-                    temp_dict["secondary_keywords"] = json.loads(nesto_product_obj.secondary_keywords)
+                    temp_dict["primary_keywords"] = nesto_product_obj.primary_keywords
+                    temp_dict["secondary_keywords"] = nesto_product_obj.secondary_keywords
 
                     if nesto_product_obj.sub_category!=None:
                         temp_dict["sub_category"] = nesto_product_obj.sub_category.name
