@@ -5962,71 +5962,58 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     user_order_objs = order_objs.filter(is_order_offline=True, offline_sales_person=sales_target_obj.user)
 
                 today_order_objs = user_order_objs.filter(date_created__gt = today)
-                yesterday_order_objs = user_order_objs.filter(date_created__gt = yesterday, date_created__lt = today)
-
+                
                 today_total_sales = today_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
                 today_total_sales = 0 if today_total_sales==None else round(today_total_sales,2)
-                yesterdays_total_sales = yesterday_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-                yesterdays_total_sales = 0 if yesterdays_total_sales==None else round(yesterdays_total_sales,2)
-
+                
                 # all orders except fully cancelled
                 today_order_list = list(today_order_objs)
                 today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-                yesterday_order_list = list(yesterday_order_objs)
-                yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-
-                today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
-                yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
                 
-                today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-                yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+                today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
+                
+                status_list = ["delivered","pending","dispatched","returned","cancelled"]
+                total_orders_count_list = []
+                total_amount_list = []
+                for status in status_list:
+                    today_status_objs = today_order_objs.filter(unitorder__current_status_admin = status).distinct()
+                    total_orders_count_list.append(today_status_objs.count())
+                    for total_status_obj in today_status_objs:
+                            total_amount_list.append(total_status_obj.get_total_amount())
 
-                today_pending_delivery = today_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-                yesterday_pending_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+                # today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
+                # yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
-                today_dispatched_delivery = today_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-                yesterday_dispatched_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+                # today_pending_delivery = today_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
+                # yesterday_pending_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
 
-                today_returned_delivery = today_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-                yesterday_returned_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+                # today_dispatched_delivery = today_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
+                # yesterday_dispatched_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
 
-                today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-                yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+                # today_returned_delivery = today_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+                # yesterday_returned_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
+
+                # today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+                # yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
 
                 month_order_objs = user_order_objs.filter(date_created__gt = month)
-                prev_month_order_objs = user_order_objs.filter(date_created__gt = prev_month, date_created__lt = month)
 
                 month_total_sales = month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
                 month_total_sales = 0 if month_total_sales==None else round(month_total_sales,2)
-                prev_month_total_sales = prev_month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-                prev_month_total_sales = 0 if prev_month_total_sales==None else round(prev_month_total_sales,2)
 
                 month_order_list = list(month_order_objs)
                 month_total_orders = UnitOrder.objects.filter(order__in=month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-                prev_month_order_list = list(prev_month_order_objs)
-                prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
 
                 month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
-                prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
                 
-                month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-                prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-
-                month_pending_delivery = month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-                prev_month_pending_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-
-                month_dispatched_delivery = month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-                prev_month_dispatched_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-
-                month_returned_delivery = month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-                prev_month_returned_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-
-                month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-                prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-
-
-
-
+                total_monthly_orders_count_list = []
+                total_monthly_amount_list = []
+                for status in status_list:
+                    month_status_objs = month_order_objs.filter(unitorder__current_status_admin = status).distinct()
+                    total_monthly_orders_count_list.append(month_status_objs.count())
+                    for total_status_obj in month_status_objs:
+                            total_monthly_amount_list.append(total_status_obj.get_total_amount())    
+                
                 days_in_month = float(datetime.datetime.now().day)
                 temp_dict = {}
                 temp_dict["targets"] = {
@@ -6038,47 +6025,33 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 
                 temp_dict["todays"] = {
                     "sales" : today_total_sales,
-                    "sales_delta" :  today_total_sales - yesterdays_total_sales,
                     "orders" : today_total_orders,
-                    "orders_delta" : today_total_orders - yesterday_total_orders,
                     "avg_value" : today_avg_order_value,
-                    "avg_value_delta" : today_avg_order_value - yesterday_avg_order_value,
-                    "delivered": today_done_delivery,
-                    "delivered_delta" : today_done_delivery - yesterday_done_delivery,
-                    "pending" : today_pending_delivery,
-                    "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
-                    "dispatched": today_dispatched_delivery,
-                    "dispatched_delta": today_dispatched_delivery - yesterday_dispatched_delivery,
-                    "returned": today_returned_delivery,
-                    "returned_delta": today_returned_delivery - yesterday_returned_delivery,
-                    "cancelled": today_cancelled_delivery,
-                    "cancelled_delta": today_cancelled_delivery - yesterday_cancelled_delivery,
-                    "percent_sales": 0 if month_total_sales == 0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
-                    "percent_orders": 0 if month_total_orders == 0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                    "percent_avg": 0 if month_avg_order_value == 0 else round(float(today_avg_order_value/month_avg_order_value)*100),
-                    "percent_delivered": 0 if month_done_delivery == 0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
-                    "percent_pending": 0 if month_pending_delivery == 0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
-                    "percent_dispatched": 0 if month_dispatched_delivery == 0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
-                    "percent_returned": 0 if month_returned_delivery == 0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
-                    "percent_cancelled": 0 if month_cancelled_delivery == 0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
+                    "delivered": total_orders_count_list[0],
+                    "today_done_delivery_amount" : total_amount_list[0],
+                    "pending" : total_orders_count_list[1],
+                    "today_pending_amount" : total_amount_list[1],
+                    "dispatched": total_orders_count_list[2],
+                    "today_dispatched_amount" : total_amount_list[2],
+                    "returned": total_orders_count_list[3],
+                    "today_returned_amount" : total_amount_list[3],
+                    "cancelled": total_orders_count_list[4],
+                    "today_cancelled_amount" : total_amount_list[4],
                 }
                 temp_dict["monthly"] = {
                     "sales" : month_total_sales,
-                    "sales_delta" :  month_total_sales - prev_month_total_sales,
                     "orders" : month_total_orders,
-                    "orders_delta" : month_total_orders - prev_month_total_orders,
                     "avg_value" : month_avg_order_value,
-                    "avg_value_delta" : month_avg_order_value - prev_month_avg_order_value,
-                    "delivered": month_done_delivery,
-                    "delivered_delta" : month_done_delivery - prev_month_done_delivery,
-                    "pending" : month_pending_delivery,
-                    "pending_delta" : month_pending_delivery - prev_month_pending_delivery,
-                    "dispatched": month_dispatched_delivery,
-                    "dispatched_delta": month_dispatched_delivery - prev_month_dispatched_delivery,
-                    "returned": month_returned_delivery,
-                    "returned_delta": month_returned_delivery - prev_month_returned_delivery,
-                    "cancelled": month_cancelled_delivery,
-                    "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
+                    "delivered": total_monthly_orders_count_list[0],
+                    "monthly_done_delivery_amount" : total_monthly_amount_list[0],
+                    "pending" : total_monthly_orders_count_list[1],
+                    "monthly_pending_amount" : total_monthly_amount_list[1],
+                    "dispatched": total_monthly_orders_count_list[2],
+                    "monthly_dispatched_amount" : total_monthly_amount_list[2],
+                    "returned": total_monthly_orders_count_list[3],
+                    "monthly_returned_amount" : total_monthly_amount_list[3],
+                    "cancelled": total_monthly_orders_count_list[4],
+                    "monthly_cancelled_amount" : total_monthly_amount_list[4],
                 }
                 temp_dict["currency"] = location_group_obj.location.currency
                 temp_dict["username"] = sales_target_obj.user.username
