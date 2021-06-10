@@ -1316,8 +1316,8 @@ class BulkUploadNestoProductsAPI(APIView):
                         nesto_product_obj.ingredients=ingredients
                         nesto_product_obj.product_status=product_status
                         nesto_product_obj.return_days=return_days
-                        nesto_product_obj.primary_keywords = primary_keywords_json
-                        nesto_product_obj.secondary_keywords = secondary_keywords_json
+                        nesto_product_obj.primary_keywords = primary_keywords
+                        nesto_product_obj.secondary_keywords = secondary_keywords
                         nesto_product_obj.save()
                     else:
                         excel_errors.append({
