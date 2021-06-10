@@ -6230,20 +6230,13 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
             prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
             
-            month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-            prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-
-            month_pending_delivery = month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-            prev_month_pending_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-
-            month_dispatched_delivery = month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-            prev_month_dispatched_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-
-            month_returned_delivery = month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-            prev_month_returned_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-
-            month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-            prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+            total_monthly_orders_count_list = []
+            total_monthly_amount_list = []
+            for status in status_list:
+                month_status_objs = month_order_objs.filter(unitorder__current_status_admin = status).distinct()
+                total_monthly_orders_count_list.append(month_status_objs.count())
+                for total_status_obj in month_status_objs:
+                        total_monthly_amount_list.append(total_status_obj.get_total_amount())
 
             days_in_month = float(datetime.datetime.now().day)
             
@@ -6292,16 +6285,16 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "orders_delta" : month_total_orders - prev_month_total_orders,
                 "avg_value" : month_avg_order_value,
                 "avg_value_delta" : month_avg_order_value - prev_month_avg_order_value,
-                "delivered": month_done_delivery,
-                "delivered_delta" : month_done_delivery - prev_month_done_delivery,
-                "pending" : month_pending_delivery,
-                "pending_delta" : month_pending_delivery - prev_month_pending_delivery,
-                "dispatched": month_dispatched_delivery,
-                "dispatched_delta": month_dispatched_delivery - prev_month_dispatched_delivery,
-                "returned": month_returned_delivery,
-                "returned_delta": month_returned_delivery - prev_month_returned_delivery,
-                "cancelled": month_cancelled_delivery,
-                "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
+                "delivered": total_monthly_orders_count_list[0],
+                "monthly_done_delivery_amount" : total_monthly_amount_list[0],
+                "pending" : total_monthly_orders_count_list[1],
+                "monthly_pending_amount" : total_monthly_amount_list[1],
+                "dispatched": total_monthly_orders_count_list[2],
+                "monthly_dispatched_amount" : total_monthly_amount_list[2],
+                "returned": total_monthly_orders_count_list[3],
+                "monthly_returned_amount" : total_monthly_amount_list[3],
+                "cancelled": total_monthly_orders_count_list[4],
+                "monthly_cancelled_amount" : total_monthly_amount_list[4],
             }
             response["currency"] = location_group_obj.location.currency
             response['status'] = 200
