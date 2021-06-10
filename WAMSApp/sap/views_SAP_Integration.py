@@ -62,6 +62,9 @@ class FetchPriceAndStockAPI(APIView):
 
             product_pk_list = data["product_pk_list"]
             warehouse_code = data["warehouse_code"]
+            '''
+            warehouse_code is what we refer to as "company_code" which is stored as the model CompanyCodeSAP in the database.
+            '''
             
             warehouses_information = []
             

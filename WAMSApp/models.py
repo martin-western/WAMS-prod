@@ -2120,6 +2120,8 @@ class CompanyCodeSAP(models.Model):
     code = models.CharField(max_length=100, default="")
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
+    class Meta:
+       unique_together = ("location_group", "brand")
 
     def get_company_code(self):
         return self.code
