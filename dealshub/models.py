@@ -876,6 +876,9 @@ class Address(models.Model):
     def get_shipping_address(self):
         return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.neighbourhood+"\n"+self.emirates
 
+    def get_address(self):
+        return self.first_name + " " + self.last_name + ", " + json.loads(self.address_lines)[0] + ", "+json.loads(self.address_lines)[1] + ", "+json.loads(self.address_lines)[2] + ", "+json.loads(self.address_lines)[3] + ", "+self.state+", "+self.neighbourhood+", "+self.emirates+", Postcode "+self.postcode
+
     class Meta:
         verbose_name = "Address"
         verbose_name_plural = "Addresses"
@@ -1238,8 +1241,9 @@ class Order(models.Model):
 
     sendex_awb = models.CharField(max_length=100, default="") # AWB Number
     sendex_awb_pdf = models.CharField(max_length=100, default="") # Link to AWB PDF
-    sendex_request_json = models.CharField(max_length=3000, default="") # Add Consignment data in json stringified format
-    sendex_response_json = models.CharField(max_length=3000, default="") # Add Consignment response in json stringified format
+    sendex_request_json = models.TextField(default="{}") # Add Consignment data in json stringified format
+    sendex_response_json = models.TextField(default="{}") # Add Consignment response in json stringified format
+    sendex_tracking_reference = models.TextField(default="{}")
 
     def save(self, *args, **kwargs):
         if self.pk == None:

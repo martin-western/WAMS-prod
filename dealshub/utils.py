@@ -1968,7 +1968,7 @@ def sendex_add_consignment(order_obj, modified_weight):
         sendex_dict = {}
         address = order_obj.shipping_address
         sendex_dict["ToCompany"] = order_obj.get_customer_full_name()
-        sendex_dict["ToAddress"] = address.get_shipping_address() + ', Post Code ' + address.postcode
+        sendex_dict["ToAddress"] = address.get_address()
         sendex_dict["ToLocation"] = address.emirates
         sendex_dict["ToCountry"] = address.get_country()
         sendex_dict["ToCPerson"] = order_obj.get_customer_full_name()
@@ -2013,20 +2013,23 @@ def get_sendex_api_response(sendex_dict, request_url):
 # [SENDEX] updates the shipping status of all the orders which were registered as a consignment.
 def update_sendex_consignment_status(order_objs, oc_user):
     try:
+        order_objs = order_objs.exclude(sendex_awb="")
         sendex_dict = {
-            "AwbNumber": list(order_objs.exclude(sendex_awb="").values_list('sendex_awb', flat=True).distinct())
+            "AwbNumber": list(order_objs.values_list('sendex_awb', flat=True).distinct())
         }
         if len(sendex_dict["AwbNumber"]) <= 0:
             return
         response = get_sendex_api_response(sendex_dict, SENDEX_TRACK_CONSIGNMENT_STATUS_URL)
         i = 0
+        logger.info("update_sendex_consignment_status: request: %s, response: %s", str(sendex_dict), str(response))
         for order_obj in order_objs:
             try:
-                logger.info("update_sendex_consignment_status: %s and i:%s", str(response), str(i))
-                if order_obj.sendex_awb == response["TrackResponse"][i]["Shipment"]["awb_number"]:
+                if (i < len(response["TrackResponse"])) and order_obj.sendex_awb == response["TrackResponse"][i]["Shipment"]["awb_number"]:
                     sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
                     status_admin = get_mapped_admin_status(sendex_status)
                     update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
+                    order_obj.sendex_tracking_reference = json.dumps(response["TrackResponse"][i]["Shipment"])
+                    order_obj.save()
                     i += 1
 
             except Exception as e:
@@ -2038,7 +2041,7 @@ def update_sendex_consignment_status(order_objs, oc_user):
         logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))
 
 def update_shipping_status_in_unit_orders(order_obj, order_status, oc_user):
-    unit_order_objs = UnitOrder.objects.filter(self=order_obj).exclude(current_status_admin="cancelled")
+    unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
 
     if order_status == unit_order_objs[0].current_status_admin:
         return
@@ -2065,7 +2068,7 @@ def get_mapped_admin_status(sendex_status):
     elif sendex_status in SENDEX_CODE_TO_STATUS:
         return SENDEX_CODE_TO_STATUS[sendex_status]
     else:
-        raise ValueError("update_sendex_consignment_status: Sendex API returned an unknown status code")
+        raise ValueError("update_sendex_consignment_status: Sendex API returned an unknown status code: %s", str(sendex_status))
 
 
 def bulk_update_order_status(list_of_orders):
