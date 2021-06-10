@@ -6134,23 +6134,16 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             yesterday = str(datetime.date.today() - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
 
             today_order_objs = order_objs.filter(date_created__gt = today)
-            yesterday_order_objs = order_objs.filter(date_created__gt = yesterday, date_created__lt = today)
-
+            
             today_total_sales = today_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
             today_total_sales = 0 if today_total_sales==None else round(today_total_sales,2)
-            yesterdays_total_sales = yesterday_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-            yesterdays_total_sales = 0 if yesterdays_total_sales==None else round(yesterdays_total_sales,2)
-
+            
             # all orders except fully cancelled
             today_order_list = list(today_order_objs)
             today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-            yesterday_order_list = list(yesterday_order_objs)
-            yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
 
             today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
-            yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
             
-
             status_list = ["delivered","pending","dispatched","returned","cancelled"]
             total_orders_count_list = []
             total_amount_list = []
@@ -6219,17 +6212,12 @@ class FetchOrderSalesAnalyticsAPI(APIView):
 
             month_total_sales = month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
             month_total_sales = 0 if month_total_sales==None else round(month_total_sales,2)
-            prev_month_total_sales = prev_month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-            prev_month_total_sales = 0 if prev_month_total_sales==None else round(prev_month_total_sales,2)
-
+            
             month_order_list = list(month_order_objs)
             month_total_orders = UnitOrder.objects.filter(order__in=month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-            prev_month_order_list = list(prev_month_order_objs)
-            prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-
-            month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
-            prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
             
+            month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
+
             total_monthly_orders_count_list = []
             total_monthly_amount_list = []
             for status in status_list:
@@ -6262,11 +6250,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             
             response["todays"] = {
                 "sales" : today_total_sales,
-                "sales_delta" :  today_total_sales - yesterdays_total_sales,
                 "orders" : today_total_orders,
-                "orders_delta" : today_total_orders - yesterday_total_orders,
                 "avg_value" : today_avg_order_value,
-                "avg_value_delta" : today_avg_order_value - yesterday_avg_order_value,
                 "delivered": total_orders_count_list[0],
                 "today_done_delivery_amount" : total_amount_list[0],
                 "pending" : total_orders_count_list[1],
@@ -6280,11 +6265,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             }
             response["monthly"] = {
                 "sales" : month_total_sales,
-                "sales_delta" :  month_total_sales - prev_month_total_sales,
                 "orders" : month_total_orders,
-                "orders_delta" : month_total_orders - prev_month_total_orders,
                 "avg_value" : month_avg_order_value,
-                "avg_value_delta" : month_avg_order_value - prev_month_avg_order_value,
                 "delivered": total_monthly_orders_count_list[0],
                 "monthly_done_delivery_amount" : total_monthly_amount_list[0],
                 "pending" : total_monthly_orders_count_list[1],
