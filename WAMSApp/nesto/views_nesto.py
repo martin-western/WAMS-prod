@@ -1285,8 +1285,8 @@ class BulkUploadNestoProductsAPI(APIView):
                                                                         ingredients=ingredients,
                                                                         product_status=product_status,
                                                                         return_days=return_days,
-                                                                        primary_keywords=primary_keywords,
-                                                                        secondary_keywords=secondary_keywords
+                                                                        primary_keywords=json.dumps(primary_keywords),
+                                                                        secondary_keywords=json.dumps(secondary_keywords)
                                                                         )
                     elif nesto_product_objs.count()==1:
                         nesto_product_obj = nesto_product_objs[0]
@@ -1310,17 +1310,14 @@ class BulkUploadNestoProductsAPI(APIView):
                         nesto_product_obj.ingredients=ingredients
                         nesto_product_obj.product_status=product_status
                         nesto_product_obj.return_days=return_days
-                        nesto_product_obj.primary_keywords = primary_keywords
-                        nesto_product_obj.secondary_keywords = secondary_keywords
+                        nesto_product_obj.primary_keywords = json.dumps(primary_keywords)
+                        nesto_product_obj.secondary_keywords = json.dumps(secondary_keywords)
                         nesto_product_obj.save()
                     else:
                         excel_errors.append({
                             "article_no":barcode,
                             "message":"barcode is not unique"
                         })
-                    nesto_product_objs = NestoProduct.objects.filter(barcode=barcode)
-                    for nesto_product_obj in nesto_product_objs:
-                        logger.info(nesto_product_obj.primary_keywords)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("BulkUploadNestoProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))

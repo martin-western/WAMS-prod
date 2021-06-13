@@ -165,8 +165,8 @@ def bulk_download_nesto_ecommerce_report(filename, uuid):
                 common_row[33] = related_article_nos[:-2]
                 common_row[34] = upsell_article_nos[:-2]
                 common_row[35] = crosssell_article_nos[:-2]
-                common_row[36] = nesto_product_obj.primary_keywords
-                common_row[37] = nesto_product_obj.secondary_keywords
+                common_row[36] = ','.join(json.loads(nesto_product_obj.primary_keywords))
+                common_row[37] = ','.join(json.loads(nesto_product_obj.secondary_keywords))
 
                 colnum = 0
                 for k in common_row:
@@ -291,8 +291,8 @@ def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_obj
                 common_row[35] = str(p.ads_images.count())
                 common_row[36] = str(p.box_images.count())
                 common_row[37] = str(p.highlight_images.count())
-                common_row[38] = ','.join(p.primary_keywords)
-                common_row[39] = ','.join(p.secondary_keywords)
+                common_row[38] = ','.join(json.loads(p.primary_keywords))
+                common_row[39] = ','.join(json.loads(p.secondary_keywords))
                 colnum = 0
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
