@@ -35,6 +35,7 @@ from WAMSApp.nesto.nesto_reports import *
 from WAMSApp.views_category_manager import *
 from WAMSApp.sap.views_SAP_Integration import *
 from WAMSApp.sap.utils_SAP_Integration import *
+from WAMSApp.sap.SAP_constants import *
 from WAMSApp.nesto.views_nesto import *
 from WAMSApp.views_cron import *
 
