@@ -38,7 +38,8 @@ GRN_FOLDER_NAME = "omnicom"
 #*********** SAP Credentials ****************#
 
 SAP_USERNAME = "MOBSERVICE"
-SAP_PASSWORD = "geepas"
+SAP_PASSWORD = "geepas"     # QA
+# SAP_PASSWORD = "~lDT8+QklV=("     # Prod
 
 # old credentials = ("MOBSERVICE", "~lDT8+QklV=(")
 

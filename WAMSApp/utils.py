@@ -8,6 +8,7 @@ from WAMSApp.stores.amazon_uk import *
 from WAMSApp.stores.amazon_uae import *
 from WAMSApp.stores.ebay import *
 from WAMSApp.stores.noon import *
+from WAMSApp.sap.SAP_constants import *
 from WAMSApp.serializers import UserSerializer
 from WAMSApp.models import *
 from django.db.models import Q
