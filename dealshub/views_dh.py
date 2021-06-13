@@ -5917,6 +5917,7 @@ class UpdateReviewPublishStatusAPI(APIView):
 
         return Response(data=response)
 
+
 class FetchSalesExecutiveAnalysisAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -5982,7 +5983,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
 
                 today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
                 yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
-                
+
                 today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
                 yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
@@ -6013,7 +6014,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
 
                 month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
                 prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
-                
+
                 month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
                 prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
@@ -6029,9 +6030,6 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
                 prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
 
-
-
-
                 days_in_month = float(datetime.datetime.now().day)
                 temp_dict = {}
                 temp_dict["targets"] = {
@@ -6040,7 +6038,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "monthly_sales" : sales_target_obj.monthly_sales_target,
                     "monthly_orders" : sales_target_obj.monthly_orders_target
                 }
-                
+
                 temp_dict["todays"] = {
                     "sales" : today_total_sales,
                     "sales_delta" :  today_total_sales - yesterdays_total_sales,
@@ -6154,7 +6152,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
 
             today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
             yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
-            
+
             today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
             yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
@@ -6169,7 +6167,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
 
             today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
             yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-        
+
             # monthly
             month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
             prev_month_value = datetime.datetime.now().month-1
@@ -6194,7 +6192,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
 
             month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
             prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
-            
+
             month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
             prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
 
@@ -6211,7 +6209,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
 
             days_in_month = float(datetime.datetime.now().day)
-            
+
             if ("sales-analytics" in misc) and ("analytics" not in misc):
                 oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
                 sales_target_objs = SalesTarget.objects.filter(user=oc_user_obj, location_group=location_group_obj)
@@ -6231,7 +6229,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                     "monthly_sales" : location_group_obj.monthly_sales_target,
                     "monthly_orders" : location_group_obj.monthly_orders_target
                 }                                
-            
+
             response["todays"] = {
                 "sales" : today_total_sales,
                 "sales_delta" :  today_total_sales - yesterdays_total_sales,
@@ -6385,7 +6383,9 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
 
             order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
-
+            
+            omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
+            # update_sendex_consignment_status(order_objs, omnycomm_user)
             total_revenue = order_objs.aggregate(Sum('real_to_pay'))["real_to_pay__sum"]
             if total_revenue==None:
                 total_revenue = 0
@@ -6500,6 +6500,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["uuid"] = order_obj.uuid
                     temp_dict["isVoucherApplied"] = is_voucher_applied
                     temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[0].shipping_method
+                    temp_dict["weight"] = order_obj.get_weight()
 
                     if temp_dict["partially_cancelled_by_user"]==True:
                         temp_dict["currentStatus"] = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].current_status_admin
@@ -6860,6 +6861,13 @@ class SetShippingMethodAPI(APIView):
             sap_manual_update_status = data["isSapManualUpdate"]
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
   
+            # if shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
+            #     modified_weight = data["weight"]
+            #     if sendex_add_consignment(order_obj, modified_weight) == "failure":
+            #         logger.warning("SetShippingMethodAPI: failed status from sendex api")
+            #     else:
+            #         logger.info("SetShippingMethodAPI: Success in sendex api")
+ 
             # after checking for all the shipping methods possible
             sap_info_render = []
 

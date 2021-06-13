@@ -35,6 +35,17 @@ CUSTOMER_ID_FINAL_BILLING_STANDARD_ONLINE = "50000151"
 
 GRN_FOLDER_NAME = "omnicom"
 
+#*********** SAP Credentials ****************#
+
+SAP_USERNAME = "MOBSERVICE"
+SAP_PASSWORD = "geepas"     # QA
+# SAP_PASSWORD = "~lDT8+QklV=("     # Prod
+
+# old credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+
+#********************************************#
+
+
 ######### PRODUCTION URLS ##########
 # PRICE_STOCK_URL = "http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
 # TRANSFER_HOLDING_URL = "http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_holding_so/300/zser_holding_so/zbin_holding_so"

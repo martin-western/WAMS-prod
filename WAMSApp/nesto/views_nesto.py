@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.core.files.storage import default_storage
-
+from WAMSApp.nesto.nesto_reports import bulk_download_nesto_detailed_product_report
 from WAMSApp.oc_reports import *
 
 import logging
@@ -61,7 +61,8 @@ class CreateNestoProductAPI(APIView):
             vendor_category = data["vendor_category"]
 
             sub_category_uuid = data.get("sub_category_uuid","")
-
+            primary_keywords = data.get("primary_keywords",[])
+            secondary_keywords = data.get("secondary_keywords",[])
             organization_obj = Organization.objects.get(name="Nesto Group")
 
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
@@ -99,7 +100,10 @@ class CreateNestoProductAPI(APIView):
                                                             is_verified=is_verified,
                                                             is_online=is_online,
                                                             vendor_category=vendor_category,
-                                                            sub_category=sub_category_obj)
+                                                            sub_category=sub_category_obj,
+                                                            primary_keywords=json.dumps(primary_keywords),
+                                                            secondary_keywords=json.dumps(secondary_keywords)
+                                                            )
 
 
             response["product_uuid"] = nesto_product_obj.uuid
@@ -174,7 +178,8 @@ class UpdateNestoProductAPI(APIView):
             language_key = data["language_key"]
             brand = data["brand"]
             weight_volume = data["weight_volume"]
-
+            primary_keywords = data.get("primary_keywords",[])
+            secondary_keywords = data.get("secondary_keywords",[])
             country_of_origin = data["country_of_origin"]
             highlights = data["highlights"]
             storage_condition = data["storage_condition"]
@@ -189,9 +194,7 @@ class UpdateNestoProductAPI(APIView):
             about_brand = data["about_brand"]
             is_verified = data["is_verified"]
             is_online = data["is_online"]
-            
             available_stores = data["available_stores"]
-            
             vendor_category = data["vendor_category"]
 
             sub_category_uuid = data.get("sub_category_uuid","")
@@ -200,7 +203,6 @@ class UpdateNestoProductAPI(APIView):
                 sub_category_obj = SubCategory.objects.get(uuid=sub_category_uuid)
 
             organization_obj = Organization.objects.get(name="Nesto Group")
-
             custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
 
             brand_obj, created = Brand.objects.get_or_create(name=brand, organization=organization_obj)
@@ -233,6 +235,8 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.is_online = is_online
             nesto_product_obj.is_verified = is_verified
             nesto_product_obj.sub_category = sub_category_obj
+            nesto_product_obj.primary_keywords = json.dumps(primary_keywords)
+            nesto_product_obj.secondary_keywords = json.dumps(secondary_keywords)     
 
             for available_store in available_stores:
 
@@ -357,6 +361,8 @@ class FetchNestoProductDetailsAPI(APIView):
             response["is_verified"] = nesto_product_obj.is_verified
             response["is_online"] = nesto_product_obj.is_online
             response["vendor_category"] = nesto_product_obj.vendor_category
+            response["primary_keywords"] = json.loads(nesto_product_obj.primary_keywords)
+            response["secondary_keywords"] = json.loads(nesto_product_obj.secondary_keywords)
 
             if nesto_product_obj.sub_category!=None:
                 response["sub_category"] = nesto_product_obj.sub_category.name
@@ -578,6 +584,7 @@ class FetchNestoProductListAPI(APIView):
                     temp_dict["is_verified"] = nesto_product_obj.is_verified
                     temp_dict["is_online"] = nesto_product_obj.is_online
                     temp_dict["vendor_category"] = nesto_product_obj.vendor_category
+
                     if nesto_product_obj.sub_category!=None:
                         temp_dict["sub_category"] = nesto_product_obj.sub_category.name
                         temp_dict["category"] = nesto_product_obj.sub_category.category.name
@@ -1196,7 +1203,7 @@ class BulkUploadNestoProductsAPI(APIView):
                 response['message'] = "the sheet_file or sheet_name is not proper"
                 return Response(data=response)
             
-            static_headers = ["Article No *","Barcode","UOM","Article Name *","Language Key *","Brand *","Weight/Volume","Country of Origin *","Storage Condition","Warning","Preparation and Usage","Allergic Information","About Brand *","Highlights *(Rich Text)","Product Description (Details) *","Nutrition facts *(Rich Text)","Ingredients *"]
+            static_headers = ["Article No *","Barcode","UOM","Article Name *","Language Key *","Brand *","Weight/Volume","Country of Origin *","Storage Condition","Warning","Preparation and Usage","Allergic Information","About Brand *","Highlights *(Rich Text)","Product Description (Details) *","Nutrition facts *(Rich Text)","Ingredients *","Primary keywords","Secondary keywords"]
 
             if len(dfs.columns) != len(static_headers):
                 response["status"] = 2
@@ -1242,6 +1249,9 @@ class BulkUploadNestoProductsAPI(APIView):
                     prod_description = "" if str(dfs.iloc[i][14]).strip()=="nan" else str(dfs.iloc[i][14]).strip()
                     nutrition_facts = "" if str(dfs.iloc[i][15]).strip()=="nan" else str(dfs.iloc[i][15]).strip()
                     ingredients = "" if str(dfs.iloc[i][16]).strip()=="nan" else str(dfs.iloc[i][16]).strip()
+                    primary_keywords = [] if str(dfs.iloc[i][17]).strip()=="nan" else json.dumps(str(dfs.iloc[i][17]).split(","))
+                    secondary_keywords = [] if str(dfs.iloc[i][18]).strip()=="nan" else json.dumps(str(dfs.iloc[i][18]).split(","))
+
                     product_status = ""
                     barcode = barcode.split(".")[0]
                     article_no = article_no.split(".")[0]
@@ -1274,7 +1284,9 @@ class BulkUploadNestoProductsAPI(APIView):
                                                                         nutrition_facts=nutrition_facts,
                                                                         ingredients=ingredients,
                                                                         product_status=product_status,
-                                                                        return_days=return_days
+                                                                        return_days=return_days,
+                                                                        primary_keywords=json.dumps(primary_keywords),
+                                                                        secondary_keywords=json.dumps(secondary_keywords)
                                                                         )
                     elif nesto_product_objs.count()==1:
                         nesto_product_obj = nesto_product_objs[0]
@@ -1298,6 +1310,8 @@ class BulkUploadNestoProductsAPI(APIView):
                         nesto_product_obj.ingredients=ingredients
                         nesto_product_obj.product_status=product_status
                         nesto_product_obj.return_days=return_days
+                        nesto_product_obj.primary_keywords = json.dumps(primary_keywords)
+                        nesto_product_obj.secondary_keywords = json.dumps(secondary_keywords)
                         nesto_product_obj.save()
                     else:
                         excel_errors.append({

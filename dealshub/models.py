@@ -876,6 +876,9 @@ class Address(models.Model):
     def get_shipping_address(self):
         return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.neighbourhood+"\n"+self.emirates
 
+    def get_address(self):
+        return self.first_name + " " + self.last_name + ", " + json.loads(self.address_lines)[0] + ", "+json.loads(self.address_lines)[1] + ", "+json.loads(self.address_lines)[2] + ", "+json.loads(self.address_lines)[3] + ", "+self.state+", "+self.neighbourhood+", "+self.emirates+", Postcode "+self.postcode
+
     class Meta:
         verbose_name = "Address"
         verbose_name_plural = "Addresses"
@@ -1236,6 +1239,12 @@ class Order(models.Model):
     sap_status = models.CharField(max_length=100, choices=SAP_STATUS, default="Pending")
     sap_manual_update_status = models.BooleanField(default=False)
 
+    sendex_awb = models.CharField(max_length=100, default="") # AWB Number
+    sendex_awb_pdf = models.CharField(max_length=100, default="") # Link to AWB PDF
+    sendex_request_json = models.TextField(default="{}") # Add Consignment data in json stringified format
+    sendex_response_json = models.TextField(default="{}") # Add Consignment response in json stringified format
+    sendex_tracking_reference = models.TextField(default="{}")
+
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.uuid = str(uuid.uuid4())
@@ -1383,6 +1392,17 @@ class Order(models.Model):
             total_quantity += unit_order_obj.quantity
         return total_quantity
 
+    def get_weight(self):
+        total_weight = 0
+        unit_order_objs = UnitOrder.objects.filter(order=self).exclude(current_status_admin="cancelled")
+        for unit_order_obj in unit_order_objs:
+            total_weight += unit_order_obj.get_weight()
+        return total_weight
+    
+    def get_sendex_ncnd_amount(self):
+        if self.payment_status == "cod":
+            return self.get_total_amount()
+        return 0
 
 class UnitOrder(models.Model):
 
@@ -1503,6 +1523,8 @@ class UnitOrder(models.Model):
 
         super(UnitOrder, self).save(*args, **kwargs)
 
+    def get_weight(self):
+        return (self.quantity * self.product.get_weight())
 
 class UnitOrderStatus(models.Model):
 

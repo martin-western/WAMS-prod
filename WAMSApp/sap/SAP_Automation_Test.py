@@ -1,3 +1,5 @@
+from WAMSApp.sap.SAP_constants import *
+
 company_code = "1000"
 customer_id = "40000195"
 product_id = "GAC9380"
@@ -14,7 +16,7 @@ def fetch_prices(product_id,company_code,url,customer_id):
         # product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
         
         warehouse_dict = {}
         body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -122,7 +124,7 @@ for item in prices_stock_list:
 qty_holding = 15.0
 
 headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+credentials = (SAP_USERNAME, SAP_PASSWORD)
 
 body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">
             <soapenv:Header/>
@@ -248,7 +250,7 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
             </soapenv:Envelope>"""
 
 holding_url = "http://s4hdev:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
-credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+credentials = (SAP_USERNAME, SAP_PASSWORD)
 
 import requests
 import xmltodict

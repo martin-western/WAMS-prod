@@ -35,6 +35,7 @@ from WAMSApp.nesto.nesto_reports import *
 from WAMSApp.views_category_manager import *
 from WAMSApp.sap.views_SAP_Integration import *
 from WAMSApp.sap.utils_SAP_Integration import *
+from WAMSApp.sap.SAP_constants import *
 from WAMSApp.nesto.views_nesto import *
 from WAMSApp.views_cron import *
 
@@ -5037,7 +5038,7 @@ class SapIntegrationAPI(APIView):
             #headers = {'content-type': 'text/xml'}
             headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
 
-            credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+            credentials = (SAP_USERNAME, SAP_PASSWORD)
 
             company_codes = []
 
@@ -7285,6 +7286,7 @@ class FetchOCReportListAPI(APIView):
             for oc_report_obj in oc_report_objs:
                 try:
                     completion_date = ""
+                    json_note_obj = {}
                     if oc_report_obj.completion_date!=None:
                         completion_date = str(timezone.localtime(oc_report_obj.completion_date).strftime("%d %m, %Y %H:%M"))
                         try:

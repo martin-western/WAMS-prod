@@ -1,3 +1,4 @@
+import math
 from dealshub.models import *
 from dealshub.core_utils import *
 from WAMSApp.sap.utils_SAP_Integration import *
@@ -1960,6 +1961,114 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("FetchDealshubAdminSectionsAPI get_banner_image_objects: %s at %s", e, str(exc_tb.tb_lineno))
+
+def sendex_add_consignment(order_obj, modified_weight):
+    api_response = "failure"
+    try:
+        sendex_dict = {}
+        address = order_obj.shipping_address
+        sendex_dict["ToCompany"] = order_obj.get_customer_full_name()
+        sendex_dict["ToAddress"] = address.get_address()
+        sendex_dict["ToLocation"] = address.emirates
+        sendex_dict["ToCountry"] = address.get_country()
+        sendex_dict["ToCPerson"] = order_obj.get_customer_full_name()
+        sendex_dict["ToContactno"] = address.contact_number
+        sendex_dict["ToMobileno"] = ""
+        sendex_dict["ReferenceNumber"] = str(order_obj.bundleid)
+        sendex_dict["CompanyCode"] = ""
+        sendex_dict["Weight"] = str(float(modified_weight))
+        sendex_dict["Pieces"] = str(order_obj.get_total_quantity())
+        sendex_dict["PackageType"] = "Parcel"
+        sendex_dict["CurrencyCode"] = order_obj.get_currency()
+        sendex_dict["NcndAmount"] = str(float(order_obj.get_sendex_ncnd_amount()))
+        sendex_dict["ItemDescription"] = ""
+        sendex_dict["SpecialInstruction"] = ""
+        sendex_dict["BranchName"] = "Dubai"
+        response = get_sendex_api_response(sendex_dict, SENDEX_ADD_CONSIGNMENT_URL)
+        order_obj.sendex_request_json = json.dumps(sendex_dict)
+        order_obj.sendex_response_json = json.dumps(response)
+        order_obj.save()
+        logger.info("sendex_add_consignment: req:%s response:%s", str(sendex_dict), str(response))
+        if response["success"] == 1:
+            order_obj.sendex_awb = response["AwbNumber"]
+            order_obj.sendex_awb_pdf = response["AwbPdf"]
+            order_obj.save()
+            api_response = "success"
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("SetShippingMethodAPI's utility - sendex add consignment: %s at %s", e, str(exc_tb.tb_lineno))
+
+    return api_response
+
+def get_sendex_api_response(sendex_dict, request_url):
+    http_header = {
+        "Content-Type" : "application/json",
+        "API-KEY" : SENDEX_API_KEY
+    }
+    response = requests.post(url=request_url, headers=http_header, data=json.dumps(sendex_dict))
+    response_dict = json.loads(response.content)
+    return response_dict
+
+# [SENDEX] updates the shipping status of all the orders which were registered as a consignment.
+def update_sendex_consignment_status(order_objs, oc_user):
+    try:
+        order_objs = order_objs.exclude(sendex_awb="")
+        sendex_dict = {
+            "AwbNumber": list(order_objs.values_list('sendex_awb', flat=True).distinct())
+        }
+        if len(sendex_dict["AwbNumber"]) <= 0:
+            return
+        response = get_sendex_api_response(sendex_dict, SENDEX_TRACK_CONSIGNMENT_STATUS_URL)
+        i = 0
+        logger.info("update_sendex_consignment_status: request: %s, response: %s", str(sendex_dict), str(response))
+        for order_obj in order_objs:
+            try:
+                if (i < len(response["TrackResponse"])) and order_obj.sendex_awb == response["TrackResponse"][i]["Shipment"]["awb_number"]:
+                    sendex_status = response["TrackResponse"][i]["Shipment"]["current_status"]
+                    status_admin = get_mapped_admin_status(sendex_status)
+                    update_shipping_status_in_unit_orders(order_obj, status_admin, oc_user)
+                    order_obj.sendex_tracking_reference = json.dumps(response["TrackResponse"][i]["Shipment"])
+                    order_obj.save()
+                    i += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("update_sendex_consignment_status: %s at %s", e, str(exc_tb.tb_lineno))
+
+def update_shipping_status_in_unit_orders(order_obj, order_status, oc_user):
+    unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
+
+    if order_status == unit_order_objs[0].current_status_admin:
+        return
+
+    for unit_order_obj in unit_order_objs:
+        set_order_status(unit_order_obj, order_status)
+        
+    order_status_change_information = {
+        "event": "order_status",
+        "information": {
+            "old_status": unit_order_objs[0].current_status_admin,
+            "new_status": order_status
+        }
+    }
+    VersionOrder.objects.create(order=order_obj,
+                                user= oc_user,
+                                change_information=json.dumps(order_status_change_information))
+
+    
+# maps the status present in sendex response to locally maintained statuses 
+def get_mapped_admin_status(sendex_status):
+    if sendex_status.lower() in SENDEX_PHRASE_TO_STATUS:
+        return SENDEX_PHRASE_TO_STATUS[sendex_status.lower()]
+    elif sendex_status in SENDEX_CODE_TO_STATUS:
+        return SENDEX_CODE_TO_STATUS[sendex_status]
+    else:
+        raise ValueError("update_sendex_consignment_status: Sendex API returned an unknown status code: %s", str(sendex_status))
 
 
 def bulk_update_order_status(list_of_orders):

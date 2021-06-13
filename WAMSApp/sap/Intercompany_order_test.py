@@ -2,6 +2,7 @@ import requests
 import xmltodict
 import json
 import uuid
+from WAMSApp.sap.SAP_constants import *
 
 company_code = "1000"
 customer_id = "40000195"
@@ -9,7 +10,7 @@ product_id = "GK175"
 IP = "94.56.89.116"
 
 headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+credentials = (SAP_USERNAME, SAP_PASSWORD)
 
 print(product_id)
 print()
@@ -22,7 +23,7 @@ def fetch_prices(product_id,company_code,url,customer_id):
     try:
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
-        credentials = ("MOBSERVICE", "~lDT8+QklV=(")
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
         
         warehouse_dict = {}
         body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
