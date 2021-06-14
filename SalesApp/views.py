@@ -10,6 +10,7 @@ from WAMSApp.utils import *
 from WAMSApp.sap.utils_SAP_Integration import *
 from SalesApp.models import *
 from SalesApp.utils import *
+from SalesApp.constants import *
 from WAMSApp.sap.SAP_constants import *
 
 from django.shortcuts import HttpResponse, get_object_or_404
