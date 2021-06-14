@@ -6004,7 +6004,6 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                         continue
                     for total_status_obj in month_status_objs:
                             total_monthly_amount_list.append(total_status_obj.get_total_amount())    
-                
                 days_in_month = float(datetime.datetime.now().day)
                 temp_dict = {}
                 temp_dict["targets"] = {
