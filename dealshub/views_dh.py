@@ -6871,28 +6871,15 @@ class SetShippingMethodAPI(APIView):
             # after checking for all the shipping methods possible
             sap_info_render = []
 
-            brand_company_dict = {
-                "geepas": "1000",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "para john" : "6000",
-                "parry life" : "6000",
-                "delcasa": "3050"
-            }
-
-            if not(sap_manual_update_status) and order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
-
+            order_shipping_method = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method
+            if not(sap_manual_update_status) and order_obj.location_group.is_sap_enabled and order_shipping_method != shipping_method:
                 user_input_requirement = {}
                 
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
-                    company_code = brand_company_dict[brand_name.lower()]
-                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
+                    company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code_obj.code)
 
                     if stock_price_information["status"] == 500:
                         response["status"] = 403
@@ -6911,10 +6898,10 @@ class SetShippingMethodAPI(APIView):
                     for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
                         
                         if user_input_requirement[seller_sku]==True:
-                            result = fetch_prices_and_stock(seller_sku, company_code)
+                            result = fetch_prices_and_stock(seller_sku, company_code_obj.code)
                             result["uuid"] = unit_order_obj.uuid
                             result["seller_sku"] = seller_sku
                             result["disable_atp_holding"] = False
@@ -6959,7 +6946,7 @@ class SetShippingMethodAPI(APIView):
                             continue
 
                         order_information = {}
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         is_b2b = order_obj.location_group.is_b2b
@@ -6985,14 +6972,14 @@ class SetShippingMethodAPI(APIView):
                             if user_input_requirement[seller_sku]==True:
                                 x_value = user_input_sap[seller_sku]
                             
-                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, unit_order_obj.quantity)
+                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code_obj.code, x_value, unit_order_obj.quantity)
                             for item in item_list:
                                 price = format(unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]),'.2f')
                                 item.update({"price": price})
                             order_information["items"] += item_list
                         logger.info("FINAL ORDER INFO: %s", str(order_information))
 
-                        orig_result_pre = create_intercompany_sales_order(company_code, order_information)
+                        orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information)
 
                         manual_intervention_required = is_manual_intervention_required(orig_result_pre)
 
@@ -7097,34 +7084,17 @@ class ResendSAPOrderAPI(APIView):
                 data = json.loads(data)
 
             order_uuid = data["orderUuid"]
-
             order_obj = Order.objects.get(uuid=order_uuid)
 
-            brand_company_dict = {
-                
-                "geepas": "1000",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "para john" : "6000",
-                "parry life" : "6000",
-                "delcasa": "3050"
-            }
-
             sap_info_render = []
-            
-            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"]:
-
+            if order_obj.location_group.is_sap_enabled:
                 user_input_requirement = {}
                 
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
-                    company_code = brand_company_dict[brand_name.lower()]
-                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
+                    company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code_obj.code)
 
                     if stock_price_information["status"] == 500:
                         response["status"] = 403
@@ -7142,10 +7112,10 @@ class ResendSAPOrderAPI(APIView):
                     for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
                         
                         if user_input_requirement[seller_sku]==True:
-                            result = fetch_prices_and_stock(seller_sku, company_code)
+                            result = fetch_prices_and_stock(seller_sku, company_code_obj.code)
                             result["uuid"] = unit_order_obj.uuid
                             result["seller_sku"] = seller_sku
                             
@@ -7181,7 +7151,7 @@ class ResendSAPOrderAPI(APIView):
                             continue
 
                         order_information = {}
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         is_b2b = order_obj.location_group.is_b2b
@@ -7203,13 +7173,13 @@ class ResendSAPOrderAPI(APIView):
                             if user_input_requirement[seller_sku]==True:
                                 x_value = user_input_sap[seller_sku]
                             
-                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, unit_order_obj.quantity)
+                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code_obj.code, x_value, unit_order_obj.quantity)
                             for item in item_list:
                                 price = format(unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]),'.2f')
                                 item.update({"price": price})
                             order_information["items"] += item_list
 
-                        orig_result_pre = create_intercompany_sales_order(company_code, order_information)
+                        orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information)
 
                         for item in order_information["items"]:
                             
