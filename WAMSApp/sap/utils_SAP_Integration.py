@@ -794,11 +794,13 @@ def create_holding_transfer_report(dealshub_product_objs):
             common_row = ["" for i in range(11)]
 
             seller_sku = dealshub_product_obj.get_seller_sku()
-            brand_name = dealshub_product_obj.get_brand()
+            brand_name = ""
             status = "FAILED"
             
             try:
-                company_code = BRAND_COMPANY_DICT[brand_name.lower()]
+                brand_obj = dealshub_product_obj.product.base_product.brand
+                company_code = brand_obj.get_company_code(dealshub_product_obj.location_group)
+                brand_name = brand_obj.name
             except Exception as e:
                 company_code = "BRAND NOT RECOGNIZED"
 
@@ -844,11 +846,11 @@ def fetch_product_holding_details(dealshub_product_obj):
 
     try:
         seller_sku = dealshub_product_obj.get_seller_sku()
-        brand_name = dealshub_product_obj.get_brand()
         status = "FAILED"
         
         try:
-            company_code = BRAND_COMPANY_DICT[brand_name.lower()]
+            brand_obj = dealshub_product_obj.product.base_product.brand
+            company_code = brand_obj.get_company_code(dealshub_product_obj.location_group)
         except Exception as e:
             company_code = "BRAND NOT RECOGNIZED"
         

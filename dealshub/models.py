@@ -288,7 +288,6 @@ class DealsHubProduct(models.Model):
         additional_sub_categories = []
         additional_categories = []
         additional_super_categories = []
-
         additional_sub_categories_objs = self.additional_sub_categories.prefetch_related('category').prefetch_related('category__super_category').all()
         for additional_sub_category_obj in additional_sub_categories_objs:
             if additional_sub_category_obj != None:
