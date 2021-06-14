@@ -1117,6 +1117,13 @@ class OrderRequest(models.Model):
             return round(self.location_group.delivery_fee, 2)
         return 0
 
+    def get_total_quantity(self):
+        total_quantity = 0
+        unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=self).exclude(request_status="Rejected")
+        for unit_order_request_obj in unit_order_request_objs:
+            total_quantity += unit_order_request_obj.final_quantity
+        return total_quantity
+
     def get_total_amount(self, cod=False):
         subtotal = self.get_subtotal()
         if subtotal==0:

@@ -3606,6 +3606,13 @@ class FetchCustomerOrderRequestsAPI(APIView):
                     temp_dict["merchantReference"] = order_request_obj.merchant_reference
                     temp_dict["isPlaced"] = order_request_obj.is_placed
                     temp_dict["toPay"] = order_request_obj.to_pay
+                    temp_dict["totalQuantity"] = order_request_obj.get_total_quantity()
+                    try:
+                        b2b_user_obj = B2BUser.objects.get(username=order_request_obj.owner.username)
+                        temp_dict["companyName"] = b2b_user_obj.company_name
+                    except Exception as e:
+                        temp_dict["companyName"] = "NA"
+
                     unit_order_request_list = []
                     for unit_order_request_obj in UnitOrderRequest.objects.filter(order_request=order_request_obj):
                         temp_dict2 = {}
