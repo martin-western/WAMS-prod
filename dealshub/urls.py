@@ -155,9 +155,9 @@ urlpatterns = [
     url(r'^delete-b2b-document-image/$',views.DeleteB2BDocumentImage),
     url(r'^delete-b2b-document/$',views.DeleteB2BDocument),
     url(r'^fetch-customer-orders/$', views.FetchCustomerOrders),
+    url(r'^fetch-customer-orders-requests/$', views.FetchCustomerOrderRequests),
     url(r'^place-inquiry/$',views.PlaceInquiry),
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
-
     url(r'^fetch-sales-executive-analysis/$', views.FetchSalesExecutiveAnalysis),
     url(r'^fetch-order-sales-analytics/$', views.FetchOrderSalesAnalytics),
     url(r'^fetch-order-requests-for-warehouse-manager/$', views.FetchOrderRequestsForWarehouseManager),
