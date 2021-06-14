@@ -1140,7 +1140,8 @@ def refresh_stock(order_obj):
             total_holding = 0.0
 
             try :
-                company_code = BRAND_COMPANY_DICT[brand_name]
+                company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+                company_code = company_code_obj.code
             except Exception as e:
                 continue
 
