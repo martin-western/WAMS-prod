@@ -4123,6 +4123,12 @@ class FetchCompanyProfileDealshubAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            cache_key = "fetch-company-profile-dealshub" + "-websiteGroupName-" + data["websiteGroupName"]
+            cached_value = cache.get(cache_key, "has_expired")
+            if cached_value != "has_expired":
+                response = json.loads(cached_value)
+                return Response(data=response)
+
             website_group_obj = WebsiteGroup.objects.get(name=data["websiteGroupName"])
 
             location_group_objs = LocationGroup.objects.filter(website_group=website_group_obj)
@@ -4178,6 +4184,7 @@ class FetchCompanyProfileDealshubAPI(APIView):
             response["company_data"] = company_data
             response["location_info"] = location_info
             response['status'] = 200
+            cached_value = cache.set(cache_key, json.dumps(response),300)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4290,6 +4297,11 @@ class FetchWebsiteGroupBrandsAPI(APIView):
             data = request.data
             language_code = data.get("language","en")
             logger.info("FetchWebsiteGroupBrandsAPI: %s", str(data))
+            cache_key = "fetch-website-group-brands" + "-websiteGroupName-" + data["websiteGroupName"]
+            cached_value = cache.get(cache_key, "has_expired")
+            if cached_value != "has_expired":
+                response = json.loads(cached_value)
+                return Response(data=response)
 
             website_group_name = data["websiteGroupName"]
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
@@ -4303,6 +4315,7 @@ class FetchWebsiteGroupBrandsAPI(APIView):
 
             response["brandList"] = brand_list
             response['status'] = 200
+            cached_value = cache.set(cache_key, json.dumps(response),300)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
