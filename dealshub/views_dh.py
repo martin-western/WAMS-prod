@@ -6745,6 +6745,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                         try:
                             b2b_user_obj = B2BUser.objects.get(username=order_request_obj.owner.username)
                             temp_dict["companyName"] = b2b_user_obj.company_name
+                            shipping_address["tradeLicenseId"] = b2b_user_obj.trade_license_id
                         except Exception as e:
                             temp_dict["companyName"] = "NA"
                             exc_type, exc_obj, exc_tb = sys.exc_info()
