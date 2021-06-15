@@ -114,17 +114,14 @@ def set_order_status(unit_order_obj, order_status):
         UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="shipped", status_admin=order_status)
         # Trigger Email
         try:
-            p1 = threading.Thread(target=send_order_dispatch_mail, args=(unit_order_obj,))
-            p1.start()
+            send_order_dispatch_mail(unit_order_obj)
             website_group = unit_order_obj.order.location_group.website_group.name
             if website_group=="parajohn":
                 message = "Your order has been dispatched!"
-                p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
-                p2.start()
+                send_parajohn_order_status_sms(unit_order_obj, message)
             if website_group=="shopnesto":
                 message = "Your order has been dispatched!"
-                p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
-                p2.start()
+                send_wigme_order_status_sms(unit_order_obj,message)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
@@ -144,17 +141,14 @@ def set_order_status(unit_order_obj, order_status):
         # Trigger Email
         if order_status=="delivered":
             try:
-                p1 = threading.Thread(target=send_order_delivered_mail, args=(unit_order_obj,))
-                p1.start()
+                send_order_delivered_mail(unit_order_obj)
                 website_group = unit_order_obj.order.location_group.website_group.name
                 if website_group=="parajohn":
                     message = "Your order has been delivered!"
-                    p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
-                    p2.start()
+                    send_parajohn_order_status_sms(unit_order_obj,message)
                 if website_group=="shopnesto":
                     message = "Your order has been delivered!"
-                    p2 = threading.Thread(target=send_wigme_order_status_sms , args=(unit_order_obj,message,))
-                    p2.start()
+                    send_wigme_order_status_sms(unit_order_obj,message)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
