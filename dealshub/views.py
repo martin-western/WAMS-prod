@@ -4184,7 +4184,7 @@ class FetchCompanyProfileDealshubAPI(APIView):
             response["company_data"] = company_data
             response["location_info"] = location_info
             response['status'] = 200
-            cached_value = cache.set(cache_key, json.dumps(response),300)
+            cache.set(cache_key, json.dumps(response),300)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4315,7 +4315,7 @@ class FetchWebsiteGroupBrandsAPI(APIView):
 
             response["brandList"] = brand_list
             response['status'] = 200
-            cached_value = cache.set(cache_key, json.dumps(response),300)
+            cache.set(cache_key, json.dumps(response),300)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
