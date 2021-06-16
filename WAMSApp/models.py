@@ -233,6 +233,7 @@ class Image(models.Model):
     def __str__(self):
         return str(self.image.url)
 
+    
     def save(self, *args, **kwargs):
         try:  
             
@@ -267,7 +268,7 @@ class Image(models.Model):
                     return image
 
              
-            
+                      
             if self.thumbnail == None:
                 size = 128, 128
                 thumb = IMAGE.open(self.image)
@@ -326,12 +327,13 @@ class Image(models.Model):
                    
                     thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/webp', thumb_io.getbuffer().nbytes, None)
                     self.webp_image = thumb_file
-
+            
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Save Image: %s at %s", e, str(exc_tb.tb_lineno))
 
         super(Image, self).save(*args, **kwargs)
+    
 
 
 class LocationGroup(models.Model):
@@ -371,6 +373,7 @@ class LocationGroup(models.Model):
     logo = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
     footer_logo = models.ForeignKey(Image, related_name="footer_logo_location_group", null=True, blank=True, on_delete=models.SET_NULL)
     blog_emails = models.TextField(null=True,blank=True, default='[]')
+    is_sap_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.name)
@@ -884,6 +887,10 @@ class Brand(models.Model):
 
     def __str__(self):
         return str(self.name)
+
+    def get_company_code(self, location_group_obj):
+        company_code_obj = CompanyCodeSAP.objects.get(location_group=location_group_obj, brand=self)
+        return company_code_obj.get_company_code()
 
     def save(self, *args, **kwargs):
         if self.pk == None:
@@ -2110,3 +2117,25 @@ class BlackListToken(models.Model):
 
     def __str__(self):
         return str(self.token)
+
+
+class CompanyCodeSAP(models.Model):
+    code = models.CharField(max_length=100, default="")
+    location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
+    class Meta:
+       unique_together = ("location_group", "brand")
+
+    def get_company_code(self):
+        return self.code
+    
+    def get_website_group_name(self):
+        return self.location_group.website_group.name
+
+    def get_brand_name(self):
+        return self.brand.name
+
+    def __str__(self):
+        return self.location_group.name + ' - ' + self.brand.name
+
+    

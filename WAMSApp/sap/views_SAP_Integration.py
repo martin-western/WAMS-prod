@@ -62,6 +62,9 @@ class FetchPriceAndStockAPI(APIView):
 
             product_pk_list = data["product_pk_list"]
             warehouse_code = data["warehouse_code"]
+            '''
+            warehouse_code is what we refer to as "company_code" which is stored as the model CompanyCodeSAP in the database.
+            '''
             
             warehouses_information = []
             
@@ -288,10 +291,11 @@ class UpdateProductHoldingDetailsAPI(APIView):
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
             
             final_holding = data.get("holding",0)
-            brand_name = dealshub_product_obj.get_brand().lower()
             data_seller_sku = str(dealshub_product_obj.get_seller_sku())
             try:
-                company_code = BRAND_COMPANY_DICT[brand_name]
+                brand_name = dealshub_product_obj.get_brand().lower()
+                company_code_obj = CompanyCodeSAP.objects.get(location_group=dealshub_product_obj.location_group, brand__name=brand_name)
+                company_code = company_code_obj.code
             except Exception as e:
                 company_code = "BRAND NOT RECOGNIZED"
 

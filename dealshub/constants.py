@@ -1,5 +1,6 @@
-OMNYCOMM_IP = "http://13.232.143.29:8012"
-DEALSHUB_IP = "http://13.232.143.29:8020"
+OMNYCOMM_IP = "http://qa.omnycomm.com:8028"
+NETWORK_URL = "https://api-gateway.sandbox.ngenius-payments.com"
+#NETWORK_URL = "https://api-gateway.ngenius-payments.com"
 SPOTII_AUTH_IP = "https://auth.sandbox.spotii.me"
 SPOTII_IP = "https://api.sandbox.spotii.me"
 WIGME_IP = "https://qa.wigme.com"

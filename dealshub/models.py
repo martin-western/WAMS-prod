@@ -288,7 +288,6 @@ class DealsHubProduct(models.Model):
         additional_sub_categories = []
         additional_categories = []
         additional_super_categories = []
-
         additional_sub_categories_objs = self.additional_sub_categories.prefetch_related('category').prefetch_related('category__super_category').all()
         for additional_sub_category_obj in additional_sub_categories_objs:
             if additional_sub_category_obj != None:
@@ -1117,6 +1116,13 @@ class OrderRequest(models.Model):
         if subtotal < self.location_group.free_delivery_threshold:
             return round(self.location_group.delivery_fee, 2)
         return 0
+
+    def get_total_quantity(self):
+        total_quantity = 0
+        unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=self).exclude(request_status="Rejected")
+        for unit_order_request_obj in unit_order_request_objs:
+            total_quantity += unit_order_request_obj.final_quantity
+        return total_quantity
 
     def get_total_amount(self, cod=False):
         subtotal = self.get_subtotal()

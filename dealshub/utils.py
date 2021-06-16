@@ -98,7 +98,6 @@ def set_shipping_method(unit_order_obj, shipping_method):
             UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="ordered", status_admin="approved")
         unit_order_obj.save()
 
-
 def set_order_status(unit_order_obj, order_status):
     if unit_order_obj.current_status_admin=="approved" and order_status in ["picked"]:
         unit_order_obj.current_status = "shipped"
@@ -172,6 +171,89 @@ def set_order_status(unit_order_obj, order_status):
                     message = "Sorry, we were unable to deliver your order!"
                     p2 = threading.Thread(target=send_wigme_order_status_sms , args=(unit_order_obj,message,))
                     p2.start()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
+        return
+
+    if unit_order_obj.current_status_admin=="delivered" and order_status in ["returned"]:
+        unit_order_obj.current_status_admin = order_status
+        unit_order_obj.current_status = "returned"
+        unit_order_obj.save()
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="returned", status_admin=order_status)
+        return
+
+    if unit_order_obj.current_status_admin=="delivery failed" and order_status in ["returned"]:
+        unit_order_obj.current_status_admin = order_status
+        unit_order_obj.current_status = "returned"
+        unit_order_obj.save()
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="returned", status_admin=order_status)
+        return
+
+def set_order_status_without_thread(unit_order_obj, order_status):
+    if unit_order_obj.current_status_admin=="approved" and order_status in ["picked"]:
+        unit_order_obj.current_status = "shipped"
+        unit_order_obj.current_status_admin = order_status
+        unit_order_obj.save()
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="ordered", status_admin=order_status)
+        return
+    
+    if unit_order_obj.current_status_admin=="picked" and order_status in ["dispatched"]:
+        unit_order_obj.current_status = "intransit"
+        unit_order_obj.current_status_admin = order_status
+        unit_order_obj.save()
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="shipped", status_admin=order_status)
+        # Trigger Email
+        try:
+            send_order_dispatch_mail(unit_order_obj)
+            website_group = unit_order_obj.order.location_group.website_group.name
+            if website_group=="parajohn":
+                message = "Your order has been dispatched!"
+                send_parajohn_order_status_sms(unit_order_obj, message)
+            if website_group=="shopnesto":
+                message = "Your order has been dispatched!"
+                send_wigme_order_status_sms(unit_order_obj,message)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
+        return
+
+    if unit_order_obj.current_status_admin=="dispatched" and order_status in ["delivered", "delivery failed"]:
+        unit_order_obj.current_status_admin = order_status
+        status = ""
+        if order_status=="delivered":
+            unit_order_obj.current_status = "delivered"
+            status = "delivered"
+        elif order_status=="delivery failed":
+            status = "intransit"
+        unit_order_obj.save()
+        UnitOrderStatus.objects.create(unit_order=unit_order_obj, status=status, status_admin=order_status)
+
+        # Trigger Email
+        if order_status=="delivered":
+            try:
+                send_order_delivered_mail(unit_order_obj)
+                website_group = unit_order_obj.order.location_group.website_group.name
+                if website_group=="parajohn":
+                    message = "Your order has been delivered!"
+                    send_parajohn_order_status_sms(unit_order_obj,message)
+                if website_group=="shopnesto":
+                    message = "Your order has been delivered!"
+                    send_wigme_order_status_sms(unit_order_obj,message)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        elif order_status=="delivery failed":
+            try:
+                send_order_delivery_failed_mail(unit_order_obj)
+                website_group = unit_order_obj.order.location_group.website_group.name
+                if website_group=="parajohn":
+                    message = "Sorry, we were unable to deliver your order!"
+                    send_parajohn_order_status_sms(unit_order_obj,message)
+                if website_group=="shopnesto":
+                    message = "Sorry, we were unable to deliver your order!"
+                    send_wigme_order_status_sms(unit_order_obj,message)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1140,7 +1222,8 @@ def refresh_stock(order_obj):
             total_holding = 0.0
 
             try :
-                company_code = BRAND_COMPANY_DICT[brand_name]
+                company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+                company_code = company_code_obj.code
             except Exception as e:
                 continue
 

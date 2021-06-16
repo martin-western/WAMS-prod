@@ -3570,6 +3570,86 @@ class FetchCustomerOrdersAPI(APIView):
         return Response(data=response)
 
 
+class FetchCustomerOrderRequestsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchCustomerOrderRequestsAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            username = data["username"]
+            page = data.get("page", 1)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=username)
+
+            order_request_objs = OrderRequest.objects.filter(owner=dealshub_user_obj).order_by('-pk')
+            
+            total_order_request = order_request_objs.count()
+            paginator = Paginator(order_request_objs, 10)
+            order_request_objs = paginator.page(page)
+
+            order_request_list = []
+            for order_request_obj in order_request_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["uuid"] = order_request_obj.uuid
+                    temp_dict["datePlaced"] = order_request_obj.get_date_created()
+                    temp_dict["timePlaced"] = order_request_obj.get_time_created()
+                    temp_dict["bundleId"] = str(order_request_obj.bundleid)
+                    temp_dict["paymentMode"] = order_request_obj.payment_mode
+                    temp_dict["requestStatus"] = order_request_obj.request_status
+                    temp_dict["merchantReference"] = order_request_obj.merchant_reference
+                    temp_dict["isPlaced"] = order_request_obj.is_placed
+                    temp_dict["toPay"] = order_request_obj.to_pay
+                    temp_dict["totalQuantity"] = order_request_obj.get_total_quantity()
+                    try:
+                        b2b_user_obj = B2BUser.objects.get(username=order_request_obj.owner.username)
+                        temp_dict["companyName"] = b2b_user_obj.company_name
+                    except Exception as e:
+                        temp_dict["companyName"] = "NA"
+
+                    unit_order_request_list = []
+                    for unit_order_request_obj in UnitOrderRequest.objects.filter(order_request=order_request_obj):
+                        temp_dict2 = {}
+                        temp_dict2["orderRequestId"] = unit_order_request_obj.order_req_id
+                        temp_dict2["uuid"] = unit_order_request_obj.uuid
+                        temp_dict2["initialQuantity"] = unit_order_request_obj.initial_quantity
+                        temp_dict2["initialPrice"] = unit_order_request_obj.initial_price
+                        temp_dict2["finalQuantity"] = unit_order_request_obj.final_quantity
+                        temp_dict2["finalPrice"] = unit_order_request_obj.final_price
+                        temp_dict2["currency"] = unit_order_request_obj.product.get_currency()
+                        temp_dict2["productName"] = unit_order_request_obj.product.get_name()
+                        temp_dict2["productImageUrl"] = unit_order_request_obj.product.get_main_image_url()
+                        unit_order_request_list.append(temp_dict2)
+                    temp_dict["totalBilling"] = str(order_request_obj.to_pay) + " " + str(order_request_obj.location_group.location.currency)
+                    temp_dict["unitOrderRequestList"] = unit_order_request_list
+                    order_request_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchCustomerOrderRequestsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
+            response["totalOrderRequests"] = total_order_request
+            response["customerName"] = dealshub_user_obj.first_name
+            response["orderList"] = order_request_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCustomerOrderRequestsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchTokenRequestParametersAPI(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -4230,7 +4310,7 @@ class SendB2BOTPSMSLoginAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["888888888", "940804016", "888888881", "702290032", "888888883"]:
+            if contact_number in ["888888888", "940804016", "888888881", "702290032", "888888883", "888888884"]:
                 OTP = "777777"
 
             otp_sent = False
@@ -4305,7 +4385,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["888888888", "940804016", "888888881", "702290032", "888888883"]:
+            if contact_number in ["888888888", "940804016", "888888881", "702290032", "888888883", "888888884"]:
                 OTP = "777777"
 
             is_new_user = False
@@ -5945,20 +6025,19 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-
             order_objs = Order.objects.filter(location_group=location_group_obj)
             
             today = str(datetime.date.today())[:10] + "T00:00:00+04:00"
             yesterday = str(datetime.date.today() - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
-
             month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
             prev_month_value = datetime.datetime.now().month-1
             prev_year_value = datetime.datetime.now().year
+
             if prev_month_value==0:
                 prev_month_value = 12
                 prev_year_value -= 1
+            
             prev_month = str(datetime.datetime.now().replace(year=prev_year_value, month=prev_month_value, day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
-
             sales_target_objs = SalesTarget.objects.filter(location_group=location_group_obj)
 
             sales_target_list = []
@@ -5968,68 +6047,51 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     user_order_objs = order_objs.filter(is_order_offline=True, offline_sales_person=sales_target_obj.user)
 
                 today_order_objs = user_order_objs.filter(date_created__gt = today)
-                yesterday_order_objs = user_order_objs.filter(date_created__gt = yesterday, date_created__lt = today)
-
                 today_total_sales = today_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
                 today_total_sales = 0 if today_total_sales==None else round(today_total_sales,2)
-                yesterdays_total_sales = yesterday_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-                yesterdays_total_sales = 0 if yesterdays_total_sales==None else round(yesterdays_total_sales,2)
-
+                
                 # all orders except fully cancelled
                 today_order_list = list(today_order_objs)
                 today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-                yesterday_order_list = list(yesterday_order_objs)
-                yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-
                 today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
-                yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
-
-                today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-                yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-
-                today_pending_delivery = today_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-                yesterday_pending_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-
-                today_dispatched_delivery = today_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-                yesterday_dispatched_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-
-                today_returned_delivery = today_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-                yesterday_returned_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-
-                today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-                yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+                
+                status_list = ["delivered","pending","dispatched","returned","cancelled"]
+                total_orders_status_count_list = []
+                total_orders_status_amount_list = []
+                for status in status_list:
+                    today_status_objs = today_order_objs.filter(unitorder__current_status_admin = status).distinct()
+                    total_orders_status_count_list.append(today_status_objs.count())
+                    if today_status_objs.count() == 0:
+                        total_orders_status_amount_list.append(0)
+                        continue
+                    total_amount = 0.0
+                    for today_status_obj in today_status_objs:
+                        total_amount+= today_status_obj.get_total_amount()
+                    total_orders_status_amount_list.append(total_amount)
 
                 month_order_objs = user_order_objs.filter(date_created__gt = month)
-                prev_month_order_objs = user_order_objs.filter(date_created__gt = prev_month, date_created__lt = month)
 
                 month_total_sales = month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
                 month_total_sales = 0 if month_total_sales==None else round(month_total_sales,2)
-                prev_month_total_sales = prev_month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-                prev_month_total_sales = 0 if prev_month_total_sales==None else round(prev_month_total_sales,2)
 
                 month_order_list = list(month_order_objs)
                 month_total_orders = UnitOrder.objects.filter(order__in=month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-                prev_month_order_list = list(prev_month_order_objs)
-                prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
 
                 month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
-                prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
-
-                month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-                prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-
-                month_pending_delivery = month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-                prev_month_pending_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-
-                month_dispatched_delivery = month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-                prev_month_dispatched_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-
-                month_returned_delivery = month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-                prev_month_returned_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-
-                month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-                prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-
+                
+                total_monthly_orders_status_count_list = []
+                total_monthly_orders_status_amount_list = []
+                for status in status_list:
+                    month_status_objs = month_order_objs.filter(unitorder__current_status_admin = status).distinct()
+                    total_monthly_orders_status_count_list.append(month_status_objs.count())
+                    if month_status_objs.count() == 0:
+                        total_monthly_orders_status_amount_list.append(0)
+                        continue
+                    total_amount = 0.0
+                    for month_status_obj in month_status_objs:
+                        total_amount+=month_status_obj.get_total_amount()
+                    total_monthly_orders_status_amount_list.append(total_amount)    
+                
                 days_in_month = float(datetime.datetime.now().day)
                 temp_dict = {}
                 temp_dict["targets"] = {
@@ -6038,50 +6100,36 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "monthly_sales" : sales_target_obj.monthly_sales_target,
                     "monthly_orders" : sales_target_obj.monthly_orders_target
                 }
-
+                
                 temp_dict["todays"] = {
                     "sales" : today_total_sales,
-                    "sales_delta" :  today_total_sales - yesterdays_total_sales,
                     "orders" : today_total_orders,
-                    "orders_delta" : today_total_orders - yesterday_total_orders,
                     "avg_value" : today_avg_order_value,
-                    "avg_value_delta" : today_avg_order_value - yesterday_avg_order_value,
-                    "delivered": today_done_delivery,
-                    "delivered_delta" : today_done_delivery - yesterday_done_delivery,
-                    "pending" : today_pending_delivery,
-                    "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
-                    "dispatched": today_dispatched_delivery,
-                    "dispatched_delta": today_dispatched_delivery - yesterday_dispatched_delivery,
-                    "returned": today_returned_delivery,
-                    "returned_delta": today_returned_delivery - yesterday_returned_delivery,
-                    "cancelled": today_cancelled_delivery,
-                    "cancelled_delta": today_cancelled_delivery - yesterday_cancelled_delivery,
-                    "percent_sales": 0 if month_total_sales == 0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
-                    "percent_orders": 0 if month_total_orders == 0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                    "percent_avg": 0 if month_avg_order_value == 0 else round(float(today_avg_order_value/month_avg_order_value)*100),
-                    "percent_delivered": 0 if month_done_delivery == 0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
-                    "percent_pending": 0 if month_pending_delivery == 0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
-                    "percent_dispatched": 0 if month_dispatched_delivery == 0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
-                    "percent_returned": 0 if month_returned_delivery == 0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
-                    "percent_cancelled": 0 if month_cancelled_delivery == 0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
+                    "delivered": total_orders_status_count_list[0],
+                    "today_done_delivery_amount" : total_orders_status_amount_list[0],
+                    "pending" : total_orders_status_count_list[1],
+                    "today_pending_amount" : total_orders_status_amount_list[1],
+                    "dispatched": total_orders_status_count_list[2],
+                    "today_dispatched_amount" : total_orders_status_amount_list[2],
+                    "returned": total_orders_status_count_list[3],
+                    "today_returned_amount" : total_orders_status_amount_list[3],
+                    "cancelled": total_orders_status_count_list[4],
+                    "today_cancelled_amount" : total_orders_status_amount_list[4],
                 }
                 temp_dict["monthly"] = {
                     "sales" : month_total_sales,
-                    "sales_delta" :  month_total_sales - prev_month_total_sales,
                     "orders" : month_total_orders,
-                    "orders_delta" : month_total_orders - prev_month_total_orders,
                     "avg_value" : month_avg_order_value,
-                    "avg_value_delta" : month_avg_order_value - prev_month_avg_order_value,
-                    "delivered": month_done_delivery,
-                    "delivered_delta" : month_done_delivery - prev_month_done_delivery,
-                    "pending" : month_pending_delivery,
-                    "pending_delta" : month_pending_delivery - prev_month_pending_delivery,
-                    "dispatched": month_dispatched_delivery,
-                    "dispatched_delta": month_dispatched_delivery - prev_month_dispatched_delivery,
-                    "returned": month_returned_delivery,
-                    "returned_delta": month_returned_delivery - prev_month_returned_delivery,
-                    "cancelled": month_cancelled_delivery,
-                    "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
+                    "delivered": total_monthly_orders_status_count_list[0],
+                    "monthly_done_delivery_amount" : total_monthly_orders_status_amount_list[0],
+                    "pending" : total_monthly_orders_status_count_list[1],
+                    "monthly_pending_amount" : total_monthly_orders_status_amount_list[1],
+                    "dispatched": total_monthly_orders_status_count_list[2],
+                    "monthly_dispatched_amount" : total_monthly_orders_status_amount_list[2],
+                    "returned": total_monthly_orders_status_count_list[3],
+                    "monthly_returned_amount" : total_monthly_orders_status_amount_list[3],
+                    "cancelled": total_monthly_orders_status_count_list[4],
+                    "monthly_cancelled_amount" : total_monthly_orders_status_amount_list[4],
                 }
                 temp_dict["currency"] = location_group_obj.location.currency
                 temp_dict["username"] = sales_target_obj.user.username
@@ -6137,37 +6185,30 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             yesterday = str(datetime.date.today() - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
 
             today_order_objs = order_objs.filter(date_created__gt = today)
-            yesterday_order_objs = order_objs.filter(date_created__gt = yesterday, date_created__lt = today)
-
+            
             today_total_sales = today_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
             today_total_sales = 0 if today_total_sales==None else round(today_total_sales,2)
-            yesterdays_total_sales = yesterday_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-            yesterdays_total_sales = 0 if yesterdays_total_sales==None else round(yesterdays_total_sales,2)
-
+            
             # all orders except fully cancelled
             today_order_list = list(today_order_objs)
             today_total_orders = UnitOrder.objects.filter(order__in=today_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-            yesterday_order_list = list(yesterday_order_objs)
-            yesterday_total_orders = UnitOrder.objects.filter(order__in=yesterday_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
 
             today_avg_order_value = 0 if today_total_orders==0 else round(float(today_total_sales/today_total_orders),2)
-            yesterday_avg_order_value = 0 if yesterday_total_orders==0 else round(float(yesterdays_total_sales/yesterday_total_orders),2)
-
-            today_done_delivery = today_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-            yesterday_done_delivery = yesterday_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-
-            today_pending_delivery = today_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-            yesterday_pending_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-
-            today_dispatched_delivery = today_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-            yesterday_dispatched_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-
-            today_returned_delivery = today_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-            yesterday_returned_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-
-            today_cancelled_delivery = today_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-            yesterday_cancelled_delivery = yesterday_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-
+            
+            status_list = ["delivered","pending","dispatched","returned","cancelled"]
+            total_orders_status_count_list = []
+            total_orders_status_amount_list = []
+            for status in status_list:
+                today_status_objs = today_order_objs.filter(unitorder__current_status_admin = status).distinct()
+                total_orders_status_count_list.append(today_status_objs.count())
+                if today_status_objs.count() == 0:
+                        total_orders_status_amount_list.append(0)
+                        continue
+                total_amount = 0.0
+                for today_status_obj in today_status_objs:
+                    total_amount+= today_status_obj.get_total_amount()
+                total_orders_status_amount_list.append(total_amount)
+        
             # monthly
             month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
             prev_month_value = datetime.datetime.now().month-1
@@ -6182,34 +6223,27 @@ class FetchOrderSalesAnalyticsAPI(APIView):
 
             month_total_sales = month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
             month_total_sales = 0 if month_total_sales==None else round(month_total_sales,2)
-            prev_month_total_sales = prev_month_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
-            prev_month_total_sales = 0 if prev_month_total_sales==None else round(prev_month_total_sales,2)
-
+            
             month_order_list = list(month_order_objs)
             month_total_orders = UnitOrder.objects.filter(order__in=month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-            prev_month_order_list = list(prev_month_order_objs)
-            prev_month_total_orders = UnitOrder.objects.filter(order__in=prev_month_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
-
+            
             month_avg_order_value = 0 if month_total_orders==0 else round(float(month_total_sales/month_total_orders),2)
-            prev_month_avg_order_value = 0 if prev_month_total_orders==0 else round(float(prev_month_total_sales/prev_month_total_orders),2)
 
-            month_done_delivery = month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-            prev_month_done_delivery = prev_month_order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-
-            month_pending_delivery = month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-            prev_month_pending_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="pending").distinct().count()
-
-            month_dispatched_delivery = month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-            prev_month_dispatched_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="dispatched").distinct().count()
-
-            month_returned_delivery = month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-            prev_month_returned_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="returned").distinct().count()
-
-            month_cancelled_delivery = month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
-            prev_month_cancelled_delivery = prev_month_order_objs.filter(unitorder__current_status_admin="cancelled").distinct().count()
+            total_monthly_orders_status_count_list = []
+            total_monthly_orders_status_amount_list = []
+            for status in status_list:
+                month_status_objs = month_order_objs.filter(unitorder__current_status_admin = status).distinct()
+                total_monthly_orders_status_count_list.append(month_status_objs.count())
+                if month_status_objs.count() == 0:
+                        total_monthly_orders_status_amount_list.append(0)
+                        continue
+                total_amount = 0.0
+                for month_status_obj in month_status_objs:
+                    total_amount+=month_status_obj.get_total_amount()
+                total_monthly_orders_status_amount_list.append(total_amount)
 
             days_in_month = float(datetime.datetime.now().day)
-
+            
             if ("sales-analytics" in misc) and ("analytics" not in misc):
                 oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
                 sales_target_objs = SalesTarget.objects.filter(user=oc_user_obj, location_group=location_group_obj)
@@ -6229,50 +6263,36 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                     "monthly_sales" : location_group_obj.monthly_sales_target,
                     "monthly_orders" : location_group_obj.monthly_orders_target
                 }                                
-
+            
             response["todays"] = {
                 "sales" : today_total_sales,
-                "sales_delta" :  today_total_sales - yesterdays_total_sales,
                 "orders" : today_total_orders,
-                "orders_delta" : today_total_orders - yesterday_total_orders,
                 "avg_value" : today_avg_order_value,
-                "avg_value_delta" : today_avg_order_value - yesterday_avg_order_value,
-                "delivered": today_done_delivery,
-                "delivered_delta" : today_done_delivery - yesterday_done_delivery,
-                "pending" : today_pending_delivery,
-                "pending_delta" : today_pending_delivery - yesterday_pending_delivery,
-                "dispatched": today_dispatched_delivery,
-                "dispatched_delta": today_dispatched_delivery - yesterday_dispatched_delivery,
-                "returned": today_returned_delivery,
-                "returned_delta": today_returned_delivery - yesterday_returned_delivery,
-                "cancelled": today_cancelled_delivery,
-                "cancelled_delta": today_cancelled_delivery - yesterday_cancelled_delivery,
-                "percent_sales": 0 if month_total_sales == 0 else round(float(today_total_sales/float(month_total_sales/days_in_month))*100),
-                "percent_orders": 0 if month_total_orders == 0 else round(float(today_total_orders/float(month_total_orders/days_in_month))*100),
-                "percent_avg": 0 if month_avg_order_value == 0 else round(float(today_avg_order_value/month_avg_order_value)*100),
-                "percent_delivered": 0 if month_done_delivery == 0 else round(float(today_done_delivery/float(month_done_delivery/days_in_month))*100),
-                "percent_pending": 0 if month_pending_delivery == 0 else round(float(today_pending_delivery/float(month_pending_delivery/days_in_month))*100),
-                "percent_dispatched": 0 if month_dispatched_delivery == 0 else round(float(today_dispatched_delivery/float(month_dispatched_delivery/days_in_month))*100),
-                "percent_returned": 0 if month_returned_delivery == 0 else round(float(today_returned_delivery/float(month_returned_delivery/days_in_month))*100),
-                "percent_cancelled": 0 if month_cancelled_delivery == 0 else round(float(today_cancelled_delivery/float(month_cancelled_delivery/days_in_month))*100)
+                "delivered": total_orders_status_count_list[0],
+                "today_done_delivery_amount" : total_orders_status_amount_list[0],
+                "pending" : total_orders_status_count_list[1],
+                "today_pending_amount" : total_orders_status_amount_list[1],
+                "dispatched": total_orders_status_count_list[2],
+                "today_dispatched_amount" : total_orders_status_amount_list[2],
+                "returned": total_orders_status_count_list[3],
+                "today_returned_amount" : total_orders_status_amount_list[3],
+                "cancelled": total_orders_status_count_list[4],
+                "today_cancelled_amount" : total_orders_status_amount_list[4],
             }
             response["monthly"] = {
                 "sales" : month_total_sales,
-                "sales_delta" :  month_total_sales - prev_month_total_sales,
                 "orders" : month_total_orders,
-                "orders_delta" : month_total_orders - prev_month_total_orders,
                 "avg_value" : month_avg_order_value,
-                "avg_value_delta" : month_avg_order_value - prev_month_avg_order_value,
-                "delivered": month_done_delivery,
-                "delivered_delta" : month_done_delivery - prev_month_done_delivery,
-                "pending" : month_pending_delivery,
-                "pending_delta" : month_pending_delivery - prev_month_pending_delivery,
-                "dispatched": month_dispatched_delivery,
-                "dispatched_delta": month_dispatched_delivery - prev_month_dispatched_delivery,
-                "returned": month_returned_delivery,
-                "returned_delta": month_returned_delivery - prev_month_returned_delivery,
-                "cancelled": month_cancelled_delivery,
-                "cancelled_delta": month_cancelled_delivery - prev_month_cancelled_delivery
+                "delivered": total_monthly_orders_status_count_list[0],
+                "monthly_done_delivery_amount" : total_monthly_orders_status_amount_list[0],
+                "pending" : total_monthly_orders_status_count_list[1],
+                "monthly_pending_amount" : total_monthly_orders_status_amount_list[1],
+                "dispatched": total_monthly_orders_status_count_list[2],
+                "monthly_dispatched_amount" : total_monthly_orders_status_amount_list[2],
+                "returned": total_monthly_orders_status_count_list[3],
+                "monthly_returned_amount" : total_monthly_orders_status_amount_list[3],
+                "cancelled": total_monthly_orders_status_count_list[4],
+                "monthly_cancelled_amount" : total_monthly_orders_status_amount_list[4],
             }
             response["currency"] = location_group_obj.location.currency
             response['status'] = 200
@@ -6282,6 +6302,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
             logger.error("FetchOrderSalesAnalyticsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
 
 
 class FetchOrdersForWarehouseManagerAPI(APIView):
@@ -6385,7 +6406,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
             
             omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
-            # update_sendex_consignment_status(order_objs, omnycomm_user)
+            update_sendex_consignment_status(order_objs, omnycomm_user)
             total_revenue = order_objs.aggregate(Sum('real_to_pay'))["real_to_pay__sum"]
             if total_revenue==None:
                 total_revenue = 0
@@ -6484,6 +6505,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         try:
                             b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username)
                             temp_dict["companyName"] = b2b_user_obj.company_name
+                            shipping_address["vatCertificateId"] = b2b_user_obj.vat_certificate_id
                         except Exception as e:
                             temp_dict["companyName"] = "NA"
                             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6724,6 +6746,7 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                         try:
                             b2b_user_obj = B2BUser.objects.get(username=order_request_obj.owner.username)
                             temp_dict["companyName"] = b2b_user_obj.company_name
+                            shipping_address["vatCertificateId"] = b2b_user_obj.vat_certificate_id
                         except Exception as e:
                             temp_dict["companyName"] = "NA"
                             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6860,39 +6883,26 @@ class SetShippingMethodAPI(APIView):
             unit_order_uuid_list = data["unitOrderUuidList"]
             sap_manual_update_status = data["isSapManualUpdate"]
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
+            order_shipping_method = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method
   
-            # if shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
-            #     modified_weight = data["weight"]
-            #     if sendex_add_consignment(order_obj, modified_weight) == "failure":
-            #         logger.warning("SetShippingMethodAPI: failed status from sendex api")
-            #     else:
-            #         logger.info("SetShippingMethodAPI: Success in sendex api")
+            if shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and order_shipping_method != shipping_method:
+                modified_weight = data["weight"]
+                if sendex_add_consignment(order_obj, modified_weight) == "failure":
+                    logger.warning("SetShippingMethodAPI: failed status from sendex api")
+                else:
+                    logger.info("SetShippingMethodAPI: Success in sendex api")
  
             # after checking for all the shipping methods possible
             sap_info_render = []
 
-            brand_company_dict = {
-                "geepas": "1000",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "para john" : "6000",
-                "parry life" : "6000",
-                "delcasa": "3050"
-            }
-
-            if not(sap_manual_update_status) and order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"] and UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method != shipping_method:
-
+            if not(sap_manual_update_status) and order_obj.location_group.is_sap_enabled and order_shipping_method != shipping_method:
                 user_input_requirement = {}
                 
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
-                    company_code = brand_company_dict[brand_name.lower()]
-                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
+                    company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code_obj.code)
 
                     if stock_price_information["status"] == 500:
                         response["status"] = 403
@@ -6911,10 +6921,10 @@ class SetShippingMethodAPI(APIView):
                     for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
                         
                         if user_input_requirement[seller_sku]==True:
-                            result = fetch_prices_and_stock(seller_sku, company_code)
+                            result = fetch_prices_and_stock(seller_sku, company_code_obj.code)
                             result["uuid"] = unit_order_obj.uuid
                             result["seller_sku"] = seller_sku
                             result["disable_atp_holding"] = False
@@ -6959,7 +6969,7 @@ class SetShippingMethodAPI(APIView):
                             continue
 
                         order_information = {}
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         is_b2b = order_obj.location_group.is_b2b
@@ -6985,14 +6995,14 @@ class SetShippingMethodAPI(APIView):
                             if user_input_requirement[seller_sku]==True:
                                 x_value = user_input_sap[seller_sku]
                             
-                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, unit_order_obj.quantity)
+                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code_obj.code, x_value, unit_order_obj.quantity)
                             for item in item_list:
                                 price = format(unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]),'.2f')
                                 item.update({"price": price})
                             order_information["items"] += item_list
                         logger.info("FINAL ORDER INFO: %s", str(order_information))
 
-                        orig_result_pre = create_intercompany_sales_order(company_code, order_information)
+                        orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information)
 
                         manual_intervention_required = is_manual_intervention_required(orig_result_pre)
 
@@ -7097,34 +7107,17 @@ class ResendSAPOrderAPI(APIView):
                 data = json.loads(data)
 
             order_uuid = data["orderUuid"]
-
             order_obj = Order.objects.get(uuid=order_uuid)
 
-            brand_company_dict = {
-                
-                "geepas": "1000",
-                "baby plus": "5550",
-                "royalford": "3000",
-                "krypton": "2100",
-                "olsenmark": "1100",
-                "ken jardene": "5550",
-                "younglife": "5000",
-                "para john" : "6000",
-                "parry life" : "6000",
-                "delcasa": "3050"
-            }
-
             sap_info_render = []
-            
-            if order_obj.location_group.website_group.name in ["shopnesto","shopnestob2b"]:
-
+            if order_obj.location_group.is_sap_enabled:
                 user_input_requirement = {}
                 
                 for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                     seller_sku = unit_order_obj.product.get_seller_sku()
                     brand_name = unit_order_obj.product.get_brand()
-                    company_code = brand_company_dict[brand_name.lower()]
-                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code)
+                    company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+                    stock_price_information = fetch_prices_and_stock(seller_sku, company_code_obj.code)
 
                     if stock_price_information["status"] == 500:
                         response["status"] = 403
@@ -7142,10 +7135,10 @@ class ResendSAPOrderAPI(APIView):
                     for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                         seller_sku = unit_order_obj.product.get_seller_sku()
                         brand_name = unit_order_obj.product.get_brand()
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
                         
                         if user_input_requirement[seller_sku]==True:
-                            result = fetch_prices_and_stock(seller_sku, company_code)
+                            result = fetch_prices_and_stock(seller_sku, company_code_obj.code)
                             result["uuid"] = unit_order_obj.uuid
                             result["seller_sku"] = seller_sku
                             
@@ -7181,7 +7174,7 @@ class ResendSAPOrderAPI(APIView):
                             continue
 
                         order_information = {}
-                        company_code = brand_company_dict[brand_name.lower()]
+                        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
                         order_information["order_id"] = order_obj.bundleid.replace("-","")
                         order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
                         is_b2b = order_obj.location_group.is_b2b
@@ -7203,13 +7196,13 @@ class ResendSAPOrderAPI(APIView):
                             if user_input_requirement[seller_sku]==True:
                                 x_value = user_input_sap[seller_sku]
                             
-                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, unit_order_obj.quantity)
+                            item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code_obj.code, x_value, unit_order_obj.quantity)
                             for item in item_list:
                                 price = format(unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]),'.2f')
                                 item.update({"price": price})
                             order_information["items"] += item_list
 
-                        orig_result_pre = create_intercompany_sales_order(company_code, order_information)
+                        orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information)
 
                         for item in order_information["items"]:
                             
@@ -7425,9 +7418,9 @@ class UpdateOrderStatusAPI(APIView):
 
             for unit_order_obj in unit_order_objs:
                 if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":          
-                    set_order_status(unit_order_obj, "dispatched")
+                    set_order_status_without_thread(unit_order_obj, "dispatched")
                 elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
-                    set_order_status(unit_order_obj, "delivered")
+                    set_order_status_without_thread(unit_order_obj, "delivered")
                 else:
                     logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
                     break
@@ -9585,6 +9578,8 @@ DeleteB2BDocumentImage = DeleteB2BDocumentImageAPI.as_view()
 DeleteB2BDocument = DeleteB2BDocumentAPI.as_view()
 
 FetchCustomerOrders = FetchCustomerOrdersAPI.as_view()
+
+FetchCustomerOrderRequests = FetchCustomerOrderRequestsAPI.as_view()
 
 FetchTokenRequestParameters = FetchTokenRequestParametersAPI.as_view()
 

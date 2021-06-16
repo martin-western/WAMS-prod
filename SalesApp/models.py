@@ -88,3 +88,4 @@ class Notification(models.Model):
             return expiry_date
 
         return ""
+
