@@ -155,17 +155,14 @@ def set_order_status(unit_order_obj, order_status):
         
         elif order_status=="delivery failed":
             try:
-                p1 = threading.Thread(target=send_order_delivery_failed_mail, args=(unit_order_obj,))
-                p1.start()
+                send_order_delivery_failed_mail(unit_order_obj)
                 website_group = unit_order_obj.order.location_group.website_group.name
                 if website_group=="parajohn":
                     message = "Sorry, we were unable to deliver your order!"
-                    p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
-                    p2.start()
+                    send_parajohn_order_status_sms(unit_order_obj,message)
                 if website_group=="shopnesto":
                     message = "Sorry, we were unable to deliver your order!"
-                    p2 = threading.Thread(target=send_wigme_order_status_sms , args=(unit_order_obj,message,))
-                    p2.start()
+                    send_wigme_order_status_sms(unit_order_obj,message)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))

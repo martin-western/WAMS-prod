@@ -2135,4 +2135,7 @@ class CompanyCodeSAP(models.Model):
     def get_brand_name(self):
         return self.brand.name
 
+    def __str__(self):
+        return self.location_group.name + ' - ' + self.brand.name
+
     
