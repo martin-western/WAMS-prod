@@ -867,7 +867,8 @@ def fetch_product_holding_details(dealshub_product_obj):
             content = response.content
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
-
+            
+            logger.info("fetch_product_holding_details: Request: %s\nResponse: %s", str(body), str(response_dict))
             items = response_dict["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_ARTICLE_HOLDING_RPTResponse"]["T_DATA"]["item"]
 
             temp_list = []
