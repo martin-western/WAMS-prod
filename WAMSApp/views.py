@@ -8394,6 +8394,7 @@ class ResetOmnyCommUserPasswordAPI(APIView):
             prev_instance = deepcopy(omnycomm_user_obj)
             password = generate_random_password(length=8)
             omnycomm_user_obj.set_password(password)
+            omnycomm_user_obj.save()
             render_value = 'Password for username {} is reset.'.format(username)
             activitylog(user=request.user,table_name=OmnyCommUser,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=omnycomm_user_obj,table_item_pk=omnycomm_user_obj.pk,render=render_value)
 
