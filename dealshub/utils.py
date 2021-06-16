@@ -190,7 +190,7 @@ def set_order_status(unit_order_obj, order_status):
         UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="returned", status_admin=order_status)
         return
 
-def set_order_status_single_thread(unit_order_obj, order_status):
+def set_order_status_without_thread(unit_order_obj, order_status):
     if unit_order_obj.current_status_admin=="approved" and order_status in ["picked"]:
         unit_order_obj.current_status = "shipped"
         unit_order_obj.current_status_admin = order_status
