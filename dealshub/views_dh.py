@@ -6406,7 +6406,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             order_objs = Order.objects.filter(location_group__uuid=location_group_uuid, unitorder__in=unit_order_objs).distinct().order_by("-order_placed_date")
             
             omnycomm_user = OmnyCommUser.objects.get(username=request.user.username)         
-            # update_sendex_consignment_status(order_objs, omnycomm_user)
+            update_sendex_consignment_status(order_objs, omnycomm_user)
             total_revenue = order_objs.aggregate(Sum('real_to_pay'))["real_to_pay__sum"]
             if total_revenue==None:
                 total_revenue = 0
@@ -6883,18 +6883,18 @@ class SetShippingMethodAPI(APIView):
             unit_order_uuid_list = data["unitOrderUuidList"]
             sap_manual_update_status = data["isSapManualUpdate"]
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
+            order_shipping_method = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method
   
-            # if shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and UnitOrder.objects.filter(order=order_obj)[0].shipping_method != shipping_method:
-            #     modified_weight = data["weight"]
-            #     if sendex_add_consignment(order_obj, modified_weight) == "failure":
-            #         logger.warning("SetShippingMethodAPI: failed status from sendex api")
-            #     else:
-            #         logger.info("SetShippingMethodAPI: Success in sendex api")
+            if shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and order_shipping_method != shipping_method:
+                modified_weight = data["weight"]
+                if sendex_add_consignment(order_obj, modified_weight) == "failure":
+                    logger.warning("SetShippingMethodAPI: failed status from sendex api")
+                else:
+                    logger.info("SetShippingMethodAPI: Success in sendex api")
  
             # after checking for all the shipping methods possible
             sap_info_render = []
 
-            order_shipping_method = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method
             if not(sap_manual_update_status) and order_obj.location_group.is_sap_enabled and order_shipping_method != shipping_method:
                 user_input_requirement = {}
                 
@@ -7418,9 +7418,9 @@ class UpdateOrderStatusAPI(APIView):
 
             for unit_order_obj in unit_order_objs:
                 if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":          
-                    set_order_status(unit_order_obj, "dispatched")
+                    set_order_status_single_thread(unit_order_obj, "dispatched")
                 elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
-                    set_order_status(unit_order_obj, "delivered")
+                    set_order_status_single_thread(unit_order_obj, "delivered")
                 else:
                     logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
                     break
