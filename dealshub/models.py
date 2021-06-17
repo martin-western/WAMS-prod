@@ -1879,9 +1879,9 @@ class BlogSection(models.Model):
         super(BlogSection,self).save(*args,**kwargs)
 
 
-class OrderMailInfo(models.Model):
+class OrderMailRequest(models.Model):
     '''
-    Stores the email information related to a give Order, which can be used later to send an email
+    Stores the email information related to a given Order, which can be used later to send an email
     '''
     uuid = models.CharField(max_length=200, unique=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
@@ -1895,7 +1895,7 @@ class OrderMailInfo(models.Model):
     def save(self, *args, **kwargs):
         if self.uuid == None or self.uuid == "":
             self.uuid = str(uuid.uuid4())
-        super(OrderMailInfo, self).save(*args, **kwargs)
+        super(OrderMailRequest, self).save(*args, **kwargs)
 
     def get_email_info(self):
         logger_msg = {
