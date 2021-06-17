@@ -1878,3 +1878,49 @@ class BlogSection(models.Model):
 
         super(BlogSection,self).save(*args,**kwargs)
 
+
+class OrderMailInfo(models.Model):
+    '''
+    Stores the email information related to a give Order, which can be used later to send an email
+    '''
+    uuid = models.CharField(max_length=200, unique=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    status = models.CharField(max_length=100,blank=True,default="dispatched") # dispatched, delivered, delivery_failed
+    is_mail_sent = models.BooleanField(default=False)
+    html_message = models.TextField(blank=True, default="")
+
+    def __str__(self):
+        return f"{self.uuid}-{self.status}-order-{self.order.uuid}"
+
+    def save(self, *args, **kwargs):
+        if self.uuid == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        super(OrderMailInfo, self).save(*args, **kwargs)
+
+    def get_email_info(self):
+        logger_msg = {
+            "dispatched": "send order dispatched email",
+            "delivered": "send order delivered email",
+            "delivery_failed": "send order delivery failed email"
+        }
+        message = {
+            "dispatched": "Order Dispatched",
+            "delivered": "Order Delivered",
+            "delivery_failed": "Order Delivery Failed"
+        }
+        info = {
+            "host": self.order.location_group.get_email_host(),
+            "port": self.order.location_group.get_email_port(), 
+            "username": self.order.location_group.get_order_from_email_id(), 
+            "password": self.order.location_group.get_order_from_email_password(),
+            "use_tls": True,
+            "subject": message[self.status],
+            "body": message[self.status],
+            "from_email": self.order.location_group.get_order_from_email_id(),
+            "to": [self.order.owner.email],
+            "cc": self.order.location_group.get_order_cc_email_list(),
+            "bcc": self.order.location_group.get_order_bcc_email_list(),
+            "logger_msg": logger_msg[self.status],
+            "html_message": self.html_message
+        }
+        return info
