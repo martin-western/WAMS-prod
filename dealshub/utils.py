@@ -722,27 +722,11 @@ def send_order_dispatch_mail(unit_order_obj):
             }
         )
 
-        location_group_obj = unit_order_obj.order.location_group
-
-        with get_connection(
-            host=location_group_obj.get_email_host(),
-            port=location_group_obj.get_email_port(), 
-            username=location_group_obj.get_order_from_email_id(), 
-            password=location_group_obj.get_order_from_email_password(),
-            use_tls=True) as connection:
-
-            email = EmailMultiAlternatives(
-                        subject='Order Dispatch',
-                        body='Order Dispatch',
-                        from_email=location_group_obj.get_order_from_email_id(),
-                        to=[unit_order_obj.order.owner.email],
-                        cc=location_group_obj.get_order_cc_email_list(),
-                        bcc=location_group_obj.get_order_bcc_email_list(),
-                        connection=connection
-                    )
-            email.attach_alternative(html_message, "text/html")
-            email.send(fail_silently=False)
-            logger.info("send_order_dispatch_mail")
+        OrderMailInfo.objects.create(
+            order=unit_order_obj.order,
+            status="dispatched",
+            html_message=html_message
+        )
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -785,27 +769,11 @@ def send_order_delivered_mail(unit_order_obj):
             }
         )
 
-        location_group_obj = unit_order_obj.order.location_group
-
-        with get_connection(
-            host=location_group_obj.get_email_host(),
-            port=location_group_obj.get_email_port(), 
-            username=location_group_obj.get_order_from_email_id(), 
-            password=location_group_obj.get_order_from_email_password(),
-            use_tls=True) as connection:
-
-            email = EmailMultiAlternatives(
-                        subject='Order Delivered', 
-                        body='Order Delivered', 
-                        from_email=location_group_obj.get_order_from_email_id(),
-                        to=[unit_order_obj.order.owner.email],
-                        cc=location_group_obj.get_order_cc_email_list(),
-                        bcc=location_group_obj.get_order_bcc_email_list(),
-                        connection=connection
-                    )
-            email.attach_alternative(html_message, "text/html")
-            email.send(fail_silently=False)
-            logger.info("send_order_delivered_mail")
+        OrderMailInfo.objects.create(
+            order=unit_order_obj.order,
+            status="delivered",
+            html_message=html_message
+        )
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -847,27 +815,11 @@ def send_order_delivery_failed_mail(unit_order_obj):
             }
         )
 
-        location_group_obj = unit_order_obj.order.location_group
-
-        with get_connection(
-            host=location_group_obj.get_email_host(),
-            port=location_group_obj.get_email_port(), 
-            username=location_group_obj.get_order_from_email_id(), 
-            password=location_group_obj.get_order_from_email_password(),
-            use_tls=True) as connection:
-
-            email = EmailMultiAlternatives(
-                        subject='Order Delivery Failed', 
-                        body='Order Delivery Failed', 
-                        from_email=location_group_obj.get_order_from_email_id(),
-                        to=[unit_order_obj.order.owner.email],
-                        cc=location_group_obj.get_order_cc_email_list(),
-                        bcc=location_group_obj.get_order_bcc_email_list(),
-                        connection=connection
-                    )
-            email.attach_alternative(html_message, "text/html")
-            email.send(fail_silently=False)
-            logger.info("send_order_delivery_failed_mail")
+        OrderMailInfo.objects.create(
+            order=unit_order_obj.order,
+            status="delivery_failed",
+            html_message=html_message
+        )
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
