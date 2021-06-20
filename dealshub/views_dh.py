@@ -6885,7 +6885,7 @@ class SetShippingMethodAPI(APIView):
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
             order_shipping_method = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method
   
-            if shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and order_shipping_method != shipping_method:
+            if "weight" in data and shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and order_shipping_method != shipping_method:
                 modified_weight = data["weight"]
                 if sendex_add_consignment(order_obj, modified_weight) == "failure":
                     logger.warning("SetShippingMethodAPI: failed status from sendex api")
