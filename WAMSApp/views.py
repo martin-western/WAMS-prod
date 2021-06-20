@@ -1787,6 +1787,10 @@ class SaveBaseProductAPI(APIView):
             activitylog(user=request.user,table_name=BaseProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render=render_value)
             
             base_product_obj.save()
+            for dealshub_product_obj in DealsHubProduct.objects.filter(product__base_product=base_product_obj):
+                dealshub_product_obj.category = category_obj
+                dealshub_product_obj.sub_category = sub_category_obj
+                dealshub_product_obj.save()
 
             # Update dynamic_form_attributes for all Variants
             try:
