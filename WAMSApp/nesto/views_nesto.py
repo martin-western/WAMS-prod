@@ -113,7 +113,7 @@ class CreateNestoProductAPI(APIView):
                                                             secondary_keywords=json.dumps(secondary_keywords)
                                                             )
 
-            render_value = f"NestoProduct {nesto_product_obj} is created by {request.user}."
+            render_value = f"NestoProduct {nesto_product_obj.product_name} is created by {request.user}."
             activitylog(user=request.user,table_name=NestoProduct,action_type='created',location_group_obj=None,prev_instance=None,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
 
 
@@ -150,8 +150,8 @@ class DeleteNestoProductStoreAPI(APIView):
                 nesto_product_store_obj = NestoProductStore.objects.get(product = nesto_product_obj,store = nesto_store_obj)
                 nesto_product_store_obj_prev = deepcopy(nesto_product_store_obj)
                 nesto_product_store_obj.delete()
-                render_value = f"NestoProductStore {nesto_product_store_obj_prev} is deleted by {request.user}."
-                activitylog(user=request.user,table_name=NestoProductStore,action_type='deleted',location_group_obj=None,prev_instance=nesto_product_store_obj_prev,current_instance=None,table_item_pk=nesto_product_store_obj_prev.seller_sku,render=render_value)
+                render_value = f"NestoProductStore {nesto_product_store_obj_prev.product.product_name} is deleted by {request.user}."
+                activitylog(user=request.user,table_name=NestoProductStore,action_type='deleted',location_group_obj=None,prev_instance=nesto_product_store_obj_prev,current_instance=None,table_item_pk=nesto_product_store_obj_prev.pk,render=render_value)
             response['status'] = 200
 
         except Exception as e:
@@ -276,8 +276,8 @@ class UpdateNestoProductAPI(APIView):
                     nesto_product_store_obj.strike_price = strike_price
                     nesto_product_store_obj.stock = stock
                     nesto_product_store_obj.save()
-                    render_value = f"NestoProductStore {nesto_product_store_obj} is updated by {request.user}."
-                    activitylog(user=request.user,table_name=NestoProductStore,action_type='updated',location_group_obj=None,prev_instance=nesto_product_store_obj_prev,current_instance=nesto_product_store_obj,table_item_pk=nesto_product_store_obj.seller_sku,render=render_value)
+                    render_value = f"NestoProductStore {nesto_product_store_obj.product.product_name} is updated by {request.user}."
+                    activitylog(user=request.user,table_name=NestoProductStore,action_type='updated',location_group_obj=None,prev_instance=nesto_product_store_obj_prev,current_instance=nesto_product_store_obj,table_item_pk=nesto_product_store_obj.pk,render=render_value)
                 else:
                     NestoProductStore.objects.create(
                         product = nesto_product_obj,
@@ -287,10 +287,10 @@ class UpdateNestoProductAPI(APIView):
                         strike_price = strike_price,
                         stock = stock
                         )
-                    render_value = f"NestoProductStore {nesto_product_store_obj} is created by {request.user}."
-                    activitylog(user=request.user,table_name=NestoProductStore,action_type='created',location_group_obj=None,prev_instance=None,current_instance=nesto_product_store_obj,table_item_pk=nesto_product_store_obj.seller_sku,render=render_value)
+                    render_value = f"NestoProductStore {nesto_product_store_obj.product.product_name} is created by {request.user}."
+                    activitylog(user=request.user,table_name=NestoProductStore,action_type='created',location_group_obj=None,prev_instance=None,current_instance=nesto_product_store_obj,table_item_pk=nesto_product_store_obj.pk,render=render_value)
             nesto_product_obj.save()
-            render_value = f"NestoProduct {nesto_product_obj} is updated by {request.user}."
+            render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
             activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
 
             response['status'] = 200
@@ -713,7 +713,7 @@ class AddNestoProductImagesAPI(APIView):
                     nesto_product_obj.highlight_images_count = nesto_product_obj.highlight_images.all().count()
                 
             nesto_product_obj.save()
-            render_value = f"NestoProduct {nesto_product_obj} is updated by {request.user}."
+            render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
             activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
             response['status'] = 200
 
@@ -760,7 +760,7 @@ class RemoveNestoProductImageAPI(APIView):
             nesto_product_obj.box_images_count = nesto_product_obj.box_images.all().count()
             nesto_product_obj.highlight_images_count = nesto_product_obj.highlight_images.all().count()
             nesto_product_obj.save()
-            render_value = f"NestoProduct {nesto_product_obj} is updated by {request.user}."
+            render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
             activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
 
             response['status'] = 200
@@ -918,7 +918,7 @@ class LinkNestoProductAPI(APIView):
                 nesto_product_obj.upselling_products.add(linked_nesto_product_obj)
             nesto_product_obj.save()
             
-            render_value = f"NestoProduct {nesto_product_obj} is updated by {request.user}."
+            render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
             activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
             response['status'] = 200
 
@@ -958,7 +958,7 @@ class UnLinkNestoProductAPI(APIView):
             elif link_type=="upselling_products":
                 nesto_product_obj.upselling_products.remove(linked_nesto_product_obj)
             nesto_product_obj.save()
-            render_value = f"NestoProduct {nesto_product_obj} is updated by {request.user}."
+            render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
             activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
             response['status'] = 200
 
@@ -1355,7 +1355,7 @@ class BulkUploadNestoProductsAPI(APIView):
                                                                         primary_keywords=json.dumps(primary_keywords),
                                                                         secondary_keywords=json.dumps(secondary_keywords)
                                                                         )
-                        render_value = f"NestoProduct {nesto_product_obj} is created by {request.user}."
+                        render_value = f"NestoProduct {nesto_product_obj.product_name} is created by {request.user}."
                         activitylog(user=request.user,table_name=NestoProduct,action_type='created',location_group_obj=None,prev_instance=None,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
                     elif nesto_product_objs.count()==1:
                         nesto_product_obj = nesto_product_objs[0]
@@ -1386,7 +1386,7 @@ class BulkUploadNestoProductsAPI(APIView):
                         nesto_product_obj.primary_keywords = json.dumps(primary_keywords)
                         nesto_product_obj.secondary_keywords = json.dumps(secondary_keywords)
                         nesto_product_obj.save()
-                        render_value = f"NestoProduct {nesto_product_obj} is updated by {request.user}."
+                        render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
                         activitylog(user=request.user,table_name=NestoProduct,action_type='created',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
                     else:
                         excel_errors.append({
