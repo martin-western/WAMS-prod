@@ -1230,8 +1230,8 @@ class RemoveNestoBrandImageAPI(APIView):
             brand_obj_prev = deepcopy(brand_obj)
             if brand_obj.logo != None:
                 brand_obj.logo.delete()
-            render_value = f"Brand {brand_obj} is updated by {request.user}."
-            activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
+                render_value = f"Brand {brand_obj} is updated by {request.user}."
+                activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
             response['status'] = 200
 
         except Exception as e:
