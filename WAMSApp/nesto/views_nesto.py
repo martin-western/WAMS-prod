@@ -152,7 +152,7 @@ class DeleteNestoProductStoreAPI(APIView):
                 nesto_product_store_obj.delete()
                 render_value = f"NestoProductStore {nesto_product_store_obj_prev} is deleted by {request.user}."
                 activitylog(user=request.user,table_name=NestoProductStore,action_type='deleted',location_group_obj=None,prev_instance=nesto_product_store_obj_prev,current_instance=None,table_item_pk=nesto_product_store_obj_prev.seller_sku,render=render_value)
-                response['status'] = 200
+            response['status'] = 200
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
