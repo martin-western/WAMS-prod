@@ -6067,7 +6067,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     total_amount = 0.0
                     for today_status_obj in today_status_objs:
                         total_amount+= today_status_obj.get_total_amount()
-                    total_orders_status_amount_list.append(total_amount)
+                    total_orders_status_amount_list.append(round(float(total_amount), 2))
 
                 month_order_objs = user_order_objs.filter(date_created__gt = month)
 
@@ -6090,7 +6090,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     total_amount = 0.0
                     for month_status_obj in month_status_objs:
                         total_amount+=month_status_obj.get_total_amount()
-                    total_monthly_orders_status_amount_list.append(total_amount)    
+                    total_monthly_orders_status_amount_list.append(round(float(total_amount), 2))    
                 
                 days_in_month = float(datetime.datetime.now().day)
                 temp_dict = {}
@@ -6207,7 +6207,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 total_amount = 0.0
                 for today_status_obj in today_status_objs:
                     total_amount+= today_status_obj.get_total_amount()
-                total_orders_status_amount_list.append(total_amount)
+                total_orders_status_amount_list.append(round(float(total_amount), 2))
         
             # monthly
             month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
@@ -6240,7 +6240,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 total_amount = 0.0
                 for month_status_obj in month_status_objs:
                     total_amount+=month_status_obj.get_total_amount()
-                total_monthly_orders_status_amount_list.append(total_amount)
+                total_monthly_orders_status_amount_list.append(round(float(total_amount), 2))
 
             days_in_month = float(datetime.datetime.now().day)
             
