@@ -56,7 +56,7 @@ class CreateNestoProductAPI(APIView):
             ingredients = data["ingredients"]
             return_days = data["return_days"]
             product_status = data["product_status"]
-            about_brand = data["about_brand"]
+            # about_brand = data["about_brand"]
             is_verified = data["is_verified"]
             is_online = data["is_online"]
             vendor_category = data["vendor_category"]
@@ -70,11 +70,11 @@ class CreateNestoProductAPI(APIView):
             custom_permission_obj_prev = deepcopy(custom_permission_obj)
 
             brand_obj, created = Brand.objects.get_or_create(name=brand, organization=organization_obj)
-            brand_obj_prev = deepcopy(brand_obj)
-            brand_obj.description = about_brand
-            brand_obj.save()
-            render_value = f"Brand {brand_obj} is updated/created by {request.user}."
-            activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
+            # brand_obj_prev = deepcopy(brand_obj)
+            # brand_obj.description = about_brand
+            # brand_obj.save()
+            # render_value = f"Brand {brand_obj} is updated/created by {request.user}."
+            # activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
 
             if created==True:
                 custom_permission_obj.brands.add(brand_obj)
