@@ -1885,9 +1885,13 @@ class OrderMailRequest(models.Model):
     '''
     uuid = models.CharField(max_length=200, unique=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    status = models.CharField(max_length=100,blank=True,default="dispatched") # dispatched, delivered, delivery_failed
+    STATUS = (
+        ("dispatched", "dispatched"),
+        ("delivered", "delivered"),
+        ("delivery_failed", "delivery_failed")
+    )
+    status = models.CharField(max_length=100, choices=STATUS, default="dispatched")
     is_mail_sent = models.BooleanField(default=False)
-    html_message = models.TextField(blank=True, default="")
 
     def __str__(self):
         return f"{self.uuid}-{self.status}-order-{self.order.uuid}"
@@ -1898,11 +1902,6 @@ class OrderMailRequest(models.Model):
         super(OrderMailRequest, self).save(*args, **kwargs)
 
     def get_email_info(self):
-        logger_msg = {
-            "dispatched": "send order dispatched email",
-            "delivered": "send order delivered email",
-            "delivery_failed": "send order delivery failed email"
-        }
         message = {
             "dispatched": "Order Dispatched",
             "delivered": "Order Delivered",
@@ -1919,8 +1918,6 @@ class OrderMailRequest(models.Model):
             "from_email": self.order.location_group.get_order_from_email_id(),
             "to": [self.order.owner.email],
             "cc": self.order.location_group.get_order_cc_email_list(),
-            "bcc": self.order.location_group.get_order_bcc_email_list(),
-            "logger_msg": logger_msg[self.status],
-            "html_message": self.html_message
+            "bcc": self.order.location_group.get_order_bcc_email_list()
         }
         return info
