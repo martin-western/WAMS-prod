@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dealshub.models import *
 import csv
 import urllib
@@ -2993,3 +2994,25 @@ def get_sellersku_and_quantity(order_obj):
         data = f"{seller_sku}({unit_order_obj.quantity}), "
         sellersku_and_quantity += data
     return sellersku_and_quantity[:-2]
+
+
+def update_dealshub_products_of_wigme_sites(dealshub_product_obj_main, user):
+    '''
+    If changes were made to a WIGMe - UAE dealshub product, they'll also be made to other WIGme websites
+    '''
+    if dealshub_product_obj_main.location_group.name not in ["WIGme - Dubai", "WIGMe - UAE"]:
+        return
+    wigme_websites = ["WIGme - B2B", "WIGme - BAH", "WIGme - KWT"]
+    dealshub_product_objs = DealsHubProduct.objects.filter(location_group__name__in=wigme_websites).filter(product=dealshub_product_obj_main.product)
+    for dealshub_product_obj in dealshub_product_objs:
+        dealshub_product_obj_prev = deepcopy(dealshub_product_obj)
+        dealshub_product_obj.product_name = dealshub_product_obj_main.product_name
+        dealshub_product_obj.product_name_ar = dealshub_product_obj_main.product_name_ar
+        dealshub_product_obj.product_description = dealshub_product_obj_main.product_description
+        dealshub_product_obj.product_description_ar = dealshub_product_obj_main.product_description_ar
+        dealshub_product_obj.category = dealshub_product_obj_main.category
+        dealshub_product_obj.sub_category = dealshub_product_obj_main.sub_category
+        dealshub_product_obj.save()
+        dealshub_product_obj.additional_sub_categories = dealshub_product_obj_main.additional_sub_categories.all()
+        render_value = f"Dealshub product {dealshub_product_obj.get_seller_sku()} details updated by {user}."
+        activitylog(user=user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dealshub_product_obj.location_group,prev_instance=dealshub_product_obj_prev,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
