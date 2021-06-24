@@ -860,7 +860,8 @@ class FetchProductDetailsAPI(APIView):
             response["color"] = product_obj.color
             response["weight"] = product_obj.weight
             response["dimensions"] = product_obj.get_dimensions()
-            response["size"] = "NA" if str(product_obj.size)=="" else str(product_obj.size + product_obj.size_unit)
+            response["size"] = "NA" if str(product_obj.size)=="" else str(product_obj.size) 
+            response["size_unit"] = str(product_obj.size_unit)
             response["capacity"] = "NA" if str(product_obj.capacity)=="" else str(product_obj.capacity)
             response["capacity_unit"] = str(product_obj.capacity_unit)
             
