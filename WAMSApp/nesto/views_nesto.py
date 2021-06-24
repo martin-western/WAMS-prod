@@ -38,6 +38,7 @@ class CreateNestoProductAPI(APIView):
 
             article_number = data["article_number"]
             product_name = data["product_name"]
+            product_name_ar = data["product_name_ar"]
             product_name_ecommerce = data["product_name_ecommerce"]
             barcode = data["barcode"]
             uom = data["uom"]
@@ -48,12 +49,17 @@ class CreateNestoProductAPI(APIView):
             country_of_origin = data["country_of_origin"]
             highlights = data["highlights"]
             storage_condition = data["storage_condition"]
+            storage_condition_ar = data["storage_condition_ar"]
             preparation_and_usage = data["preparation_and_usage"]
+            preparation_and_usage_ar = data["preparation_and_usage_ar"]
             allergic_information = data["allergic_information"]
+            allergic_information_ar = data["allergic_information_ar"]
             product_description = data["product_description"]
+            product_description_ar = data["product_description_ar"]
             dimensions = data["dimensions"]
             nutrition_facts = data["nutrition_facts"]
             ingredients = data["ingredients"]
+            ingredients_ar = data["ingredients_ar"]
             return_days = data["return_days"]
             product_status = data["product_status"]
             # about_brand = data["about_brand"]
@@ -84,6 +90,7 @@ class CreateNestoProductAPI(APIView):
 
             nesto_product_obj = NestoProduct.objects.create(article_number=article_number,
                                                             product_name=product_name,
+                                                            product_name_ar=product_name_ar,
                                                             product_name_ecommerce=product_name_ecommerce,
                                                             barcode=barcode,
                                                             uom=uom,
@@ -93,12 +100,17 @@ class CreateNestoProductAPI(APIView):
                                                             country_of_origin=country_of_origin,
                                                             highlights=highlights,
                                                             storage_condition=storage_condition,
+                                                            storage_condition_ar=storage_condition_ar,
                                                             preparation_and_usage=preparation_and_usage,
+                                                            preparation_and_usage_ar=preparation_and_usage_ar,
                                                             allergic_information=allergic_information,
+                                                            allergic_information_ar=allergic_information_ar,
                                                             product_description=product_description,
+                                                            product_description_ar=product_description_ar,
                                                             dimensions=json.dumps(dimensions),
                                                             nutrition_facts=nutrition_facts,
                                                             ingredients=ingredients,
+                                                            ingredients_ar=ingredients_ar,
                                                             return_days=return_days,
                                                             product_status=product_status,
                                                             is_verified=is_verified,
@@ -183,6 +195,7 @@ class UpdateNestoProductAPI(APIView):
 
             article_number = data["article_number"]
             product_name = data["product_name"]
+            product_name_ar = data["product_name_ar"]
             product_name_ecommerce = data["product_name_ecommerce"]
             barcode = data["barcode"]
             uom = data["uom"]
@@ -194,12 +207,17 @@ class UpdateNestoProductAPI(APIView):
             country_of_origin = data["country_of_origin"]
             highlights = data["highlights"]
             storage_condition = data["storage_condition"]
+            storage_condition_ar = data["storage_condition_ar"]
             preparation_and_usage = data["preparation_and_usage"]
+            preparation_and_usage_ar = data["preparation_and_usage_ar"]
             allergic_information = data["allergic_information"]
+            allergic_information_ar = data["allergic_information_ar"]
             product_description = data["product_description"]
+            product_description_ar = data["product_description_ar"]
             dimensions = data["dimensions"]
             nutrition_facts = data["nutrition_facts"]
             ingredients = data["ingredients"]
+            ingredients_ar = data["ingredients_ar"]
             return_days = data["return_days"]
             product_status = data["product_status"]
             about_brand = data["about_brand"]
@@ -232,6 +250,7 @@ class UpdateNestoProductAPI(APIView):
 
             # nesto_product_obj.article_number = article_number
             nesto_product_obj.product_name = product_name
+            nesto_product_obj.product_name_ar = product_name_ar
             nesto_product_obj.product_name_ecommerce = product_name_ecommerce
             # nesto_product_obj.barcode = barcode
             # nesto_product_obj.uom = uom
@@ -241,12 +260,17 @@ class UpdateNestoProductAPI(APIView):
             nesto_product_obj.country_of_origin = country_of_origin
             nesto_product_obj.highlights = highlights
             nesto_product_obj.storage_condition = storage_condition
+            nesto_product_obj.storage_condition_ar = storage_condition_ar
             nesto_product_obj.preparation_and_usage = preparation_and_usage
+            nesto_product_obj.preparation_and_usage_ar = preparation_and_usage_ar
             nesto_product_obj.allergic_information = allergic_information
+            nesto_product_obj.allergic_information_ar = allergic_information_ar
             nesto_product_obj.product_description = product_description
+            nesto_product_obj.product_description_ar = product_description_ar
             nesto_product_obj.dimensions = json.dumps(dimensions)
             nesto_product_obj.nutrition_facts = nutrition_facts
             nesto_product_obj.ingredients = ingredients
+            nesto_product_obj.ingredients_ar = ingredients_ar
             nesto_product_obj.return_days = return_days
             nesto_product_obj.product_status = product_status
             nesto_product_obj.vendor_category = vendor_category
@@ -365,6 +389,7 @@ class FetchNestoProductDetailsAPI(APIView):
 
             response["article_number"] = nesto_product_obj.article_number
             response["product_name"] = nesto_product_obj.product_name
+            response["product_name_ar"] = nesto_product_obj.product_name_ar
             response["product_name_ecommerce"] = nesto_product_obj.product_name_ecommerce
             response["barcode"] = nesto_product_obj.barcode
             response["uom"] = nesto_product_obj.uom
@@ -376,12 +401,17 @@ class FetchNestoProductDetailsAPI(APIView):
             response["country_of_origin"] = nesto_product_obj.country_of_origin
             response["highlights"] = nesto_product_obj.highlights
             response["storage_condition"] = nesto_product_obj.storage_condition
+            response["storage_condition_ar"] = nesto_product_obj.storage_condition_ar
             response["preparation_and_usage"] = nesto_product_obj.preparation_and_usage
+            response["preparation_and_usage_ar"] = nesto_product_obj.preparation_and_usage_ar
             response["allergic_information"] = nesto_product_obj.allergic_information
+            response["allergic_information_ar"] = nesto_product_obj.allergic_information_ar
             response["product_description"] = nesto_product_obj.product_description
+            response["product_description_ar"] = nesto_product_obj.product_description_ar
             response["dimensions"] = json.loads(nesto_product_obj.dimensions)
             response["nutrition_facts"] = nesto_product_obj.nutrition_facts
             response["ingredients"] = nesto_product_obj.ingredients
+            response["ingredients_ar"] = nesto_product_obj.ingredients_ar
             response["return_days"] = nesto_product_obj.return_days
             response["is_verified"] = nesto_product_obj.is_verified
             response["is_online"] = nesto_product_obj.is_online
