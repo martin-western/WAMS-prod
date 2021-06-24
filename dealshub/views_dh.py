@@ -6674,15 +6674,15 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 "orders" : real_total_orders,
                 "avg_order_value" : avg_order_value,
                 "delivered": total_filtered_orders_status_count_list[0],
-                "today_done_delivery_amount" : total_filtered_orders_status_amount_list[0],
+                "filtered_done_delivery_amount" : total_filtered_orders_status_amount_list[0],
                 "pending" : total_filtered_orders_status_count_list[1],
-                "today_pending_amount" : total_filtered_orders_status_amount_list[1],
+                "filtered_pending_amount" : total_filtered_orders_status_amount_list[1],
                 "dispatched": total_filtered_orders_status_count_list[2],
-                "today_dispatched_amount" : total_filtered_orders_status_amount_list[2],
+                "filtered_dispatched_amount" : total_filtered_orders_status_amount_list[2],
                 "returned": total_filtered_orders_status_count_list[3],
-                "today_returned_amount" : total_filtered_orders_status_amount_list[3],
+                "filtered_returned_amount" : total_filtered_orders_status_amount_list[3],
                 "cancelled": total_filtered_orders_status_count_list[4],
-                "today_cancelled_amount" : total_filtered_orders_status_amount_list[4]
+                "filtered_cancelled_amount" : total_filtered_orders_status_amount_list[4]
             }
             response["currency"] = currency
             response["status"] = 200
