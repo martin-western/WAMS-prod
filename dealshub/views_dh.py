@@ -6417,8 +6417,20 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             # exclusive of cancelled orders
             real_total_orders = UnitOrder.objects.filter(order__in=order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
             avg_order_value = 0 if real_total_orders==0 else round(float(total_sales/real_total_orders),2)
-            done_delivery_count = order_objs.filter(unitorder__current_status_admin = "delivered").distinct().count()
-            pending_delivery_count = real_total_orders - done_delivery_count
+            status_list = ["delivered","pending","dispatched","returned","cancelled"]
+
+            total_filtered_orders_status_count_list = []
+            total_filtered_orders_status_amount_list = []
+            for status in status_list:
+                filtered_status_objs = order_objs.filter(unitorder__current_status_admin = status).distinct()
+                total_filtered_orders_status_count_list.append(filtered_status_objs.count())
+                if filtered_status_objs.count() == 0:
+                        total_filtered_orders_status_amount_list.append(0)
+                        continue
+                total_amount = 0.0
+                for filtered_status_obj in filtered_status_objs:
+                    total_amount+=filtered_status_obj.get_total_amount()
+                total_filtered_orders_status_amount_list.append(round(float(total_amount), 2))
 
             currency = location_group_obj.location.currency
 
@@ -6661,8 +6673,16 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                 "sales" : total_sales,
                 "orders" : real_total_orders,
                 "avg_order_value" : avg_order_value,
-                "delivered_orders" : done_delivery_count,
-                "pending_orders" : pending_delivery_count
+                "delivered": total_filtered_orders_status_count_list[0],
+                "today_done_delivery_amount" : total_filtered_orders_status_amount_list[0],
+                "pending" : total_filtered_orders_status_count_list[1],
+                "today_pending_amount" : total_filtered_orders_status_amount_list[1],
+                "dispatched": total_filtered_orders_status_count_list[2],
+                "today_dispatched_amount" : total_filtered_orders_status_amount_list[2],
+                "returned": total_filtered_orders_status_count_list[3],
+                "today_returned_amount" : total_filtered_orders_status_amount_list[3],
+                "cancelled": total_filtered_orders_status_count_list[4],
+                "today_cancelled_amount" : total_filtered_orders_status_amount_list[4]
             }
             response["currency"] = currency
             response["status"] = 200
