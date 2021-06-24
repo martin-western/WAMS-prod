@@ -860,7 +860,8 @@ class FetchProductDetailsAPI(APIView):
             response["color"] = product_obj.color
             response["weight"] = product_obj.weight
             response["dimensions"] = product_obj.get_dimensions()
-            response["size"] = "NA" if str(product_obj.size)=="" else str(product_obj.size + product_obj.size_unit)
+            response["size"] = "NA" if str(product_obj.size)=="" else str(product_obj.size) 
+            response["size_unit"] = str(product_obj.size_unit)
             response["capacity"] = "NA" if str(product_obj.capacity)=="" else str(product_obj.capacity)
             response["capacity_unit"] = str(product_obj.capacity_unit)
             
@@ -1982,15 +1983,6 @@ class SaveProductAPI(APIView):
             
 
             product_obj.save()
-            dealshub_product_objs = custom_permission_filter_dealshub_product(request.user)
-            dealshub_product_objs = dealshub_product_objs.filter(product=product_obj)
-            for dealshub_product_obj in dealshub_product_objs:
-                dealshub_product_obj.product_name = data["product_name"]
-                dealshub_product_obj.product_description = data["product_description"]
-                dealshub_product_obj.save()
-
-
-
             response['status'] = 200
 
         except Exception as e:
