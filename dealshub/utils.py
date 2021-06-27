@@ -2231,7 +2231,7 @@ def calling_facebook_api(event_name,user,custom_data=None):
         postcode = sha256_encode(str(address_obj.postcode))
 
         access_token = "EAAFwjqw5ZBQoBAPIFvKmlv9JvNZAY3U5fccrGyVrN60By7BN87vbCdFRIFHoV3LNYcZAmbpC5qXqSJeZA6ZAHHddm5ufoZCU9ipicZCE7LxZBZCXlLVQ55BDZA5QOqLXNSwYwvRbHd0S3LwwFQR4jPjnXlYVJA7mhSjxAcudd3ipDyeqHmbnIG3oIjTvZCzAh6U7pQZD"
-        pixel_id = '983351819131454'
+        pixel_id = '512303446888348'
 
         FacebookAdsApi.init(access_token=access_token)
 
