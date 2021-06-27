@@ -2250,8 +2250,8 @@ def calling_facebook_api(event_name,user,custom_data=None):
             event_name=event_name,
             event_time=int(time.time()),
             user_data=user_data,
+            action_source="website",
             custom_data=custom_data,
-            action_source="website"
         )
 
         events = [event]
