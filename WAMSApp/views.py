@@ -5900,7 +5900,10 @@ class FetchCompanyProfileAPI(APIView):
                 response['status'] = 403
                 logger.warning("FetchCompanyProfileAPI Restricted Access!")
                 return Response(data=response)
- 
+            seo_title = ''
+            seo_short_description = '' 
+            seo_long_description = ''
+            seo_google_meta = ''
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
             location_group_uuid = data.get("locationGroupUuid","")     
             if location_group_uuid == "":
@@ -5967,12 +5970,16 @@ class FetchCompanyProfileAPI(APIView):
                         "url" : ""
                     }]
                     company_data["footer_logo"][0]["url"] = location_group_obj.footer_logo.image.url
+                seo_title = location_group_obj.seo_title
+                seo_long_description = location_group_obj.seo_long_description
+                seo_short_description = location_group_obj.seo_short_description
+                seo_google_meta = location_group_obj.seo_google_meta
 
             response["company_data"] = company_data
-            response["seo_title"] = location_group_obj.seo_title
-            response["seo_long_description"] = location_group_obj.seo_long_description
-            response["seo_short_description"] = location_group_obj.seo_short_description
-            response["seo_google_meta"] = location_group_obj.seo_google_meta
+            response["seo_title"] = seo_title
+            response["seo_long_description"] = seo_long_description
+            response["seo_short_description"] = seo_short_description
+            response["seo_google_meta"] = seo_google_meta
             response['status'] = 200    
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
