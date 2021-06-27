@@ -260,7 +260,8 @@ urlpatterns = [
     url(r'^fetch-sales-targets-list/$',views.FetchSalesTargetsList),
     url(r'^update-sales-target/$',views.UpdateSalesTarget),
     url(r'^add-sales-target/$',views.AddSalesTarget),
-
+    url(r'^delete-sales-target/$',views.DeleteSalesTarget),
+    
     url(r'^add-product-to-order/$',views.AddProductToOrder),
     url(r'^update-order-charges/$',views.UpdateOrderCharges),
 
