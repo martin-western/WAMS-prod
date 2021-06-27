@@ -235,6 +235,7 @@ urlpatterns = [
     url(r'^make-b2b-payment-network-global/$',views.MakeB2BPaymentNetworkGlobal),
     url(r'^make-payment-network-global-android/$',views.MakePaymentNetworkGlobalAndroid),
     url(r'^make-b2b-payment-network-global-android/$',views.MakeB2BPaymentNetworkGlobalAndroid),
+    url(r'^make-payment-credimax-gateway/$',views.MakePaymentCredimaxGateway),
 
     url(r'^fetch-postaplus-tracking/$',views.FetchPostaPlusTracking),
 
