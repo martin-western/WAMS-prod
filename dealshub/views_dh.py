@@ -1038,13 +1038,13 @@ class UpdateCartDetailsAPI(APIView):
                 unit_cart_obj.offline_price = offline_price
             unit_cart_obj.save()
             custom_data = []
-            custom_data.append(CustomData(
+            custom_data = CustomData(
                 value=unit_cart_obj.product.now_price,
                 currency=unit_cart_obj.product.get_currency(),
                 content_name=unit_cart_obj.product.get_name(),
                 content_category=unit_cart_obj.product.get_category(),
                 contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
-            ))
+            )
             cod=False
             if is_order_offline==True:
                 cod=True
