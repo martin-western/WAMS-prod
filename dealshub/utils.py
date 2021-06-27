@@ -2257,13 +2257,13 @@ def calling_facebook_api(event_name,user,custom_data=None):
             events = [event]
 
         else:
-            for custom_data_item in custom_data_items:
+            for custom_data_item in custom_data:
                 event = Event(
                     event_name=event_name,
                     event_time=int(time.time()),
                     user_data=user_data,
                     action_source=ActionSource.WEBSITE,
-                    custom_data=custom_data,
+                    custom_data=custom_data_item,
                 )
                 events.append(event)
     
