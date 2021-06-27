@@ -23,6 +23,16 @@ import threading
 from WAMSApp.utils import fetch_refresh_stock
 from WAMSApp.sap.utils_SAP_Integration import *
 
+import time
+from facebook_business.adobjects.serverside.content import Content
+from facebook_business.adobjects.serverside.custom_data import CustomData
+from facebook_business.adobjects.serverside.delivery_category import DeliveryCategory
+from facebook_business.adobjects.serverside.event import Event
+from facebook_business.adobjects.serverside.event_request import EventRequest
+from facebook_business.adobjects.serverside.gender import Gender
+from facebook_business.adobjects.serverside.user_data import UserData
+from facebook_business.api import FacebookAdsApi
+
 logger = logging.getLogger(__name__)
 
 
@@ -2201,3 +2211,52 @@ def sap_manual_update(order_obj, oc_user):
                                 user=oc_user,
                                 change_information=json.dumps(order_status_change_information)
                                 )
+
+
+def sha256_encode(string):
+    result = hashlib.sha256(string.encode())
+    return result.hexdigest()
+
+
+def calling_facebook_api(event_name,user,custom_data=None):
+    
+    email = sha256_encode(str(user.email))
+    first_name = sha256_encode(str(user.first_name))
+    last_name = sha256_encode(str(user.last_name))
+
+    address_obj = Address.objects.filter(user=user).first()
+
+    contact_number = sha256_encode(str(address_obj.contact_number))
+    state = sha256_encode(str(address_obj.state))
+    country = sha256_encode(str(address_obj.get_country()))
+    postcode = sha256_encode(str(address_obj.postcode))
+
+    access_token = "EAAFwjqw5ZBQoBAPIFvKmlv9JvNZAY3U5fccrGyVrN60By7BN87vbCdFRIFHoV3LNYcZAmbpC5qXqSJeZA6ZAHHddm5ufoZCU9ipicZCE7LxZBZCXlLVQ55BDZA5QOqLXNSwYwvRbHd0S3LwwFQR4jPjnXlYVJA7mhSjxAcudd3ipDyeqHmbnIG3oIjTvZCzAh6U7pQZD"
+    pixel_id = '983351819131454'
+
+    FacebookAdsApi.init(access_token=access_token)
+
+    user_data = UserData(
+        emails=[email],
+        first_names=[first_name],
+        last_names=[last_name],
+        phones=[contact_number],
+        cities=[],
+        states=[state],
+        zip_codes=[postcode],
+        country_codes=[country]
+    )
+    event = Event(
+        event_name=event_name,
+        event_time=int(time.time()),
+        user_data=user_data,
+        custom_data=custom_data,
+        action_source="website"
+    )
+
+    events = [event]
+    event_request = EventRequest(
+        events=events,
+        pixel_id=pixel_id
+    )
+    event_response = event_request.execute()
