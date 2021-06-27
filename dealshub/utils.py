@@ -2246,6 +2246,7 @@ def calling_facebook_api(event_name,user,custom_data=None):
             country_codes=[country]
         )
 
+        events = []
         if custom_data == None:
             event = Event(
                 event_name=event_name,
@@ -2253,21 +2254,25 @@ def calling_facebook_api(event_name,user,custom_data=None):
                 user_data=user_data,
                 action_source=ActionSource.WEBSITE,
             )
-        else:
-            event = Event(
-                event_name=event_name,
-                event_time=int(time.time()),
-                user_data=user_data,
-                action_source=ActionSource.WEBSITE,
-                custom_data=custom_data,
-            )
+            events = [event]
 
-        events = [event]
+        else:
+            for custom_data_item in custom_data_items:
+                event = Event(
+                    event_name=event_name,
+                    event_time=int(time.time()),
+                    user_data=user_data,
+                    action_source=ActionSource.WEBSITE,
+                    custom_data=custom_data,
+                )
+                events.append(event)
+    
         event_request = EventRequest(
             events=events,
             pixel_id=pixel_id
         )
         event_response = event_request.execute()
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))
