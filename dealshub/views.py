@@ -6104,6 +6104,35 @@ class AddSalesTargetAPI(APIView):
         
         return Response(data=response)
 
+class DeleteSalesTargetAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("DeleteSalesTargetAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteSalesTargetAPI Restricted Access!")
+                return Response(data=response)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            sales_target_uuid = data["sales_target_uuid"]
+            sales_target_obj = SalesTarget.objects.get(uuid=sales_target_uuid, location_group=location_group_obj)
+            sales_target_obj.delete()
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteSalesTargetAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
 #API with active log
 class AddProductToOrderAPI(APIView):
     
@@ -6689,6 +6718,8 @@ FetchSalesTargetsList = FetchSalesTargetsListAPI.as_view()
 UpdateSalesTarget = UpdateSalesTargetAPI.as_view()
 
 AddSalesTarget = AddSalesTargetAPI.as_view()
+
+DeleteSalesTarget = DeleteSalesTargetAPI.as_view()
 
 AddProductToOrder = AddProductToOrderAPI.as_view()
 
