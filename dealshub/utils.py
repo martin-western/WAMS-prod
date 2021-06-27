@@ -2229,8 +2229,6 @@ def calling_facebook_api(event_name,user,custom_data=None):
         country = sha256_encode(str(address_obj.get_country()))
         postcode = sha256_encode(str(address_obj.postcode))
 
-        custom_data = CustomData() if custom_data == None else custom_data
-
         access_token = "EAAFwjqw5ZBQoBAPIFvKmlv9JvNZAY3U5fccrGyVrN60By7BN87vbCdFRIFHoV3LNYcZAmbpC5qXqSJeZA6ZAHHddm5ufoZCU9ipicZCE7LxZBZCXlLVQ55BDZA5QOqLXNSwYwvRbHd0S3LwwFQR4jPjnXlYVJA7mhSjxAcudd3ipDyeqHmbnIG3oIjTvZCzAh6U7pQZD"
         pixel_id = '983351819131454'
 
@@ -2246,13 +2244,22 @@ def calling_facebook_api(event_name,user,custom_data=None):
             zip_codes=[postcode],
             country_codes=[country]
         )
-        event = Event(
-            event_name=event_name,
-            event_time=int(time.time()),
-            user_data=user_data,
-            action_source="website",
-            custom_data=custom_data,
-        )
+
+        if custom_data == None:
+            event = Event(
+                event_name=event_name,
+                event_time=int(time.time()),
+                user_data=user_data,
+                action_source="website",
+            )
+        else:
+            event = Event(
+                event_name=event_name,
+                event_time=int(time.time()),
+                user_data=user_data,
+                action_source="website",
+                custom_data=custom_data,
+            )
 
         events = [event]
         event_request = EventRequest(
