@@ -2264,6 +2264,7 @@ def calling_facebook_api(event_name,user,custom_data=None):
                     user_data=user_data,
                     action_source=ActionSource.WEBSITE,
                     custom_data=custom_data_item,
+                    test_event_code="TEST64413"
                 )
                 events.append(event)
     
