@@ -5969,6 +5969,10 @@ class FetchCompanyProfileAPI(APIView):
                     company_data["footer_logo"][0]["url"] = location_group_obj.footer_logo.image.url
 
             response["company_data"] = company_data
+            response["seo_title"] = location_group_obj.seo_title
+            response["seo_long_description"] = location_group_obj.seo_long_description
+            response["seo_short_description"] = location_group_obj.seo_short_description
+            response["seo_google_meta"] = location_group_obj.seo_google_meta
             response['status'] = 200    
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6052,6 +6056,10 @@ class SaveCompanyProfileAPI(APIView):
                 linkedin_link = company_data["linkedin_link"]
                 crunchbase_link = company_data["crunchbase_link"]
                 color_scheme = company_data["color_scheme"]
+                location_group_obj.seo_title = company_data["seo_title"]
+                location_group_obj.seo_short_description = company_data["seo_short_description"]
+                location_group_obj.seo_long_description = company_data["seo_long_description"]
+                location_group_obj.seo_google_meta = company_data["seo_google_meta"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.set_support_email_id(email_id)
