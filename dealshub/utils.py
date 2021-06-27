@@ -2219,44 +2219,47 @@ def sha256_encode(string):
 
 
 def calling_facebook_api(event_name,user,custom_data=None):
-    
-    email = sha256_encode(str(user.email))
-    first_name = sha256_encode(str(user.first_name))
-    last_name = sha256_encode(str(user.last_name))
+    try:
+        email = sha256_encode(str(user.email))
+        first_name = sha256_encode(str(user.first_name))
+        last_name = sha256_encode(str(user.last_name))
+        address_obj = Address.objects.filter(user=user).first()
+        contact_number = sha256_encode(str(address_obj.contact_number))
+        state = sha256_encode(str(address_obj.state))
+        country = sha256_encode(str(address_obj.get_country()))
+        postcode = sha256_encode(str(address_obj.postcode))
 
-    address_obj = Address.objects.filter(user=user).first()
+        custom_data = CustomData() if custom_data == None else custom_data
 
-    contact_number = sha256_encode(str(address_obj.contact_number))
-    state = sha256_encode(str(address_obj.state))
-    country = sha256_encode(str(address_obj.get_country()))
-    postcode = sha256_encode(str(address_obj.postcode))
+        access_token = "EAAFwjqw5ZBQoBAPIFvKmlv9JvNZAY3U5fccrGyVrN60By7BN87vbCdFRIFHoV3LNYcZAmbpC5qXqSJeZA6ZAHHddm5ufoZCU9ipicZCE7LxZBZCXlLVQ55BDZA5QOqLXNSwYwvRbHd0S3LwwFQR4jPjnXlYVJA7mhSjxAcudd3ipDyeqHmbnIG3oIjTvZCzAh6U7pQZD"
+        pixel_id = '983351819131454'
 
-    access_token = "EAAFwjqw5ZBQoBAPIFvKmlv9JvNZAY3U5fccrGyVrN60By7BN87vbCdFRIFHoV3LNYcZAmbpC5qXqSJeZA6ZAHHddm5ufoZCU9ipicZCE7LxZBZCXlLVQ55BDZA5QOqLXNSwYwvRbHd0S3LwwFQR4jPjnXlYVJA7mhSjxAcudd3ipDyeqHmbnIG3oIjTvZCzAh6U7pQZD"
-    pixel_id = '983351819131454'
+        FacebookAdsApi.init(access_token=access_token)
 
-    FacebookAdsApi.init(access_token=access_token)
+        user_data = UserData(
+            emails=[email],
+            first_names=[first_name],
+            last_names=[last_name],
+            phones=[contact_number],
+            cities=[],
+            states=[state],
+            zip_codes=[postcode],
+            country_codes=[country]
+        )
+        event = Event(
+            event_name=event_name,
+            event_time=int(time.time()),
+            user_data=user_data,
+            custom_data=custom_data,
+            action_source="website"
+        )
 
-    user_data = UserData(
-        emails=[email],
-        first_names=[first_name],
-        last_names=[last_name],
-        phones=[contact_number],
-        cities=[],
-        states=[state],
-        zip_codes=[postcode],
-        country_codes=[country]
-    )
-    event = Event(
-        event_name=event_name,
-        event_time=int(time.time()),
-        user_data=user_data,
-        custom_data=custom_data,
-        action_source="website"
-    )
-
-    events = [event]
-    event_request = EventRequest(
-        events=events,
-        pixel_id=pixel_id
-    )
-    event_response = event_request.execute()
+        events = [event]
+        event_request = EventRequest(
+            events=events,
+            pixel_id=pixel_id
+        )
+        event_response = event_request.execute()
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))
