@@ -24,6 +24,7 @@ from WAMSApp.utils import fetch_refresh_stock
 from WAMSApp.sap.utils_SAP_Integration import *
 
 import time
+from facebook_business.adobjects.serverside.action_source import ActionSource
 from facebook_business.adobjects.serverside.content import Content
 from facebook_business.adobjects.serverside.custom_data import CustomData
 from facebook_business.adobjects.serverside.delivery_category import DeliveryCategory
@@ -2250,14 +2251,14 @@ def calling_facebook_api(event_name,user,custom_data=None):
                 event_name=event_name,
                 event_time=int(time.time()),
                 user_data=user_data,
-                action_source="website",
+                action_source=ActionSource.WEBSITE,
             )
         else:
             event = Event(
                 event_name=event_name,
                 event_time=int(time.time()),
                 user_data=user_data,
-                action_source="website",
+                action_source=ActionSource.WEBSITE,
                 custom_data=custom_data,
             )
 
