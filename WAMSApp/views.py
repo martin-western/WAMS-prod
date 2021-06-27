@@ -5972,7 +5972,7 @@ class FetchCompanyProfileAPI(APIView):
             response["seo_title"] = location_group_obj.seo_title
             response["seo_long_description"] = location_group_obj.seo_long_description
             response["seo_short_description"] = location_group_obj.seo_short_description
-            response["seo_page_description"] = location_group_obj.seo_page_description
+            response["seo_google_meta"] = location_group_obj.seo_google_meta
             response['status'] = 200    
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6059,7 +6059,7 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.seo_title = company_data["seo_title"]
                 location_group_obj.seo_short_description = company_data["seo_short_description"]
                 location_group_obj.seo_long_description = company_data["seo_long_description"]
-                location_group_obj.seo_page_description = company_data["seo_page_description"]
+                location_group_obj.seo_google_meta = company_data["seo_google_meta"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.set_support_email_id(email_id)
