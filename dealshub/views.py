@@ -14,7 +14,7 @@ from dealshub.payments.network_global_integration import *
 from dealshub.payments.hyperpay_integration import *
 from dealshub.payments.network_global_android_integration import *
 from dealshub.algolia.views import *
-from dealshub.payments.credimax_gateway_integration import *
+# from dealshub.payments.credimax_gateway_integration import *
 
 from django.shortcuts import HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
