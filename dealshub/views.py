@@ -523,7 +523,7 @@ class FetchNewArrivalProductsAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchOnSaleProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchNewArrivalProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -828,7 +828,7 @@ class FetchCategoriesForNewUserAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=b2b_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchHeadingCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchCategoriesForNewUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -872,7 +872,7 @@ class SetInterestedCategoriesForNewUserAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=b2b_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchHeadingCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchCategoriesForNewUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1431,7 +1431,7 @@ class SearchWIGAPI(APIView):
                 calling_facebook_api(event_name="Search",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1696,7 +1696,7 @@ class SearchWIG2API(APIView):
                 calling_facebook_api(event_name="Search",user=b2b_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("SearchWIG2API: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4363,7 +4363,7 @@ class FetchCompanyProfileDealshubAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchCompanyProfileDealshubAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4501,7 +4501,7 @@ class FetchWebsiteGroupBrandsAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchWebsiteGroupBrandsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4734,7 +4734,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchUnitBannerProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

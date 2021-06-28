@@ -189,7 +189,7 @@ class FetchWishListAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchWishListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -244,7 +244,7 @@ class FetchShippingAddressListAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchShippingAddressListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -310,7 +310,7 @@ class EditShippingAddressAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("EditAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -368,7 +368,7 @@ class CreateShippingAddressAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -427,7 +427,7 @@ class CreateOfflineShippingAddressAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("CreateOfflineShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -469,7 +469,7 @@ class DeleteShippingAddressAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("DeleteShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -675,7 +675,7 @@ class AddToFastCartAPI(APIView):
                 calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("AddToCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("AddToFastCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -783,7 +783,7 @@ class AddToOfflineCartAPI(APIView):
                 calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("AddToCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("AddToOfflineCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -898,7 +898,7 @@ class FetchCartDetailsAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1005,7 +1005,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=cart_obj.owner,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1278,7 +1278,7 @@ class BulkUpdateCartDetailsAPI(APIView):
                 calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("BulkUpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1493,7 +1493,7 @@ class SelectAddressAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("SelectAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
                             
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1533,7 +1533,7 @@ class SelectOfflineAddressAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("SelectOfflineAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1580,7 +1580,7 @@ class SelectPaymentModeAPI(APIView):
                 calling_facebook_api(event_name="InitiateCheckout",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("SelectPaymentModeAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1838,7 +1838,7 @@ class PlaceOrderRequestAPI(APIView):
                 calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1984,7 +1984,7 @@ class DeleteOrderRequestAPI(APIView):
                 calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("DeleteOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2039,7 +2039,7 @@ class PlaceInquiryAPI(APIView):
                 calling_facebook_api(event_name="Contact",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2414,7 +2414,7 @@ class PlaceOfflineOrderAPI(APIView):
                 calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceOfflineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             # Cart gets empty
             for unit_cart_obj in unit_cart_objs:
@@ -3005,7 +3005,7 @@ class FetchOrderDetailsAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -3867,7 +3867,7 @@ class DeleteB2BDocumentAPI(APIView):
                 calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("DeleteB2BDocumentAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4309,7 +4309,7 @@ class PaymentTransactionAPI(APIView):
                         calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,custom_data=custom_data)
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                        logger.error("PaymentTransactionAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
                     # Cart gets empty
                     for unit_cart_obj in unit_cart_objs:
@@ -4379,7 +4379,7 @@ class PaymentTransactionAPI(APIView):
                         calling_facebook_api(event_name="Purchase",user=fast_cart_obj.owner,custom_data=custom_data)
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
-                        logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                        logger.error("PaymentTransactionAPI: %s at %s", e, str(exc_tb.tb_lineno))
          
                     # cart_obj points to None
                     fast_cart_obj.shipping_address = None
@@ -4673,7 +4673,7 @@ class ContactUsSendEmailAPI(APIView):
                 calling_facebook_api(event_name="Contact",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("ContactUsSendEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -5212,7 +5212,7 @@ class SetLoginPinAPI(APIView):
                 calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("CheckUserPinSetAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("SetLoginPinAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6385,7 +6385,7 @@ class DeleteUserReviewImageAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("DeleteUserReviewImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -9280,7 +9280,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
                 calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("PlaceDaycartOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -9485,7 +9485,7 @@ class PlaceOnlineOrderAPI(APIView):
                     calling_facebook_api(event_name="Purchase",user=fast_cart_obj.owner,custom_data=custom_data)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                    logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
          
                 # cart_obj points to None
                 fast_cart_obj.shipping_address = None
