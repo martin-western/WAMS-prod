@@ -112,7 +112,8 @@ class FetchProductDetailsAPI(APIView):
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
             response["faqs"] = dealshub_product_obj.get_faqs()
             response["how_to_use"] = dealshub_product_obj.get_how_to_use()
-
+            if dealshub_product_obj.user_manual!=None and dealshub_product_obj.user_manual!="":
+                response["user_manual"] = dealshub_product_obj.user_manual.url
 
             response["is_cod_allowed"] = dealshub_product_obj.is_cod_allowed
 
