@@ -92,6 +92,7 @@ urlpatterns = [
 
     url(r'^fetch-dealshub-products/$',views.FetchDealsHubProducts),
     url(r'^update-dealshub-product/$',views.UpdateDealshubProduct),
+    url(r'^update-user-manual-dealshub-product/$',views.UpdateUserManualDealshubProduct),
     url(r'^bulk-update-dealshub-product-price/$',views.BulkUpdateDealshubProductPrice),
     url(r'^bulk-update-b2b-dealshub-product-price/$',views.BulkUpdateB2BDealshubProductPrice),
     url(r'^bulk-update-b2b-dealshub-product-moq/$',views.BulkUpdateB2BDealshubProductMOQ),

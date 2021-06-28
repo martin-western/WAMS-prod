@@ -1274,6 +1274,54 @@ class UpdateDealshubProductAPI(APIView):
 
         return Response(data=response)
 
+
+class UpdateUserManualDealshubProductAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("UpdateUserManualDealshubProductAPI: %s", str(data))
+
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("UpdateDealshubProductAPI Restricted Access!")
+                return Response(data=response)
+
+            location_group_uuid = data.get("locationGroupUuid","")
+            user_manual_document = data.get("user_manual_document","")
+            if location_group_uuid != "":
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            product_uuid = data["product_uuid"]
+
+            dh_product_obj = DealsHubProduct.objects.get(uuid=product_uuid)
+            prev_instance = deepcopy(dh_product_obj)
+            if user_manual_document != "":
+                dh_product_obj.user_manual = user_manual_document
+            else:
+                dh_product_obj.user_manual = None
+
+            dh_product_obj.save()
+            render_value = 'DealsHubProduct {} is updated'.format(dh_product_obj.get_seller_sku())
+            activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dh_product_obj.location_group,prev_instance=prev_instance,current_instance=dh_product_obj,table_item_pk=dh_product_obj.uuid,render=render_value)
+        
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("UpdateDealshubProductAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
 #API with active log
 class BulkUpdateDealshubProductPriceAPI(APIView):
 
@@ -8548,6 +8596,8 @@ SaveBaseProduct = SaveBaseProductAPI.as_view()
 FetchDealsHubProducts = FetchDealsHubProductsAPI.as_view()
 
 UpdateDealshubProduct = UpdateDealshubProductAPI.as_view()
+
+UpdateUserManualDealshubProduct = UpdateUserManualDealshubProductAPI.as_view()
 
 BulkUpdateDealshubProductPrice = BulkUpdateDealshubProductPriceAPI.as_view()
 
