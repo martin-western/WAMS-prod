@@ -10133,6 +10133,35 @@ class UpdateB2BCustomerDetailsAPI(APIView):
         return Response(data=response)
 
 
+class FetchSEODataAPI(APIView):
+
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchSEODataAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            response["seo_title"] = location_group_obj.seo_title
+            response["seo_long_description"] = location_group_obj.seo_long_description
+            response["seo_short_description"] = location_group_obj.seo_short_description
+            response["seo_google_meta"] = location_group_obj.seo_google_meta
+            response['status'] = 200    
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSEODataAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
 
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
@@ -10389,3 +10418,5 @@ FetchB2BUserProfile = FetchB2BUserProfileAPI.as_view()
 UploadB2BDocument = UploadB2BDocumentAPI.as_view()
 
 UpdateB2BCustomerDetails = UpdateB2BCustomerDetailsAPI.as_view()
+
+FetchSEOData = FetchSEODataAPI.as_view()
