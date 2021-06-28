@@ -112,7 +112,6 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             }
 
             body = {
-                "action": "SALE",
                 "order": { 
                     "currency": "AED", 
                     "amount": 1
@@ -132,7 +131,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             }
             API_URL = "https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/E16906950/session/" + session_id
             
-            payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
+            payment_response = requests.put(API_URL, data=json.dumps(body),headers=headers)
             
             response["session_id"] = session_id
             response["payment_response"] = json.loads(payment_response.content)
