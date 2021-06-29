@@ -1116,7 +1116,7 @@ class UpdateCartDetailsAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="AddToCart",user=cart_obj.owner,custom_data=custom_data)
+                calling_facebook_api(event_name="UpdateCart",user=cart_obj.owner,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
