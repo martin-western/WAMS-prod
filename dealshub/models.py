@@ -366,12 +366,22 @@ class DealsHubProduct(models.Model):
     def get_capacity(self):
         if str(self.product.capacity)=="":
             return "NA"
-        return self.product.capacity + self.product.capacity_unit
+        return self.product.capacity 
     
+    def get_capacity_unit(self):
+        if str(self.product.capacity_unit)=="":
+            return "NA"
+        return self.product.capacity_unit
+     
     def get_size(self):
         if str(self.product.size)=="":
             return "NA"
-        return self.product.size + self.product.size_unit
+        return self.product.size
+
+    def get_size_unit(self):
+        if str(self.product.size_unit)=="":
+            return "NA"
+        return self.product.size_unit
 
     def get_faqs(self):
         return json.loads(self.product.faqs)
@@ -1878,3 +1888,46 @@ class BlogSection(models.Model):
 
         super(BlogSection,self).save(*args,**kwargs)
 
+
+class OrderMailRequest(models.Model):
+    '''
+    Stores the email information related to a given Order, which can be used later to send an email
+    '''
+    uuid = models.CharField(max_length=200, unique=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    STATUS = (
+        ("dispatched", "dispatched"),
+        ("delivered", "delivered"),
+        ("delivery_failed", "delivery_failed")
+    )
+    status = models.CharField(max_length=100, choices=STATUS, default="dispatched")
+    is_mail_sent = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.uuid}-{self.status}-order-{self.order.uuid}"
+
+    def save(self, *args, **kwargs):
+        if self.uuid == None or self.uuid == "":
+            self.uuid = str(uuid.uuid4())
+        super(OrderMailRequest, self).save(*args, **kwargs)
+
+    def get_email_info(self):
+        message = {
+            "dispatched": "Order Dispatched",
+            "delivered": "Order Delivered",
+            "delivery_failed": "Order Delivery Failed"
+        }
+        info = {
+            "host": self.order.location_group.get_email_host(),
+            "port": self.order.location_group.get_email_port(), 
+            "username": self.order.location_group.get_order_from_email_id(), 
+            "password": self.order.location_group.get_order_from_email_password(),
+            "use_tls": True,
+            "subject": message[self.status],
+            "body": message[self.status],
+            "from_email": self.order.location_group.get_order_from_email_id(),
+            "to": [self.order.owner.email],
+            "cc": self.order.location_group.get_order_cc_email_list(),
+            "bcc": self.order.location_group.get_order_bcc_email_list()
+        }
+        return info

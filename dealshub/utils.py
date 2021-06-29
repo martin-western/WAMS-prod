@@ -23,6 +23,17 @@ import threading
 from WAMSApp.utils import fetch_refresh_stock
 from WAMSApp.sap.utils_SAP_Integration import *
 
+import time
+from facebook_business.adobjects.serverside.action_source import ActionSource
+from facebook_business.adobjects.serverside.content import Content
+from facebook_business.adobjects.serverside.custom_data import CustomData
+from facebook_business.adobjects.serverside.delivery_category import DeliveryCategory
+from facebook_business.adobjects.serverside.event import Event
+from facebook_business.adobjects.serverside.event_request import EventRequest
+from facebook_business.adobjects.serverside.gender import Gender
+from facebook_business.adobjects.serverside.user_data import UserData
+from facebook_business.api import FacebookAdsApi
+
 logger = logging.getLogger(__name__)
 
 
@@ -190,7 +201,7 @@ def set_order_status(unit_order_obj, order_status):
         UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="returned", status_admin=order_status)
         return
 
-def set_order_status_without_thread(unit_order_obj, order_status):
+def set_order_status_without_mail(unit_order_obj, order_status):
     if unit_order_obj.current_status_admin=="approved" and order_status in ["picked"]:
         unit_order_obj.current_status = "shipped"
         unit_order_obj.current_status_admin = order_status
@@ -203,9 +214,7 @@ def set_order_status_without_thread(unit_order_obj, order_status):
         unit_order_obj.current_status_admin = order_status
         unit_order_obj.save()
         UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="shipped", status_admin=order_status)
-        # Trigger Email
         try:
-            send_order_dispatch_mail(unit_order_obj)
             website_group = unit_order_obj.order.location_group.website_group.name
             if website_group=="parajohn":
                 message = "Your order has been dispatched!"
@@ -229,10 +238,8 @@ def set_order_status_without_thread(unit_order_obj, order_status):
         unit_order_obj.save()
         UnitOrderStatus.objects.create(unit_order=unit_order_obj, status=status, status_admin=order_status)
 
-        # Trigger Email
         if order_status=="delivered":
             try:
-                send_order_delivered_mail(unit_order_obj)
                 website_group = unit_order_obj.order.location_group.website_group.name
                 if website_group=="parajohn":
                     message = "Your order has been delivered!"
@@ -246,7 +253,6 @@ def set_order_status_without_thread(unit_order_obj, order_status):
         
         elif order_status=="delivery failed":
             try:
-                send_order_delivery_failed_mail(unit_order_obj)
                 website_group = unit_order_obj.order.location_group.website_group.name
                 if website_group=="parajohn":
                     message = "Sorry, we were unable to deliver your order!"
@@ -2206,3 +2212,67 @@ def sap_manual_update(order_obj, oc_user):
                                 user=oc_user,
                                 change_information=json.dumps(order_status_change_information)
                                 )
+
+
+def sha256_encode(string):
+    result = hashlib.sha256(string.encode())
+    return result.hexdigest()
+
+
+def calling_facebook_api(event_name,user,custom_data=None):
+    try:
+        email = sha256_encode(str(user.email))
+        first_name = sha256_encode(str(user.first_name))
+        last_name = sha256_encode(str(user.last_name))
+        address_obj = Address.objects.filter(user=user).first()
+        contact_number = sha256_encode(str(address_obj.contact_number))
+        state = sha256_encode(str(address_obj.state))
+        country = sha256_encode(str(address_obj.get_country()))
+        postcode = sha256_encode(str(address_obj.postcode))
+
+        access_token = "EAAFwjqw5ZBQoBAM6Oa6AqRtwuE2rCM69h7DHCVHwGBDrvADHkt7ASZAlsQBXHmEmqg4aTNHeQ6oHVqRgWiuy5ZAgpXtnHtaxuIy6YuOPWCxxE0KJnGroVym60KefyztFMZC6hiy7IEZB0ywp0niZB5w0FAx2GQaXNJoZA9BcJnBSUWpShteuz2f"
+        pixel_id = '983351819131454'
+
+        FacebookAdsApi.init(access_token=access_token)
+
+        user_data = UserData(
+            emails=[email],
+            first_names=[first_name],
+            last_names=[last_name],
+            phones=[contact_number],
+            cities=[],
+            states=[state],
+            zip_codes=[postcode],
+            country_codes=[country]
+        )
+
+        events = []
+        if custom_data == None:
+            event = Event(
+                event_name=event_name,
+                event_time=int(time.time()),
+                user_data=user_data,
+                action_source=ActionSource.WEBSITE,
+            )
+            events = [event]
+
+        else:
+            for custom_data_item in custom_data:
+                event = Event(
+                    event_name=event_name,
+                    event_time=int(time.time()),
+                    user_data=user_data,
+                    action_source=ActionSource.WEBSITE,
+                    custom_data=custom_data_item,
+                )
+                events.append(event)
+    
+        event_request = EventRequest(
+            events=events,
+            pixel_id=pixel_id
+        )
+        event_response = event_request.execute()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))

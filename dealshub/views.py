@@ -14,6 +14,7 @@ from dealshub.payments.network_global_integration import *
 from dealshub.payments.hyperpay_integration import *
 from dealshub.payments.network_global_android_integration import *
 from dealshub.algolia.views import *
+from dealshub.payments.credimax_gateway_integration import *
 
 from django.shortcuts import HttpResponse, get_object_or_404
 from django.contrib.auth import logout, authenticate, login
@@ -30,6 +31,9 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db.models import Count, Avg, F
+
+from facebook_business.adobjects.serverside.content import Content
+from facebook_business.adobjects.serverside.custom_data import CustomData
 
 from copy import deepcopy
 
@@ -103,7 +107,9 @@ class FetchProductDetailsAPI(APIView):
             else:
                 response["weight"] = str(dealshub_product_obj.get_weight())+" kg"
             response["size"] = dealshub_product_obj.get_size()
+            response["size_unit"] = dealshub_product_obj.get_size_unit()            
             response["capacity"] = dealshub_product_obj.get_capacity()
+            response["capacity_unit"] = dealshub_product_obj.get_capacity_unit()
             response["target_age_range"] = dealshub_product_obj.get_target_age_range()
             response["material"] = dealshub_product_obj.get_material()
             response["sellerSku"] = dealshub_product_obj.get_seller_sku()
@@ -263,6 +269,20 @@ class FetchProductDetailsAPI(APIView):
             response["similar_brand_products"] = []
             response['status'] = 200
 
+            try:
+                custom_data = CustomData(
+                    value= dealshub_product_obj.get_actual_price(dealshub_user_obj),
+                    currency=dealshub_product_obj.get_currency(),
+                    content_name=dealshub_product_obj.get_name(),
+                    content_category=dealshub_product_obj.get_category(),
+                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.get_actual_price(dealshub_user_obj))],
+                )
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchProductDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchProductDetailsAPI: %s at %s", str(e), str(exc_tb.tb_lineno))
@@ -304,6 +324,20 @@ class FetchSimilarProductsAPI(APIView):
             response["similar_category_products"] = similar_category_products
             response["similar_brand_products"] = similar_brand_products
             response['status'] = 200
+
+            try:
+                custom_data = CustomData(
+                    value= dealshub_product_obj.now_price,
+                    currency=dealshub_product_obj.get_currency(),
+                    content_name=dealshub_product_obj.get_name(),
+                    content_category=dealshub_product_obj.get_category(),
+                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                )
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchSimilarProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -348,6 +382,7 @@ class FetchOnSaleProductsAPI(APIView):
             dealshub_product_objs = paginator.page(page)
 
             products = []
+            custom_data = []
             for dealshub_product_obj in dealshub_product_objs:
                 if dealshub_product_obj.now_price == 0:
                     continue
@@ -373,7 +408,17 @@ class FetchOnSaleProductsAPI(APIView):
                 temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
                 temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
                 products.append(temp_dict2)
-            
+                try:
+                    custom_data.append(CustomData(
+                        value= dealshub_product_obj.now_price,
+                        currency=dealshub_product_obj.get_currency(),
+                        content_name=dealshub_product_obj.get_name(),
+                        content_category=dealshub_product_obj.get_category(),
+                        contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    ))
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchOnSaleProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
             is_available = True
             
             if int(paginator.num_pages) == int(page):
@@ -384,6 +429,13 @@ class FetchOnSaleProductsAPI(APIView):
             response["products"] = products
             response["is_user_authenticated"] = is_user_authenticated
             response['status'] = 200
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchOnSaleProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -428,6 +480,7 @@ class FetchNewArrivalProductsAPI(APIView):
             dealshub_product_objs = paginator.page(page)
 
             products = []
+            custom_data = []
             for dealshub_product_obj in dealshub_product_objs:
                 if dealshub_product_obj.now_price == 0:
                     continue
@@ -451,9 +504,19 @@ class FetchNewArrivalProductsAPI(APIView):
                 temp_dict2["uuid"] = dealshub_product_obj.uuid
                 temp_dict2["id"] = dealshub_product_obj.uuid
                 temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
-
                 products.append(temp_dict2)
-            
+                try:
+                    custom_data.append(CustomData(
+                        value= dealshub_product_obj.now_price,
+                        currency=dealshub_product_obj.get_currency(),
+                        content_name=dealshub_product_obj.get_name(),
+                        content_category=dealshub_product_obj.get_category(),
+                        contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    ))
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchNewArrivalProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
             is_available = True
             
             if int(paginator.num_pages) == int(page):
@@ -464,6 +527,13 @@ class FetchNewArrivalProductsAPI(APIView):
             response["products"] = products
             response["is_user_authenticated"] = is_user_authenticated
             response['status'] = 200
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchNewArrivalProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -555,7 +625,7 @@ class FetchSectionProductsAPI(APIView):
             page = int(data.get("page",1))
             paginator = Paginator(dealshub_product_objs, 50)
             dealshub_product_objs = paginator.page(page)
-
+            custom_data = []
             for dealshub_product_obj in dealshub_product_objs:
                 if dealshub_product_obj.now_price==0:
                     continue
@@ -580,8 +650,18 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict2["link"] = dealshub_product_obj.url
                 temp_dict2["id"] = dealshub_product_obj.uuid
                 temp_dict2["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
-
                 temp_dict["productsArray"].append(temp_dict2)
+                try:
+                    custom_data.append(CustomData(
+                        value= dealshub_product_obj.now_price,
+                        currency=dealshub_product_obj.get_currency(),
+                        content_name=dealshub_product_obj.get_name(),
+                        content_category=dealshub_product_obj.get_category(),
+                        contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    ))
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchSectionProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             is_available = True
             
@@ -595,6 +675,14 @@ class FetchSectionProductsAPI(APIView):
             response["brand_list"] = brand_list
             response['sectionData'] = temp_dict
             response['status'] = 200
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchSectionProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchSectionProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -653,6 +741,13 @@ class FetchSuperCategoriesAPI(APIView):
             response['superCategoryList'] = super_category_list
             response['status'] = 200
 
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -700,6 +795,13 @@ class FetchHeadingCategoriesAPI(APIView):
             response['categoryList'] = category_list
             response['status'] = 200
 
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchHeadingCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchHeadingCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -734,6 +836,12 @@ class FetchCategoriesForNewUserAPI(APIView):
             response["isInterestedCategoriesSet"] = conf.get("isInterestedCategoriesSet", False)
             response['categoryList'] = category_list
             response['status'] = 200
+
+            try:
+                calling_facebook_api(event_name="ViewContent",user=b2b_user_obj,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchCategoriesForNewUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -772,6 +880,13 @@ class SetInterestedCategoriesForNewUserAPI(APIView):
             b2b_user_obj.save()
 
             response['status'] = 200
+
+            try:
+                calling_facebook_api(event_name="ViewContent",user=b2b_user_obj,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchCategoriesForNewUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchCategoriesForNewUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -928,6 +1043,7 @@ class SearchAPI(APIView):
             paginator = Paginator(available_dealshub_products, 50)
             dealshub_product_objs = paginator.page(page)            
             products = []
+            custom_data = []
             currency = location_group_obj.location.currency
             for dealshub_product_obj in dealshub_product_objs:
                 try:
@@ -957,6 +1073,17 @@ class SearchAPI(APIView):
                     temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     
                     products.append(temp_dict)
+                    try:
+                        custom_data.append(CustomData(
+                            value= dealshub_product_obj.now_price,
+                            currency=dealshub_product_obj.get_currency(),
+                            content_name=dealshub_product_obj.get_name(),
+                            content_category=dealshub_product_obj.get_category(),
+                            contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                        ))
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))   
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1060,6 +1187,14 @@ class SearchAPI(APIView):
             search['products'] = products
             response['search'] = search
             response['status'] = 200
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="Search",user=dealshub_user_obj,custom_data=custom_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1261,6 +1396,7 @@ class SearchWIGAPI(APIView):
             if sort_filter.get("price", "")=="low-to-high":
                 dealshub_product_objs = dealshub_product_objs.order_by('now_price')
             products = []
+            custom_data = []
             currency = location_group_obj.location.currency
             for dealshub_product_obj in dealshub_product_objs:
                 try:
@@ -1287,6 +1423,17 @@ class SearchWIGAPI(APIView):
                     temp_dict["id"] = dealshub_product_obj.uuid
                     temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     products.append(temp_dict)
+                    try:
+                        custom_data.append(CustomData(
+                            value= dealshub_product_obj.now_price,
+                            currency=dealshub_product_obj.get_currency(),
+                            content_name=dealshub_product_obj.get_name(),
+                            content_category=dealshub_product_obj.get_category(),
+                            contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                        ))
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1299,6 +1446,14 @@ class SearchWIGAPI(APIView):
             search['products'] = products
             response['search'] = search
             response['status'] = 200
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="Search",user=dealshub_user_obj,custom_data=custom_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SearchWIGAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1507,6 +1662,7 @@ class SearchWIG2API(APIView):
             if sort_filter.get("price", "")=="low-to-high":
                 dealshub_product_objs = dealshub_product_objs.order_by('now_price')
             products = []
+            custom_data = []
             currency = location_group_obj.location.currency
             for dealshub_product_obj in dealshub_product_objs:
                 try:
@@ -1534,6 +1690,17 @@ class SearchWIG2API(APIView):
                     temp_dict["id"] = dealshub_product_obj.uuid
                     temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                     products.append(temp_dict)
+                    try:
+                        custom_data.append(CustomData(
+                            value= dealshub_product_obj.now_price,
+                            currency=dealshub_product_obj.get_currency(),
+                            content_name=dealshub_product_obj.get_name(),
+                            content_category=dealshub_product_obj.get_category(),
+                            contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                        ))
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("SearchWIG2API: %s at %s", e, str(exc_tb.tb_lineno))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("SearchWIG2API: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1548,6 +1715,14 @@ class SearchWIG2API(APIView):
             response["is_user_authenticated"] = is_user_authenticated
             logger.info("DEBUGGG : %s", str(is_user_authenticated))
             response['status'] = 200
+
+            try:
+                b2b_user_obj = B2BUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="Search",user=b2b_user_obj,custom_data=custom_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SearchWIG2API: %s at %s", e, str(exc_tb.tb_lineno))
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SearchWIG2API: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1953,6 +2128,14 @@ class FetchWIGCategoriesAPI(APIView):
             response["categoryList"] = category_list
             response["brand_list"] = brand_list
             response['status'] = 200
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="Search",user=dealshub_user_obj,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchWIGCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchWIGCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4098,6 +4281,21 @@ class FetchDealshubPriceAPI(APIView):
             response["uuid"] = uuid1
             response['status'] = 200
 
+            try:
+                custom_data = []
+                custom_data.append(CustomData(
+                    value= dealshub_product_obj.now_price,
+                    currency=dealshub_product_obj.get_currency(),
+                    content_name=dealshub_product_obj.get_name(),
+                    content_category=dealshub_product_obj.get_category(),
+                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                ))
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchDealshubPriceAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4185,6 +4383,13 @@ class FetchCompanyProfileDealshubAPI(APIView):
             response["location_info"] = location_info
             response['status'] = 200
             cache.set(cache_key, json.dumps(response),300)
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchCompanyProfileDealshubAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4316,6 +4521,13 @@ class FetchWebsiteGroupBrandsAPI(APIView):
             response["brandList"] = brand_list
             response['status'] = 200
             cache.set(cache_key, json.dumps(response),300)
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchWebsiteGroupBrandsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4498,6 +4710,7 @@ class FetchUnitBannerProductsAPI(APIView):
             dealshub_product_objs = paginator.page(page)
 
             product_list = []
+            custom_data = []
             for dealshub_product_obj in dealshub_product_objs:
                 if dealshub_product_obj.now_price==0:
                     continue
@@ -4524,7 +4737,17 @@ class FetchUnitBannerProductsAPI(APIView):
                 temp_dict["heroImageUrl"] = dealshub_product_obj.get_display_image_url()
                 
                 product_list.append(temp_dict)
-
+                try:
+                    custom_data.append(CustomData(
+                        value= dealshub_product_obj.now_price,
+                        currency=dealshub_product_obj.get_currency(),
+                        content_name=dealshub_product_obj.get_name(),
+                        content_category=dealshub_product_obj.get_category(),
+                        contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    ))
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchUnitBannerProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
             is_available = True
             if paginator.num_pages == page:
                 is_available = False
@@ -4536,6 +4759,13 @@ class FetchUnitBannerProductsAPI(APIView):
             #response["is_user_authenticated"] = is_user_authenticated
             response['status'] = 200
 
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchUnitBannerProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchUnitBannerProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5905,6 +6135,35 @@ class AddSalesTargetAPI(APIView):
         
         return Response(data=response)
 
+class DeleteSalesTargetAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("DeleteSalesTargetAPI: %s", str(data))
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("DeleteSalesTargetAPI Restricted Access!")
+                return Response(data=response)
+            
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            sales_target_uuid = data["sales_target_uuid"]
+            sales_target_obj = SalesTarget.objects.get(uuid=sales_target_uuid, location_group=location_group_obj)
+            sales_target_obj.delete()
+            
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("DeleteSalesTargetAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
 #API with active log
 class AddProductToOrderAPI(APIView):
     
@@ -6490,6 +6749,8 @@ FetchSalesTargetsList = FetchSalesTargetsListAPI.as_view()
 UpdateSalesTarget = UpdateSalesTargetAPI.as_view()
 
 AddSalesTarget = AddSalesTargetAPI.as_view()
+
+DeleteSalesTarget = DeleteSalesTargetAPI.as_view()
 
 AddProductToOrder = AddProductToOrderAPI.as_view()
 

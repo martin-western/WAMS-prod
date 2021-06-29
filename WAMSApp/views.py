@@ -860,7 +860,8 @@ class FetchProductDetailsAPI(APIView):
             response["color"] = product_obj.color
             response["weight"] = product_obj.weight
             response["dimensions"] = product_obj.get_dimensions()
-            response["size"] = "NA" if str(product_obj.size)=="" else str(product_obj.size + product_obj.size_unit)
+            response["size"] = "NA" if str(product_obj.size)=="" else str(product_obj.size) 
+            response["size_unit"] = str(product_obj.size_unit)
             response["capacity"] = "NA" if str(product_obj.capacity)=="" else str(product_obj.capacity)
             response["capacity_unit"] = str(product_obj.capacity_unit)
             
@@ -1787,6 +1788,10 @@ class SaveBaseProductAPI(APIView):
             activitylog(user=request.user,table_name=BaseProduct,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=base_product_obj,table_item_pk=base_product_obj.pk,render=render_value)
             
             base_product_obj.save()
+            for dealshub_product_obj in DealsHubProduct.objects.filter(product__base_product=base_product_obj):
+                dealshub_product_obj.category = category_obj
+                dealshub_product_obj.sub_category = sub_category_obj
+                dealshub_product_obj.save()
 
             # Update dynamic_form_attributes for all Variants
             try:
@@ -1978,15 +1983,6 @@ class SaveProductAPI(APIView):
             
 
             product_obj.save()
-            dealshub_product_objs = custom_permission_filter_dealshub_product(request.user)
-            dealshub_product_objs = dealshub_product_objs.filter(product=product_obj)
-            for dealshub_product_obj in dealshub_product_objs:
-                dealshub_product_obj.product_name = data["product_name"]
-                dealshub_product_obj.product_description = data["product_description"]
-                dealshub_product_obj.save()
-
-
-
             response['status'] = 200
 
         except Exception as e:
@@ -5904,7 +5900,10 @@ class FetchCompanyProfileAPI(APIView):
                 response['status'] = 403
                 logger.warning("FetchCompanyProfileAPI Restricted Access!")
                 return Response(data=response)
- 
+            seo_title = ''
+            seo_short_description = '' 
+            seo_long_description = ''
+            seo_google_meta = ''
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
             location_group_uuid = data.get("locationGroupUuid","")     
             if location_group_uuid == "":
@@ -5971,8 +5970,16 @@ class FetchCompanyProfileAPI(APIView):
                         "url" : ""
                     }]
                     company_data["footer_logo"][0]["url"] = location_group_obj.footer_logo.image.url
+                seo_title = location_group_obj.seo_title
+                seo_long_description = location_group_obj.seo_long_description
+                seo_short_description = location_group_obj.seo_short_description
+                seo_google_meta = location_group_obj.seo_google_meta
 
             response["company_data"] = company_data
+            response["seo_title"] = seo_title
+            response["seo_long_description"] = seo_long_description
+            response["seo_short_description"] = seo_short_description
+            response["seo_google_meta"] = seo_google_meta
             response['status'] = 200    
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6056,6 +6063,10 @@ class SaveCompanyProfileAPI(APIView):
                 linkedin_link = company_data["linkedin_link"]
                 crunchbase_link = company_data["crunchbase_link"]
                 color_scheme = company_data["color_scheme"]
+                location_group_obj.seo_title = company_data["seo_title"]
+                location_group_obj.seo_short_description = company_data["seo_short_description"]
+                location_group_obj.seo_long_description = company_data["seo_long_description"]
+                location_group_obj.seo_google_meta = company_data["seo_google_meta"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.set_support_email_id(email_id)
@@ -7819,6 +7830,7 @@ class SaveDealshubProductDetailsAPI(APIView):
             dealshub_product_obj.category = category_obj
             dealshub_product_obj.sub_category = sub_category_obj
             dealshub_product_obj.save()
+            update_dealshub_products_of_wigme_sites(dealshub_product_obj, request.user)
             render_value = 'Dealshub product {} details updated.'.format(dealshub_product_obj.get_seller_sku())
             activitylog(user=request.user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dealshub_product_obj.location_group,prev_instance=dh_product_prev_instance,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
             response["status"] = 200

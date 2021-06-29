@@ -320,6 +320,7 @@ class Image(models.Model):
                 if format_name.lower()=="gif":
                     self.webp_image = self.image
                 else:
+                    thumb.thumbnail((1500, 1500))
                     thumb = thumb.convert('RGB')
                     thumb_io = BytesIO()
                     thumb = rotate_image(thumb)
@@ -374,6 +375,11 @@ class LocationGroup(models.Model):
     footer_logo = models.ForeignKey(Image, related_name="footer_logo_location_group", null=True, blank=True, on_delete=models.SET_NULL)
     blog_emails = models.TextField(null=True,blank=True, default='[]')
     is_sap_enabled = models.BooleanField(default=False)
+    seo_title = models.TextField(blank=True, default='')
+    seo_short_description = models.TextField(blank=True, default='')
+    seo_long_description = models.TextField(blank=True, default='')
+    seo_google_meta = models.TextField(blank=True, default='')
+    
 
     def __str__(self):
         return str(self.name)
@@ -447,6 +453,7 @@ class ActivityLog(models.Model):
     prev_instance = models.TextField(blank = True,default='{}')
     current_instance = models.TextField(blank = True,default='{}')
     render =  models.TextField(default='',blank = True) #messages
+    is_nesto = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.uuid)
@@ -1339,6 +1346,7 @@ class NestoProduct(models.Model):
 
     article_number = models.CharField(default="", blank=True, max_length=100)
     product_name = models.CharField(default="", blank=True, max_length=250)
+    product_name_ar = models.CharField(default="", blank=True, max_length=250)
     product_name_ecommerce = models.CharField(default="", blank=True, max_length=250)
     barcode = models.CharField(unique=True, default="", blank=True, max_length=100)
     uom = models.CharField(default="", blank=True, max_length=100)
@@ -1348,12 +1356,17 @@ class NestoProduct(models.Model):
     country_of_origin = models.CharField(default="", blank=True, max_length=100)
     highlights = models.TextField(default="", blank=True)
     storage_condition = models.TextField(default="", blank=True)
+    storage_condition_ar = models.TextField(default="", blank=True)
     preparation_and_usage = models.TextField(default="", blank=True)
+    preparation_and_usage_ar = models.TextField(default="", blank=True)
     allergic_information = models.TextField(default="", blank=True)
+    allergic_information_ar = models.TextField(default="", blank=True)
     product_description = models.TextField(default="", blank=True)
+    product_description_ar = models.TextField(default="", blank=True)
     dimensions = models.TextField(default=json.dumps(nesto_dimensions_json))
     nutrition_facts = models.TextField(default="", blank=True)
     ingredients = models.TextField(default="", blank=True)
+    ingredients_ar = models.TextField(default="", blank=True)
     return_days = models.CharField(default="", blank=True, max_length=100)
     product_status = models.CharField(default="", blank=True, max_length=200)
     substitute_products = models.ManyToManyField('self', related_name="substitute_products", blank=True)
