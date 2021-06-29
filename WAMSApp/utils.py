@@ -2946,7 +2946,7 @@ def create_all_dealshub_products_report(filename, uuid, location_group_obj):
     notify_user_for_report(oc_report_obj)
 
 
-def activitylog(user,table_name,action_type,table_item_pk='',prev_instance=None,current_instance=None,location_group_obj=None,render=''):
+def activitylog(user,table_name,action_type,table_item_pk='',prev_instance=None,current_instance=None,location_group_obj=None,render='', is_nesto=False):
     try:
         if render == "":
             render = "pk :- {} is {} in model {}".format(table_item_pk,action_type,table_name)
@@ -2968,7 +2968,8 @@ def activitylog(user,table_name,action_type,table_item_pk='',prev_instance=None,
             action_type = action_type,
             prev_instance = json.dumps(prev_instance),
             current_instance = json.dumps(current_instance),
-            render = render
+            render = render,
+            is_nesto = is_nesto
             )
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()

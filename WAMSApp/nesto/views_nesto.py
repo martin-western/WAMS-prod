@@ -78,11 +78,11 @@ class CreateNestoProductAPI(APIView):
             brand_obj, created = Brand.objects.get_or_create(name=brand, organization=organization_obj)
             if created==True:
                 render_value = f"Brand {brand_obj} is created by {request.user}."
-                activitylog(user=request.user,table_name=Brand,action_type='created',location_group_obj=None,prev_instance=None,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
+                activitylog(user=request.user,table_name=Brand,action_type='created',location_group_obj=None,prev_instance=None,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value,is_nesto=True)
                 custom_permission_obj.brands.add(brand_obj)
                 custom_permission_obj.save()
                 render_value = f"CustomPermission {custom_permission_obj} is updated by {request.user}."
-                activitylog(user=request.user,table_name=CustomPermission,action_type='updated',location_group_obj=None,prev_instance=custom_permission_obj_prev,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value)
+                activitylog(user=request.user,table_name=CustomPermission,action_type='updated',location_group_obj=None,prev_instance=custom_permission_obj_prev,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value,is_nesto=True)
             
             sub_category_obj = None
             if sub_category_uuid!="":
@@ -122,7 +122,7 @@ class CreateNestoProductAPI(APIView):
                                                             )
 
             render_value = f"NestoProduct {nesto_product_obj.product_name} is created by {request.user}."
-            activitylog(user=request.user,table_name=NestoProduct,action_type='created',location_group_obj=None,prev_instance=None,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
+            activitylog(user=request.user,table_name=NestoProduct,action_type='created',location_group_obj=None,prev_instance=None,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value,is_nesto=True)
 
 
             response["product_uuid"] = nesto_product_obj.uuid
@@ -159,7 +159,7 @@ class DeleteNestoProductStoreAPI(APIView):
                 nesto_product_store_obj_prev = deepcopy(nesto_product_store_obj)
                 nesto_product_store_obj.delete()
                 render_value = f"NestoProductStore {nesto_product_store_obj_prev.product.product_name} is deleted by {request.user}."
-                activitylog(user=request.user,table_name=NestoProductStore,action_type='deleted',location_group_obj=None,prev_instance=nesto_product_store_obj_prev,current_instance=None,table_item_pk=nesto_product_store_obj_prev.pk,render=render_value)
+                activitylog(user=request.user,table_name=NestoProductStore,action_type='deleted',location_group_obj=None,prev_instance=nesto_product_store_obj_prev,current_instance=None,table_item_pk=nesto_product_store_obj_prev.pk,render=render_value,is_nesto=True)
             response['status'] = 200
 
         except Exception as e:
@@ -239,14 +239,14 @@ class UpdateNestoProductAPI(APIView):
             brand_obj.description = about_brand
             brand_obj.save()
             render_value = f"Brand {brand_obj} is updated/created by {request.user}."
-            activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value,is_nesto=True)
 
             if created==True:
                 custom_permission_obj_prev = deepcopy(custom_permission_obj)
                 custom_permission_obj.brands.add(brand_obj)
                 custom_permission_obj.save()
                 render_value = f"CustomPermission {custom_permission_obj} is updated by {request.user}."
-                activitylog(user=request.user,table_name=CustomPermission,action_type='updated',location_group_obj=None,prev_instance=custom_permission_obj_prev,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value)
+                activitylog(user=request.user,table_name=CustomPermission,action_type='updated',location_group_obj=None,prev_instance=custom_permission_obj_prev,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value,is_nesto=True)
 
             # nesto_product_obj.article_number = article_number
             nesto_product_obj.product_name = product_name
@@ -297,7 +297,7 @@ class UpdateNestoProductAPI(APIView):
                     nesto_product_store_obj.stock = stock
                     nesto_product_store_obj.save()
                     render_value = f"NestoProductStore {nesto_product_store_obj.product.product_name} is updated by {request.user}."
-                    activitylog(user=request.user,table_name=NestoProductStore,action_type='updated',location_group_obj=None,prev_instance=nesto_product_store_obj_prev,current_instance=nesto_product_store_obj,table_item_pk=nesto_product_store_obj.pk,render=render_value)
+                    activitylog(user=request.user,table_name=NestoProductStore,action_type='updated',location_group_obj=None,prev_instance=nesto_product_store_obj_prev,current_instance=nesto_product_store_obj,table_item_pk=nesto_product_store_obj.pk,render=render_value,is_nesto=True)
                 else:
                     NestoProductStore.objects.create(
                         product = nesto_product_obj,
@@ -308,10 +308,10 @@ class UpdateNestoProductAPI(APIView):
                         stock = stock
                         )
                     render_value = f"NestoProductStore {nesto_product_store_obj.product.product_name} is created by {request.user}."
-                    activitylog(user=request.user,table_name=NestoProductStore,action_type='created',location_group_obj=None,prev_instance=None,current_instance=nesto_product_store_obj,table_item_pk=nesto_product_store_obj.pk,render=render_value)
+                    activitylog(user=request.user,table_name=NestoProductStore,action_type='created',location_group_obj=None,prev_instance=None,current_instance=nesto_product_store_obj,table_item_pk=nesto_product_store_obj.pk,render=render_value,is_nesto=True)
             nesto_product_obj.save()
             render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
-            activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
+            activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value,is_nesto=True)
 
             response['status'] = 200
 
@@ -595,7 +595,7 @@ class FetchNestoProductListAPI(APIView):
                     oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=note, filename=filename, organization=organization_obj)
 
                     render_value = f"OCReport {oc_report_obj} is created by {request.user}."
-                    activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=oc_report_obj.location_group,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
+                    activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=oc_report_obj.location_group,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value,is_nesto=True)
 
                     p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,nesto_product_objs,))
                     p1.start()
@@ -705,7 +705,7 @@ class AddNestoProductImagesAPI(APIView):
             for i in range(image_count):
                 image_obj = Image.objects.create(image=data["image_"+str(i)])
                 render_value = f"Image {image_obj} is created by {request.user}."
-                activitylog(user=request.user,table_name=Image,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_obj,table_item_pk=image_obj.pk,render=render_value)
+                activitylog(user=request.user,table_name=Image,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_obj,table_item_pk=image_obj.pk,render=render_value,is_nesto=True)
 
                 if image_type=="front":
                     nesto_product_obj.front_images.add(image_obj)
@@ -740,7 +740,7 @@ class AddNestoProductImagesAPI(APIView):
                 
             nesto_product_obj.save()
             render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
-            activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
+            activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value,is_nesto=True)
             response['status'] = 200
 
         except Exception as e:
@@ -771,7 +771,7 @@ class RemoveNestoProductImageAPI(APIView):
             image_obj_prev = deepcopy(image_obj)
             image_obj.delete()
             render_value = f"Image {image_obj_prev} is deleted by {request.user}."
-            activitylog(user=request.user,table_name=Image,action_type='deleted',location_group_obj=None,prev_instance=image_obj_prev,current_instance=None,table_item_pk=image_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=Image,action_type='deleted',location_group_obj=None,prev_instance=image_obj_prev,current_instance=None,table_item_pk=image_obj.pk,render=render_value,is_nesto=True)
 
             nesto_product_obj = NestoProduct.objects.get(uuid=product_uuid)
             nesto_product_obj_prev = deepcopy(nesto_product_obj)
@@ -787,7 +787,7 @@ class RemoveNestoProductImageAPI(APIView):
             nesto_product_obj.highlight_images_count = nesto_product_obj.highlight_images.all().count()
             nesto_product_obj.save()
             render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
-            activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
+            activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value,is_nesto=True)
 
             response['status'] = 200
 
@@ -945,7 +945,7 @@ class LinkNestoProductAPI(APIView):
             nesto_product_obj.save()
             
             render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
-            activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
+            activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value,is_nesto=True)
             response['status'] = 200
 
         except Exception as e:
@@ -985,7 +985,7 @@ class UnLinkNestoProductAPI(APIView):
                 nesto_product_obj.upselling_products.remove(linked_nesto_product_obj)
             nesto_product_obj.save()
             render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
-            activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
+            activitylog(user=request.user,table_name=NestoProduct,action_type='updated',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value,is_nesto=True)
             response['status'] = 200
 
         except Exception as e:
@@ -1114,7 +1114,7 @@ class UpdateNestoBrandAPI(APIView):
             brand_obj.description = brand_description        
             brand_obj.save()
             render_value = f"Brand {brand_obj} is updated by {request.user}."
-            activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value,is_nesto=True)
 
             response['status'] = 200
 
@@ -1156,12 +1156,12 @@ class CreateNestoBrandAPI(APIView):
                 description = brand_description,
                 )
             render_value = f"Brand {brand_obj} is created by {request.user}."
-            activitylog(user=request.user,table_name=Brand,action_type='created',location_group_obj=None,prev_instance=None,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=Brand,action_type='created',location_group_obj=None,prev_instance=None,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value,is_nesto=True)
 
             custom_permission_obj.brands.add(brand_obj)
             custom_permission_obj.save()
             render_value = f"CustomPermission {custom_permission_obj} is updated by {request.user}."
-            activitylog(user=request.user,table_name=CustomPermission,action_type='updated',location_group_obj=None,prev_instance=custom_permission_obj_prev,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value)
+            activitylog(user=request.user,table_name=CustomPermission,action_type='updated',location_group_obj=None,prev_instance=custom_permission_obj_prev,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value,is_nesto=True)
             response['pk'] = brand_obj.pk
             response['status'] = 200
 
@@ -1191,7 +1191,7 @@ class DeleteNestoBrandAPI(APIView):
             brand_obj_prev = deepcopy(brand_obj)
             brand_obj.delete()
             render_value = f"Brand {brand_obj_prev} is deleted by {request.user}."
-            activitylog(user=request.user,table_name=Brand,action_type='deleted',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=None,table_item_pk=brand_obj_prev.pk,render=render_value)
+            activitylog(user=request.user,table_name=Brand,action_type='deleted',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=None,table_item_pk=brand_obj_prev.pk,render=render_value,is_nesto=True)
             response['status'] = 200
 
         except Exception as e:
@@ -1225,7 +1225,7 @@ class AddNestoBrandImageAPI(APIView):
                 response["logo_url"] = image_obj.image.url
                 brand_obj.save()
                 render_value = f"Brand {brand_obj} is updated by {request.user}."
-                activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
+                activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value,is_nesto=True)
             response['status'] = 200
 
         except Exception as e:
@@ -1257,7 +1257,7 @@ class RemoveNestoBrandImageAPI(APIView):
             if brand_obj.logo != None:
                 brand_obj.logo.delete()
                 render_value = f"Brand {brand_obj} is updated by {request.user}."
-                activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
+                activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value,is_nesto=True)
             response['status'] = 200
 
         except Exception as e:
@@ -1359,7 +1359,7 @@ class BulkUploadNestoProductsAPI(APIView):
                         brand_obj.description = about_brand
                         brand_obj.save()
                         render_value = f"Brand {brand_obj} is updated/created by {request.user}."
-                        activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
+                        activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value,is_nesto=True)
                         nesto_product_obj = NestoProduct.objects.create(article_number=article_no,
                                                                         barcode=barcode,
                                                                         uom=uom,
@@ -1382,7 +1382,7 @@ class BulkUploadNestoProductsAPI(APIView):
                                                                         secondary_keywords=json.dumps(secondary_keywords)
                                                                         )
                         render_value = f"NestoProduct {nesto_product_obj.product_name} is created by {request.user}."
-                        activitylog(user=request.user,table_name=NestoProduct,action_type='created',location_group_obj=None,prev_instance=None,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
+                        activitylog(user=request.user,table_name=NestoProduct,action_type='created',location_group_obj=None,prev_instance=None,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value,is_nesto=True)
                     elif nesto_product_objs.count()==1:
                         nesto_product_obj = nesto_product_objs[0]
                         nesto_product_obj_prev = deepcopy(nesto_product_obj)
@@ -1396,7 +1396,7 @@ class BulkUploadNestoProductsAPI(APIView):
                         brand_obj.description = about_brand
                         brand_obj.save()
                         render_value = f"Brand {brand_obj} is updated/created by {request.user}."
-                        activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value)
+                        activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value,is_nesto=True)
                         nesto_product_obj.brand = brand_obj
                         nesto_product_obj.weight_volume=weight_volume
                         nesto_product_obj.country_of_origin=country_of_origin
@@ -1413,7 +1413,7 @@ class BulkUploadNestoProductsAPI(APIView):
                         nesto_product_obj.secondary_keywords = json.dumps(secondary_keywords)
                         nesto_product_obj.save()
                         render_value = f"NestoProduct {nesto_product_obj.product_name} is updated by {request.user}."
-                        activitylog(user=request.user,table_name=NestoProduct,action_type='created',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value)
+                        activitylog(user=request.user,table_name=NestoProduct,action_type='created',location_group_obj=None,prev_instance=nesto_product_obj_prev,current_instance=nesto_product_obj,table_item_pk=nesto_product_obj.uuid,render=render_value,is_nesto=True)
                     else:
                         excel_errors.append({
                             "article_no":barcode,
@@ -1430,6 +1430,89 @@ class BulkUploadNestoProductsAPI(APIView):
             logger.error("BulkUploadNestoProductsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
+
+
+class FetchNestoActivityLogsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchNestoActivityLogsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            page = data.get("page",1)
+            page = int(page)
+            from_date = data.get("from_date","")
+            to_date = data.get("to_date","")
+
+            activity_log_objs = ActivityLog.objects.filter(is_nesto=True)
+
+            if from_date!="":
+                from_date = from_date[:10]+"T00:00:00+04:00"
+                activity_log_objs = activity_log_objs.filter(created_date__gte=from_date)
+
+            if to_date!="":
+                to_date = to_date[:10]+"T23:59:59+04:00"
+                activity_log_objs = activity_log_objs.filter(created_date__lte=to_date)
+            
+            activity_log_objs = activity_log_objs.order_by("-pk")
+
+            total_activities = activity_log_objs.count()
+            paginator  = Paginator(activity_log_objs,50)
+            total_pages = int(paginator.num_pages)
+
+            if page > total_pages:
+                response['status'] = 404
+                response['message'] = "Page number out of range"
+                logger.warning("FetchNestoActivityLogsAPI : Page number out of range")
+                return Response(data=response)
+
+            activity_log_objs = paginator.page(page)
+
+            activity_log_list = []
+            for activity_log_obj in activity_log_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["username"] =  activity_log_obj.user.username
+                    temp_dict["first_name"] =  activity_log_obj.user.first_name
+                    temp_dict["last_name"] =  activity_log_obj.user.last_name
+                    temp_dict["date"] = str(timezone.localtime(activity_log_obj.created_date).strftime("%d %b, %Y"))
+                    temp_dict["time"] = str(timezone.localtime(activity_log_obj.created_date).strftime("%I:%M %p"))
+                    temp_dict["table_name"] = activity_log_obj.table_name
+                    temp_dict["action_type"] = activity_log_obj.action_type
+                    temp_dict["render"] = activity_log_obj.render
+                    temp_dict["prev_instance"] = json.loads(activity_log_obj.prev_instance)
+                    temp_dict["current_instance"] = json.loads(activity_log_obj.current_instance)
+                    activity_log_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchNestoActivityLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))      
+
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
+            response["totalPages"] = paginator.num_pages
+            response["totalActivites"] = total_activities
+
+            response["activity_log_list"] = activity_log_list
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchNestoActivityLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 
 
 CreateNestoProduct = CreateNestoProductAPI.as_view()
@@ -1471,3 +1554,5 @@ AddNestoBrandImage = AddNestoBrandImageAPI.as_view()
 RemoveNestoBrandImage = RemoveNestoBrandImageAPI.as_view()
 
 BulkUploadNestoProducts = BulkUploadNestoProductsAPI.as_view()
+
+FetchNestoActivityLogs = FetchNestoActivityLogsAPI.as_view()
