@@ -106,8 +106,8 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             }
             network_global_android_response = requests.post("https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/E16906950/session/", headers=headers,data=json.dumps(body))
 
-            network_global_android_response_dict = json.loads(network_global_android_response.content)
-            session_id = network_global_android_response_dict["session"]["id"]
+            credimax_gateway_response_dict = json.loads(network_global_android_response.content)
+            session_id = credimax_gateway_response_dict["session"]["id"]
 
             headers = {
                 "Authorization": "Basic "+API_KEY,
@@ -127,7 +127,6 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                         "street2":address_lines[3] + "\n"+ neighbourhood + "\n"+emirates + "\n",
                         "country":country_code,
                         "city":city,
-                        "postcodeZip":postcode,
                         },
                 },
                 "customer":{
@@ -155,45 +154,44 @@ class MakePaymentCredimaxGatewayAPI(APIView):
         return Response(data=response)
 
 
-# def check_order_status_from_credimax_gateway(merchant_reference, location_group_obj):
-#     try:
-#         payment_credentials = json.loads(location_group_obj.website_group.payment_credentials)
+def check_order_status_from_credimax_gateway(merchant_reference, location_group_obj):
+    try:
 
-#         #  have to add api key and outlet data in payment credentials
-
-#         # API_KEY = payment_credentials["network_global_android"]["API_KEY"]
-#         # OUTLET_REF = payment_credentials["network_global_android"]["OUTLET_REF"]
-
-#         API_KEY = "ZTkzNmY2NGMtY2M1Yi00OWZiLWE5ZjQtNDhhOWJiMGZhZWJiOmQ1MDAxYjc5LTVkMmYtNDRkYi1iYmU0LWNhMGJmYTI3MTcxYw=="
-#         OUTLET_REF = "7f40fd1d-c382-4b51-9dab-6650d1097179"
+        API_KEY = "bWVyY2hhbnQuRTE2OTA2OTUwOmVjNjEyNzc1MTUxMzZiNGUyZWQ0ZTFkZWIzMDVkZTBk"
         
-#         headers = {
-#             "Content-Type": "application/vnd.ni-identity.v1+json", 
-#             "Authorization": "Basic "+API_KEY
-#         }
-#         response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
+        headers = {
+            "Content-Type": "application/vnd.ni-identity.v1+json", 
+            "Authorization": "Basic "+API_KEY
+        }
+        body = {
+            "session":{
+                "authenticationLimit":25
+            }
+        }
+        network_global_android_response = requests.post("https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/E16906950/session/", headers=headers,data=json.dumps(body))
 
-#         response_dict = json.loads(response.content)
-#         access_token = response_dict["access_token"]
+        credimax_gateway_response_dict = json.loads(network_global_android_response.content)
+        session_id = credimax_gateway_response_dict["session"]["id"]
 
-#         headers = {
-#             "Authorization": "Bearer " + access_token ,
-#             "Content-Type": "application/vnd.ni-payment.v2+json", 
-#             "Accept": "application/vnd.ni-payment.v2+json" 
-#         }
 
-#         url = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
-#         r = requests.get(url=url, headers=headers)
+        headers = {
+            "Authorization": "Bearer " + access_token ,
+            "Content-Type": "application/vnd.ni-payment.v2+json", 
+            "Accept": "application/vnd.ni-payment.v2+json" 
+        }
 
-#         content = json.loads(r.content)
-#         state = content["_embedded"]["payment"][0]["state"]
-#         if state=="CAPTURED" or state=="AUTHORISED":
-#             return True
-#         return False
-#     except Exception as e:
-#         exc_type, exc_obj, exc_tb = sys.exc_info()
-#         logger.error("check_order_status_from_network_global_android: %s at %s", e, str(exc_tb.tb_lineno))        
-#     return False
+        url = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
+        r = requests.get(url=url, headers=headers)
+
+        content = json.loads(r.content)
+        state = content["_embedded"]["payment"][0]["state"]
+        if state=="CAPTURED" or state=="AUTHORISED":
+            return True
+        return False
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("check_order_status_from_network_global_android: %s at %s", e, str(exc_tb.tb_lineno))        
+    return False
 
 
 MakePaymentCredimaxGateway = MakePaymentCredimaxGatewayAPI.as_view()
