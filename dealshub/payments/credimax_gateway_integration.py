@@ -104,7 +104,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                     "authenticationLimit":25
                 }
             }
-            network_global_android_response = requests.post("https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/E16906950/session/", headers=headers,data=json.dumps(body))
+            network_global_android_response = requests.post("https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/TESTE16906950/session/", headers=headers,data=json.dumps(body))
 
             credimax_gateway_response_dict = json.loads(network_global_android_response.content)
             session_id = credimax_gateway_response_dict["session"]["id"]
@@ -138,7 +138,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                     "reference":merchant_reference
                 }
             }
-            API_URL = "https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/E16906950/session/" + session_id
+            API_URL = "https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/TESTE16906950/session/" + session_id
             
             payment_response = requests.put(API_URL, data=json.dumps(body),headers=headers)
             
