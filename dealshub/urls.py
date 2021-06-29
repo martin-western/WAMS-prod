@@ -235,6 +235,7 @@ urlpatterns = [
     url(r'^make-b2b-payment-network-global/$',views.MakeB2BPaymentNetworkGlobal),
     url(r'^make-payment-network-global-android/$',views.MakePaymentNetworkGlobalAndroid),
     url(r'^make-b2b-payment-network-global-android/$',views.MakeB2BPaymentNetworkGlobalAndroid),
+    url(r'^make-payment-credimax-gateway/$',views.MakePaymentCredimaxGateway),
 
     url(r'^fetch-postaplus-tracking/$',views.FetchPostaPlusTracking),
 
@@ -260,7 +261,8 @@ urlpatterns = [
     url(r'^fetch-sales-targets-list/$',views.FetchSalesTargetsList),
     url(r'^update-sales-target/$',views.UpdateSalesTarget),
     url(r'^add-sales-target/$',views.AddSalesTarget),
-
+    url(r'^delete-sales-target/$',views.DeleteSalesTarget),
+    
     url(r'^add-product-to-order/$',views.AddProductToOrder),
     url(r'^update-order-charges/$',views.UpdateOrderCharges),
 
@@ -299,4 +301,5 @@ urlpatterns = [
     url(r'^fetch-blog-post-details/$',views.FetchBlogPostDetails),
     url(r'^fetch-all-blog-posts/$',views.FetchAllBlogPosts),
     url(r'^add-email-for-newsletter-signup/$',views.AddEmailForNewsletterSignup),
+    url(r'^fetch-seo-data/$',views.FetchSEOData),
 ]

@@ -366,12 +366,22 @@ class DealsHubProduct(models.Model):
     def get_capacity(self):
         if str(self.product.capacity)=="":
             return "NA"
-        return self.product.capacity + self.product.capacity_unit
+        return self.product.capacity 
     
+    def get_capacity_unit(self):
+        if str(self.product.capacity_unit)=="":
+            return "NA"
+        return self.product.capacity_unit
+     
     def get_size(self):
         if str(self.product.size)=="":
             return "NA"
-        return self.product.size + self.product.size_unit
+        return self.product.size
+
+    def get_size_unit(self):
+        if str(self.product.size_unit)=="":
+            return "NA"
+        return self.product.size_unit
 
     def get_faqs(self):
         return json.loads(self.product.faqs)
