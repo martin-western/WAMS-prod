@@ -89,15 +89,15 @@ class AddToWishListAPI(APIView):
 
             response["unitWishListUuid"] = unit_wish_list_obj.uuid
             response["status"] = 200
-            custom_data = []
-            custom_data.append(CustomData(
-                value= dealshub_product_obj.now_price,
-                currency=dealshub_product_obj.get_currency(),
-                content_name=dealshub_product_obj.get_name(),
-                content_category=dealshub_product_obj.get_category(),
-                contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
-            ))
             try:
+                custom_data = []
+                custom_data.append(CustomData(
+                    value= dealshub_product_obj.now_price,
+                    currency=dealshub_product_obj.get_currency(),
+                    content_name=dealshub_product_obj.get_name(),
+                    content_category=dealshub_product_obj.get_category(),
+                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                ))
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
                 calling_facebook_api(event_name="AddToWishlist",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
@@ -173,13 +173,17 @@ class FetchWishListAPI(APIView):
                 temp_dict["isStockAvailable"] = unit_wish_list_obj.product.stock > 0
                 temp_dict["category"] = unit_wish_list_obj.product.get_category(language_code)
                 unit_wish_list.append(temp_dict)
-                custom_data.append(CustomData(
-                    value=unit_wish_list_obj.product.get_actual_price_for_customer(dealshub_user_obj),
-                    currency=unit_wish_list_obj.product.get_currency(),
-                    content_name=unit_wish_list_obj.product.get_name(),
-                    content_category=unit_wish_list_obj.product.get_category(),
-                    contents=[Content(product_id=unit_wish_list_obj.product.get_seller_sku(), quantity=unit_wish_list_obj.product.stock, item_price=unit_wish_list_obj.product.now_price)],
-                ))
+                try:
+                    custom_data.append(CustomData(
+                        value=unit_wish_list_obj.product.get_actual_price_for_customer(dealshub_user_obj),
+                        currency=unit_wish_list_obj.product.get_currency(),
+                        content_name=unit_wish_list_obj.product.get_name(),
+                        content_category=unit_wish_list_obj.product.get_category(),
+                        contents=[Content(product_id=unit_wish_list_obj.product.get_seller_sku(), quantity=unit_wish_list_obj.product.stock, item_price=unit_wish_list_obj.product.now_price)],
+                    ))
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchWishListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["unitWishList"] = unit_wish_list
             response["status"] = 200
@@ -561,15 +565,16 @@ class AddToCartAPI(APIView):
 
             response["unitCartUuid"] = unit_cart_obj.uuid
             response["status"] = 200
-            custom_data = []
-            custom_data.append(CustomData(
-                value=dealshub_product_obj.now_price,
-                currency=dealshub_product_obj.get_currency(),
-                content_name=dealshub_product_obj.get_name(),
-                content_category=dealshub_product_obj.get_category(),
-                contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
-            ))
+
             try:
+                custom_data = []
+                custom_data.append(CustomData(
+                    value=dealshub_product_obj.now_price,
+                    currency=dealshub_product_obj.get_currency(),
+                    content_name=dealshub_product_obj.get_name(),
+                    content_category=dealshub_product_obj.get_category(),
+                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                ))
                 calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -663,15 +668,15 @@ class AddToFastCartAPI(APIView):
             response["unitCartUuid"] = fast_cart_obj.uuid
             response["status"] = 200
 
-            custom_data = []
-            custom_data.append(CustomData(
-                value=dealshub_product_obj.now_price,
-                currency=dealshub_product_obj.get_currency(),
-                content_name=dealshub_product_obj.get_name(),
-                content_category=dealshub_product_obj.get_category(),
-                contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
-            ))
             try:
+                custom_data = []
+                custom_data.append(CustomData(
+                    value=dealshub_product_obj.now_price,
+                    currency=dealshub_product_obj.get_currency(),
+                    content_name=dealshub_product_obj.get_name(),
+                    content_category=dealshub_product_obj.get_category(),
+                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                ))
                 calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -771,15 +776,16 @@ class AddToOfflineCartAPI(APIView):
             activitylog(request.user, Cart, "updated", cart_obj.uuid, prev_cart_obj, cart_obj, location_group_obj, render_value)
             response["status"] = 200
 
-            custom_data = []
-            custom_data.append(CustomData(
-                value=dealshub_product_obj.now_price,
-                currency=dealshub_product_obj.get_currency(),
-                content_name=dealshub_product_obj.get_name(),
-                content_category=dealshub_product_obj.get_category(),
-                contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
-            ))
+
             try:
+                custom_data = []
+                custom_data.append(CustomData(
+                    value=dealshub_product_obj.now_price,
+                    currency=dealshub_product_obj.get_currency(),
+                    content_name=dealshub_product_obj.get_name(),
+                    content_category=dealshub_product_obj.get_category(),
+                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                ))
                 calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -835,13 +841,17 @@ class FetchCartDetailsAPI(APIView):
                     temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
                     temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                     unit_cart_list.append(temp_dict)
-                    custom_data.append(CustomData(
-                        value=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj),
-                        currency=unit_cart_obj.product.get_currency(),
-                        content_name=unit_cart_obj.product.get_name(),
-                        content_category=unit_cart_obj.product.get_category(),
-                        contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))],
-                    ))
+                    try:
+                        custom_data.append(CustomData(
+                            value=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj),
+                            currency=unit_cart_obj.product.get_currency(),
+                            content_name=unit_cart_obj.product.get_name(),
+                            content_category=unit_cart_obj.product.get_category(),
+                            contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))],
+                        ))
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("FetchCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("FetchCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -945,13 +955,18 @@ class FetchOfflineCartDetailsAPI(APIView):
                 temp_dict["brand"] = unit_cart_obj.product.get_brand(language_code)
                 temp_dict["isStockAvailable"] = unit_cart_obj.product.stock > 0
                 unit_cart_list.append(temp_dict)
-                custom_data.append(CustomData(
-                    value=unit_cart_obj.product.now_price,
-                    currency=unit_cart_obj.product.get_currency(),
-                    content_name=unit_cart_obj.product.get_name(),
-                    content_category=unit_cart_obj.product.get_category(),
-                    contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
-                ))
+                try:
+                    custom_data.append(CustomData(
+                        value=unit_cart_obj.product.now_price,
+                        currency=unit_cart_obj.product.get_currency(),
+                        content_name=unit_cart_obj.product.get_name(),
+                        content_category=unit_cart_obj.product.get_category(),
+                        contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                    ))
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
             update_cart_bill(cart_obj,cod=True,offline=True)
 
             subtotal = cart_obj.get_subtotal(offline=True)
@@ -1038,13 +1053,17 @@ class UpdateCartDetailsAPI(APIView):
                 unit_cart_obj.offline_price = offline_price
             unit_cart_obj.save()
             custom_data = []
-            custom_data.append(CustomData(
-                value=unit_cart_obj.product.now_price,
-                currency=unit_cart_obj.product.get_currency(),
-                content_name=unit_cart_obj.product.get_name(),
-                content_category=unit_cart_obj.product.get_category(),
-                contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
-            ))
+            try:
+                custom_data.append(CustomData(
+                    value=unit_cart_obj.product.now_price,
+                    currency=unit_cart_obj.product.get_currency(),
+                    content_name=unit_cart_obj.product.get_name(),
+                    content_category=unit_cart_obj.product.get_category(),
+                    contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                ))
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("UpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
             cod=False
             if is_order_offline==True:
                 cod=True
@@ -1183,14 +1202,18 @@ class UpdateOfflineCartDetailsAPI(APIView):
 
             custom_data = []
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
-            for unit_cart_obj in unit_cart_objs:
-                custom_data.append(CustomData(
-                    value=unit_cart_obj.product.now_price,
-                    currency=unit_cart_obj.product.get_currency(),
-                    content_name=unit_cart_obj.product.get_name(),
-                    content_category=unit_cart_obj.product.get_category(),
-                    contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
-                ))
+            try:
+                for unit_cart_obj in unit_cart_objs:
+                    custom_data.append(CustomData(
+                        value=unit_cart_obj.product.now_price,
+                        currency=unit_cart_obj.product.get_currency(),
+                        content_name=unit_cart_obj.product.get_name(),
+                        content_category=unit_cart_obj.product.get_category(),
+                        contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                    ))
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("UpdateOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
             try:
                 calling_facebook_api(event_name="AddToCart",user=cart_obj.owner,custom_data=custom_data)
             except Exception as e:
@@ -1350,15 +1373,16 @@ class UpdateFastCartDetailsAPI(APIView):
             }
 
             response["status"] = 200
-            custom_data = []
-            custom_data.append(CustomData(
-                value=fast_cart_obj.product.now_price,
-                currency=fast_cart_obj.product.get_currency(),
-                content_name=fast_cart_obj.product.get_name(),
-                content_category=fast_cart_obj.product.get_category(),
-                contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
-            ))
+
             try:
+                custom_data = []
+                custom_data.append(CustomData(
+                    value=fast_cart_obj.product.now_price,
+                    currency=fast_cart_obj.product.get_currency(),
+                    content_name=fast_cart_obj.product.get_name(),
+                    content_category=fast_cart_obj.product.get_category(),
+                    contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
+                ))
                 calling_facebook_api(event_name="AddToCart",user=fast_cart_obj.owner,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1388,14 +1412,18 @@ class RemoveFromCartAPI(APIView):
 
             unit_cart_obj = UnitCart.objects.get(uuid=unit_cart_uuid)
             cart_obj = unit_cart_obj.cart
-            custom_data = []
-            custom_data.append(CustomData(
-                value=unit_cart_obj.product.now_price,
-                currency=unit_cart_obj.product.get_currency(),
-                content_name=unit_cart_obj.product.get_name(),
-                content_category=unit_cart_obj.product.get_category(),
-                contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
-            ))
+            try:
+                custom_data = []
+                custom_data.append(CustomData(
+                    value=unit_cart_obj.product.now_price,
+                    currency=unit_cart_obj.product.get_currency(),
+                    content_name=unit_cart_obj.product.get_name(),
+                    content_category=unit_cart_obj.product.get_category(),
+                    contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                ))
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("RemoveFromCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
             unit_cart_obj.delete()
 
             cod = False
@@ -1567,16 +1595,17 @@ class SelectPaymentModeAPI(APIView):
             response["status"] = 200
 
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
-            custom_data = []
-            for unit_cart_obj in unit_cart_objs:
-                custom_data.append(CustomData(
-                    value=unit_cart_obj.product.now_price,
-                    currency=unit_cart_obj.product.get_currency(),
-                    content_name=unit_cart_obj.product.get_name(),
-                    content_category=unit_cart_obj.product.get_category(),
-                    contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
-                ))
+
             try:
+                custom_data = []
+                for unit_cart_obj in unit_cart_objs:
+                    custom_data.append(CustomData(
+                        value=unit_cart_obj.product.now_price,
+                        currency=unit_cart_obj.product.get_currency(),
+                        content_name=unit_cart_obj.product.get_name(),
+                        content_category=unit_cart_obj.product.get_category(),
+                        contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                    ))
                 calling_facebook_api(event_name="InitiateCheckout",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1681,15 +1710,16 @@ class FetchActiveOrderDetailsAPI(APIView):
 
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             custom_data = []
-            for unit_cart_obj in unit_cart_objs:
-                custom_data.append(CustomData(
-                    value=unit_cart_obj.product.now_price,
-                    currency=unit_cart_obj.product.get_currency(),
-                    content_name=unit_cart_obj.product.get_name(),
-                    content_category=unit_cart_obj.product.get_category(),
-                    contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
-                ))
+
             try:
+                for unit_cart_obj in unit_cart_objs:
+                    custom_data.append(CustomData(
+                        value=unit_cart_obj.product.now_price,
+                        currency=unit_cart_obj.product.get_currency(),
+                        content_name=unit_cart_obj.product.get_name(),
+                        content_category=unit_cart_obj.product.get_category(),
+                        contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                    ))
                 calling_facebook_api(event_name="InitiateCheckout",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2027,15 +2057,16 @@ class PlaceInquiryAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
             response["status"] = 200
-            custom_data = []
-            custom_data.append(CustomData(
-                value=dealshub_product_obj.now_price,
-                currency=dealshub_product_obj.get_currency(),
-                content_name=dealshub_product_obj.get_name(),
-                content_category=dealshub_product_obj.get_category(),
-                contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
-            ))
+
             try:
+                custom_data = []
+                custom_data.append(CustomData(
+                    value=dealshub_product_obj.now_price,
+                    currency=dealshub_product_obj.get_currency(),
+                    content_name=dealshub_product_obj.get_name(),
+                    content_category=dealshub_product_obj.get_category(),
+                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                ))
                 calling_facebook_api(event_name="Contact",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2534,13 +2565,17 @@ class FetchOrderListAPI(APIView):
                         temp_dict2["productName"] = unit_order_obj.product.get_name(language_code)
                         temp_dict2["productImageUrl"] = unit_order_obj.product.get_display_image_url()
                         unit_order_list.append(temp_dict2)
-                        custom_data.append(CustomData(
-                            value=unit_order_obj.product.now_price,
-                            currency=unit_order_obj.product.get_currency(),
-                            content_name=unit_order_obj.product.get_name(),
-                            content_category=unit_order_obj.product.get_category(),
-                            contents=[Content(product_id=unit_order_obj.product.get_seller_sku(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
-                        ))
+                        try:
+                            custom_data.append(CustomData(
+                                value=unit_order_obj.product.now_price,
+                                currency=unit_order_obj.product.get_currency(),
+                                content_name=unit_order_obj.product.get_name(),
+                                content_category=unit_order_obj.product.get_category(),
+                                contents=[Content(product_id=unit_order_obj.product.get_seller_sku(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
+                            ))
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.error("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))   
                     temp_dict["unitOrderList"] = unit_order_list
                     order_list.append(temp_dict)
                 except Exception as e:
@@ -2976,13 +3011,17 @@ class FetchOrderDetailsAPI(APIView):
 
                 temp_dict["UnitOrderStatusList"] = unit_order_status_list
                 unit_order_list.append(temp_dict)
-                custom_data.append(CustomData(
-                    value=unit_order_obj.product.now_price,
-                    currency=unit_order_obj.product.get_currency(),
-                    content_name=unit_order_obj.product.get_name(),
-                    content_category=unit_order_obj.product.get_category(),
-                    contents=[Content(product_id=unit_order_obj.product.get_seller_sku(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
-                ))
+                try:
+                    custom_data.append(CustomData(
+                        value=unit_order_obj.product.now_price,
+                        currency=unit_order_obj.product.get_currency(),
+                        content_name=unit_order_obj.product.get_name(),
+                        content_category=unit_order_obj.product.get_category(),
+                        contents=[Content(product_id=unit_order_obj.product.get_seller_sku(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
+                    ))
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))  
             subtotal = order_obj.get_subtotal()
             delivery_fee = order_obj.get_delivery_fee()
             cod_fee = order_obj.get_cod_charge()
@@ -3927,13 +3966,17 @@ class FetchCustomerOrdersAPI(APIView):
                     temp_dict2["shippingMethod"] = unit_order_obj.shipping_method
                     temp_dict2["sapStatus"] = unit_order_obj.sap_status
                     unit_order_list.append(temp_dict2)
-                    custom_data.append(CustomData(
-                        value=unit_order_obj.product.now_price,
-                        currency=unit_order_obj.product.get_currency(),
-                        content_name=unit_order_obj.product.get_name(),
-                        content_category=unit_order_obj.product.get_category(),
-                        contents=[Content(product_id=unit_order_obj.product.get_seller_sku(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
-                    ))
+                    try:
+                        custom_data.append(CustomData(
+                            value=unit_order_obj.product.now_price,
+                            currency=unit_order_obj.product.get_currency(),
+                            content_name=unit_order_obj.product.get_name(),
+                            content_category=unit_order_obj.product.get_category(),
+                            contents=[Content(product_id=unit_order_obj.product.get_seller_sku(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
+                        ))
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("FetchCustomerOrdersAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 temp_dict["totalBilling"] = str(order_obj.to_pay) + " " + str(order_obj.location_group.location.currency)
                 temp_dict["unitOrderList"] = unit_order_list
                 order_list.append(temp_dict)
