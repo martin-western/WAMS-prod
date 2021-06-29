@@ -1287,16 +1287,12 @@ class UpdateUserManualDealshubProductAPI(APIView):
             data = request.data
             logger.info("UpdateUserManualDealshubProductAPI: %s", str(data))
 
-
             if is_oc_user(request.user)==False:
                 response['status'] = 403
                 logger.warning("UpdateDealshubProductAPI Restricted Access!")
                 return Response(data=response)
 
-            location_group_uuid = data.get("locationGroupUuid","")
             user_manual_document = data.get("user_manual_document","")
-            if location_group_uuid != "":
-                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             
             if not isinstance(data, dict):
                 data = json.loads(data)
