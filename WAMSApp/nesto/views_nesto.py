@@ -1402,6 +1402,89 @@ class BulkUploadNestoProductsAPI(APIView):
         return Response(data=response)
 
 
+class FetchNestoActivityLogsAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            
+            data = request.data
+            logger.info("FetchNestoActivityLogsAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            page = data.get("page",1)
+            page = int(page)
+            from_date = data.get("from_date","")
+            to_date = data.get("to_date","")
+
+            activity_log_objs = ActivityLog.objects.filter(is_nesto=True)
+
+            if from_date!="":
+                from_date = from_date[:10]+"T00:00:00+04:00"
+                activity_log_objs = activity_log_objs.filter(created_date__gte=from_date)
+
+            if to_date!="":
+                to_date = to_date[:10]+"T23:59:59+04:00"
+                activity_log_objs = activity_log_objs.filter(created_date__lte=to_date)
+            
+            activity_log_objs = activity_log_objs.order_by("-pk")
+
+            total_activities = activity_log_objs.count()
+            paginator  = Paginator(activity_log_objs,50)
+            total_pages = int(paginator.num_pages)
+
+            if page > total_pages:
+                response['status'] = 404
+                response['message'] = "Page number out of range"
+                logger.warning("FetchNestoActivityLogsAPI : Page number out of range")
+                return Response(data=response)
+
+            activity_log_objs = paginator.page(page)
+
+            activity_log_list = []
+            for activity_log_obj in activity_log_objs:
+                try:
+                    temp_dict = {}
+                    temp_dict["username"] =  activity_log_obj.user.username
+                    temp_dict["first_name"] =  activity_log_obj.user.first_name
+                    temp_dict["last_name"] =  activity_log_obj.user.last_name
+                    temp_dict["date"] = str(timezone.localtime(activity_log_obj.created_date).strftime("%d %b, %Y"))
+                    temp_dict["time"] = str(timezone.localtime(activity_log_obj.created_date).strftime("%I:%M %p"))
+                    temp_dict["table_name"] = activity_log_obj.table_name
+                    temp_dict["action_type"] = activity_log_obj.action_type
+                    temp_dict["render"] = activity_log_obj.render
+                    temp_dict["prev_instance"] = json.loads(activity_log_obj.prev_instance)
+                    temp_dict["current_instance"] = json.loads(activity_log_obj.current_instance)
+                    activity_log_list.append(temp_dict)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchNestoActivityLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))      
+
+            is_available = True
+            if int(paginator.num_pages) == int(page):
+                is_available = False
+
+            response["is_available"] = is_available
+            response["totalPages"] = paginator.num_pages
+            response["totalActivites"] = total_activities
+
+            response["activity_log_list"] = activity_log_list
+            response['status'] = 200
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchNestoActivityLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
+
 CreateNestoProduct = CreateNestoProductAPI.as_view()
 
 DeleteNestoProductStore = DeleteNestoProductStoreAPI.as_view()
@@ -1441,3 +1524,5 @@ AddNestoBrandImage = AddNestoBrandImageAPI.as_view()
 RemoveNestoBrandImage = RemoveNestoBrandImageAPI.as_view()
 
 BulkUploadNestoProducts = BulkUploadNestoProductsAPI.as_view()
+
+FetchNestoActivityLogs = FetchNestoActivityLogsAPI.as_view()
