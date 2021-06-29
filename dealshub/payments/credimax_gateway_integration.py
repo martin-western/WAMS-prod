@@ -124,7 +124,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 "billing": {
                     "address": {
                         "street": address_lines[0] + "\n"+ address_lines[1] + "\n"+address_lines[2] + "\n",
-                        "street2":address_lines[3] + "\n"+ neighbourhood + "\n"+emirates + "\n",
+                        "street2":address_lines[3] + "\n"+ neighbourhood + "\n"+emirates + "\n"+postcode,
                         "country":country_code,
                         "city":city,
                         },
