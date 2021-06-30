@@ -1465,7 +1465,7 @@ class FetchNestoActivityLogsAPI(APIView):
             activity_log_objs = activity_log_objs.order_by("-pk")
 
             total_activities = activity_log_objs.count()
-            paginator  = Paginator(activity_log_objs,50)
+            paginator = Paginator(activity_log_objs,10)
             total_pages = int(paginator.num_pages)
 
             if page > total_pages:
