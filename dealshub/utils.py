@@ -2271,7 +2271,7 @@ def calling_facebook_api(event_name,user,custom_data=None):
             events=events,
             pixel_id=pixel_id
         )
-        logger.info("calling_facebook_api success 1:- ",event_request.execute())
+        logger.info("calling_facebook_api success 1:- ",print(event_request.execute()))
         # event_response = event_request.execute()
         # logger.info("calling_facebook_api success 2:- ",event_request.execute())
 
