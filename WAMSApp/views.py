@@ -5701,7 +5701,7 @@ class FetchAdminActivityLogsAPI(APIView):
             if location_group_uuid!="":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             
-            activity_log_objs = ActivityLog.objects.filter(location_group=location_group_obj)
+            activity_log_objs = ActivityLog.objects.filter(location_group=location_group_obj, is_nesto=False)
 
             if from_date!="":
                 from_date = from_date[:10]+"T00:00:00+04:00"
