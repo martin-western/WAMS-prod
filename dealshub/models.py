@@ -9,6 +9,7 @@ import threading
 
 from WAMSApp.models import *
 from dealshub.core_utils import *
+from dealshub.utils import *
 from WAMSApp.sap.SAP_constants import *
 from django.core.cache import cache
 #from dealshub.algolia.utils import *
@@ -1889,33 +1890,33 @@ class BlogSection(models.Model):
         super(BlogSection,self).save(*args,**kwargs)
 
 
-class OrderMailRequest(models.Model):
+class UnitOrderMailRequest(models.Model):
     '''
-    Stores the email information related to a given Order, which can be used later to send an email
+    Stores the email information related to a given UnitOrder, which can be used later to send an email
     '''
     uuid = models.CharField(max_length=200, unique=True)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    unit_order = models.ForeignKey(UnitOrder, on_delete=models.CASCADE)
     STATUS = (
         ("dispatched", "dispatched"),
-        ("delivered", "delivered"),
-        ("delivery_failed", "delivery_failed")
+        ("delivered", "delivered")
     )
     status = models.CharField(max_length=100, choices=STATUS, default="dispatched")
     is_mail_sent = models.BooleanField(default=False)
+    html_message = models.TextField(default="")
 
     def __str__(self):
-        return f"{self.uuid}-{self.status}-order-{self.order.uuid}"
+        return f"{self.status} object - unit_order__orderid - {self.unit_order.orderid}"
 
     def save(self, *args, **kwargs):
         if self.uuid == None or self.uuid == "":
             self.uuid = str(uuid.uuid4())
-        super(OrderMailRequest, self).save(*args, **kwargs)
+        self.html_message = get_html_message(action=self.status, unit_order_obj=self.unit_order)
+        super(UnitOrderMailRequest, self).save(*args, **kwargs)
 
     def get_email_info(self):
         message = {
             "dispatched": "Order Dispatched",
-            "delivered": "Order Delivered",
-            "delivery_failed": "Order Delivery Failed"
+            "delivered": "Order Delivered"
         }
         info = {
             "host": self.order.location_group.get_email_host(),
@@ -1928,6 +1929,7 @@ class OrderMailRequest(models.Model):
             "from_email": self.order.location_group.get_order_from_email_id(),
             "to": [self.order.owner.email],
             "cc": self.order.location_group.get_order_cc_email_list(),
-            "bcc": self.order.location_group.get_order_bcc_email_list()
+            "bcc": self.order.location_group.get_order_bcc_email_list(),
+            "html_message": self.html_message
         }
         return info
