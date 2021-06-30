@@ -2271,9 +2271,9 @@ def calling_facebook_api(event_name,user,custom_data=None):
             events=events,
             pixel_id=pixel_id
         )
-        logger.info("calling_facebook_api success :- ")
+        logger.info("calling_facebook_api success 1:- ")
         event_response = event_request.execute()
-        logger.info("calling_facebook_api success :- ",event_response)
+        logger.info("calling_facebook_api success 2:- ",)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
