@@ -20,6 +20,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.mail import EmailMessage
 from django.template import loader
 import threading
+from dealshub.models import *
 from WAMSApp.utils import fetch_refresh_stock
 from WAMSApp.sap.utils_SAP_Integration import *
 
@@ -215,6 +216,7 @@ def set_order_status_without_mail(unit_order_obj, order_status):
         unit_order_obj.save()
         UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="shipped", status_admin=order_status)
         try:
+            UnitOrderMailRequest.objects.create(unit_order=unit_order_obj, status="dispatched") # save order dispatched mail details
             website_group = unit_order_obj.order.location_group.website_group.name
             if website_group=="parajohn":
                 message = "Your order has been dispatched!"
@@ -240,6 +242,7 @@ def set_order_status_without_mail(unit_order_obj, order_status):
 
         if order_status=="delivered":
             try:
+                UnitOrderMailRequest.objects.create(unit_order=unit_order_obj, status="delivered") # save order delivered mail details
                 website_group = unit_order_obj.order.location_group.website_group.name
                 if website_group=="parajohn":
                     message = "Your order has been delivered!"
@@ -2276,3 +2279,46 @@ def calling_facebook_api(event_name,user,custom_data=None):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+
+def get_html_message(action=None, unit_order_obj=None):
+    '''
+    Returns an html_message string for unit_order_obj based on the action in ['dispatched', 'delivered']
+    '''
+    if unit_order_obj == None or action == None:
+        return action
+    html_message = ""
+    customer_name = unit_order_obj.order.get_customer_first_name()
+    address_lines = json.loads(unit_order_obj.order.shipping_address.address_lines)
+    full_name = unit_order_obj.order.get_customer_full_name()
+    website_logo = unit_order_obj.order.get_email_website_logo()
+
+    website_group_obj = unit_order_obj.order.location_group.website_group
+    support_email = website_group_obj.email_info
+    support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+    context_dict = {
+        "website_logo": website_logo,
+        "customer_name": customer_name,
+        "order_id": unit_order_obj.orderid,
+        "product_name": unit_order_obj.product.get_name(),
+        "productImageUrl": unit_order_obj.product.get_display_image_url(),
+        "quantity": unit_order_obj.quantity,
+        "full_name": full_name,
+        "address_lines": address_lines,
+        "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
+        "support_email": support_email,
+        "support_contact_number": support_contact_number
+    }
+    if action == "dispatched":
+        order_dispatched_date = UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status="shipped")[0].date_created
+        order_dispatched_date = str(timezone.localtime(order_dispatched_date).strftime("%A, %B %d, %Y | %I:%M %p"))
+        context_dict["order_dispatched_date"] = order_dispatched_date
+        html_message = loader.render_to_string(os.getcwd()+'/dealshub/templates/order-dispatch.html',context_dict)
+    elif action == "delivered":
+        order_delivered_date = UnitOrderStatus.objects.filter(unit_order=unit_order_obj, status="delivered")[0].date_created
+        order_delivered_date = str(timezone.localtime(order_delivered_date).strftime("%A, %B %d, %Y | %I:%M %p"))
+        context_dict["order_delivered_date"] = order_delivered_date
+        html_message = loader.render_to_string(os.getcwd()+'/dealshub/templates/order-delivered.html',context_dict)
+    else:
+        return action
+    return html_message
