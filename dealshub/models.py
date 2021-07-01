@@ -1,15 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.template import loader
 
 import logging
 import json
 import uuid
+import os
 import threading
 
 from WAMSApp.models import *
 from dealshub.core_utils import *
-from dealshub.utils import *
 from WAMSApp.sap.SAP_constants import *
 from django.core.cache import cache
 #from dealshub.algolia.utils import *
@@ -1910,7 +1911,7 @@ class UnitOrderMailRequest(models.Model):
     def save(self, *args, **kwargs):
         if self.uuid == None or self.uuid == "":
             self.uuid = str(uuid.uuid4())
-        self.html_message = get_html_message(action=self.status, unit_order_obj=self.unit_order)
+        self.html_message = self.get_html_message()
         super(UnitOrderMailRequest, self).save(*args, **kwargs)
 
     def get_email_info(self):
@@ -1933,3 +1934,45 @@ class UnitOrderMailRequest(models.Model):
             "html_message": self.html_message
         }
         return info
+    
+    def get_html_message(self):
+        '''
+        Returns an html_message string for unit_order based on the incoming status in ['dispatched', 'delivered']
+        '''
+        if self.unit_order == None or self.status == None:
+            return self.status
+        html_message = ""
+        customer_name = self.unit_order.order.get_customer_first_name()
+        address_lines = json.loads(self.unit_order.order.shipping_address.address_lines)
+        full_name = self.unit_order.order.get_customer_full_name()
+        website_logo = self.unit_order.order.get_email_website_logo()
+
+        website_group_obj = self.unit_order.order.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+        context_dict = {
+            "website_logo": website_logo,
+            "customer_name": customer_name,
+            "order_id": self.unit_order.orderid,
+            "product_name": self.unit_order.product.get_name(),
+            "productImageUrl": self.unit_order.product.get_display_image_url(),
+            "quantity": self.unit_order.quantity,
+            "full_name": full_name,
+            "address_lines": address_lines,
+            "website_order_link": self.unit_order.order.get_website_link()+"/orders/"+self.unit_order.order.uuid,
+            "support_email": support_email,
+            "support_contact_number": support_contact_number
+        }
+        if self.status == "dispatched":
+            order_dispatched_date = UnitOrderStatus.objects.filter(unit_order=self.unit_order, status="shipped")[0].date_created
+            order_dispatched_date = str(timezone.localtime(order_dispatched_date).strftime("%A, %B %d, %Y | %I:%M %p"))
+            context_dict["order_dispatched_date"] = order_dispatched_date
+            html_message = loader.render_to_string(os.getcwd()+'/dealshub/templates/order-dispatch.html',context_dict)
+        elif self.status == "delivered":
+            order_delivered_date = UnitOrderStatus.objects.filter(unit_order=self.unit_order, status="delivered")[0].date_created
+            order_delivered_date = str(timezone.localtime(order_delivered_date).strftime("%A, %B %d, %Y | %I:%M %p"))
+            context_dict["order_delivered_date"] = order_delivered_date
+            html_message = loader.render_to_string(os.getcwd()+'/dealshub/templates/order-delivered.html',context_dict)
+        else:
+            return self.status
+        return html_message
