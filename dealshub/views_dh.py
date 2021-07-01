@@ -6997,8 +6997,8 @@ class FetchFilteredOrderAnalyticsAPI(APIView):
                 filtered_status_objs = order_objs.filter(unitorder__current_status_admin = status).distinct()
                 total_filtered_orders_status_count_list.append(filtered_status_objs.count())
                 if filtered_status_objs.count() == 0:
-                        total_filtered_orders_status_amount_list.append(0)
-                        continue
+                    total_filtered_orders_status_amount_list.append(0)
+                    continue
                 total_amount = 0.0
                 for filtered_status_obj in filtered_status_objs:
                     total_amount+=filtered_status_obj.get_total_amount()
