@@ -7004,7 +7004,7 @@ class FetchFilteredOrderAnalyticsAPI(APIView):
                     total_amount+=filtered_status_obj.get_total_amount()
                 total_filtered_orders_status_amount_list.append(round(float(total_amount), 2))
 
-                response["order_analytics"] = {
+            response["order_analytics"] = {
                 "sales" : total_sales,
                 "orders" : real_total_orders,
                 "avg_order_value" : avg_order_value,
