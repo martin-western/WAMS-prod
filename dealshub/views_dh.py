@@ -8015,20 +8015,16 @@ class UpdateOrderStatusAPI(APIView):
             if flag==False:
                 return Response(data = response)
 
-            order_mail_req_obj = OrderMailRequest.objects.create(order=order_obj)
             unit_order_objs = UnitOrder.objects.filter(order = order_obj)
 
             for unit_order_obj in unit_order_objs:
                 if incoming_order_status == "dispatched" and unit_order_obj.current_status_admin == "picked":          
                     set_order_status_without_mail(unit_order_obj, "dispatched")
-                    order_mail_req_obj.status = "dispatched"
                 elif incoming_order_status == "delivered" and unit_order_obj.current_status_admin == "dispatched":
                     set_order_status_without_mail(unit_order_obj, "delivered")
-                    order_mail_req_obj.status = "delivered"
                 else:
                     logger.warning("UpdateOrderStatusAPI: Bad transition request-400")
                     break
-            order_mail_req_obj.save()
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
