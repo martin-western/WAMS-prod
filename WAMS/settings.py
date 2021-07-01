@@ -11,12 +11,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'h4hjbt-$4vx3%yvk3t+i)s0)%v$thnnyk4+i&w=lpfiyvi$e-l'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
-CSRF_COOKIE_HTTPONLY = True
-SESSION_COOKIE_PATH = '/;HttpOnly'
-SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = True
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -90,14 +85,21 @@ DATABASES = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'wamsqa',
-        'USER': 'nisarg',
-        'PASSWORD': 'nisargtike',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'wamsqa',
+#         'USER': 'nisarg',
+#         'PASSWORD': 'nisargtike',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -123,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE =  'Asia/Dubai'
+TIME_ZONE =  'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -144,7 +146,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # MEDIA_URL = '/files/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
 
-"""
+
 AWS_ACCESS_KEY_ID = 'AKIA5NL25NAZB4FJDK65'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'wig-wams-s3-bucket'
@@ -156,20 +158,6 @@ AWS_S3_OBJECT_PARAMETERS = {
 
 DEFAULT_FILE_STORAGE = 'WAMSApp.storage_backends.MediaStorage'
 MEDIA_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
-"""
-AWS_ACCESS_KEY_ID = 'AKIA5NL25NAZB4FJDK65'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'cdn.omnycomm.com'
-#AWS_S3_CUSTOM_DOMAIN = '%s.omnycomm.com' % AWS_STORAGE_BUCKET_NAME
-AWS_S3_CUSTOM_DOMAIN = AWS_STORAGE_BUCKET_NAME
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
-#AWS_DEFAULT_ACL = None
-
-DEFAULT_FILE_STORAGE = 'WAMSApp.storage_backends.MediaStorage'
-MEDIA_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
-
 
 # Userid: tikenisarg@gmail.com
 # Acces Key ID: AKIA5NL25NAZB4FJDK65
@@ -243,44 +231,16 @@ REST_FRAMEWORK = {
     ),
 }
 
-CORS_ORIGIN_WHITELIST = (
-<<<<<<< HEAD
-     'http://127.0.0.1:3000',
-     'http://127.0.0.1:3001',
-     'http://localhost:3000',
-     'http://localhost:3001',
-     'http://localhost:3010',
-     'https://localhost:3010',
-     'https://qa.wigme.com',
-     'https://qa.omnycomm.com',
-     'https://qakrypton.omnycomm.com',
-     'https://qa-omnycomm.netlify.app',
-)
-=======
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3010',
-    'https://localhost:3010',
-    'https://qa.wigme.com',
-    'https://qa.omnycomm.com',
-    'https://qakrypton.omnycomm.com',
-    'https://qa-omnycomm.netlify.app',
-)
-
->>>>>>> 32e643cdd3d7a4640df4efaeac8f9a1530020f85
+# CORS_ORIGIN_WHITELIST = (
+#     'http://127.0.0.1:3000',
+# )
 
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'WAMSApp.utils.my_jwt_response_handler',
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=2592000),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=15552000),
 }
 
-<<<<<<< HEAD
-#CORS_ORIGIN_ALLOW_ALL = True
-=======
-# CORS_ORIGIN_ALLOW_ALL = True
->>>>>>> 32e643cdd3d7a4640df4efaeac8f9a1530020f85
+CORS_ORIGIN_ALLOW_ALL = True
 
 FILE_UPLOAD_HANDLERS = [
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
@@ -294,28 +254,13 @@ MWS_PARAMS = {
 }
 
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'nisarg@omnycomm.com'
-EMAIL_HOST_PASSWORD = 'verjtzgeqareribg'
-
-
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '/home/ubuntu/WAMS/django_cache',
+        'LOCATION': '/home/nisarg/Desktop/WAMS/django_cache',
         'TIMEOUT': 1500,
         'OPTIONS': {
             'MAX_ENTRIES': 50
         }
     }
 }
-
-"""
-REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    )
-}
-"""

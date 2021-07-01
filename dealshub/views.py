@@ -50,7 +50,6 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
     def enforce_csrf(self, request):
