@@ -1,7 +1,6 @@
 from django.core.files.base import ContentFile
 from WAMSApp.models import *
 from dealshub.models import *
-from dealshub.models import DealsHubProduct
 
 from PIL import Image as IMAGE
 
