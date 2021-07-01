@@ -6884,6 +6884,7 @@ class FetchOrderSalesAnalyticsAPI(APIView):
 
         return Response(data=response)
 
+
 class FetchFilteredOrderAnalyticsAPI(APIView):
 
     def post(self, request, *args, **kwargs):
