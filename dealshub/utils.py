@@ -1,4 +1,5 @@
 from dealshub.models import *
+from dealshub.models import UnitOrderStatus
 from dealshub.core_utils import *
 from WAMSApp.sap.utils_SAP_Integration import *
 
