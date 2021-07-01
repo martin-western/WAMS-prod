@@ -1,4 +1,3 @@
-import math
 from dealshub.models import *
 from dealshub.core_utils import *
 from WAMSApp.sap.utils_SAP_Integration import *
@@ -20,7 +19,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.mail import EmailMessage
 from django.template import loader
 import threading
-from dealshub.models import *
 from WAMSApp.utils import fetch_refresh_stock
 from WAMSApp.sap.utils_SAP_Integration import *
 
