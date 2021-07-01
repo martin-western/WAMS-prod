@@ -8107,21 +8107,19 @@ class UpdateOrderStatusAPI(APIView):
         try:
             data = request.data
             logger.info("UpdateOrderStatusAPI: %s", str(data))
-            # sap_invoice_id = data["sap_invoice_id"]
+            sap_invoice_id = data["sap_invoice_id"]
             incoming_order_status = data["incoming_order_status"]
-            bundle_id = data["bundle_id"] #for test
 
-            # order_obj = Order.objects.get(sap_final_billing_info__icontains=sap_invoice_id)
-            # doc_list = json.loads(order_obj.sap_final_billing_info)["doc_list"]
-            # flag = False
-            # for doc in doc_list:
-            #     if doc["id"]==sap_invoice_id:
-            #         flag = True
-            #         break
+            order_obj = Order.objects.get(sap_final_billing_info__icontains=sap_invoice_id)
+            doc_list = json.loads(order_obj.sap_final_billing_info)["doc_list"]
+            flag = False
+            for doc in doc_list:
+                if doc["id"]==sap_invoice_id:
+                    flag = True
+                    break
 
-            # if flag==False:
-            #     return Response(data = response)
-            order_obj = Order.objects.get(bundleid=bundle_id)  #for test
+            if flag==False:
+                return Response(data = response)
             unit_order_objs = UnitOrder.objects.filter(order = order_obj)
 
             for unit_order_obj in unit_order_objs:
