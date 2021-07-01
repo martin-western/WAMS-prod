@@ -1920,17 +1920,17 @@ class UnitOrderMailRequest(models.Model):
             "delivered": "Order Delivered"
         }
         info = {
-            "host": self.order.location_group.get_email_host(),
-            "port": self.order.location_group.get_email_port(), 
-            "username": self.order.location_group.get_order_from_email_id(), 
-            "password": self.order.location_group.get_order_from_email_password(),
+            "host": self.unit_order.order.location_group.get_email_host(),
+            "port": self.unit_order.order.location_group.get_email_port(), 
+            "username": self.unit_order.order.location_group.get_order_from_email_id(), 
+            "password": self.unit_order.order.location_group.get_order_from_email_password(),
             "use_tls": True,
             "subject": message[self.status],
             "body": message[self.status],
-            "from_email": self.order.location_group.get_order_from_email_id(),
-            "to": [self.order.owner.email],
-            "cc": self.order.location_group.get_order_cc_email_list(),
-            "bcc": self.order.location_group.get_order_bcc_email_list(),
+            "from_email": self.unit_order.order.location_group.get_order_from_email_id(),
+            "to": [self.unit_order.order.owner.email],
+            "cc": self.unit_order.order.location_group.get_order_cc_email_list(),
+            "bcc": self.unit_order.order.location_group.get_order_bcc_email_list(),
             "html_message": self.html_message
         }
         return info
