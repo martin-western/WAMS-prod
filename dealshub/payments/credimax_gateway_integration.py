@@ -76,6 +76,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             first_name = shipping_address.first_name
             last_name = shipping_address.last_name
             contact_number = shipping_address.contact_number
+            logger.info("1",amount,shipping_address)
 
             if amount == 0.0:
                 response["error"] = "Cart Amount is ZERO!"
@@ -116,6 +117,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 
             credimax_gateway_response = requests.post('https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/'+merchant_id+'/session',headers=headers, data=json.dumps(body))
             credimax_gateway_response_dict = json.loads(credimax_gateway_response.content)
+            logger.info("2",credimax_gateway_response_dict)
             session_id = credimax_gateway_response_dict["session"]["id"]
             success_indicator = credimax_gateway_response_dict["successIndicator"]
             # print(session_id,success_indicator)
