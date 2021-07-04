@@ -73,6 +73,8 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             emirates = shipping_address.emirates
             neighbourhood = shipping_address.neighbourhood
             postcode = shipping_address.postcode
+            first_name = shipping_address.first_name
+            last_name = shipping_address.last_name
             contact_number = shipping_address.contact_number
 
             if amount == 0.0:
@@ -154,34 +156,6 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 def check_order_status_from_credimax_gateway(merchant_reference, location_group_obj):
     try:
 
-        API_KEY = "bWVyY2hhbnQuRTE2OTA2OTUwOmVjNjEyNzc1MTUxMzZiNGUyZWQ0ZTFkZWIzMDVkZTBk"
-        
-        headers = {
-            "Content-Type": "application/vnd.ni-identity.v1+json", 
-            "Authorization": "Basic "+API_KEY
-        }
-        body = {
-            "session":{
-                "authenticationLimit":25
-            }
-        }
-        network_global_android_response = requests.post("https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/E16906950/session/", headers=headers,data=json.dumps(body))
-
-        credimax_gateway_response_dict = json.loads(network_global_android_response.content)
-        session_id = credimax_gateway_response_dict["session"]["id"]
-
-
-        headers = {
-            "Authorization": "Bearer " + access_token ,
-            "Content-Type": "application/vnd.ni-payment.v2+json", 
-            "Accept": "application/vnd.ni-payment.v2+json" 
-        }
-
-        url = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
-        r = requests.get(url=url, headers=headers)
-
-        content = json.loads(r.content)
-        state = content["_embedded"]["payment"][0]["state"]
         if state=="CAPTURED" or state=="AUTHORISED":
             return True
         return False
