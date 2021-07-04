@@ -9478,6 +9478,7 @@ class PlaceOnlineOrderAPI(APIView):
             elif online_payment_mode.strip().lower()=="credimax_gateway":
                 if check_order_status_from_credimax_gateway(merchant_reference, location_group_obj)==False:
                     logger.warning("PlaceOnlineOrderAPI: CREDIMAX GATEWAY STATUS MISMATCH!")
+                    response["message"]="CREDIMAX GATEWAY STATUS MISMATCH!... resultInd not equal to successind"
                     return Response(data=response)  
             else:
                 if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
