@@ -126,22 +126,22 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 fast_cart_obj.merchant_reference = success_indicator
                 fast_cart_obj.save()
 
-            # response["transactionData"] = {
-            #     "sessionId":session_id,
-            #     "order": { 
-            #         "currency": "BHD", 
-            #         "amount": amount,
-            #         "id": order_id,
-            #     },
-            #     "billing": {
-            #         "address": {
-            #             "street": address_lines[0] + "\n"+ address_lines[1] + "\n"+address_lines[2] + "\n",
-            #             "street2":address_lines[3] + "\n"+ neighbourhood + "\n"+emirates + "\n",
-            #             "postcodeZip":postcode,
-            #             "country_code": country_code,
-            #         },
-            #     },
-            # }
+            response["transactionData"] = {
+                "sessionId":session_id,
+                "order": { 
+                    "currency": "BHD", 
+                    "amount": amount,
+                    "id": order_id,
+                },
+                "billing": {
+                    "address": {
+                        "street": address_lines[0] + "\n"+ address_lines[1] + "\n"+address_lines[2] + "\n",
+                        "street2":address_lines[3] + "\n"+ neighbourhood + "\n"+emirates + "\n",
+                        "postcodeZip":postcode,
+                        "country_code": country_code,
+                    },
+                },
+            }
             response["status"] = 200
 
         except Exception as e:
