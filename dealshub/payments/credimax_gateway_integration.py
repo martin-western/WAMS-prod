@@ -116,6 +116,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 
             credimax_gateway_response = requests.post('https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/'+merchant_id+'/session',headers=headers, data=json.dumps(body))
             credimax_gateway_response_dict = json.loads(credimax_gateway_response.content)
+            logger.info("MakePaymentCredimaxGatewayAPI:- ",credimax_gateway_response_dict)
             session_id = credimax_gateway_response_dict["session"]["id"]
             success_indicator = credimax_gateway_response_dict["successIndicator"]
             # print(session_id,success_indicator)
