@@ -19,6 +19,7 @@ from dealshub.payments.hyperpay_integration import *
 from dealshub.payments.spotii_integration import *
 from dealshub.payments.tap_integration import *
 from dealshub.payments.network_global_android_integration import *
+from dealshub.payments.credimax_gateway_integration import *
 from dealshub.postaplus import *
 from dealshub.views_blog import *
 
@@ -9474,11 +9475,14 @@ class PlaceOnlineOrderAPI(APIView):
                 if check_order_status_from_network_global_android(merchant_reference, location_group_obj)==False:
                     logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL ANDROID STATUS MISMATCH!")
                     return Response(data=response)  
+            elif online_payment_mode.strip().lower()=="credimax_gateway":
+                if check_order_status_from_credimax_gateway(merchant_reference, location_group_obj)==False:
+                    logger.warning("PlaceOnlineOrderAPI: CREDIMAX GATEWAY STATUS MISMATCH!")
+                    return Response(data=response)  
             else:
                 if check_order_status_from_network_global(merchant_reference, location_group_obj)==False:
                     logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")
                     return Response(data=response)
-            
 
             if is_fast_cart==False:
 
