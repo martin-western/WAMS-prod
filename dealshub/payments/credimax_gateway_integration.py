@@ -76,7 +76,8 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             first_name = shipping_address.first_name
             last_name = shipping_address.last_name
             contact_number = shipping_address.contact_number
-            logger.info("1",amount,shipping_address)
+            logger.info("1",amount)
+            logger.info("2",address_lines)
 
             if amount == 0.0:
                 response["error"] = "Cart Amount is ZERO!"
@@ -103,21 +104,15 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                     "returnUrl": "http://localhost:3010/transaction-processing/",
                 },
                 "order":{
-                    "id": order_id,
+                    "id": str(order_id),
                     "amount": amount,
-                    "currency": currency,
-                },
-                "customer":{
-                    "email":dealshub_user_obj.email,
-                    "firstName":first_name if first_name else "",
-                    "lastName":last_name if last_name else "",
-                    "mobilePhone":contact_number if contact_number else "",
+                    "currency": "BHD",
                 },
             }
 
             credimax_gateway_response = requests.post('https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/'+merchant_id+'/session',headers=headers, data=json.dumps(body))
             credimax_gateway_response_dict = json.loads(credimax_gateway_response.content)
-            logger.info("2",credimax_gateway_response_dict)
+            logger.info("3",credimax_gateway_response_dict)
             session_id = credimax_gateway_response_dict["session"]["id"]
             success_indicator = credimax_gateway_response_dict["successIndicator"]
             # print(session_id,success_indicator)
@@ -131,22 +126,22 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 fast_cart_obj.merchant_reference = success_indicator
                 fast_cart_obj.save()
 
-            response["transactionData"] = {
-                "sessionId":session_id,
-                "order": { 
-                    "currency": currency, 
-                    "amount": amount,
-                    "id": order_id,
-                },
-                "billing": {
-                    "address": {
-                        "street": address_lines[0] + "\n"+ address_lines[1] + "\n"+address_lines[2] + "\n",
-                        "street2":address_lines[3] + "\n"+ neighbourhood + "\n"+emirates + "\n",
-                        "postcodeZip":postcode,
-                        "country_code": country_code,
-                    },
-                },
-            }
+            # response["transactionData"] = {
+            #     "sessionId":session_id,
+            #     "order": { 
+            #         "currency": "BHD", 
+            #         "amount": amount,
+            #         "id": order_id,
+            #     },
+            #     "billing": {
+            #         "address": {
+            #             "street": address_lines[0] + "\n"+ address_lines[1] + "\n"+address_lines[2] + "\n",
+            #             "street2":address_lines[3] + "\n"+ neighbourhood + "\n"+emirates + "\n",
+            #             "postcodeZip":postcode,
+            #             "country_code": country_code,
+            #         },
+            #     },
+            # }
             response["status"] = 200
 
         except Exception as e:
