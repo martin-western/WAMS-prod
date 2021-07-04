@@ -128,6 +128,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 
             response["transactionData"] = {
                 "sessionId":session_id,
+                "success_indicator":success_indicator,
                 "order": { 
                     "currency": "BHD", 
                     "amount": amount,
