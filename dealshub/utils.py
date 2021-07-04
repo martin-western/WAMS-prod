@@ -1144,7 +1144,7 @@ def notify_low_stock(dealshub_product_obj):
                     email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
                                          body=body,
                                          from_email='nisarg@omnycomm.com',
-                                         to=[custom_permission_obj.user.email],
+                                         to=[custom_permission_obj.user.email,"wigme@westernint.com","hari.pk@westernint.com","support@westernint.com","rikas.k@westernint.com"],
                                          connection=connection)
                     email.send(fail_silently=True)
             except Exception as e:
@@ -1159,8 +1159,9 @@ def notify_grn_error(order_obj):
     try:
         custom_permission_objs = CustomPermission.objects.filter(location_groups__in=[order_obj.location_group])
         email_list = []
+        email_record_names = ["support@westernint.com","wigme@westernint.com","hari.pk@westernint.com","rikas.k@westernint.com"]
         for custom_permission_obj in custom_permission_objs:
-            if custom_permission_obj.user.email!="":
+            if custom_permission_obj.user.email in email_record_names:
                 email_list.append(custom_permission_obj.user.email)
         try:
             body = "This is to inform you that order number "+order_obj.bundleid+" has GRN error. Kindly check on Omnycomm and take appropriate action."
@@ -1189,8 +1190,10 @@ def notify_new_products_email(filepath, location_group_obj):
         location_group_name = location_group_obj.name
         user_objs = CustomPermission.objects.filter(location_groups__pk = location_group_obj.pk)
         email_list = []
+        email_record_names = ["hari.pk@westernint.com","rikas.k@westernint.com","rashid.c@westernint.com","wigme.dm@westernint.com","arsal.k@westernint.com","support@westernint.com",]
         for user_obj in user_objs:
-            email_list.append(user_obj.user.email)
+            if user_obj.user.email in email_record_names:
+                email_list.append(user_obj.user.email)
         try:
             body = "Please find the attached sheet for new products published on " + location_group_name + "."
             subject = "Notification for new products created on " + location_group_name
