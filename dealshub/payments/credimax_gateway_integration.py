@@ -108,7 +108,8 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 },
                 "customer":{
                     "email":dealshub_user_obj.email,
-                    "firstName":first_name + " " + last_name,
+                    "firstName":first_name,
+                    "lastName":last_name
                     "mobilePhone":contact_number,
                 },
             }
