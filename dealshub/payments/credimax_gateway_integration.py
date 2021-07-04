@@ -157,12 +157,16 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 def check_order_status_from_credimax_gateway(merchant_reference, location_group_obj):
     try:
 
-        if state=="CAPTURED" or state=="AUTHORISED":
+        if Cart.objects.filter(merchant_reference=merchant_reference,location_group=location_group_obj).exists():
             return True
+        
+        if FastCart.objects.filter(merchant_reference=merchant_reference,location_group=location_group_obj).exists():
+            return True
+
         return False
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("check_order_status_from_network_global_android: %s at %s", e, str(exc_tb.tb_lineno))        
+        logger.error("check_order_status_from_credimax_gateway: %s at %s", e, str(exc_tb.tb_lineno))        
     return False
 
 
