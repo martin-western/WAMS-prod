@@ -104,7 +104,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 "order":{
                     "id": order_id,
                     "amount": amount,
-                    "currency": currency,
+                    "currency": "BHD",
                 },
                 "customer":{
                     "email":dealshub_user_obj.email,
@@ -132,7 +132,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             response["transactionData"] = {
                 "sessionId":session_id,
                 "order": { 
-                    "currency": currency, 
+                    "currency": "BHD", 
                     "amount": amount,
                     "id": order_id,
                 },
