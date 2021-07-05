@@ -898,3 +898,833 @@ def fetch_product_holding_details(dealshub_product_obj):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("fetch_product_holding_details: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+
+def fetch_prices(product_id,company_code):
+    
+    try:
+
+        product_obj = Product.objects.filter(base_product__seller_sku=product_id)[0]
+
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
+        
+        warehouse_dict = {}
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                  <soapenv:Header />
+                  <soapenv:Body>
+                  <urn:ZAPP_STOCK_PRICE>
+                   <IM_MATNR>
+                    <item>
+                     <MATNR>""" + product_id + """</MATNR>
+                    </item>
+                   </IM_MATNR>
+                   <IM_VKORG>
+                    <item>
+                     <VKORG>""" + company_code + """</VKORG>
+                    </item>
+                   </IM_VKORG>
+                   <T_DATA>
+                    <item>
+                     <MATNR></MATNR>
+                     <MAKTX></MAKTX>
+                     <LGORT></LGORT>
+                     <CHARG></CHARG>
+                     <SPART></SPART>
+                     <MEINS></MEINS>
+                     <ATP_QTY></ATP_QTY>
+                     <TOT_QTY></TOT_QTY>
+                     <CURRENCY></CURRENCY>
+                     <IC_EA></IC_EA>
+                     <OD_EA></OD_EA>
+                     <EX_EA></EX_EA>
+                     <RET_EA></RET_EA>
+                     <WERKS></WERKS>
+                    </item>
+                   </T_DATA>
+                  </urn:ZAPP_STOCK_PRICE>
+                  </soapenv:Body>
+                  </soapenv:Envelope>"""
+
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = response2.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        
+        items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        
+        EX_EA = 0.0
+        IC_EA = 0.0
+        OD_EA = 0.0
+        RET_EA = 0.0
+        qty=0.0
+        
+        warehouse_dict["company_code"] = company_code
+        
+        if isinstance(items, dict):
+            temp_price = items["EX_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                EX_EA = max(temp_price, EX_EA)
+            temp_price = items["IC_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                IC_EA = max(temp_price, IC_EA)
+            temp_price = items["OD_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                OD_EA = max(temp_price, OD_EA)
+            temp_price = items["RET_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                RET_EA = max(temp_price, RET_EA)
+            temp_qty = items["TOT_QTY"]
+            if temp_qty!=None:
+                temp_qty = float(temp_qty)
+                qty = max(temp_qty, qty)
+        
+        else:
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    EX_EA = max(temp_price, EX_EA)
+                temp_price = item["IC_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    IC_EA = max(temp_price, IC_EA)
+                temp_price = item["OD_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    OD_EA = max(temp_price, OD_EA)
+                temp_price = item["RET_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    RET_EA = max(temp_price, RET_EA)
+                temp_qty = item["TOT_QTY"]
+                if temp_qty!=None:
+                    temp_qty = float(temp_qty)
+                    qty = max(temp_qty, qty)
+        
+        prices = {}
+        prices["EX_EA"] = str(EX_EA)
+        prices["IC_EA"] = str(IC_EA)
+        prices["OD_EA"] = str(OD_EA)
+        prices["RET_EA"] = str(RET_EA)
+        
+        warehouse_dict["prices"] = prices
+        warehouse_dict["qty"] = qty
+
+        #product_obj.save()
+        
+        return warehouse_dict
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Fetch Prices: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return []
+
+
+def fetch_prices_dealshub(uuid1, company_code):
+    
+    try:
+        
+        product_obj = Product.objects.get(uuid=uuid1)
+        product_id = product_obj.base_product.seller_sku
+
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
+        
+        warehouse_dict = {}
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                    <soapenv:Header />
+                    <soapenv:Body>
+                    <urn:ZAPP_STOCK_PRICE>
+                     <IM_MATNR>
+                      <item>
+                       <MATNR>""" + product_id + """</MATNR>
+                      </item>
+                     </IM_MATNR>
+                     <IM_VKORG>
+                      <item>
+                       <VKORG>""" + company_code + """</VKORG>
+                      </item>
+                     </IM_VKORG>
+                     <T_DATA>
+                      <item>
+                       <MATNR></MATNR>
+                       <MAKTX></MAKTX>
+                       <LGORT></LGORT>
+                       <CHARG></CHARG>
+                       <SPART></SPART>
+                       <MEINS></MEINS>
+                       <ATP_QTY></ATP_QTY>
+                       <TOT_QTY></TOT_QTY>
+                       <CURRENCY></CURRENCY>
+                       <IC_EA></IC_EA>
+                       <OD_EA></OD_EA>
+                       <EX_EA></EX_EA>
+                       <RET_EA></RET_EA>
+                       <WERKS></WERKS>
+                      </item>
+                     </T_DATA>
+                    </urn:ZAPP_STOCK_PRICE>
+                    </soapenv:Body>
+                    </soapenv:Envelope>"""
+
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = response2.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        
+        items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        EX_EA = 0.0
+        
+        if isinstance(items, dict):
+            temp_price = items["EX_EA"]
+            if temp_price!=None:
+                temp_price = float(temp_price)
+                EX_EA = max(temp_price, EX_EA)
+        else:
+            for item in items:
+                temp_price = item["EX_EA"]
+                if temp_price!=None:
+                    temp_price = float(temp_price)
+                    EX_EA = max(temp_price, EX_EA)
+        
+        return str(EX_EA)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_prices_dealshub: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return "0"
+
+
+def get_sap_batch_and_uom(company_code, seller_sku):
+    response = {
+        "batch": "",
+        "uom": ""
+    }
+    return response
+    try:
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+        <soapenv:Header />
+        <soapenv:Body>
+        <urn:ZAPP_STOCK_PRICE>
+         <IM_MATNR>
+          <item>
+           <MATNR>""" + seller_sku + """</MATNR>
+          </item>
+         </IM_MATNR>
+         <IM_VKORG>
+          <item>
+           <VKORG>""" + company_code + """</VKORG>
+          </item>
+         </IM_VKORG>
+         <T_DATA>
+          <item>
+           <MATNR></MATNR>
+           <MAKTX></MAKTX>
+           <LGORT></LGORT>
+           <CHARG></CHARG>
+           <SPART></SPART>
+           <MEINS></MEINS>
+           <ATP_QTY></ATP_QTY>
+           <TOT_QTY></TOT_QTY>
+           <CURRENCY></CURRENCY>
+           <IC_EA></IC_EA>
+           <OD_EA></OD_EA>
+           <EX_EA></EX_EA>
+           <RET_EA></RET_EA>
+           <WERKS></WERKS>
+          </item>
+         </T_DATA>
+        </urn:ZAPP_STOCK_PRICE>
+        </soapenv:Body>
+        </soapenv:Envelope>"""
+        sap_response = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = sap_response.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+            
+        if isinstance(items, dict):
+            if items["MEINS"]!=None:
+                response["uom"] = items["MEINS"]
+            if items["CHARG"]!=None:
+                response["batch"] = items["CHARG"]
+        else:
+            for item in items:
+                if items["MEINS"]!=None and items["CHARG"]!=None:
+                    response["uom"] = items["MEINS"]
+                    response["batch"] = items["CHARG"]
+
+        return response
+    except Exception as e:
+        return response
+
+
+def fetch_refresh_stock(seller_sku, company_code, location_code):
+
+    try:
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
+        
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                  <soapenv:Header />
+                  <soapenv:Body>
+                  <urn:ZAPP_STOCK_PRICE>
+                   <IM_MATNR>
+                    <item>
+                     <MATNR>""" + seller_sku + """</MATNR>
+                    </item>
+                   </IM_MATNR>
+                   <IM_VKORG>
+                    <item>
+                     <VKORG>""" + company_code + """</VKORG>
+                    </item>
+                   </IM_VKORG>
+                   <T_DATA>
+                    <item>
+                     <MATNR></MATNR>
+                     <MAKTX></MAKTX>
+                     <LGORT></LGORT>
+                     <CHARG></CHARG>
+                     <SPART></SPART>
+                     <MEINS></MEINS>
+                     <ATP_QTY></ATP_QTY>
+                     <TOT_QTY></TOT_QTY>
+                     <CURRENCY></CURRENCY>
+                     <IC_EA></IC_EA>
+                     <OD_EA></OD_EA>
+                     <EX_EA></EX_EA>
+                     <RET_EA></RET_EA>
+                     <WERKS></WERKS>
+                    </item>
+                   </T_DATA>
+                  </urn:ZAPP_STOCK_PRICE>
+                  </soapenv:Body>
+                  </soapenv:Envelope>"""
+
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = response2.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        
+        items = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        
+        if isinstance(items, dict):
+            if items["LGORT"]==location_code:
+                return float(items["ATP_QTY"])
+            return 0
+        else:
+            max_qty = 0
+            for item in items:
+                if item["LGORT"]==location_code:
+                    max_qty = max(max_qty, float(item["ATP_QTY"]))
+            return max_qty
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_tg01_stock %s at %s", e, str(exc_tb.tb_lineno))
+        return 0
+
+
+def get_recommended_browse_node(seller_sku,channel):
+
+    try:
+
+        url="http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
+        headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
+        credentials = (SAP_USERNAME, SAP_PASSWORD)
+        company_code_dict ={
+            "Geepas" : "1000",
+            "Abraj": "6000",
+            "BabyPlus": "5550",
+            "Baby Plus": "5550",
+            "Crystal": "5100",
+            "Delcasa": "3050",
+            "Olsenmark": "1100",
+            "Royalford": "3000",
+            "Younglife": "5000"
+        }
+        
+        product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
+        company_code = company_code_dict[product_obj.base_product.brand.name]
+        body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                  <soapenv:Header />
+                  <soapenv:Body>
+                  <urn:ZAPP_STOCK_PRICE>
+                   <IM_MATNR>
+                    <item>
+                     <MATNR>""" + seller_sku + """</MATNR>
+                    </item>
+                   </IM_MATNR>
+                   <IM_VKORG>
+                    <item>
+                     <VKORG>""" + company_code + """</VKORG>
+                    </item>
+                   </IM_VKORG>
+                   <T_DATA>
+                    <item>
+                     <MATNR></MATNR>
+                     <MAKTX></MAKTX>
+                     <LGORT></LGORT>
+                     <CHARG></CHARG>
+                     <SPART></SPART>
+                     <MEINS></MEINS>
+                     <ATP_QTY></ATP_QTY>
+                     <TOT_QTY></TOT_QTY>
+                     <CURRENCY></CURRENCY>
+                     <IC_EA></IC_EA>
+                     <OD_EA></OD_EA>
+                     <EX_EA></EX_EA>
+                     <RET_EA></RET_EA>
+                     <WERKS></WERKS>
+                    </item>
+                   </T_DATA>
+                  </urn:ZAPP_STOCK_PRICE>
+                  </soapenv:Body>
+                  </soapenv:Envelope>"""
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        content = response2.content
+        content = xmltodict.parse(content)
+        content = json.loads(json.dumps(content))
+        item = content["soap-env:Envelope"]["soap-env:Body"]["n0:ZAPP_STOCK_PRICEResponse"]["T_DATA"]["item"]
+        if isinstance(item,list):
+            item = item[1]
+
+        try:
+            recommended_browse_node = CategoryMapping.objects.filter(channel__name=channel,sap_sub_category__sub_category=item["WWGHB1"])[0].recommended_browse_node
+            return recommended_browse_node
+        except:
+            logger.error("get_recommended_browse_node: Mapping not found")
+            return ""
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("get_recommended_browse_node: %s at %s", e, str(exc_tb.tb_lineno))
+        return ""
+
+
+def fetch_sap_details_for_order_punching(dealshub_product_obj):
+    sap_details = {
+        "company_code": "NA",
+        "sales_office": "NA",
+        "vendor_code": "NA",
+        "purchase_org": "NA"
+    }
+    try:
+        if dealshub_product_obj.get_brand().lower()=="geepas":
+            sap_details["company_code"] = "1100"
+            sap_details["sales_office"] = "1005"
+            sap_details["vendor_code"] = "V1001"
+            sap_details["purchase_org"] = "1200"
+        elif dealshub_product_obj.get_brand().lower()=="olsenmark":
+            sap_details["company_code"] = "1100"
+            sap_details["sales_office"] = "1105"
+            sap_details["vendor_code"] = "V1100"
+            sap_details["purchase_org"] = "1200"
+        elif dealshub_product_obj.get_brand().lower()=="krypton":
+            sap_details["company_code"] = "2100"
+            sap_details["sales_office"] = "2105"
+            sap_details["vendor_code"] = "V2100"
+            sap_details["purchase_org"] = "1200"
+        elif dealshub_product_obj.get_brand().lower()=="royalford":
+            sap_details["company_code"] = "3000"
+            sap_details["sales_office"] = "3005"
+            sap_details["vendor_code"] = "V3001"
+            sap_details["purchase_org"] = "1200"
+        elif dealshub_product_obj.get_brand().lower()=="abraj":
+            sap_details["company_code"] = "6000"
+            sap_details["sales_office"] = "6008"
+            sap_details["vendor_code"] = "V6000"
+            sap_details["purchase_org"] = "1200"
+        elif dealshub_product_obj.get_brand().lower()=="baby plus":
+            sap_details["company_code"] = "5550"
+            sap_details["sales_office"] = "5558"
+            sap_details["vendor_code"] = "V5550"
+            sap_details["purchase_org"] = "1200"
+        
+        return sap_details
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_sap_details_for_order_punching: %s at %s", e, str(exc_tb.tb_lineno))
+        return "NA"
+
+
+def refresh_stock(order_obj):
+
+    try:
+        unit_order_objs = UnitOrder.objects.filter(order=order_obj)
+        uuid_list = []
+        for unit_order_obj in unit_order_objs:
+            dealshub_product_obj = unit_order_obj.product
+            brand_name = dealshub_product_obj.get_brand().lower()
+            seller_sku = dealshub_product_obj.get_seller_sku()
+            stock = 0
+            company_code = ""
+            total_holding = 0.0
+
+            try :
+                company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+                company_code = company_code_obj.code
+            except Exception as e:
+                continue
+
+            if "wigme" in seller_sku.lower():
+                continue
+            
+            prices_stock_information = fetch_prices_and_stock(seller_sku, company_code)
+            total_holding = prices_stock_information["total_holding"]
+            holding_threshold = prices_stock_information["holding_threshold"]
+
+            # if brand=="geepas":
+            #     stock2 = fetch_prices_and_stock(seller_sku, "1000")
+            #     stock = max(stock1, stock2)
+            # elif brand=="baby plus":
+            #     stock = fetch_refresh_stock(seller_sku, "5550", "TG01")
+            # elif brand=="royalford":
+            #     stock = fetch_refresh_stock(seller_sku, "3000", "AFS1")
+            # elif brand=="krypton":
+            #     stock = fetch_refresh_stock(seller_sku, "2100", "TG01")
+            # elif brand=="olsenmark":
+            #     stock = fetch_refresh_stock(seller_sku, "1100", "AFS1")
+            # elif brand=="ken jardene":
+            #     stock = fetch_refresh_stock(seller_sku, "5550", "AFS1") # 
+            # elif brand=="younglife":
+            #     stock = fetch_refresh_stock(seller_sku, "5000", "AFS1")
+            # elif brand=="delcasa":
+            #     stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
+
+            wigme_location_group_obj = LocationGroup.objects.get(name="WIGMe - UAE")
+            if dealshub_product_obj.location_group==wigme_location_group_obj:
+                dealshub_product_obj.stock = int(total_holding)
+            
+            if holding_threshold > total_holding:
+                try:
+                    p2 = threading.Thread(target=notify_low_stock, args=(dealshub_product_obj,))
+                    p2.start()
+                    #dealshub_product_obj.stock = 0
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("refresh_stock: %s at %s", e, str(exc_tb.tb_lineno))
+
+            dealshub_product_obj.save()
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("refresh_stock: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+def is_user_input_required_for_sap_punching(stock_price_information, order_qty):
+    
+    try:
+        
+        total_atp = stock_price_information["total_atp"]
+        atp_threshold = stock_price_information["atp_threshold"]
+        holding_threshold = stock_price_information["holding_threshold"]
+        
+        if total_atp > atp_threshold and total_atp >= order_qty:
+            return False
+        
+        return True
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("is_user_input_required_for_sap_punching: %s at %s", e, str(exc_tb.tb_lineno)) 
+        return True
+
+def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, order_qty):
+
+    try:
+
+        result = fetch_prices_and_stock(seller_sku, company_code)
+
+        stock_list = result["stock_list"]
+        prices = result["prices"]
+        total_atp = result["total_atp"]
+        total_holding = result["total_holding"]
+        atp_threshold = result["atp_threshold"]
+        holding_threshold = result["holding_threshold"]
+        
+        total_stock_info = []
+
+        if total_atp > atp_threshold and total_atp>=order_qty:
+            from_holding=""
+            for item in stock_list:
+                atp_qty = item["atp_qty"]
+                batch = item["batch"]
+                uom = item["uom"]
+                if atp_qty>0:
+                    temp_dict = {
+                        "atp_qty": atp_qty,
+                        "batch": batch,
+                        "uom": uom
+                    }
+                    total_stock_info.append(temp_dict)
+        else:
+            from_holding = x_value
+            if from_holding == "X":
+                for item in stock_list:
+                    holding_qty = item["holding_qty"]
+                    batch = item["batch"]
+                    uom = item["uom"]
+                    if holding_qty>0:
+                        temp_dict = {
+                            "atp_qty": holding_qty,
+                            "batch": batch,
+                            "uom": uom
+                        }
+                        total_stock_info.append(temp_dict)
+            else:
+                for item in stock_list:
+                    atp_qty = item["atp_qty"]
+                    batch = item["batch"]
+                    uom = item["uom"]
+                    if atp_qty>0:
+                        temp_dict = {
+                            "atp_qty": atp_qty,
+                            "batch": batch,
+                            "uom": uom
+                        }
+                        total_stock_info.append(temp_dict)
+
+        total_stock_info = sorted(total_stock_info, key=lambda k: k["atp_qty"], reverse=True) 
+        order_information_list = []
+        remaining_qty = order_qty
+        for stock_info in total_stock_info:
+            if remaining_qty==0:
+                break
+            if stock_info["atp_qty"]>=remaining_qty:
+                temp_dict = {
+                    "qty": format(remaining_qty,'.2f'),
+                    "batch": stock_info["batch"],
+                    "uom": stock_info["uom"],
+                    "from_holding": from_holding,
+                    "seller_sku": seller_sku
+                }
+                remaining_qty = 0
+            else:
+                temp_dict = {
+                    "qty": format(stock_info["atp_qty"],'.2f'),
+                    "batch": stock_info["batch"],
+                    "uom": stock_info["uom"],
+                    "from_holding": from_holding,
+                    "seller_sku": seller_sku
+                }
+                remaining_qty -= stock_info["atp_qty"]
+            order_information_list.append(temp_dict)
+
+        logger.info("fetch_order_information_for_sap_punching: %s", str(order_information_list))
+        return order_information_list
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("fetch_order_information_for_sap_punching: %s at %s", e, str(exc_tb.tb_lineno))
+        return []
+
+
+def generate_sap_order_format(unit_order_list):
+
+    try:
+        os.system("rm ./files/csv/sap-order-format.xlsx")
+    except Exception as e:
+        pass
+
+    workbook = xlsxwriter.Workbook('./files/csv/sap-order-format.xlsx')
+
+    # Step 1
+
+    worksheet1 = workbook.add_worksheet()
+
+    row = ["Company Code",
+           "Distribution Channel",
+           "Division",
+           "Sales Office",
+           "Order Type",
+           "SAP Customer ID",
+           "Order ID",
+           "Article Code",
+           "Qty",
+           "UoM",
+           "Batch"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet1.write(cnt, colnum, k)
+        colnum += 1
+
+    for unit_order in unit_order_list:
+        try:
+            cnt += 1
+
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=unit_order["productUuid"])
+
+            sap_details = fetch_sap_details_for_order_punching(dealshub_product_obj)
+
+            common_row = ["" for i in range(11)]
+            common_row[0] = sap_details["company_code"]
+            common_row[1] = "01"
+            common_row[2] = "00"
+            common_row[3] = sap_details["sales_office"]
+            common_row[4] = "ZWIC"
+            common_row[5] = "40000637"
+            common_row[6] = unit_order["orderId"]
+            common_row[7] = dealshub_product_obj.get_seller_sku()
+            common_row[8] = unit_order["quantity"]
+            
+            colnum = 0
+            for k in common_row:
+                worksheet1.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("generate_sap_order_format: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+    # Step 2
+
+    worksheet2 = workbook.add_worksheet()
+
+    row = ["PO Order Type",
+           "Company Code",
+           "Purchase Org",
+           "Site",
+           "Storage Location",
+           "Purchase Group",
+           "Pricing Condition (Header) ZPA3",
+           "Invoice Reference",
+           "Vendor Code",
+           "Item Code",
+           "Order Unit",
+           "Order Price UoM",
+           "Purchase Order Qty",
+           "Net Price",
+           "Date"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet2.write(cnt, colnum, k)
+        colnum += 1
+
+    for unit_order in unit_order_list:
+        try:
+            cnt += 1
+
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=unit_order["productUuid"])
+
+            sap_details = fetch_sap_details_for_order_punching(dealshub_product_obj)
+
+            common_row = ["" for i in range(15)]
+            common_row[0] = "WIC"
+            common_row[1] = "1200"
+            common_row[2] = "1200"
+            common_row[3] = "1202"
+            common_row[4] = "TG01"
+            common_row[5] = "GP2"
+
+            common_row[7] = "Invoice Ref ID"
+            common_row[8] = sap_details["vendor_code"]
+            common_row[9] = dealshub_product_obj.get_seller_sku()
+            common_row[10] = "EA"
+            common_row[11] = "EA"
+            common_row[12] = unit_order["quantity"]
+            common_row[13] = unit_order["price"]
+            common_row[14] = unit_order["orderPlacedDate"]
+
+            colnum = 0
+            for k in common_row:
+                worksheet2.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("generate_sap_order_format: %s at %s", e, str(exc_tb.tb_lineno))
+
+
+    # Step 3
+
+    worksheet3 = workbook.add_worksheet()
+
+    row = ["Company Code",
+           "Order Type",
+           "SAP Customer ID",
+           "End Customer Name",
+           "Area",
+           "Order ID",
+           "Article Code",
+           "Qty",
+           "UoM",
+           "Batch",
+           "Total Amount",
+           "Promotion Discount Line Item",
+           "Voucher Discount Header",
+           "Courier Charge Header",
+           "COD Charge Header",
+           "Other Charge-Header",
+           "Other Charge-Line Item"]
+
+    cnt = 0
+        
+    colnum = 0
+    for k in row:
+        worksheet3.write(cnt, colnum, k)
+        colnum += 1
+
+    for unit_order in unit_order_list:
+        try:
+            cnt += 1
+
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=unit_order["productUuid"])
+
+            order_type = "ZJCR"
+            customer_code = ""
+            if unit_order["shippingMethod"]=="WIG Fleet":
+                customer_code = "50000629"
+            elif unit_order["shippingMethod"]=="TFM":
+                customer_code = "50000627"
+
+            company_code = get_company_code_from_brand_name(dealshub_product_obj.get_brand())
+            response = get_sap_batch_and_uom(company_code, dealshub_product_obj.get_seller_sku())
+            batch = response["batch"]
+            uom = response["uom"]
+
+            common_row = ["" for i in range(17)]
+            common_row[0] = "1200"
+            common_row[1] = order_type
+            common_row[2] = customer_code
+            common_row[3] = unit_order["customerName"]
+            common_row[4] = unit_order["area"]
+            common_row[5] = unit_order["orderId"]
+            common_row[6] = dealshub_product_obj.get_seller_sku()
+            common_row[7] = unit_order["quantity"]
+            common_row[8] = uom
+            common_row[9] = batch
+            common_row[10] = unit_order["total"]
+
+            colnum = 0
+            for k in common_row:
+                worksheet3.write(cnt, colnum, k)
+                colnum += 1
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("generate_sap_order_format: %s at %s", e, str(exc_tb.tb_lineno))
+
+    workbook.close()
+
