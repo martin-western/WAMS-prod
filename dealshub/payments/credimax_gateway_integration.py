@@ -29,7 +29,6 @@ from django.utils import timezone
 from django.core.files import File
 
 logger = logging.getLogger(__name__)
-NETWORK_URL = "https://credimax.gateway.mastercard.com/api/rest/version/60/merchant"
 
 
 class MakePaymentCredimaxGatewayAPI(APIView):
@@ -76,8 +75,6 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             last_name = shipping_address.last_name
             contact_number = shipping_address.contact_number
 
-            payfort_multiplier = int(location_group_obj.location.payfort_multiplier)
-            amount = round(float(amount*payfort_multiplier),2)
             if amount == 0:
                 response["error"] = "Cart Amount is ZERO!"
                 response["status"] = 403
