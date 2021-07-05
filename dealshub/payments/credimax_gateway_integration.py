@@ -51,7 +51,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             website_group_obj = location_group_obj.website_group
-            currency = location_group_obj.location.currency
+            currency = "BHD"
             country_code = location_group_obj.location.name
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
