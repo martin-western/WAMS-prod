@@ -57,7 +57,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 
             amount = 0
             shipping_address = None
-            order_id = = str(uuid.uuid4())
+            order_id = str(uuid.uuid4())
 
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
