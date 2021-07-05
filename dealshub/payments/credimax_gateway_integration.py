@@ -22,7 +22,7 @@ import logging
 import sys
 import xlrd
 import time
-
+import uuid
 
 from datetime import datetime
 from django.utils import timezone
@@ -57,17 +57,16 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 
             amount = 0
             shipping_address = None
+            order_id = = str(uuid.uuid4())
 
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = cart_obj.to_pay
                 shipping_address = cart_obj.shipping_address
-                order_id = cart_obj.uuid
             else:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 amount = fast_cart_obj.to_pay
                 shipping_address = fast_cart_obj.shipping_address
-                order_id = fast_cart_obj.uuid
 
             address_lines = json.loads(shipping_address.address_lines)
             emirates = shipping_address.emirates
