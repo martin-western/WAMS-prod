@@ -379,6 +379,7 @@ class LocationGroup(models.Model):
     seo_short_description = models.TextField(blank=True, default='')
     seo_long_description = models.TextField(blank=True, default='')
     seo_google_meta = models.TextField(blank=True, default='')
+    seo_google_meta_title = models.TextField(blank=True, default='')
     
 
     def __str__(self):

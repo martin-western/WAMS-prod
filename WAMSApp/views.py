@@ -5914,6 +5914,7 @@ class FetchCompanyProfileAPI(APIView):
             seo_short_description = '' 
             seo_long_description = ''
             seo_google_meta = ''
+            seo_google_meta_title = ''
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
             location_group_uuid = data.get("locationGroupUuid","")     
             if location_group_uuid == "":
@@ -5984,12 +5985,14 @@ class FetchCompanyProfileAPI(APIView):
                 seo_long_description = location_group_obj.seo_long_description
                 seo_short_description = location_group_obj.seo_short_description
                 seo_google_meta = location_group_obj.seo_google_meta
+                seo_google_meta_title = location_group_obj.seo_google_meta_title
 
             response["company_data"] = company_data
             response["seo_title"] = seo_title
             response["seo_long_description"] = seo_long_description
             response["seo_short_description"] = seo_short_description
             response["seo_google_meta"] = seo_google_meta
+            response["seo_google_meta_title"] = seo_google_meta_title
             response['status'] = 200    
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6077,6 +6080,7 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.seo_short_description = company_data["seo_short_description"]
                 location_group_obj.seo_long_description = company_data["seo_long_description"]
                 location_group_obj.seo_google_meta = company_data["seo_google_meta"]
+                location_group_obj.seo_google_meta_title = company_data["seo_google_meta_title"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.set_support_email_id(email_id)

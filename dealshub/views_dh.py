@@ -10304,6 +10304,7 @@ class FetchSEODataAPI(APIView):
             response["seo_long_description"] = location_group_obj.seo_long_description
             response["seo_short_description"] = location_group_obj.seo_short_description
             response["seo_google_meta"] = location_group_obj.seo_google_meta
+            response["seo_google_meta_title"] = location_group_obj.seo_google_meta_title
             response['status'] = 200    
 
         except Exception as e:
