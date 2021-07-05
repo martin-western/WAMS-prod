@@ -109,10 +109,9 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 
             credimax_gateway_response = requests.post('https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/'+merchant_id+'/session',headers=headers, data=json.dumps(body))
             credimax_gateway_response_dict = json.loads(credimax_gateway_response.content)
-            logger.info("3",credimax_gateway_response_dict)
             session_id = credimax_gateway_response_dict["session"]["id"]
             success_indicator = credimax_gateway_response_dict["successIndicator"]
-            # print(session_id,success_indicator)
+            logger.info(session_id,success_indicator)
 
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
