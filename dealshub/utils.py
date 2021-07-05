@@ -367,7 +367,7 @@ def send_wigme_order_status_sms(unit_order_obj,message):
             "mtype":"N",
             "DR":"Y"
         }
-        r = requests.post(url=url, data=req_data)
+        r = requests.post(url=url, data=req_data, timeout=10)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -397,7 +397,7 @@ def send_daycart_order_status_sms(unit_order_obj,message):
             "mtype":"N",
             "DR":"Y"
         }
-        r = requests.post(url=url, data=req_data)
+        r = requests.post(url=url, data=req_data, timeout=10)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -412,7 +412,7 @@ def send_parajohn_order_status_sms(unit_order_obj,message):
         logger.info("send_parajohn_order_status_sms:", message)
         contact_number = dealshub_user_obj.contact_number
         url = "https://retail.atech.alarislabs.com/rest/send_sms?from=PARA JOHN&to=971"+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
-        requests.get(url)  
+        requests.get(url, timeout=10)  
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_parajohn_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2096,7 +2096,7 @@ def get_sendex_api_response(sendex_dict, request_url):
         "Content-Type" : "application/json",
         "API-KEY" : SENDEX_API_KEY
     }
-    response = requests.post(url=request_url, headers=http_header, data=json.dumps(sendex_dict))
+    response = requests.post(url=request_url, headers=http_header, data=json.dumps(sendex_dict), timeout=10)
     response_dict = json.loads(response.content)
     return response_dict
 

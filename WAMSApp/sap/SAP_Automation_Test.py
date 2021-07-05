@@ -67,7 +67,7 @@ def fetch_prices(product_id,company_code,url,customer_id):
         import requests
         import xmltodict
         import json
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=10)
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
@@ -256,7 +256,7 @@ import requests
 import xmltodict
 import json
 
-response_holding = requests.post(url=holding_url, auth=credentials, data=body, headers=headers)
+response_holding = requests.post(url=holding_url, auth=credentials, data=body, headers=headers, timeout=10)
 content = response_holding.content
 content = xmltodict.parse(content)
 content = json.loads(json.dumps(content))

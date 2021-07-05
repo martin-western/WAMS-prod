@@ -25,7 +25,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         
         body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,CUSTOMER_ID)
         logger.info("price and stock req body :%s", str(body))
-        response = requests.post(url=PRICE_STOCK_URL, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=PRICE_STOCK_URL, auth=credentials, data=body, headers=headers, timeout=10)
         
         content = response.content
         xml_content = xmltodict.parse(content)
@@ -268,7 +268,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         if len(transfer_information) > 0:
             logger.info("tansfer info : %s", str(json.dumps(transfer_information)))
             body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
-            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers)
+            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=10)
             content = response.content
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
@@ -421,7 +421,7 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
         if len(transfer_information) > 0:
             body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
             logger.info("holind_atp_transfer BODY FOR API: %s",str(body))
-            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers)
+            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=10)
             content = response.content
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
@@ -491,7 +491,7 @@ def create_intercompany_sales_order(company_code,order_information):
         body = xml_generator_for_intercompany_tansfer(company_code,CUSTOMER_ID,order_information)
         logger.info("XML Intercompany: %s",body)
 
-        response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers, timeout=10)
         
         content = response.content
         xml_content = xmltodict.parse(content)
@@ -666,7 +666,7 @@ def create_final_order(company_code,order_information):
         body = xml_generator_for_final_billing(company_code,customer_id,order_information)
         logger.info("XML Final: %s",body)
 
-        response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers)
+        response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers, timeout=10)
         
         content = response.content
         xml_content = xmltodict.parse(content)
@@ -862,7 +862,7 @@ def fetch_product_holding_details(dealshub_product_obj):
             
             body = xml_generator_for_product_holding_details(company_code,seller_sku)
 
-            response = requests.post(url=PRODUCT_HOLDING_URL, auth=credentials, data=body, headers=headers)
+            response = requests.post(url=PRODUCT_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=10)
 
             content = response.content
             xml_content = xmltodict.parse(content)

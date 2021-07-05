@@ -6378,7 +6378,7 @@ class FetchLogixShippingStatusAPI(APIView):
                     'token': 'bf6c7d89b71732b9362aa0e7b51b4d92',
                     'User-ID': '1'
             }
-            resp = requests.get(url="https://qzolve-erp.com/logix2020/track/order/status/"+tracking_reference, headers=headers)
+            resp = requests.get(url="https://qzolve-erp.com/logix2020/track/order/status/"+tracking_reference, headers=headers, timeout=10)
             status_data = resp.json()
 
             response["shipping_status"] = status_data['shipping_status']

@@ -75,7 +75,7 @@ def fetch_prices(product_id,company_code,url,customer_id):
         import xmltodict
         import json
 
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=10)
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
@@ -259,7 +259,7 @@ body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envel
 
 holding_url = "http://94.56.89.116:8000/sap/bc/srt/rfc/sap/zser_holding_so/150/zser_holding_so/zbin_holding_so"
 
-response_holding = requests.post(url=holding_url, auth=credentials, data=body, headers=headers)
+response_holding = requests.post(url=holding_url, auth=credentials, data=body, headers=headers, timeout=10)
 content = response_holding.content
 content = xmltodict.parse(content)
 content = json.loads(json.dumps(content))

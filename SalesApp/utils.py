@@ -60,7 +60,7 @@ def send_firebase_notifications(fcm_ids,notification_info):
 		          'priority': 'high'
 		        #   'data': dataPayLoad,
 		        }
-		response = requests.post("https://fcm.googleapis.com/fcm/send",headers = headers, data=json.dumps(body))
+		response = requests.post("https://fcm.googleapis.com/fcm/send",headers = headers, data=json.dumps(body), timeout=10)
 
 		return response
 

@@ -11,7 +11,7 @@ data = {
     "username": "priyanka",
     "password": "p7165wig"
 }
-r = requests.post(url=url, data=data)
+r = requests.post(url=url, data=data, timeout=10)
 print(r.content)
 token = json.loads(r.content)["token"]
 print("\n\n\n")
@@ -27,7 +27,7 @@ headers = {
 data = {
     "organizationName": "geepas"
 }
-r = requests.post(headers=headers, url=url, data=data)
+r = requests.post(headers=headers, url=url, data=data, timeout=10)
 print(r.content)
 status = json.loads(r.content)["status"]
 banner_type = json.loads(r.content)["bannerTypes"][0]["type"]
@@ -68,7 +68,7 @@ headers = {
 data = {
     "uuid": "e4136d7f-2b79-4732-bffb-3c3fba936e37"
 }
-r = requests.post(headers=headers, url=url, data=data)
+r = requests.post(headers=headers, url=url, data=data, timeout=10)
 print(r.content)
 status = json.loads(r.content)["status"]
 if status==200:
@@ -87,7 +87,7 @@ headers = {
 data = {
     "organizationName": "geepas"
 }
-r = requests.post(headers=headers, url=url, data=data)
+r = requests.post(headers=headers, url=url, data=data, timeout=10)
 print(r.content)
 status = json.loads(r.content)["status"]
 if status==200:
@@ -108,7 +108,7 @@ obj1 = json.dumps(obj1)
 data = {
     "dealshubAdminSections": obj1
 }
-r = requests.post(headers=headers, url=url, data=data)
+r = requests.post(headers=headers, url=url, data=data, timeout=10)
 print(r.content)
 status = json.loads(r.content)["status"]
 if status==200:
@@ -128,7 +128,7 @@ headers = {
 data = {
     "organizationName": "geepas"
 }
-r = requests.post(headers=headers, url=url, data=data)
+r = requests.post(headers=headers, url=url, data=data, timeout=10)
 print(r.content)
 status = json.loads(r.content)["status"]
 if status==200:
