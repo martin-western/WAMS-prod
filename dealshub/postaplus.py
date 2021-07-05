@@ -127,7 +127,7 @@ def request_postaplus(order_obj):
                                    "Content-Type": "text/xml",
                                    "SOAPAction":"http://tempuri.org/IPostaWebClient/Shipment_Creation"
                                  },
-                                 data=postaplus_request_body)
+                                 data=postaplus_request_body, timeout=10)
 
         content = response.content
         content = xmltodict.parse(content)
@@ -179,7 +179,7 @@ def fetch_postaplus_tracking(awb_number):
                                    "Content-Type": "text/xml",
                                    "SOAPAction":"http://tempuri.org/IPostaWebClient/Shipment_Tracking"
                                  },
-                                 data=postaplus_request_body)
+                                 data=postaplus_request_body, timeout=10)
 
         content = response.content
         content = xmltodict.parse(content)

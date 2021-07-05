@@ -97,7 +97,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 "Authorization": "Basic "+API_KEY
             }
             
-            network_global_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
+            network_global_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers, timeout=10)
 
             network_global_response_dict = json.loads(network_global_response.content)
             access_token = network_global_response_dict["access_token"]
@@ -133,7 +133,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
             
-            payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
+            payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers, timeout=10)
             
             response["payment_response"] = json.loads(payment_response.content)
             response["error"] = "Payment Success"
@@ -214,7 +214,7 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
                 "Authorization": "Basic "+API_KEY
             }
 
-            network_global_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
+            network_global_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers, timeout=10)
 
             network_global_response_dict = json.loads(network_global_response.content)
             access_token = network_global_response_dict["access_token"]
@@ -250,7 +250,7 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
 
-            payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
+            payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers, timeout=10)
 
             response["payment_response"] = json.loads(payment_response.content)
             response["error"] = "Payment Success"
@@ -274,7 +274,7 @@ def check_order_status_from_network_global(merchant_reference, location_group_ob
             "Content-Type": "application/vnd.ni-identity.v1+json", 
             "Authorization": "Basic "+API_KEY
         }
-        response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
+        response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers, timeout=10)
 
         response_dict = json.loads(response.content)
         access_token = response_dict["access_token"]
@@ -286,7 +286,7 @@ def check_order_status_from_network_global(merchant_reference, location_group_ob
         }
 
         url = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
-        r = requests.get(url=url, headers=headers)
+        r = requests.get(url=url, headers=headers, timeout=10)
 
         content = json.loads(r.content)
         state = content["_embedded"]["payment"][0]["state"]

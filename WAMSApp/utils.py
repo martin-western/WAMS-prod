@@ -168,7 +168,7 @@ def fetch_prices(product_id,company_code):
                   </soapenv:Body>
                   </soapenv:Envelope>"""
 
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=10)
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
@@ -296,7 +296,7 @@ def fetch_prices_dealshub(uuid1, company_code):
                     </soapenv:Body>
                     </soapenv:Envelope>"""
 
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=10)
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
@@ -1684,7 +1684,7 @@ def get_sap_batch_and_uom(company_code, seller_sku):
         </urn:ZAPP_STOCK_PRICE>
         </soapenv:Body>
         </soapenv:Envelope>"""
-        sap_response = requests.post(url, auth=credentials, data=body, headers=headers)
+        sap_response = requests.post(url, auth=credentials, data=body, headers=headers, timeout=10)
         content = sap_response.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
@@ -2047,7 +2047,7 @@ def fetch_refresh_stock(seller_sku, company_code, location_code):
                   </soapenv:Body>
                   </soapenv:Envelope>"""
 
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=10)
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))
@@ -2411,7 +2411,7 @@ def get_recommended_browse_node(seller_sku,channel):
                   </urn:ZAPP_STOCK_PRICE>
                   </soapenv:Body>
                   </soapenv:Envelope>"""
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=10)
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))

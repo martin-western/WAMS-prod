@@ -86,7 +86,7 @@ class SalesAppLoginSubmitAPI(APIView):
                 "password": password
             }
             
-            r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+            r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False, timeout=10)
             response["token"] = ""
 
             if "token" in json.loads(r.content):
