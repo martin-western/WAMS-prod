@@ -110,12 +110,13 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             credimax_gateway_response_dict = json.loads(credimax_gateway_response.content)
             session_id = credimax_gateway_response_dict["session"]["id"]
             success_indicator = credimax_gateway_response_dict["successIndicator"]
-            logger.info(session_id,success_indicator)
+            logger.error("MakePaymentCredimaxGatewayAPI: %s at %s",session_id,success_indicator)
 
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 cart_obj.merchant_reference = success_indicator
                 cart_obj.save()
+                logger.error(cart_obj.merchant_reference)
             else:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 fast_cart_obj.merchant_reference = success_indicator
