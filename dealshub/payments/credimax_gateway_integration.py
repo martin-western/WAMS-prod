@@ -79,14 +79,14 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             logger.info("1",amount)
             logger.info("2",address_lines)
 
-            if amount == 0.0:
+            payfort_multiplier = int(location_group_obj.location.payfort_multiplier)
+            amount = str(int(float(amount)*payfort_multiplier))
+
+            if amount == 0:
                 response["error"] = "Cart Amount is ZERO!"
                 response["status"] = 403
                 logger.warning("MakePaymentCredimaxGatewayAPI Cart Amount Zero!")
                 return Response(data=response)
-
-            payfort_multiplier = int(location_group_obj.location.payfort_multiplier)
-            amount = str(int(float(amount)*payfort_multiplier))
 
             merchant_id = "E16906950"
             API_KEY = "bWVyY2hhbnQuRTE2OTA2OTUwOmVjNjEyNzc1MTUxMzZiNGUyZWQ0ZTFkZWIzMDVkZTBk"
