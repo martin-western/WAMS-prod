@@ -76,11 +76,9 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             first_name = shipping_address.first_name
             last_name = shipping_address.last_name
             contact_number = shipping_address.contact_number
-            response["amount1"] = amount
 
             payfort_multiplier = int(location_group_obj.location.payfort_multiplier)
             amount = round(float(amount*payfort_multiplier),2)
-            response["amount2"] = amount
             if amount == 0:
                 response["error"] = "Cart Amount is ZERO!"
                 response["status"] = 403
@@ -100,7 +98,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 "apiOperation": "CREATE_CHECKOUT_SESSION",
                 "interaction":{
                     "operation": "AUTHORIZE",
-                    "returnUrl": "http://localhost:3010/transaction-processing/",
+                    "returnUrl": "https://qakrypton.omnycomm.com/transaction-processing/",
                 },
                 "order":{
                     "id": str(order_id),
@@ -124,7 +122,6 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 fast_cart_obj.merchant_reference = success_indicator
                 fast_cart_obj.save()
-            response["amount3"] = amount
             response["transactionData"] = {
                 "sessionId":session_id,
                 "success_indicator":success_indicator,
