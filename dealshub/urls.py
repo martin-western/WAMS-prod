@@ -162,6 +162,7 @@ urlpatterns = [
     url(r'^fetch-order-sales-analytics/$', views.FetchOrderSalesAnalytics),
     url(r'^fetch-order-requests-for-warehouse-manager/$', views.FetchOrderRequestsForWarehouseManager),
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
+    url(r'^fetch-filtered-order-analytics/$', views.FetchFilteredOrderAnalytics),
     url(r'^set-shipping-method/$', views.SetShippingMethod),
     url(r'^resend-sap-order/$', views.ResendSAPOrder),
     url(r'^update-manual-order/$', views.UpdateManualOrder),

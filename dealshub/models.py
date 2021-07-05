@@ -1,10 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.template import loader
 
 import logging
 import json
 import uuid
+import os
 import threading
 
 from WAMSApp.models import *
@@ -1889,45 +1891,88 @@ class BlogSection(models.Model):
         super(BlogSection,self).save(*args,**kwargs)
 
 
-class OrderMailRequest(models.Model):
+class UnitOrderMailRequest(models.Model):
     '''
-    Stores the email information related to a given Order, which can be used later to send an email
+    Stores the email information related to a given UnitOrder, which can be used later to send an email
     '''
     uuid = models.CharField(max_length=200, unique=True)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    unit_order = models.ForeignKey(UnitOrder, on_delete=models.CASCADE)
     STATUS = (
         ("dispatched", "dispatched"),
-        ("delivered", "delivered"),
-        ("delivery_failed", "delivery_failed")
+        ("delivered", "delivered")
     )
     status = models.CharField(max_length=100, choices=STATUS, default="dispatched")
     is_mail_sent = models.BooleanField(default=False)
+    html_message = models.TextField(default="")
 
     def __str__(self):
-        return f"{self.uuid}-{self.status}-order-{self.order.uuid}"
+        return f"{self.status} object - unit_order__orderid - {self.unit_order.orderid}"
 
     def save(self, *args, **kwargs):
         if self.uuid == None or self.uuid == "":
             self.uuid = str(uuid.uuid4())
-        super(OrderMailRequest, self).save(*args, **kwargs)
+        self.html_message = self.get_html_message()
+        super(UnitOrderMailRequest, self).save(*args, **kwargs)
 
     def get_email_info(self):
         message = {
             "dispatched": "Order Dispatched",
-            "delivered": "Order Delivered",
-            "delivery_failed": "Order Delivery Failed"
+            "delivered": "Order Delivered"
         }
         info = {
-            "host": self.order.location_group.get_email_host(),
-            "port": self.order.location_group.get_email_port(), 
-            "username": self.order.location_group.get_order_from_email_id(), 
-            "password": self.order.location_group.get_order_from_email_password(),
+            "host": self.unit_order.order.location_group.get_email_host(),
+            "port": self.unit_order.order.location_group.get_email_port(), 
+            "username": self.unit_order.order.location_group.get_order_from_email_id(), 
+            "password": self.unit_order.order.location_group.get_order_from_email_password(),
             "use_tls": True,
             "subject": message[self.status],
             "body": message[self.status],
-            "from_email": self.order.location_group.get_order_from_email_id(),
-            "to": [self.order.owner.email],
-            "cc": self.order.location_group.get_order_cc_email_list(),
-            "bcc": self.order.location_group.get_order_bcc_email_list()
+            "from_email": self.unit_order.order.location_group.get_order_from_email_id(),
+            "to": [self.unit_order.order.owner.email],
+            "cc": self.unit_order.order.location_group.get_order_cc_email_list(),
+            "bcc": self.unit_order.order.location_group.get_order_bcc_email_list(),
+            "html_message": self.html_message
         }
         return info
+    
+    def get_html_message(self):
+        '''
+        Returns an html_message string for unit_order based on the incoming status in ['dispatched', 'delivered']
+        '''
+        if self.unit_order == None or self.status == None:
+            return self.status
+        html_message = ""
+        customer_name = self.unit_order.order.get_customer_first_name()
+        address_lines = json.loads(self.unit_order.order.shipping_address.address_lines)
+        full_name = self.unit_order.order.get_customer_full_name()
+        website_logo = self.unit_order.order.get_email_website_logo()
+
+        website_group_obj = self.unit_order.order.location_group.website_group
+        support_email = website_group_obj.email_info
+        support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
+        context_dict = {
+            "website_logo": website_logo,
+            "customer_name": customer_name,
+            "order_id": self.unit_order.orderid,
+            "product_name": self.unit_order.product.get_name(),
+            "productImageUrl": self.unit_order.product.get_display_image_url(),
+            "quantity": self.unit_order.quantity,
+            "full_name": full_name,
+            "address_lines": address_lines,
+            "website_order_link": self.unit_order.order.get_website_link()+"/orders/"+self.unit_order.order.uuid,
+            "support_email": support_email,
+            "support_contact_number": support_contact_number
+        }
+        if self.status == "dispatched":
+            order_dispatched_date = UnitOrderStatus.objects.filter(unit_order=self.unit_order, status="shipped")[0].date_created
+            order_dispatched_date = str(timezone.localtime(order_dispatched_date).strftime("%A, %B %d, %Y | %I:%M %p"))
+            context_dict["order_dispatched_date"] = order_dispatched_date
+            html_message = loader.render_to_string(os.getcwd()+'/dealshub/templates/order-dispatch.html',context_dict)
+        elif self.status == "delivered":
+            order_delivered_date = UnitOrderStatus.objects.filter(unit_order=self.unit_order, status="delivered")[0].date_created
+            order_delivered_date = str(timezone.localtime(order_delivered_date).strftime("%A, %B %d, %Y | %I:%M %p"))
+            context_dict["order_delivered_date"] = order_delivered_date
+            html_message = loader.render_to_string(os.getcwd()+'/dealshub/templates/order-delivered.html',context_dict)
+        else:
+            return self.status
+        return html_message

@@ -1022,6 +1022,11 @@ class FetchProductDetailsAPI(APIView):
             response['faqs'] = faqs
             response['how_to_use'] = how_to_use
 
+            if product_obj.user_manual!=None and product_obj.user_manual!="":
+                response["user_manual"] = product_obj.user_manual.url
+            else:
+                response["user_manual"] = ""
+
             ## SAP Exception
 
             response["is_sap_exception"] = product_obj.is_sap_exception
@@ -1891,6 +1896,7 @@ class SaveProductAPI(APIView):
             capacity = data.get("capacity","")
             capacity_unit = data.get("capacity_unit","")
             target_age_range = data.get("target_age_range","")
+            user_manual = data.get("user_manual","")
 
             weight = 0
             try:
@@ -1938,6 +1944,10 @@ class SaveProductAPI(APIView):
                 product_obj.min_price = min_price
                 product_obj.max_price = max_price
 
+            if user_manual != "":
+                product_obj.user_manual = user_manual
+            else:
+                product_obj.user_manual = None
 
             product_obj.product_id = product_id
             product_obj.barcode_string = barcode_string
@@ -5701,7 +5711,7 @@ class FetchAdminActivityLogsAPI(APIView):
             if location_group_uuid!="":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             
-            activity_log_objs = ActivityLog.objects.filter(location_group=location_group_obj)
+            activity_log_objs = ActivityLog.objects.filter(location_group=location_group_obj, is_nesto=False)
 
             if from_date!="":
                 from_date = from_date[:10]+"T00:00:00+04:00"
@@ -5904,6 +5914,7 @@ class FetchCompanyProfileAPI(APIView):
             seo_short_description = '' 
             seo_long_description = ''
             seo_google_meta = ''
+            seo_google_meta_title = ''
             website_group_obj = OmnyCommUser.objects.get(username=request.user.username).website_group
             location_group_uuid = data.get("locationGroupUuid","")     
             if location_group_uuid == "":
@@ -5974,12 +5985,14 @@ class FetchCompanyProfileAPI(APIView):
                 seo_long_description = location_group_obj.seo_long_description
                 seo_short_description = location_group_obj.seo_short_description
                 seo_google_meta = location_group_obj.seo_google_meta
+                seo_google_meta_title = location_group_obj.seo_google_meta_title
 
             response["company_data"] = company_data
             response["seo_title"] = seo_title
             response["seo_long_description"] = seo_long_description
             response["seo_short_description"] = seo_short_description
             response["seo_google_meta"] = seo_google_meta
+            response["seo_google_meta_title"] = seo_google_meta_title
             response['status'] = 200    
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -6067,6 +6080,7 @@ class SaveCompanyProfileAPI(APIView):
                 location_group_obj.seo_short_description = company_data["seo_short_description"]
                 location_group_obj.seo_long_description = company_data["seo_long_description"]
                 location_group_obj.seo_google_meta = company_data["seo_google_meta"]
+                location_group_obj.seo_google_meta_title = company_data["seo_google_meta_title"]
                 location_group_obj.contact_info=json.dumps(contact_info)
                 location_group_obj.whatsapp_info=whatsapp_info
                 location_group_obj.set_support_email_id(email_id)

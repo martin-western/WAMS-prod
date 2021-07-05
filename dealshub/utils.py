@@ -1,4 +1,3 @@
-import math
 from dealshub.models import *
 from dealshub.core_utils import *
 from WAMSApp.sap.utils_SAP_Integration import *
@@ -215,6 +214,7 @@ def set_order_status_without_mail(unit_order_obj, order_status):
         unit_order_obj.save()
         UnitOrderStatus.objects.create(unit_order=unit_order_obj, status="shipped", status_admin=order_status)
         try:
+            UnitOrderMailRequest.objects.create(unit_order=unit_order_obj, status="dispatched") # save order dispatched mail details
             website_group = unit_order_obj.order.location_group.website_group.name
             if website_group=="parajohn":
                 message = "Your order has been dispatched!"
@@ -240,6 +240,7 @@ def set_order_status_without_mail(unit_order_obj, order_status):
 
         if order_status=="delivered":
             try:
+                UnitOrderMailRequest.objects.create(unit_order=unit_order_obj, status="delivered") # save order delivered mail details
                 website_group = unit_order_obj.order.location_group.website_group.name
                 if website_group=="parajohn":
                     message = "Your order has been delivered!"
@@ -2230,8 +2231,8 @@ def calling_facebook_api(event_name,user,custom_data=None):
         country = sha256_encode(str(address_obj.get_country()))
         postcode = sha256_encode(str(address_obj.postcode))
 
-        access_token = "EAAFwjqw5ZBQoBAM6Oa6AqRtwuE2rCM69h7DHCVHwGBDrvADHkt7ASZAlsQBXHmEmqg4aTNHeQ6oHVqRgWiuy5ZAgpXtnHtaxuIy6YuOPWCxxE0KJnGroVym60KefyztFMZC6hiy7IEZB0ywp0niZB5w0FAx2GQaXNJoZA9BcJnBSUWpShteuz2f"
-        pixel_id = '983351819131454'
+        access_token = "EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG"
+        pixel_id = '501666847923989'
 
         FacebookAdsApi.init(access_token=access_token)
 
@@ -2271,7 +2272,9 @@ def calling_facebook_api(event_name,user,custom_data=None):
             events=events,
             pixel_id=pixel_id
         )
-        event_response = event_request.execute()
+        logger.info("calling_facebook_api success 1:- ",json.loads(event_request.execute()))
+        # event_response = event_request.execute()
+        # logger.info("calling_facebook_api success 2:- ",event_request.execute())
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()

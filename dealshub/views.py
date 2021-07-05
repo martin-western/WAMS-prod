@@ -83,6 +83,10 @@ class FetchProductDetailsAPI(APIView):
                 logger.info("FetchProductDetailsAPI REQUEST USER: %s", str(request.user))
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
+            if product_obj.user_manual!=None and product_obj.user_manual!="":
+                response["user_manual"] = product_obj.user_manual.url
+            else:
+                response["user_manual"] = ""
             response["brand"] = dealshub_product_obj.get_brand(language_code)
             response["superCategory"] = dealshub_product_obj.get_super_category(language_code)
             response["category"] = dealshub_product_obj.get_category(language_code)

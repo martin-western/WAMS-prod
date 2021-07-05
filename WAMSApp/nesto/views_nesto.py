@@ -771,7 +771,7 @@ class RemoveNestoProductImageAPI(APIView):
             image_obj_prev = deepcopy(image_obj)
             image_obj.delete()
             render_value = f"Image {image_obj_prev} is deleted by {request.user}."
-            activitylog(user=request.user,table_name=Image,action_type='deleted',location_group_obj=None,prev_instance=image_obj_prev,current_instance=None,table_item_pk=image_obj.pk,render=render_value,is_nesto=True)
+            activitylog(user=request.user,table_name=Image,action_type='deleted',location_group_obj=None,prev_instance=image_obj_prev,current_instance=None,table_item_pk=image_obj_prev.pk,render=render_value,is_nesto=True)
 
             nesto_product_obj = NestoProduct.objects.get(uuid=product_uuid)
             nesto_product_obj_prev = deepcopy(nesto_product_obj)
@@ -1465,7 +1465,7 @@ class FetchNestoActivityLogsAPI(APIView):
             activity_log_objs = activity_log_objs.order_by("-pk")
 
             total_activities = activity_log_objs.count()
-            paginator  = Paginator(activity_log_objs,50)
+            paginator = Paginator(activity_log_objs,10)
             total_pages = int(paginator.num_pages)
 
             if page > total_pages:
