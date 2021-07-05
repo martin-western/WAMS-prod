@@ -98,7 +98,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 "apiOperation": "CREATE_CHECKOUT_SESSION",
                 "interaction":{
                     "operation": "AUTHORIZE",
-                    "returnUrl": "http://localhost:3010/transaction-processing/",
+                    "returnUrl": "https://qakrypton.omnycomm.com/transaction-processing/",
                 },
                 "order":{
                     "id": str(order_id),
