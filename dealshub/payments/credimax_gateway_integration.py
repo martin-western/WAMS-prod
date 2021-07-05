@@ -106,7 +106,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 "order":{
                     "id": str(order_id),
                     "amount": amount,
-                    "currency": "BHD",
+                    "currency": currency,
                 },
             }
 
@@ -130,7 +130,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 "sessionId":session_id,
                 "success_indicator":success_indicator,
                 "order": { 
-                    "currency": "BHD", 
+                    "currency": currency, 
                     "amount": amount,
                     "id": order_id,
                 },
