@@ -9451,7 +9451,7 @@ class PlaceOnlineOrderAPI(APIView):
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            is_fast_cart = data.get("is_fast_cart", False)
+            is_fast_cart = data.get("is_fast_cart", "false")
 
             online_payment_mode = data.get("online_payment_mode","card")
             
@@ -9486,7 +9486,7 @@ class PlaceOnlineOrderAPI(APIView):
                     logger.warning("PlaceOnlineOrderAPI: NETWORK GLOBAL STATUS MISMATCH!")
                     return Response(data=response)
 
-            if is_fast_cart==False:
+            if is_fast_cart=="false":
 
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
 
