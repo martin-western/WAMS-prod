@@ -1175,6 +1175,7 @@ class Product(models.Model):
     is_sap_exception = models.BooleanField(default=False)
     atp_threshold = models.IntegerField(default=100)
     holding_threshold = models.IntegerField(default=5)
+    user_manual = models.FileField(upload_to = 'user_manual',null=True, blank=True)
 
     class Meta:
         verbose_name = "Product"
