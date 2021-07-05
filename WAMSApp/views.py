@@ -1896,7 +1896,7 @@ class SaveProductAPI(APIView):
             capacity = data.get("capacity","")
             capacity_unit = data.get("capacity_unit","")
             target_age_range = data.get("target_age_range","")
-            user_manual_document = data.get("user_manual_document","")
+            user_manual = data.get("user_manual","")
 
             weight = 0
             try:
@@ -1944,8 +1944,8 @@ class SaveProductAPI(APIView):
                 product_obj.min_price = min_price
                 product_obj.max_price = max_price
 
-            if user_manual_document != "":
-                product_obj.user_manual = user_manual_document
+            if user_manual != "":
+                product_obj.user_manual = user_manual
             else:
                 product_obj.user_manual = None
 
