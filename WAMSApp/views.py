@@ -1022,6 +1022,11 @@ class FetchProductDetailsAPI(APIView):
             response['faqs'] = faqs
             response['how_to_use'] = how_to_use
 
+            if product_obj.user_manual!=None and product_obj.user_manual!="":
+                response["user_manual"] = product_obj.user_manual.url
+            else:
+                response["user_manual"] = ""
+
             ## SAP Exception
 
             response["is_sap_exception"] = product_obj.is_sap_exception
@@ -1891,6 +1896,7 @@ class SaveProductAPI(APIView):
             capacity = data.get("capacity","")
             capacity_unit = data.get("capacity_unit","")
             target_age_range = data.get("target_age_range","")
+            user_manual_document = data.get("user_manual_document","")
 
             weight = 0
             try:
@@ -1938,6 +1944,10 @@ class SaveProductAPI(APIView):
                 product_obj.min_price = min_price
                 product_obj.max_price = max_price
 
+            if user_manual_document != "":
+                product_obj.user_manual = user_manual_document
+            else:
+                product_obj.user_manual = None
 
             product_obj.product_id = product_id
             product_obj.barcode_string = barcode_string
