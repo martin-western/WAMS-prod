@@ -80,7 +80,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             logger.info("2",address_lines)
 
             payfort_multiplier = int(location_group_obj.location.payfort_multiplier)
-            amount = str((float(amount)*payfort_multiplier))
+            amount = str(float(amount)*payfort_multiplier)
 
             if amount == "0":
                 response["error"] = "Cart Amount is ZERO!"
