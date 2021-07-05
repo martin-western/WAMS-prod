@@ -270,7 +270,7 @@ for i in range(rows):
 
             if main_image_url != "":
                 size = 512, 512 
-                response = requests.get(main_image_url)
+                response = requests.get(main_image_url, timeout=10)
                 thumb = IMAGE.open(BytesIO(response.content))
                 thumb.thumbnail(size)
                 infile = str(main_image_url.split("/")[-1]) 
@@ -331,7 +331,7 @@ for i in range(rows):
             for sub_image_url in sub_image_urls:
 
                 size = 512, 512 
-                response = requests.get(sub_image_url)
+                response = requests.get(sub_image_url, timeout=10)
                 thumb = IMAGE.open(BytesIO(response.content))
                 thumb.thumbnail(size)
                 infile = str(sub_image_url.split("/")[-1]) 

@@ -4243,7 +4243,7 @@ class MakePurchaseRequestAPI(APIView):
 
             request_data["signature"] = signature
 
-            r = requests.post(url="https://sbpaymentservices.payfort.com/FortAPI/paymentApi", json=request_data)
+            r = requests.post(url="https://sbpaymentservices.payfort.com/FortAPI/paymentApi", json=request_data, timeout=10)
             payment_response = json.loads(r.content)
             logger.info("payment_response %s", str(payment_response))
 
@@ -4817,7 +4817,7 @@ class SendB2BOTPSMSLoginAPI(APIView):
                         "mtype":"N",
                         "DR":"Y"
                     }
-                    r = requests.post(url=url, data=req_data)
+                    r = requests.post(url=url, data=req_data, timeout=10)
                     otp_sent = True
 
                 except Exception as e:
@@ -4907,7 +4907,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                     "mtype":"N",
                     "DR":"Y"
                 }
-                r = requests.post(url=url, data=req_data)
+                r = requests.post(url=url, data=req_data, timeout=10)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SendB2BOTPSMSSignUpAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5027,7 +5027,7 @@ class SignUpCompletionAPI(APIView):
             }
 
             if is_new_user_created == True:            
-                r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+                r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False, timeout=10)
                 token = json.loads(r.content)["token"]
                 response["token"] = token
 
@@ -5117,11 +5117,11 @@ class SendOTPSMSLoginAPI(APIView):
                         "DR":"Y",
                         "sid": sender_id
                     }
-                    r = requests.post(url=url, data=req_data)
+                    r = requests.post(url=url, data=req_data, timeout=10)
                 elif location_group_obj.website_group.name.lower()=="kryptonworld":
                     contact_number = "971"+contact_number
                     url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
-                    r = requests.get(url)
+                    r = requests.get(url, timeout=10)
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -5238,7 +5238,7 @@ class SetLoginPinAPI(APIView):
                     "password": pin
                 }
                 if dealshub_user_obj.verification_code==pin:
-                    r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+                    r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False, timeout=10)
                     token = json.loads(r.content)["token"]
                     response["token"] = token
                     dealshub_user_obj.contact_verified = True
@@ -5300,7 +5300,7 @@ class VerifyLoginPinAPI(APIView):
                     "password": pin
                 }
                 if dealshub_user_obj.verification_code==pin:
-                    r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+                    r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False, timeout=10)
                     token = json.loads(r.content)["token"]
                     response["token"] = token
                     dealshub_user_obj.contact_verified = True
@@ -5368,15 +5368,15 @@ class ForgotLoginPinAPI(APIView):
                 pwd = mshastra_info["pwd"]
                 contact_number = prefix_code+contact_number
                 url = "http://mshastra.com/sendurlcomma.aspx?user="+user+"&pwd="+pwd+"&senderid="+sender_id+"&mobileno="+contact_number+"&msgtext="+message+"&priority=High&CountryCode=ALL"
-                r = requests.get(url)
+                r = requests.get(url, timeout=10)
             elif location_group_obj.website_group.name.lower()=="parajohn":
                 contact_number = "971"+contact_number
                 url = "https://retail.atech.alarislabs.com/rest/send_sms?from=PARA JOHN&to="+contact_number+"&message="+message+"&username=r8NyrDLI&password=GLeOC6HO"
-                r = requests.get(url)
+                r = requests.get(url, timeout=10)
             elif location_group_obj.website_group.name.lower()=="kryptonworld":
                 contact_number = "971"+contact_number
                 url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
-                r = requests.get(url)
+                r = requests.get(url, timeout=10)
 
             response["status"] = 200
             try:
@@ -5422,7 +5422,7 @@ class VerifyB2BOTPSMSAPI(APIView):
 
             is_verified = False
             if b2b_user_obj.verification_code==otp:
-                r = requests.post(url = SERVER_IP+"/token-auth/",data=credentials,verify=False)
+                r = requests.post(url = SERVER_IP+"/token-auth/",data=credentials,verify=False, timeout=10)
                 token = json.loads(r.content)["token"]
                 if b2b_user_obj.contact_verified == True:
                     response["token"] = token
@@ -5478,7 +5478,7 @@ class VerifyOTPSMSLoginAPI(APIView):
 
             verified = False
             if dealshub_user_obj.verification_code==otp:
-                r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False)
+                r = requests.post(url=SERVER_IP+"/token-auth/", data=credentials, verify=False, timeout=10)
                 token = json.loads(r.content)["token"]
                 response["token"] = token
                 response["message"] = "Login Successful!"
@@ -5528,11 +5528,11 @@ class VerifyOTPSMSLoginAPI(APIView):
                                 "DR":"Y",
                                 "sid": sender_id
                             }
-                            r = requests.post(url=url, data=req_data)
+                            r = requests.post(url=url, data=req_data, timeout=10)
                         elif location_group_obj.website_group.name.lower()=="kryptonworld":
                             contact_number = "971"+contact_number
                             url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
-                            r = requests.get(url)
+                            r = requests.get(url, timeout=10)
 
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()

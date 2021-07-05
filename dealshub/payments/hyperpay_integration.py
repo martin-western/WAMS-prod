@@ -116,7 +116,7 @@ class RequestHyperpayCheckoutAPI(APIView):
                 "testMode": "INTERNAL"
             }
 
-            payment_response = requests.post(url=API_URL, data=data, headers=headers)
+            payment_response = requests.post(url=API_URL, data=data, headers=headers, timeout=10)
             logger.info("payment_response from hyperpay: %s", str(payment_response.content))
             response["checkout_id"] = json.loads(payment_response.content)["ndc"]
             response["status"] = 200
@@ -142,7 +142,7 @@ def get_order_info_from_hyperpay(checkout_id, payment_method, location_group_obj
         }
         API_URL = payment_credentials["hyperpay"]["url"] +"/"+ checkout_id + "/payment?entityId="+ENTITY_ID
         logger.info("get_order_info_from_hyperpay API: %s", str(API_URL))
-        r = requests.get(url=API_URL, headers=headers)
+        r = requests.get(url=API_URL, headers=headers, timeout=10)
         logger.info("get_order_info_from_hyperpay response: %s", str(r.content))
         content = json.loads(r.content)
         payment_info = {}

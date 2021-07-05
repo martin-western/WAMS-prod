@@ -86,7 +86,7 @@ for i in range(rows):
                   </soapenv:Body>
                   </soapenv:Envelope>"""
 
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=10)
         content = response2.content
         content = xmltodict.parse(content)
         content = json.loads(json.dumps(content))

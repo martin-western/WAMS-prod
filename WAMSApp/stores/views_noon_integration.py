@@ -81,7 +81,7 @@ class PushPriceAPI(APIView):
                     tsv_writer.writerow([country_code, partner_id ,seller_sku,str(float(was_price)),str(sale_end),str(float(sale_price)),str(sale_start)])
                 
             urls = requests.post('https://integration.noon.partners/public/signed-url/noon_price_update.tsv',
-                                     headers=headers).json()
+                                     headers=headers, timeout=10).json()
 
             response_noon_excel = requests.put(urls['upload_url'], data=open('/tmp/noon_price_update.tsv','rb')).raise_for_status()
 
@@ -94,7 +94,7 @@ class PushPriceAPI(APIView):
 
             response_noon_api = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
                 data=json.dumps(payload),
-                headers=headers)
+                headers=headers, timeout=10)
 
             response['status'] = 200
 
@@ -149,7 +149,7 @@ class PushStockAPI(APIView):
                
 
             urls = requests.post('https://integration.noon.partners/public/signed-url/noon_stock_update.tsv',
-                                     headers=headers).json()
+                                     headers=headers, timeout=10).json()
 
             response_noon_excel = requests.put(urls['upload_url'], data=open('/tmp/noon_stock_update.tsv','rb')).raise_for_status()
 
@@ -162,7 +162,7 @@ class PushStockAPI(APIView):
 
             response_noon_api = requests.post('https://integration.noon.partners/public/webhook/v2/partner-import', 
                             data=json.dumps(payload),
-                            headers=headers)
+                            headers=headers, timeout=10)
 
             response['status'] = 200
 

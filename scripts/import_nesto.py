@@ -1552,7 +1552,7 @@ for i in range(rows):
         sub_images_objs.append(sub_images_obj)
         for sub_image_url in sub_image_urls:
             size = 512, 512 
-            response = requests.get(sub_image_url)
+            response = requests.get(sub_image_url, timeout=10)
             thumb = IMAGE.open(BytesIO(response.content))
             thumb.thumbnail(size)
             infile = str(sub_image_url.split("/")[-1]) 

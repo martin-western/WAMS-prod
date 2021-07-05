@@ -101,7 +101,7 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
                 "Authorization": "Basic "+API_KEY
             }
             
-            network_global_android_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
+            network_global_android_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers, timeout=10)
 
             network_global_android_response_dict = json.loads(network_global_android_response.content)
             access_token = network_global_android_response_dict["access_token"]
@@ -141,7 +141,7 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/orders"
             
-            payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
+            payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers, timeout=10)
             
             response["payment_response"] = json.loads(payment_response.content)
             response["error"] = "Payment Success"
@@ -221,7 +221,7 @@ class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
                 "Authorization": "Basic "+API_KEY
             }
             
-            network_global_android_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
+            network_global_android_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers, timeout=10)
 
             network_global_android_response_dict = json.loads(network_global_android_response.content)
             access_token = network_global_android_response_dict["access_token"]
@@ -261,7 +261,7 @@ class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/orders"
             
-            payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers)
+            payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers, timeout=10)
             payment_response_content = json.loads(payment_response.content)
             merchant_reference = payment_response_content["_embedded"]["payment"][0]["orderReference"]
 
@@ -296,7 +296,7 @@ def check_order_status_from_network_global_android(merchant_reference, location_
             "Content-Type": "application/vnd.ni-identity.v1+json", 
             "Authorization": "Basic "+API_KEY
         }
-        response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers)
+        response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers, timeout=10)
 
         response_dict = json.loads(response.content)
         access_token = response_dict["access_token"]
@@ -308,7 +308,7 @@ def check_order_status_from_network_global_android(merchant_reference, location_
         }
 
         url = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
-        r = requests.get(url=url, headers=headers)
+        r = requests.get(url=url, headers=headers, timeout=10)
 
         content = json.loads(r.content)
         state = content["_embedded"]["payment"][0]["state"]

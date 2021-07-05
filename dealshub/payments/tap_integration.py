@@ -20,7 +20,7 @@ def header_for_requests():
 def get_token_id(card_details):
     try:
         logger.info("get token start")
-        r = requests.post(url=TAP_IP+"/tokens",data=card_details,headers=header_for_requests())
+        r = requests.post(url=TAP_IP+"/tokens",data=card_details,headers=header_for_requests(), timeout=10)
         result = r.json()
         return result
     except Exception as e:
@@ -30,7 +30,7 @@ def get_token_id(card_details):
 def get_charge_status(charge_id):
     try:
         logger.info("get charge status start")
-        r = requests.get(url=TAP_IP+"/charges/"+charge_id,headers=header_for_requests())
+        r = requests.get(url=TAP_IP+"/charges/"+charge_id,headers=header_for_requests(), timeout=10)
         result = r.json()
         return result["status"]
     except Exception as e:
@@ -58,7 +58,7 @@ def complete_payment_charges(generic_cart_obj, reference, token_id):
         input_data["redirect"] = {}
         input_data["redirect"]["url"] = WIGME_IP+"/transaction-processing/?reference="+reference
         logger.info("fmd input data: %s",str(input_data))
-        r = requests.post(url=TAP_IP+"/charges",data=json.dumps(input_data),headers=header_for_requests())
+        r = requests.post(url=TAP_IP+"/charges",data=json.dumps(input_data),headers=header_for_requests(), timeout=10)
         result = r.json()
         logger.info("charges resp : %s", result)
         return result

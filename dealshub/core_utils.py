@@ -38,7 +38,7 @@ def refresh_section_cache(location_group_uuid):
             "resolution": "high",
             "isBot": True
         }
-        r = requests.post(url=url, json=data)
+        r = requests.post(url=url, json=data, timeout=10)
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("refresh_section_cache: %s at %s", e, str(exc_tb.tb_lineno)) 
