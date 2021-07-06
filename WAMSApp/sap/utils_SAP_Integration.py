@@ -1729,73 +1729,25 @@ def generate_sap_order_format(unit_order_list):
     workbook.close()
 
 def handle_SAP_processing(order_obj, data, response):
+    user_input_requirement, is_final_response = get_user_input_requirement(order_obj, response)
+    if is_final_response:
+        return is_final_response
     is_final_response = True
-    user_input_requirement = {}            
-    for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
-        seller_sku = unit_order_obj.product.get_seller_sku()
-        brand_name = unit_order_obj.product.get_brand()
-        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
-        stock_price_information = fetch_prices_and_stock(seller_sku, company_code_obj.code)
-
-        if stock_price_information["status"] == 500:
-            response["status"] = 403
-            response["message"] = stock_price_information["message"]
-            logger.error("handle_SAP_processing: fetch prices and stock gave 500!")
-            return is_final_response
-
-        user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information, unit_order_obj.quantity)
-
     user_input_sap = data.get("user_input_sap", None)
-    
-    if user_input_sap==None:
-        
-        modal_info_list = []
-        
-        for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
-            seller_sku = unit_order_obj.product.get_seller_sku()
-            brand_name = unit_order_obj.product.get_brand()
-            company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
-            
-            if user_input_requirement[seller_sku]==True:
-                result = fetch_prices_and_stock(seller_sku, company_code_obj.code)
-                result["uuid"] = unit_order_obj.uuid
-                result["seller_sku"] = seller_sku
-                result["disable_atp_holding"] = False
-                result["disable_atp"] = False
-                result["disable_holding"] = False
-                if result["total_holding"] < unit_order_obj.quantity and result["total_atp"] < unit_order_obj.quantity:
-                    result["disable_atp_holding"] = True
-                elif result["total_atp"] <  unit_order_obj.quantity:
-                    result["disable_atp"] = True
-                elif result["total_holding"] < unit_order_obj.quantity:
-                    result["disable_holding"] = True
 
-                modal_info_list.append(result)
-        
-        if len(modal_info_list)>0:
+    if user_input_sap == None:
+        modal_info_list = get_modal_info_list(order_obj, user_input_requirement)
+        if len(modal_info_list) > 0:
             response["modal_info_list"] = modal_info_list
             response["status"] = 200
             return is_final_response
 
     sap_info_render = []
 
-    # [ List pf Querysets of (UnitOrder Objects grouped by Brand) ]
-
     unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
 
     if unit_order_objs.filter(grn_filename="").exists():
-
-        grouped_unit_orders = {} 
-
-        for unit_order_obj in unit_order_objs:
-            
-            brand_name = unit_order_obj.product.get_brand()
-            
-            if brand_name not in grouped_unit_orders:
-                grouped_unit_orders[brand_name] = []
-            
-            grouped_unit_orders[brand_name].append(unit_order_obj)
-        
+        grouped_unit_orders = get_unit_orders_grouped_by_brand(unit_order_objs)
         for brand_name in grouped_unit_orders: 
             if grouped_unit_orders[brand_name][0].sap_status=="In GRN":
                 continue
@@ -1891,3 +1843,65 @@ def handle_SAP_processing(order_obj, data, response):
                 unit_order_obj.sap_status = "In GRN"
                 unit_order_obj.save()
     return not(is_final_response)
+
+
+def get_user_input_requirement(order_obj, response):
+    '''
+    Returns seller_sku wise user_input_requirement (bool value) information
+    '''
+    is_final_response = True
+    user_input_requirement = {}            
+    for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
+        seller_sku = unit_order_obj.product.get_seller_sku()
+        brand_name = unit_order_obj.product.get_brand()
+        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+        stock_price_information = fetch_prices_and_stock(seller_sku, company_code_obj.code)
+
+        if stock_price_information["status"] == 500:
+            response["status"] = 403
+            response["message"] = stock_price_information["message"]
+            logger.error("handle_SAP_processing: fetch prices and stock gave 500!")
+            return user_input_requirement, is_final_response
+
+        user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information, unit_order_obj.quantity)
+    return user_input_requirement, not(is_final_response)
+
+
+def get_modal_info_list(order_obj, user_input_requirement):
+    modal_info_list = []
+    for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
+        seller_sku = unit_order_obj.product.get_seller_sku()
+        brand_name = unit_order_obj.product.get_brand()
+        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+        
+        if user_input_requirement[seller_sku]==True:
+            result = fetch_prices_and_stock(seller_sku, company_code_obj.code)
+            result["uuid"] = unit_order_obj.uuid
+            result["seller_sku"] = seller_sku
+            result["disable_atp_holding"] = False
+            result["disable_atp"] = False
+            result["disable_holding"] = False
+            if result["total_holding"] < unit_order_obj.quantity and result["total_atp"] < unit_order_obj.quantity:
+                result["disable_atp_holding"] = True
+            elif result["total_atp"] <  unit_order_obj.quantity:
+                result["disable_atp"] = True
+            elif result["total_holding"] < unit_order_obj.quantity:
+                result["disable_holding"] = True
+            modal_info_list.append(result)
+    return modal_info_list
+
+
+def get_unit_orders_grouped_by_brand(unit_order_objs):
+    '''
+    unit_order_objs are grouped by their brands and the dictionary[brand : unit_order_objs] is returned
+    '''
+    grouped_unit_orders = {} 
+    for unit_order_obj in unit_order_objs:
+        brand_name = unit_order_obj.product.get_brand()
+        if brand_name not in grouped_unit_orders:
+            grouped_unit_orders[brand_name] = []
+        grouped_unit_orders[brand_name].append(unit_order_obj)
+    
+    return grouped_unit_orders
+
+    
