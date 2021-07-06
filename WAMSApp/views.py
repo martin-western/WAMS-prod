@@ -1835,6 +1835,7 @@ class SaveProductAPI(APIView):
         
         try:
 
+            logger.info("SaveProductAPI: %s", str(request.data)) 
             if request.user.has_perm('WAMSApp.change_product') == False:
                 logger.warning("SaveProductAPI Restricted Access!")
                 response['status'] = 403
