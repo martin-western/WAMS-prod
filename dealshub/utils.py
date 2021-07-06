@@ -2219,8 +2219,17 @@ def sha256_encode(string):
     result = hashlib.sha256(string.encode())
     return result.hexdigest()
 
+def visitor_ip_address(request):
 
-def calling_facebook_api(event_name,user,custom_data=None):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+def calling_facebook_api(event_name,user,request,custom_data=None):
     try:
         email = sha256_encode(str(user.email))
         first_name = sha256_encode(str(user.first_name))
@@ -2244,7 +2253,9 @@ def calling_facebook_api(event_name,user,custom_data=None):
             cities=[],
             states=[state],
             zip_codes=[postcode],
-            country_codes=[country]
+            country_codes=[country],
+            client_ip_address=str(visitor_ip_address(request)),
+            fbp= "fb.1.1558571054389.1098115397",
         )
 
         events = []
@@ -2270,7 +2281,8 @@ def calling_facebook_api(event_name,user,custom_data=None):
     
         event_request = EventRequest(
             events=events,
-            pixel_id=pixel_id
+            pixel_id=pixel_id,
+            test_event_code="TEST89694",
         )
         logger.info("calling_facebook_api success 1:- ",json.loads(event_request.execute()))
         # event_response = event_request.execute()

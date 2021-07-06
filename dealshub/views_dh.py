@@ -568,56 +568,15 @@ class AddToCartAPI(APIView):
             response["status"] = 200
 
             try:
-                headers = {
-                    "Content-Type": "application/json", 
-                    "Accept": "application/json" 
-                }
-
-                body = {
-                "data": [
-                    {
-                        "event_name": "AddToCart",
-                        "event_time": 1625088113,
-                        "event_source_url": "https://qa.wigme.com",
-                        "user_data": {
-                            "em": [
-                            "309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"
-                            ],
-                            "ph": [
-                            "254aa248acb47dd654ca3ea53f48c2c26d641d23d7e2e93a1ec56258df7674c4",
-                            "6f4fcb9deaeadc8f9746ae76d97ce1239e98b404efe5da3ee0b7149740f89ad6"
-                            ],
-                        "client_ip_address": "123.123.123.123",
-                        "client_user_agent": "$CLIENT_USER_AGENT",
-                        "fbc": "fb.1.1554763741205.AbCdEfGhIjKlMnOpQrStUvWxYz1234567890",
-                        "fbp": "fb.1.1558571054389.1098115397"
-                        },
-                        "custom_data": {
-                            "value": 10.2,
-                            "currency": "AED",
-                            "content_ids": [
-                            "product.id.123"
-                            ],
-                            "content_type": "product"
-                        },
-
-                    },
-                ],
-                "test_event_code": "TEST89694"
-                }
-
-                r = requests.post(url="https://graph.facebook.com/v11.0/501666847923989/events?access_token=EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG",headers = headers,data=json.dumps(body))
-                print(r.content)
-
-                # custom_data = []
-                # custom_data.append(CustomData(
-                #     value=dealshub_product_obj.now_price,
-                #     currency=dealshub_product_obj.get_currency(),
-                #     content_name=dealshub_product_obj.get_name(),
-                #     content_category=dealshub_product_obj.get_category(),
-                #     contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
-                # ))
-                # calling_facebook_api(event_name="addtocart",user=dealshub_user_obj,custom_data=custom_data)
+                custom_data = []
+                custom_data.append(CustomData(
+                    value=dealshub_product_obj.now_price,
+                    currency=dealshub_product_obj.get_currency(),
+                    content_name=dealshub_product_obj.get_name(),
+                    content_category=dealshub_product_obj.get_category(),
+                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                ))
+                calling_facebook_api(event_name="addtocart",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddToCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
