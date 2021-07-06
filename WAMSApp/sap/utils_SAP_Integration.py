@@ -1728,3 +1728,166 @@ def generate_sap_order_format(unit_order_list):
 
     workbook.close()
 
+def handle_SAP_processing(order_obj, data, response):
+    is_final_response = True
+    user_input_requirement = {}            
+    for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
+        seller_sku = unit_order_obj.product.get_seller_sku()
+        brand_name = unit_order_obj.product.get_brand()
+        company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+        stock_price_information = fetch_prices_and_stock(seller_sku, company_code_obj.code)
+
+        if stock_price_information["status"] == 500:
+            response["status"] = 403
+            response["message"] = stock_price_information["message"]
+            logger.error("handle_SAP_processing: fetch prices and stock gave 500!")
+            return is_final_response
+
+        user_input_requirement[seller_sku] = is_user_input_required_for_sap_punching(stock_price_information, unit_order_obj.quantity)
+
+    user_input_sap = data.get("user_input_sap", None)
+    
+    if user_input_sap==None:
+        
+        modal_info_list = []
+        
+        for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
+            seller_sku = unit_order_obj.product.get_seller_sku()
+            brand_name = unit_order_obj.product.get_brand()
+            company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+            
+            if user_input_requirement[seller_sku]==True:
+                result = fetch_prices_and_stock(seller_sku, company_code_obj.code)
+                result["uuid"] = unit_order_obj.uuid
+                result["seller_sku"] = seller_sku
+                result["disable_atp_holding"] = False
+                result["disable_atp"] = False
+                result["disable_holding"] = False
+                if result["total_holding"] < unit_order_obj.quantity and result["total_atp"] < unit_order_obj.quantity:
+                    result["disable_atp_holding"] = True
+                elif result["total_atp"] <  unit_order_obj.quantity:
+                    result["disable_atp"] = True
+                elif result["total_holding"] < unit_order_obj.quantity:
+                    result["disable_holding"] = True
+
+                modal_info_list.append(result)
+        
+        if len(modal_info_list)>0:
+            response["modal_info_list"] = modal_info_list
+            response["status"] = 200
+            return is_final_response
+
+    sap_info_render = []
+
+    # [ List pf Querysets of (UnitOrder Objects grouped by Brand) ]
+
+    unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
+
+    if unit_order_objs.filter(grn_filename="").exists():
+
+        grouped_unit_orders = {} 
+
+        for unit_order_obj in unit_order_objs:
+            
+            brand_name = unit_order_obj.product.get_brand()
+            
+            if brand_name not in grouped_unit_orders:
+                grouped_unit_orders[brand_name] = []
+            
+            grouped_unit_orders[brand_name].append(unit_order_obj)
+        
+        for brand_name in grouped_unit_orders: 
+            if grouped_unit_orders[brand_name][0].sap_status=="In GRN":
+                continue
+
+            order_information = {}
+            company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
+            order_information["order_id"] = order_obj.bundleid.replace("-","")
+            order_information["refrence_id"] = order_obj.bundleid.replace("-","&#45;")
+            is_b2b = order_obj.location_group.is_b2b
+            order_information["is_b2b"] = is_b2b
+            if is_b2b==True:
+                order_information["street"] = json.loads(order_obj.shipping_address.address_lines)[1]
+                order_information["region"] = order_obj.shipping_address.state
+                order_information["telephone"] = order_obj.shipping_address.contact_number
+                order_information["email"] = order_obj.owner.email
+                b2b_user_obj = B2BUser.objects.get(username=order_obj.owner.username) 
+                order_information["trn"] = b2b_user_obj.vat_certificate_id
+                if order_information["trn"] == "":
+                    response["message"] = "TRN number is empty"
+                    response["status"] = 406
+                    return is_final_response
+            order_information["items"] = []
+            
+            for unit_order_obj in grouped_unit_orders[brand_name]:
+
+                seller_sku = unit_order_obj.product.get_seller_sku()
+                x_value = ""
+                
+                if user_input_requirement[seller_sku]==True:
+                    x_value = user_input_sap[seller_sku]
+                
+                item_list =  fetch_order_information_for_sap_punching(seller_sku, company_code_obj.code, x_value, unit_order_obj.quantity)
+                for item in item_list:
+                    price = format(unit_order_obj.get_subtotal_without_vat_custom_qty(item["qty"]),'.2f')
+                    item.update({"price": price})
+                order_information["items"] += item_list
+            logger.info("FINAL ORDER INFO: %s", str(order_information))
+
+            orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information)
+
+            manual_intervention_required = is_manual_intervention_required(orig_result_pre)
+
+            if manual_intervention_required==True:
+                order_obj.sap_status = "Manual"
+                order_obj.save()
+
+            for item in order_information["items"]:
+                
+                temp_dict2 = {}
+                temp_dict2["seller_sku"] = item["seller_sku"]
+                temp_dict2["intercompany_sales_info"] = orig_result_pre
+                
+                sap_info_render.append(temp_dict2)
+                
+                unit_order_obj = UnitOrder.objects.get(product__product__base_product__seller_sku=item["seller_sku"],order=order_obj)
+                
+                result_pre = orig_result_pre["doc_list"]
+                do_exists = 0
+                so_exists = 0
+                do_id = ""
+                so_id = ""
+                
+                for k in result_pre:
+                    if k["type"]=="DO":
+                        do_exists = 1
+                        do_id = k["id"]
+                    elif k["type"]=="SO":
+                        so_exists = 1
+                        so_id = k["id"]
+                
+                if so_exists==0 or do_exists==0:
+                    error_flag = 1
+                    unit_order_obj.sap_status = "Failed"
+                    unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+                    unit_order_obj.save()
+                    try:
+                        p1 = threading.Thread(target=notify_grn_error, args=(unit_order_obj.order,))
+                        p1.start()
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("notify_grn_error: %s at %s", e, str(exc_tb.tb_lineno))
+
+                    continue
+                
+                unit_order_information = {}
+                unit_order_information["intercompany_sales_info"] = {}
+                item["order_id"] = str(order_information["order_id"])
+                unit_order_information["intercompany_sales_info"] = item
+                unit_order_obj.order_information = json.dumps(unit_order_information)
+                
+                unit_order_obj.grn_filename = str(do_id)
+                unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
+                unit_order_obj.sap_status = "In GRN"
+                unit_order_obj.save()
+    return not(is_final_response)
