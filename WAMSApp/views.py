@@ -2009,7 +2009,7 @@ class SaveProductAPI(APIView):
             render_value = 'Product {} is updated'.format(product_obj.base_product.seller_sku)
             activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             
-
+            logger.error("SaveProductAPI: %s",str(product_obj.user_manual))
             product_obj.save()
             response['status'] = 200
 
