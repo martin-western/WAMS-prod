@@ -2254,7 +2254,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
-            client_ip_address=str(visitor_ip_address(request)),
+            client_ip_address="123.123.123.123",
             fbp= "fb.1.1558571054389.1098115397",
         )
 
