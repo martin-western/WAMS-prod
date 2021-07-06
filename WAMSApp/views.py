@@ -1898,7 +1898,7 @@ class SaveProductAPI(APIView):
             capacity = data.get("capacity","")
             capacity_unit = data.get("capacity_unit","")
             target_age_range = data.get("target_age_range","")
-            user_manual = data.get("user_manual","")
+            user_manual = data.get("user_manual","empty")
 
             weight = 0
             try:
@@ -1936,11 +1936,21 @@ class SaveProductAPI(APIView):
 
             is_cod_allowed = data.get("is_cod_allowed", False)
             is_bundle_product = data.get("is_bundle_product", False)
+            
             if is_cod_allowed == "false":
                 is_cod_allowed = False
             elif is_cod_allowed == "true":
                 is_cod_allowed = True
 
+            if is_bundle_product == "false":
+                is_bundle_product = False
+            elif is_bundle_product == "true":
+                is_bundle_product = True
+
+            if is_sap_exception == "false":
+                is_sap_exception = False
+            elif is_sap_exception == "true":
+                is_sap_exception = True
 
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
@@ -1952,7 +1962,8 @@ class SaveProductAPI(APIView):
                 product_obj.max_price = max_price
 
             if user_manual != "":
-                product_obj.user_manual = user_manual
+                if user_manual != "empty":
+                    product_obj.user_manual = user_manual
             else:
                 product_obj.user_manual = None
 
