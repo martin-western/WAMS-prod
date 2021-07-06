@@ -1022,6 +1022,7 @@ class FetchProductDetailsAPI(APIView):
             response['faqs'] = faqs
             response['how_to_use'] = how_to_use
 
+            logger.info("FetchProductDetailsAPI: %s", product_obj.user_manual)        
             if product_obj.user_manual!=None and product_obj.user_manual!="":
                 response["user_manual"] = product_obj.user_manual.url
             else:
@@ -1935,6 +1936,11 @@ class SaveProductAPI(APIView):
 
             is_cod_allowed = data.get("is_cod_allowed", False)
             is_bundle_product = data.get("is_bundle_product", False)
+            if is_cod_allowed == "false":
+                is_cod_allowed = False
+            elif is_cod_allowed == "true":
+                is_cod_allowed = True
+
 
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
