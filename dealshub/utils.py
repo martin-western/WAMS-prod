@@ -2236,7 +2236,7 @@ def visitor_ip_address(request):
     # return ip
 
 
-def calling_facebook_api(event_name,user,request=None,custom_data=None):
+def calling_facebook_api(event_name,user,request,custom_data=None):
     try:
         email = sha256_encode(str(user.email))
         first_name = sha256_encode(str(user.first_name))
