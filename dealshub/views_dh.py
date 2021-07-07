@@ -2959,27 +2959,8 @@ class FetchOrderDetailsAPI(APIView):
                 response["voucherCode"] = voucher_obj.voucher_code
                 response["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
             response["shippingMethod"] = unit_order_objs[0].shipping_method
-
-            address_obj = order_obj.shipping_address
-            if address_obj==None:
-                response["shippingAddress"] = {}
-            else:
-                response["shippingAddress"] = {
-                    "firstName": address_obj.first_name,
-                    "lastName": address_obj.last_name,
-                    "line1": json.loads(address_obj.address_lines)[0],
-                    "line2": json.loads(address_obj.address_lines)[1],
-                    "line3": json.loads(address_obj.address_lines)[2],
-                    "line4": json.loads(address_obj.address_lines)[3],
-                    "emirates": address_obj.emirates,
-                    "state": address_obj.state,
-                    "country": address_obj.get_country(),
-                    "postcode": address_obj.postcode,
-                    "contactNumber": str(address_obj.contact_number),
-                    "tag": str(address_obj.tag),
-                    "uuid": str(address_obj.uuid)
-                }
-
+            response["shippingAddress"] = self.get_address_dict(order_obj.shipping_address)
+            response["billingAddress"] = self.get_address_dict(order_obj.billing_address)
             unit_order_list = []
             custom_data = []
             for unit_order_obj in unit_order_objs:
@@ -3053,6 +3034,28 @@ class FetchOrderDetailsAPI(APIView):
         
         return Response(data=response)
 
+    def get_address_dict(self, address_obj):
+        '''
+        Returns the address information in a dict format
+        '''
+        if address_obj == None:
+            return {}
+        else:
+            return {
+                "firstName": address_obj.first_name,
+                "lastName": address_obj.last_name,
+                "line1": json.loads(address_obj.address_lines)[0],
+                "line2": json.loads(address_obj.address_lines)[1],
+                "line3": json.loads(address_obj.address_lines)[2],
+                "line4": json.loads(address_obj.address_lines)[3],
+                "emirates": address_obj.emirates,
+                "state": address_obj.state,
+                "country": address_obj.get_country(),
+                "postcode": address_obj.postcode,
+                "contactNumber": str(address_obj.contact_number),
+                "tag": str(address_obj.tag),
+                "uuid": str(address_obj.uuid)
+            }
 
 class FetchOrderVersionDetailsAPI(APIView):
 

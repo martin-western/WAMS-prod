@@ -1207,7 +1207,8 @@ class Order(models.Model):
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
     uuid = models.CharField(max_length=200, default="")
     date_created = models.DateTimeField(auto_now_add=True)
-    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="order_set_from_shipping_address")
+    billing_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="order_set_from_billing_address")
     payment_mode = models.CharField(default="COD", max_length=100)
     to_pay = models.FloatField(default=0)
     real_to_pay = models.FloatField(default=0)
@@ -1275,6 +1276,12 @@ class Order(models.Model):
                 except Exception as e:
                     pass
                 self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+        if self.shipping_address != None:
+            self.shipping_address.is_billing = False
+            self.shipping_address.save()
+        if self.billing_address != None:
+            self.billing_address.is_shipping = False
+            self.billing_address.save()
 
         super(Order, self).save(*args, **kwargs)
 
