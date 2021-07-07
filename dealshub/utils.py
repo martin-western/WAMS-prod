@@ -2246,7 +2246,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
-            client_ip_address=request.META.get('REMOTE_ADDR'),
+            client_ip_address="123.123.123.123",
             fbp='fb.1.'+str(now_time)+'.541394957',
         )
 
