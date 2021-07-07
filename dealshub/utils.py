@@ -2219,10 +2219,13 @@ def sha256_encode(string):
     result = hashlib.sha256(string.encode())
     return result.hexdigest()
 
+
 def visitor_ip_address(request):
 
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    logger.info("request.__dict__    ",request.__dict__)
+    logger.info("request.headers    ",request.headers)
+    logger.info("cookies    ", request.cookies)
+    logger.info("x_forwarded    ",x_forwarded_for)
 
 
     if x_forwarded_for:
@@ -2232,6 +2235,7 @@ def visitor_ip_address(request):
     
     logger.info("ip visitor_ip_address :-    ", ip)
     return ip
+
 
 def calling_facebook_api(event_name,user,request=None,custom_data=None):
     try:
