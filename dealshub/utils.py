@@ -2290,7 +2290,7 @@ def calling_facebook_api(event_name,user,request=None,custom_data=None):
             pixel_id=pixel_id,
             test_event_code="TEST89694",
         )
-        logger.info("calling_facebook_api success 1:- ",json.loads(event_request.execute()))
+        logger.info("calling_facebook_api success 1:- ",event_request.execute())
         # event_response = event_request.execute()
         # logger.info("calling_facebook_api success 2:- ",event_request.execute())
 
