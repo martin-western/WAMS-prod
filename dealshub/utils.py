@@ -1129,27 +1129,21 @@ def contact_us_send_email(your_email, message, to_email, password):
 
 
 def notify_low_stock(dealshub_product_obj):
-    try:
-        custom_permission_objs = CustomPermission.objects.filter(location_groups__in=[dealshub_product_obj.location_group])
-        for custom_permission_obj in custom_permission_objs:
-            try:
-                body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
-
-                with get_connection(
-                    host="smtp.gmail.com",
-                    port=587, 
-                    username="nisarg@omnycomm.com", 
-                    password="verjtzgeqareribg",
-                    use_tls=True) as connection:
-                    email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
-                                         body=body,
-                                         from_email='nisarg@omnycomm.com',
-                                         to=[custom_permission_obj.user.email,"wigme@westernint.com","hari.pk@westernint.com","support@westernint.com","rikas.k@westernint.com"],
-                                         connection=connection)
-                    email.send(fail_silently=True)
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("notify_low_stock: %s at %s", e, str(exc_tb.tb_lineno))        
+    try:   
+        body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username="nisarg@omnycomm.com", 
+            password="verjtzgeqareribg",
+            use_tls=True) as connection:
+            email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
+                                    body=body,
+                                    from_email='nisarg@omnycomm.com',
+                                    to=["wigme@westernint.com","hari.pk@westernint.com","support@westernint.com","rikas.k@westernint.com"],
+                                    connection=connection)
+            email.send(fail_silently=True)
+         
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("notify_low_stock: %s at %s", e, str(exc_tb.tb_lineno))
