@@ -2224,7 +2224,6 @@ def visitor_ip_address(request):
 
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     logger.info("request    ",request)
-    logger.info("cookies    ", request.cookies)
     logger.info("x_forwarded    ",x_forwarded_for)
 
 
