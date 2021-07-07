@@ -2220,22 +2220,6 @@ def sha256_encode(string):
     return result.hexdigest()
 
 
-def visitor_ip_address(request):
-
-    x_forwarded_for = request.user
-    logger.info("request    ",request)
-    logger.info("x_forwarded    ",x_forwarded_for)
-
-
-    # if x_forwarded_for:
-    #     ip = x_forwarded_for.split(',')[0]
-    # else:
-    #     ip = request.META.get('REMOTE_ADDR')
-    
-    # logger.info("ip visitor_ip_address :-    ", ip)
-    # return ip
-
-
 def calling_facebook_api(event_name,user,request,custom_data=None):
     try:
         email = sha256_encode(str(user.email))
@@ -2249,10 +2233,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
 
         access_token = "EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG"
         pixel_id = '501666847923989'
-        logger.info(request.user)
-        logger.info(request.COOKIES)
-        logger.info(request.get_host())
-        # visitor_ip_address(request)
+        now_time = int(time.time())
 
         FacebookAdsApi.init(access_token=access_token)
 
@@ -2265,13 +2246,16 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
+            client_ip_address=request.META.get('REMOTE_ADDR'),
+            client_user_agent=request.headers['User-Agent'],
+            fbp='fb.1.'+str(now_time)+'.541394957',
         )
 
         events = []
         if custom_data == None:
             event = Event(
                 event_name=event_name,
-                event_time=int(time.time()),
+                event_time=now_time,
                 user_data=user_data,
                 action_source=ActionSource.WEBSITE,
             )
@@ -2281,7 +2265,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             for custom_data_item in custom_data:
                 event = Event(
                     event_name=event_name,
-                    event_time=int(time.time()),
+                    event_time=now_time,
                     user_data=user_data,
                     action_source=ActionSource.WEBSITE,
                     custom_data=custom_data_item,
@@ -2293,7 +2277,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             pixel_id=pixel_id,
             test_event_code="TEST89694",
         )
-        logger.info("calling_facebook_api success 1:- ",event_request.execute())
+        logger.info("calling_facebook_api success 1:- ",json.loads(event_request.execute()))
         # event_response = event_request.execute()
         # logger.info("calling_facebook_api success 2:- ",event_request.execute())
 
