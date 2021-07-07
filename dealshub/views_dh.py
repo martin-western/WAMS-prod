@@ -576,7 +576,7 @@ class AddToCartAPI(APIView):
                     content_category=dealshub_product_obj.get_category(),
                     contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
-                calling_facebook_api(event_name="addtocart",user=dealshub_user_obj,request=request,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddToCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -678,7 +678,7 @@ class AddToFastCartAPI(APIView):
                     content_category=dealshub_product_obj.get_category(),
                     contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
-                calling_facebook_api(event_name="addtocart",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddToFastCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -787,7 +787,7 @@ class AddToOfflineCartAPI(APIView):
                     content_category=dealshub_product_obj.get_category(),
                     contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
-                calling_facebook_api(event_name="addtocart",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddToOfflineCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1216,7 +1216,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
             try:
-                calling_facebook_api(event_name="addtocart",user=cart_obj.owner,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=cart_obj.owner,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1384,7 +1384,7 @@ class UpdateFastCartDetailsAPI(APIView):
                     content_category=fast_cart_obj.product.get_category(),
                     contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                 ))
-                calling_facebook_api(event_name="addtocart",user=fast_cart_obj.owner,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=fast_cart_obj.owner,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateFastCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1477,7 +1477,7 @@ class RemoveFromCartAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="addtocart",user=cart_obj.owner,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=cart_obj.owner,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("RemoveFromCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
