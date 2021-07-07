@@ -1611,7 +1611,8 @@ class FastCart(models.Model):
     uuid = models.CharField(max_length=200, default="")
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
-    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="fastcart_set_from_shipping_address")
+    billing_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="fastcart_set_from_billing_address")
     payment_mode = models.CharField(default="COD", max_length=100)
     to_pay = models.FloatField(default=0)
     merchant_reference = models.CharField(max_length=200, default="")
@@ -1626,6 +1627,9 @@ class FastCart(models.Model):
             self.uuid = str(uuid.uuid4())
 
         self.modified_date = timezone.now()
+        if self.billing_address != None:
+            self.billing_address.type = "billing"
+            self.billing_address.save()
         super(FastCart, self).save(*args, **kwargs)
 
     def get_subtotal(self):
