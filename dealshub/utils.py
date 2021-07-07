@@ -2234,6 +2234,8 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         access_token = "EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG"
         pixel_id = '501666847923989'
         now_time = int(time.time())
+        logger.info("in fbapi")
+        logger.info(str(request.META["HTTP_X_FORWARDED_FOR"]))
 
         FacebookAdsApi.init(access_token=access_token)
 
@@ -2246,7 +2248,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
-            client_ip_address=str(request.META["HTTP_X_FORWARDED_FOR"]),
+            client_ip_address="123.123.123.123",
             fbp= "fb.1.1625138246273.541394957",
         )
 
