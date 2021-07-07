@@ -2222,7 +2222,7 @@ def sha256_encode(string):
 
 def visitor_ip_address(request):
 
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    x_forwarded_for = request.user
     logger.info("request    ",request)
     logger.info("x_forwarded    ",x_forwarded_for)
 
