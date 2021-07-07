@@ -2251,7 +2251,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         pixel_id = '501666847923989'
         logger.info(request.user)
         logger.info(request.COOKIES)
-        # logger.info(request.headers)
+        logger.info(request.get_host())
         # visitor_ip_address(request)
 
         FacebookAdsApi.init(access_token=access_token)
