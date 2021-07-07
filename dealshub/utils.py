@@ -2227,13 +2227,13 @@ def visitor_ip_address(request):
     logger.info("x_forwarded    ",x_forwarded_for)
 
 
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
+    # if x_forwarded_for:
+    #     ip = x_forwarded_for.split(',')[0]
+    # else:
+    #     ip = request.META.get('REMOTE_ADDR')
     
-    logger.info("ip visitor_ip_address :-    ", ip)
-    return ip
+    # logger.info("ip visitor_ip_address :-    ", ip)
+    # return ip
 
 
 def calling_facebook_api(event_name,user,request=None,custom_data=None):
@@ -2249,7 +2249,7 @@ def calling_facebook_api(event_name,user,request=None,custom_data=None):
 
         access_token = "EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG"
         pixel_id = '501666847923989'
-        ip = visitor_ip_address(request)
+        visitor_ip_address(request)
 
         FacebookAdsApi.init(access_token=access_token)
 
