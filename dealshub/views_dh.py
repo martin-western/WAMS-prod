@@ -219,7 +219,7 @@ class FetchShippingAddressListAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
 
-            address_objs = Address.objects.filter(is_shipping=True, is_deleted=False, user=user, location_group__uuid=location_group_uuid)
+            address_objs = Address.objects.filter(type="shipping", is_deleted=False, user=user, location_group__uuid=location_group_uuid)
 
             address_list = []
             for address_obj in address_objs:

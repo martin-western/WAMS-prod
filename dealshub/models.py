@@ -853,8 +853,7 @@ class Address(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
 
-    is_shipping = models.BooleanField(default=True)
-    is_billing = models.BooleanField(default=True)
+    type = models.CharField(max_length=64, null=True, blank=True, default="shipping")   # shipping, billing
 
     objects = AddressManager()
     recovery = AddressRecoveryManager()
@@ -942,7 +941,8 @@ class Cart(models.Model):
     uuid = models.CharField(max_length=200, default="")
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
-    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="cart_set_from_shipping_address")
+    billing_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="cart_set_from_billing_address")
     payment_mode = models.CharField(default="COD", max_length=100)
     to_pay = models.FloatField(default=0)
     merchant_reference = models.CharField(max_length=200, default="")
@@ -958,6 +958,9 @@ class Cart(models.Model):
             self.uuid = str(uuid.uuid4())
 
         self.modified_date = timezone.now()
+        if self.billing_address != None:
+            self.billing_address.type = "billing"
+            self.billing_address.save()
         super(Cart, self).save(*args, **kwargs)
 
     def get_subtotal(self, offline=False):
@@ -1276,13 +1279,6 @@ class Order(models.Model):
                 except Exception as e:
                     pass
                 self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
-        if self.shipping_address != None:
-            self.shipping_address.is_billing = False
-            self.shipping_address.save()
-        if self.billing_address != None:
-            self.billing_address.is_shipping = False
-            self.billing_address.save()
-
         super(Order, self).save(*args, **kwargs)
 
     def get_date_created(self):
