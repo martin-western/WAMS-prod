@@ -2233,9 +2233,12 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
 
         access_token = "EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG"
         pixel_id = '501666847923989'
+        event_source_url = "https://qa.wigme.com"
+        # prod
+        # event_source_url = "https://www.wigme.com"
+
         now_time = int(time.time())
-        logger.info("in fbapi")
-        logger.info(request.META["HTTP_X_FORWARDED_FOR"])
+        logger.info("in calling_facebook_api:- ",request.META["HTTP_X_FORWARDED_FOR"])
 
         FacebookAdsApi.init(access_token=access_token)
 
@@ -2258,6 +2261,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
                 event_name=event_name,
                 event_time=now_time,
                 user_data=user_data,
+                event_source_url= event_source_url,
                 action_source=ActionSource.WEBSITE,
             )
             events = [event]
@@ -2268,7 +2272,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
                     event_name=event_name,
                     event_time=now_time,
                     user_data=user_data,
-                    event_source_url= "https://qa.wigme.com",
+                    event_source_url= event_source_url, 
                     action_source=ActionSource.WEBSITE,
                     custom_data=custom_data_item,
                 )

@@ -93,6 +93,7 @@ class AddToWishListAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value= dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
@@ -176,6 +177,7 @@ class FetchWishListAPI(APIView):
                 unit_wish_list.append(temp_dict)
                 try:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_wish_list_obj.product.get_actual_price_for_customer(dealshub_user_obj),
                         currency=unit_wish_list_obj.product.get_currency(),
                         content_name=unit_wish_list_obj.product.get_name(),
@@ -570,6 +572,7 @@ class AddToCartAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
@@ -672,6 +675,7 @@ class AddToFastCartAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
@@ -781,6 +785,7 @@ class AddToOfflineCartAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
@@ -844,6 +849,7 @@ class FetchCartDetailsAPI(APIView):
                     unit_cart_list.append(temp_dict)
                     try:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj),
                             currency=unit_cart_obj.product.get_currency(),
                             content_name=unit_cart_obj.product.get_name(),
@@ -958,6 +964,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                 unit_cart_list.append(temp_dict)
                 try:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_cart_obj.product.now_price,
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
@@ -1056,6 +1063,7 @@ class UpdateCartDetailsAPI(APIView):
             custom_data = []
             try:
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=unit_cart_obj.product.now_price,
                     currency=unit_cart_obj.product.get_currency(),
                     content_name=unit_cart_obj.product.get_name(),
@@ -1206,6 +1214,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
             try:
                 for unit_cart_obj in unit_cart_objs:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_cart_obj.product.now_price,
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
@@ -1378,6 +1387,7 @@ class UpdateFastCartDetailsAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=fast_cart_obj.product.now_price,
                     currency=fast_cart_obj.product.get_currency(),
                     content_name=fast_cart_obj.product.get_name(),
@@ -1416,6 +1426,7 @@ class RemoveFromCartAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=unit_cart_obj.product.now_price,
                     currency=unit_cart_obj.product.get_currency(),
                     content_name=unit_cart_obj.product.get_name(),
@@ -1601,6 +1612,7 @@ class SelectPaymentModeAPI(APIView):
                 custom_data = []
                 for unit_cart_obj in unit_cart_objs:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_cart_obj.product.now_price,
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
@@ -1715,6 +1727,7 @@ class FetchActiveOrderDetailsAPI(APIView):
             try:
                 for unit_cart_obj in unit_cart_objs:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_cart_obj.product.now_price,
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
@@ -2062,6 +2075,7 @@ class PlaceInquiryAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
@@ -2261,6 +2275,7 @@ class PlaceOrderAPI(APIView):
                     custom_data = []
                     for unit_cart_obj in unit_cart_objs:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value=unit_cart_obj.product.now_price,
                             currency=unit_cart_obj.product.get_currency(),
                             content_name=unit_cart_obj.product.get_name(),
@@ -2331,6 +2346,7 @@ class PlaceOrderAPI(APIView):
                 try:
                     custom_data = []
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=fast_cart_obj.product.now_price,
                         currency=fast_cart_obj.product.get_currency(),
                         content_name=fast_cart_obj.product.get_name(),
@@ -2437,6 +2453,7 @@ class PlaceOfflineOrderAPI(APIView):
                 custom_data = []
                 for unit_cart_obj in unit_cart_objs:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_cart_obj.product.now_price,
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
@@ -2568,6 +2585,7 @@ class FetchOrderListAPI(APIView):
                         unit_order_list.append(temp_dict2)
                         try:
                             custom_data.append(CustomData(
+                                content_type="product",
                                 value=unit_order_obj.product.now_price,
                                 currency=unit_order_obj.product.get_currency(),
                                 content_name=unit_order_obj.product.get_name(),
@@ -3014,6 +3032,7 @@ class FetchOrderDetailsAPI(APIView):
                 unit_order_list.append(temp_dict)
                 try:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_order_obj.product.now_price,
                         currency=unit_order_obj.product.get_currency(),
                         content_name=unit_order_obj.product.get_name(),
@@ -3969,6 +3988,7 @@ class FetchCustomerOrdersAPI(APIView):
                     unit_order_list.append(temp_dict2)
                     try:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value=unit_order_obj.product.now_price,
                             currency=unit_order_obj.product.get_currency(),
                             content_name=unit_order_obj.product.get_name(),
@@ -4344,6 +4364,7 @@ class PaymentTransactionAPI(APIView):
                         custom_data = []
                         for unit_cart_obj in unit_cart_objs:
                             custom_data.append(CustomData(
+                                content_type="product",
                                 value=unit_cart_obj.product.now_price,
                                 currency=unit_cart_obj.product.get_currency(),
                                 content_name=unit_cart_obj.product.get_name(),
@@ -4414,6 +4435,7 @@ class PaymentTransactionAPI(APIView):
                     try:
                         custom_data = []
                         custom_data.append(CustomData(
+                            content_type="product",
                             value=fast_cart_obj.product.now_price,
                             currency=fast_cart_obj.product.get_currency(),
                             content_name=fast_cart_obj.product.get_name(),
@@ -8774,6 +8796,7 @@ class ApplyVoucherCodeAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=total_amount,
                     currency=currency,
                 ))
@@ -9167,6 +9190,7 @@ class AddOnlineAdditionalNoteAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=total_amount,
                     currency=currency,
                 ))
@@ -9543,6 +9567,7 @@ class PlaceOnlineOrderAPI(APIView):
                     custom_data = []
                     for unit_cart_obj in unit_cart_objs:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value=unit_cart_obj.product.now_price,
                             currency=unit_cart_obj.product.get_currency(),
                             content_name=unit_cart_obj.product.get_name(),
@@ -9626,6 +9651,7 @@ class PlaceOnlineOrderAPI(APIView):
                 try:
                     custom_data = []
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=fast_cart_obj.product.now_price,
                         currency=fast_cart_obj.product.get_currency(),
                         content_name=fast_cart_obj.product.get_name(),
@@ -9799,6 +9825,7 @@ class FetchFastCartDetailsAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=fast_cart_obj.product.now_price,
                     currency=fast_cart_obj.product.get_currency(),
                     content_name=fast_cart_obj.product.get_name(),

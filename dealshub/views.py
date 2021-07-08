@@ -275,6 +275,7 @@ class FetchProductDetailsAPI(APIView):
 
             try:
                 custom_data = CustomData(
+                    content_type="product",
                     value= dealshub_product_obj.get_actual_price(dealshub_user_obj),
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
@@ -331,6 +332,7 @@ class FetchSimilarProductsAPI(APIView):
 
             try:
                 custom_data = CustomData(
+                    content_type="product",
                     value= dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
@@ -414,6 +416,7 @@ class FetchOnSaleProductsAPI(APIView):
                 products.append(temp_dict2)
                 try:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value= dealshub_product_obj.now_price,
                         currency=dealshub_product_obj.get_currency(),
                         content_name=dealshub_product_obj.get_name(),
@@ -511,6 +514,7 @@ class FetchNewArrivalProductsAPI(APIView):
                 products.append(temp_dict2)
                 try:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value= dealshub_product_obj.now_price,
                         currency=dealshub_product_obj.get_currency(),
                         content_name=dealshub_product_obj.get_name(),
@@ -657,6 +661,7 @@ class FetchSectionProductsAPI(APIView):
                 temp_dict["productsArray"].append(temp_dict2)
                 try:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value= dealshub_product_obj.now_price,
                         currency=dealshub_product_obj.get_currency(),
                         content_name=dealshub_product_obj.get_name(),
@@ -1079,6 +1084,7 @@ class SearchAPI(APIView):
                     products.append(temp_dict)
                     try:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value= dealshub_product_obj.now_price,
                             currency=dealshub_product_obj.get_currency(),
                             content_name=dealshub_product_obj.get_name(),
@@ -1429,6 +1435,7 @@ class SearchWIGAPI(APIView):
                     products.append(temp_dict)
                     try:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value= dealshub_product_obj.now_price,
                             currency=dealshub_product_obj.get_currency(),
                             content_name=dealshub_product_obj.get_name(),
@@ -1696,6 +1703,7 @@ class SearchWIG2API(APIView):
                     products.append(temp_dict)
                     try:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value= dealshub_product_obj.now_price,
                             currency=dealshub_product_obj.get_currency(),
                             content_name=dealshub_product_obj.get_name(),
@@ -4288,6 +4296,7 @@ class FetchDealshubPriceAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value= dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
@@ -4743,6 +4752,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 product_list.append(temp_dict)
                 try:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value= dealshub_product_obj.now_price,
                         currency=dealshub_product_obj.get_currency(),
                         content_name=dealshub_product_obj.get_name(),
