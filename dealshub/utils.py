@@ -2071,8 +2071,8 @@ def sendex_add_consignment(order_obj, modified_weight):
         sendex_dict["PackageType"] = "Parcel"
         sendex_dict["CurrencyCode"] = order_obj.get_currency()
         sendex_dict["NcndAmount"] = str(float(order_obj.get_sendex_ncnd_amount()))
-        sendex_dict["ItemDescription"] = ""
-        sendex_dict["SpecialInstruction"] = ""
+        sendex_dict["ItemDescription"] = get_sellersku_and_quantity(order_obj)
+        sendex_dict["SpecialInstruction"] = order_obj.additional_note
         sendex_dict["BranchName"] = "Dubai"
         response = get_sendex_api_response(sendex_dict, SENDEX_ADD_CONSIGNMENT_URL)
         order_obj.sendex_request_json = json.dumps(sendex_dict)
@@ -2220,8 +2220,9 @@ def sha256_encode(string):
     return result.hexdigest()
 
 
-def calling_facebook_api(event_name,user,custom_data=None):
+def calling_facebook_api(event_name,user,request,custom_data=None):
     try:
+        logger.info("in calling_facebook_api")
         email = sha256_encode(str(user.email))
         first_name = sha256_encode(str(user.first_name))
         last_name = sha256_encode(str(user.last_name))
@@ -2233,6 +2234,11 @@ def calling_facebook_api(event_name,user,custom_data=None):
 
         access_token = "EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG"
         pixel_id = '501666847923989'
+        event_source_url = "https://qa.wigme.com"
+        #prod
+        # event_source_url = "https://www.wigme.com"
+
+        now_time = int(time.time())
 
         FacebookAdsApi.init(access_token=access_token)
 
@@ -2244,15 +2250,18 @@ def calling_facebook_api(event_name,user,custom_data=None):
             cities=[],
             states=[state],
             zip_codes=[postcode],
-            country_codes=[country]
+            country_codes=[country],
+            client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
+            fbp= "fb.1.1625138246273.541394957",
         )
 
         events = []
         if custom_data == None:
             event = Event(
                 event_name=event_name,
-                event_time=int(time.time()),
+                event_time=now_time,
                 user_data=user_data,
+                event_source_url= event_source_url,
                 action_source=ActionSource.WEBSITE,
             )
             events = [event]
@@ -2261,8 +2270,9 @@ def calling_facebook_api(event_name,user,custom_data=None):
             for custom_data_item in custom_data:
                 event = Event(
                     event_name=event_name,
-                    event_time=int(time.time()),
+                    event_time=now_time,
                     user_data=user_data,
+                    event_source_url= event_source_url, 
                     action_source=ActionSource.WEBSITE,
                     custom_data=custom_data_item,
                 )
@@ -2270,11 +2280,10 @@ def calling_facebook_api(event_name,user,custom_data=None):
     
         event_request = EventRequest(
             events=events,
-            pixel_id=pixel_id
+            pixel_id=pixel_id,
+            test_event_code="TEST16315",
         )
-        logger.info("calling_facebook_api success 1:- ",json.loads(event_request.execute()))
-        # event_response = event_request.execute()
-        # logger.info("calling_facebook_api success 2:- ",event_request.execute())
+        event_response = event_request.execute()
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()

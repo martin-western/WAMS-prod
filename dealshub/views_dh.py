@@ -93,6 +93,7 @@ class AddToWishListAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value= dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
@@ -100,7 +101,7 @@ class AddToWishListAPI(APIView):
                     contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="addtowishlist",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToWishlist",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddToWishlistAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -176,6 +177,7 @@ class FetchWishListAPI(APIView):
                 unit_wish_list.append(temp_dict)
                 try:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_wish_list_obj.product.get_actual_price_for_customer(dealshub_user_obj),
                         currency=unit_wish_list_obj.product.get_currency(),
                         content_name=unit_wish_list_obj.product.get_name(),
@@ -191,7 +193,7 @@ class FetchWishListAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchWishListAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -246,7 +248,7 @@ class FetchShippingAddressListAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchShippingAddressListAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -312,7 +314,7 @@ class EditShippingAddressAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("EditAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -370,7 +372,7 @@ class CreateShippingAddressAPI(APIView):
             response['status'] = 200
 
             try:
-                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -429,7 +431,7 @@ class CreateOfflineShippingAddressAPI(APIView):
                 response["status"] = 409
 
             try:
-                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("CreateOfflineShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -471,7 +473,7 @@ class DeleteShippingAddressAPI(APIView):
             response['status'] = 200
 
             try:
-                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("DeleteShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -570,13 +572,14 @@ class AddToCartAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
                     contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
-                calling_facebook_api(event_name="addtocart",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddToCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -672,13 +675,14 @@ class AddToFastCartAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
                     contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
-                calling_facebook_api(event_name="addtocart",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddToFastCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -781,13 +785,14 @@ class AddToOfflineCartAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
                     contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
-                calling_facebook_api(event_name="addtocart",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddToOfflineCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -844,6 +849,7 @@ class FetchCartDetailsAPI(APIView):
                     unit_cart_list.append(temp_dict)
                     try:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj),
                             currency=unit_cart_obj.product.get_currency(),
                             content_name=unit_cart_obj.product.get_name(),
@@ -906,7 +912,7 @@ class FetchCartDetailsAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -958,6 +964,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                 unit_cart_list.append(temp_dict)
                 try:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_cart_obj.product.now_price,
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
@@ -1018,7 +1025,7 @@ class FetchOfflineCartDetailsAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="ViewContent",user=cart_obj.owner,custom_data=custom_data)
+                calling_facebook_api(event_name="ViewContent",user=cart_obj.owner,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1056,6 +1063,7 @@ class UpdateCartDetailsAPI(APIView):
             custom_data = []
             try:
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=unit_cart_obj.product.now_price,
                     currency=unit_cart_obj.product.get_currency(),
                     content_name=unit_cart_obj.product.get_name(),
@@ -1117,7 +1125,7 @@ class UpdateCartDetailsAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="UpdateCart",user=cart_obj.owner,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=cart_obj.owner,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1206,6 +1214,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
             try:
                 for unit_cart_obj in unit_cart_objs:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_cart_obj.product.now_price,
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
@@ -1216,7 +1225,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
             try:
-                calling_facebook_api(event_name="addtocart",user=cart_obj.owner,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=cart_obj.owner,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateOfflineCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1299,7 +1308,7 @@ class BulkUpdateCartDetailsAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("BulkUpdateCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1378,13 +1387,14 @@ class UpdateFastCartDetailsAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=fast_cart_obj.product.now_price,
                     currency=fast_cart_obj.product.get_currency(),
                     content_name=fast_cart_obj.product.get_name(),
                     content_category=fast_cart_obj.product.get_category(),
                     contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                 ))
-                calling_facebook_api(event_name="addtocart",user=fast_cart_obj.owner,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=fast_cart_obj.owner,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateFastCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1416,6 +1426,7 @@ class RemoveFromCartAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=unit_cart_obj.product.now_price,
                     currency=unit_cart_obj.product.get_currency(),
                     content_name=unit_cart_obj.product.get_name(),
@@ -1477,7 +1488,7 @@ class RemoveFromCartAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="addtocart",user=cart_obj.owner,custom_data=custom_data)
+                calling_facebook_api(event_name="AddToCart",user=cart_obj.owner,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("RemoveFromCartAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1519,7 +1530,7 @@ class SelectAddressAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SelectAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1559,7 +1570,7 @@ class SelectOfflineAddressAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SelectOfflineAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1601,13 +1612,14 @@ class SelectPaymentModeAPI(APIView):
                 custom_data = []
                 for unit_cart_obj in unit_cart_objs:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_cart_obj.product.now_price,
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
                         content_category=unit_cart_obj.product.get_category(),
                         contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                     ))
-                calling_facebook_api(event_name="InitiateCheckout",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="InitiateCheckout",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SelectPaymentModeAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1715,13 +1727,14 @@ class FetchActiveOrderDetailsAPI(APIView):
             try:
                 for unit_cart_obj in unit_cart_objs:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_cart_obj.product.now_price,
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
                         content_category=unit_cart_obj.product.get_category(),
                         contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                     ))
-                calling_facebook_api(event_name="InitiateCheckout",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="InitiateCheckout",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchActiveOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1866,7 +1879,7 @@ class PlaceOrderRequestAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("PlaceOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2012,7 +2025,7 @@ class DeleteOrderRequestAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("DeleteOrderRequestAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2062,13 +2075,14 @@ class PlaceInquiryAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=dealshub_product_obj.now_price,
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
                     contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
-                calling_facebook_api(event_name="Contact",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="Contact",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("PlaceInquiryAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2261,13 +2275,14 @@ class PlaceOrderAPI(APIView):
                     custom_data = []
                     for unit_cart_obj in unit_cart_objs:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value=unit_cart_obj.product.now_price,
                             currency=unit_cart_obj.product.get_currency(),
                             content_name=unit_cart_obj.product.get_name(),
                             content_category=unit_cart_obj.product.get_category(),
                             contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                         ))
-                    calling_facebook_api(event_name="purchase",user=dealshub_user_obj,custom_data=custom_data)
+                    calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,request=request,custom_data=custom_data)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2331,13 +2346,14 @@ class PlaceOrderAPI(APIView):
                 try:
                     custom_data = []
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=fast_cart_obj.product.now_price,
                         currency=fast_cart_obj.product.get_currency(),
                         content_name=fast_cart_obj.product.get_name(),
                         content_category=fast_cart_obj.product.get_category(),
                         contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                     ))
-                    calling_facebook_api(event_name="purchase",user=fast_cart_obj.owner,custom_data=custom_data)
+                    calling_facebook_api(event_name="Purchase",user=fast_cart_obj.owner,request=request,custom_data=custom_data)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("PlaceOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2437,13 +2453,14 @@ class PlaceOfflineOrderAPI(APIView):
                 custom_data = []
                 for unit_cart_obj in unit_cart_objs:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_cart_obj.product.now_price,
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
                         content_category=unit_cart_obj.product.get_category(),
                         contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                     ))
-                calling_facebook_api(event_name="purchase",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("PlaceOfflineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -2568,6 +2585,7 @@ class FetchOrderListAPI(APIView):
                         unit_order_list.append(temp_dict2)
                         try:
                             custom_data.append(CustomData(
+                                content_type="product",
                                 value=unit_order_obj.product.now_price,
                                 currency=unit_order_obj.product.get_currency(),
                                 content_name=unit_order_obj.product.get_name(),
@@ -2593,7 +2611,7 @@ class FetchOrderListAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchOrderListAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3014,6 +3032,7 @@ class FetchOrderDetailsAPI(APIView):
                 unit_order_list.append(temp_dict)
                 try:
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=unit_order_obj.product.now_price,
                         currency=unit_order_obj.product.get_currency(),
                         content_name=unit_order_obj.product.get_name(),
@@ -3042,7 +3061,7 @@ class FetchOrderDetailsAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3399,7 +3418,7 @@ class FetchUserProfileAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3435,7 +3454,7 @@ class UpdateUserProfileAPI(APIView):
             dealshub_user.save()
 
             try:
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateUserProfileAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3904,7 +3923,7 @@ class DeleteB2BDocumentAPI(APIView):
 
 
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("DeleteB2BDocumentAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -3969,6 +3988,7 @@ class FetchCustomerOrdersAPI(APIView):
                     unit_order_list.append(temp_dict2)
                     try:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value=unit_order_obj.product.now_price,
                             currency=unit_order_obj.product.get_currency(),
                             content_name=unit_order_obj.product.get_name(),
@@ -3995,7 +4015,7 @@ class FetchCustomerOrdersAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=custom_data)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchCustomerOrdersAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4344,13 +4364,14 @@ class PaymentTransactionAPI(APIView):
                         custom_data = []
                         for unit_cart_obj in unit_cart_objs:
                             custom_data.append(CustomData(
+                                content_type="product",
                                 value=unit_cart_obj.product.now_price,
                                 currency=unit_cart_obj.product.get_currency(),
                                 content_name=unit_cart_obj.product.get_name(),
                                 content_category=unit_cart_obj.product.get_category(),
                                 contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                             ))
-                        calling_facebook_api(event_name="purchase",user=dealshub_user_obj,custom_data=custom_data)
+                        calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,request=request,custom_data=custom_data)
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         logger.error("PaymentTransactionAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4414,13 +4435,14 @@ class PaymentTransactionAPI(APIView):
                     try:
                         custom_data = []
                         custom_data.append(CustomData(
+                            content_type="product",
                             value=fast_cart_obj.product.now_price,
                             currency=fast_cart_obj.product.get_currency(),
                             content_name=fast_cart_obj.product.get_name(),
                             content_category=fast_cart_obj.product.get_category(),
                             contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                         ))
-                        calling_facebook_api(event_name="purchase",user=fast_cart_obj.owner,custom_data=custom_data)
+                        calling_facebook_api(event_name="Purchase",user=fast_cart_obj.owner,request=request,custom_data=custom_data)
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         logger.error("PaymentTransactionAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -4714,7 +4736,7 @@ class ContactUsSendEmailAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="Contact",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="Contact",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("ContactUsSendEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5033,7 +5055,7 @@ class SignUpCompletionAPI(APIView):
 
             response["status"] = 200
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=b2b_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=b2b_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SignUpCompletionAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5132,7 +5154,7 @@ class SendOTPSMSLoginAPI(APIView):
             response["status"] = 200
         
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SendOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))     
@@ -5186,7 +5208,7 @@ class CheckUserPinSetAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("CheckUserPinSetAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5253,7 +5275,7 @@ class SetLoginPinAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SetLoginPinAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5310,7 +5332,7 @@ class VerifyLoginPinAPI(APIView):
             response["verified"] = verified
             response["status"] = 200
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SetLoginPinAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5380,7 +5402,7 @@ class ForgotLoginPinAPI(APIView):
 
             response["status"] = 200
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("ForgotLoginPinAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5434,7 +5456,7 @@ class VerifyB2BOTPSMSAPI(APIView):
             response["verified"]=is_verified
             response["status"]=200
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=b2b_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=b2b_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("VerifyB2BOTPSMSAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5545,7 +5567,7 @@ class VerifyOTPSMSLoginAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("VerifyOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5580,7 +5602,7 @@ class UpdateUserEmailAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateUserEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5636,7 +5658,7 @@ class AddReviewAPI(APIView):
             response["status"] = 200
             
             try:
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddReviewAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5866,7 +5888,7 @@ class AddRatingAPI(APIView):
                 response["status"] = 403
 
             try:
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddRatingAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5901,7 +5923,7 @@ class UpdateRatingAPI(APIView):
                 response["status"] = 403
 
             try:
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateRatingAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -6033,7 +6055,7 @@ class AddUpvoteAPI(APIView):
                 response["status"] = 403
 
             try:
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddUpvoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -6068,7 +6090,7 @@ class DeleteUpvoteAPI(APIView):
                 response["status"] = 403
 
             try:
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("DeleteUpvoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -6122,7 +6144,7 @@ class FetchReviewAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchReviewAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -6389,7 +6411,7 @@ class FetchProductReviewsAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchProductReviewsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -6426,7 +6448,7 @@ class DeleteUserReviewImageAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("DeleteUserReviewImageAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -6496,7 +6518,7 @@ class DeleteUserReviewAPI(APIView):
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("DeleteUserReviewAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -6860,6 +6882,9 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "today_returned_amount" : total_orders_status_amount_list[3],
                 "cancelled": total_orders_status_count_list[4],
                 "today_cancelled_amount" : total_orders_status_amount_list[4],
+                "net_sales" : today_total_orders - total_orders_status_count_list[4] - total_orders_status_count_list[3],
+                "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[4] - total_orders_status_amount_list[3]),2)
+
             }
             response["monthly"] = {
                 "sales" : month_total_sales,
@@ -6875,6 +6900,9 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "monthly_returned_amount" : total_monthly_orders_status_amount_list[3],
                 "cancelled": total_monthly_orders_status_count_list[4],
                 "monthly_cancelled_amount" : total_monthly_orders_status_amount_list[4],
+                "net_sales" : month_total_orders - total_monthly_orders_status_count_list[4] - total_monthly_orders_status_count_list[3],
+                "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[4] - total_monthly_orders_status_amount_list[3]),2)
+ 
             }
             response["currency"] = location_group_obj.location.currency
             response['status'] = 200
@@ -7018,7 +7046,9 @@ class FetchFilteredOrderAnalyticsAPI(APIView):
                 "returned": total_filtered_orders_status_count_list[3],
                 "filtered_returned_amount" : total_filtered_orders_status_amount_list[3],
                 "cancelled": total_filtered_orders_status_count_list[4],
-                "filtered_cancelled_amount" : total_filtered_orders_status_amount_list[4]
+                "filtered_cancelled_amount" : total_filtered_orders_status_amount_list[4],
+                "net_sales" : real_total_orders - total_filtered_orders_status_count_list[4] - total_filtered_orders_status_count_list[3], 
+                "net_sales_amount" : round(float(total_sales - total_filtered_orders_status_amount_list[4] - total_filtered_orders_status_amount_list[3]),2)
             }
             response["status"] = 200
 
@@ -8774,10 +8804,11 @@ class ApplyVoucherCodeAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=total_amount,
                     currency=currency,
                 ))
-                calling_facebook_api(event_name="purchase",user=owner,custom_data=custom_data)
+                calling_facebook_api(event_name="Purchase",user=owner,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("ApplyVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -9167,10 +9198,11 @@ class AddOnlineAdditionalNoteAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=total_amount,
                     currency=currency,
                 ))
-                calling_facebook_api(event_name="purchase",user=request.user,custom_data=custom_data)
+                calling_facebook_api(event_name="Purchase",user=request.user,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("AddOnlineAdditionalNoteAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -9422,7 +9454,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
             response["status"] = 200
 
             try:
-                calling_facebook_api(event_name="purchase",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("PlaceDaycartOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -9543,13 +9575,14 @@ class PlaceOnlineOrderAPI(APIView):
                     custom_data = []
                     for unit_cart_obj in unit_cart_objs:
                         custom_data.append(CustomData(
+                            content_type="product",
                             value=unit_cart_obj.product.now_price,
                             currency=unit_cart_obj.product.get_currency(),
                             content_name=unit_cart_obj.product.get_name(),
                             content_category=unit_cart_obj.product.get_category(),
                             contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                         ))
-                    calling_facebook_api(event_name="purchase",user=dealshub_user_obj,custom_data=custom_data)
+                    calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,request=request,custom_data=custom_data)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -9626,13 +9659,14 @@ class PlaceOnlineOrderAPI(APIView):
                 try:
                     custom_data = []
                     custom_data.append(CustomData(
+                        content_type="product",
                         value=fast_cart_obj.product.now_price,
                         currency=fast_cart_obj.product.get_currency(),
                         content_name=fast_cart_obj.product.get_name(),
                         content_category=fast_cart_obj.product.get_category(),
                         contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                     ))
-                    calling_facebook_api(event_name="purchase",user=fast_cart_obj.owner,custom_data=custom_data)
+                    calling_facebook_api(event_name="Purchase",user=fast_cart_obj.owner,request=request,custom_data=custom_data)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("PlaceOnlineOrderAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -9799,13 +9833,14 @@ class FetchFastCartDetailsAPI(APIView):
             try:
                 custom_data = []
                 custom_data.append(CustomData(
+                    content_type="product",
                     value=fast_cart_obj.product.now_price,
                     currency=fast_cart_obj.product.get_currency(),
                     content_name=fast_cart_obj.product.get_name(),
                     content_category=fast_cart_obj.product.get_category(),
                     contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                 ))
-                calling_facebook_api(event_name="purchase",user=fast_cart_obj.owner,custom_data=custom_data)
+                calling_facebook_api(event_name="Purchase",user=fast_cart_obj.owner,request=request,custom_data=custom_data)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("FetchFastCartDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -10021,7 +10056,7 @@ class UpdateUserNameAndEmailAPI(APIView):
             response['status'] = 200
 
             try:
-                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="CompleteRegistration",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("UpdateUserNameAndEmailAPI: %s at %s", e, str(exc_tb.tb_lineno))

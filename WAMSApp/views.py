@@ -1022,6 +1022,7 @@ class FetchProductDetailsAPI(APIView):
             response['faqs'] = faqs
             response['how_to_use'] = how_to_use
 
+            logger.info("FetchProductDetailsAPI: %s", product_obj.user_manual)        
             if product_obj.user_manual!=None and product_obj.user_manual!="":
                 response["user_manual"] = product_obj.user_manual.url
             else:
@@ -1835,6 +1836,7 @@ class SaveProductAPI(APIView):
         
         try:
 
+            logger.info("SaveProductAPI: %s", str(request.data)) 
             if request.user.has_perm('WAMSApp.change_product') == False:
                 logger.warning("SaveProductAPI Restricted Access!")
                 response['status'] = 403
@@ -1896,7 +1898,7 @@ class SaveProductAPI(APIView):
             capacity = data.get("capacity","")
             capacity_unit = data.get("capacity_unit","")
             target_age_range = data.get("target_age_range","")
-            user_manual = data.get("user_manual","")
+            user_manual = data.get("user_manual","empty")
 
             weight = 0
             try:
@@ -1934,6 +1936,21 @@ class SaveProductAPI(APIView):
 
             is_cod_allowed = data.get("is_cod_allowed", False)
             is_bundle_product = data.get("is_bundle_product", False)
+            
+            if is_cod_allowed == "false":
+                is_cod_allowed = False
+            elif is_cod_allowed == "true":
+                is_cod_allowed = True
+
+            if is_bundle_product == "false":
+                is_bundle_product = False
+            elif is_bundle_product == "true":
+                is_bundle_product = True
+
+            if is_sap_exception == "false":
+                is_sap_exception = False
+            elif is_sap_exception == "true":
+                is_sap_exception = True
 
             response["variant_price_permission"] = custom_permission_price(request.user, "variant")
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
@@ -1945,7 +1962,8 @@ class SaveProductAPI(APIView):
                 product_obj.max_price = max_price
 
             if user_manual != "":
-                product_obj.user_manual = user_manual
+                if user_manual != "empty":
+                    product_obj.user_manual = user_manual
             else:
                 product_obj.user_manual = None
 
@@ -1991,7 +2009,7 @@ class SaveProductAPI(APIView):
             render_value = 'Product {} is updated'.format(product_obj.base_product.seller_sku)
             activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             
-
+            logger.error("SaveProductAPI: %s",str(product_obj.user_manual))
             product_obj.save()
             response['status'] = 200
 
