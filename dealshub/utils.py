@@ -2222,6 +2222,7 @@ def sha256_encode(string):
 
 def calling_facebook_api(event_name,user,request,custom_data=None):
     try:
+        logger.info("in calling_facebook_api")
         email = sha256_encode(str(user.email))
         first_name = sha256_encode(str(user.first_name))
         last_name = sha256_encode(str(user.last_name))
@@ -2238,8 +2239,6 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         # event_source_url = "https://www.wigme.com"
 
         now_time = int(time.time())
-        logger.info("in calling_facebook_api:- ")
-        logger.info(request.META["HTTP_X_FORWARDED_FOR"])
 
         FacebookAdsApi.init(access_token=access_token)
 
