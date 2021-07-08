@@ -2071,8 +2071,8 @@ def sendex_add_consignment(order_obj, modified_weight):
         sendex_dict["PackageType"] = "Parcel"
         sendex_dict["CurrencyCode"] = order_obj.get_currency()
         sendex_dict["NcndAmount"] = str(float(order_obj.get_sendex_ncnd_amount()))
-        sendex_dict["ItemDescription"] = ""
-        sendex_dict["SpecialInstruction"] = ""
+        sendex_dict["ItemDescription"] = get_sellersku_and_quantity(order_obj)
+        sendex_dict["SpecialInstruction"] = order_obj.additional_note
         sendex_dict["BranchName"] = "Dubai"
         response = get_sendex_api_response(sendex_dict, SENDEX_ADD_CONSIGNMENT_URL)
         order_obj.sendex_request_json = json.dumps(sendex_dict)
