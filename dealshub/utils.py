@@ -2268,6 +2268,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
                     event_name=event_name,
                     event_time=now_time,
                     user_data=user_data,
+                    event_source_url= "https://qa.wigme.com",
                     action_source=ActionSource.WEBSITE,
                     custom_data=custom_data_item,
                 )
