@@ -1790,6 +1790,9 @@ def get_user_input_requirement(order_obj, response):
 
 
 def get_modal_info_list(order_obj, user_input_requirement):
+    '''
+    Returns the list information which will be displayed in the modal
+    '''
     modal_info_list = []
     for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
         seller_sku = unit_order_obj.product.get_seller_sku()
@@ -1863,10 +1866,13 @@ def get_order_information(order_obj, company_code_obj, grouped_unit_orders, resp
             item.update({"price": price})
         order_information["items"] += item_list
     
-    return order_information, is_final_response
+    return order_information, not(is_final_response)
 
 
 def save_unit_order_information(order_obj, order_information, sap_info_render, orig_result_pre):
+    '''
+    Saves the order_information in the unit_order_objs of the order_obj
+    '''
     for item in order_information["items"]:
         temp_dict2 = {}
         temp_dict2["seller_sku"] = item["seller_sku"]
