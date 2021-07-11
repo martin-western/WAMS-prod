@@ -2244,18 +2244,18 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         FacebookAdsApi.init(access_token=access_token)
 
         user_data = UserData(
-            emails=[email],
-            first_names=[first_name],
-            last_names=[last_name],
-            phones=[contact_number],
-            states=[state],
-            cities=[city],
-            zip_codes=[postcode],
-            country_codes=[country],
-            client_user_agent= "$CLIENT_USER_AGENT",
-            fbc= "fb.1.1554763741205.AbCdEfGhIjKlMnOpQrStUvWxYz1234567890",
+            emails=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
+            first_names=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
+            last_names=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
+            phones=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
+            states=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
+            cities=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
+            zip_codes=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
+            country_codes=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
             client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
             fbp= "fb.1.1625138246273.541394957",
+            client_user_agent= "$CLIENT_USER_AGENT",
+            fbc= "fb.1.1554763741205.AbCdEfGhIjKlMnOpQrStUvWxYz1234567890",
         )
 
         events = []
@@ -2287,6 +2287,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             test_event_code="TEST47576",
         )
         event_response = event_request.execute()
+        logger.info("ending calling_facebook_api",event_response)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
