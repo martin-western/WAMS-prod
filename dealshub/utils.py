@@ -2247,7 +2247,6 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             first_names=[first_name],
             last_names=[last_name],
             phones=[contact_number],
-            cities=[],
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
