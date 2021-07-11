@@ -2229,6 +2229,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         address_obj = Address.objects.filter(user=user).first()
         contact_number = sha256_encode(str(address_obj.contact_number))
         state = sha256_encode(str(address_obj.state))
+        city = sha256_encode(str(address_obj.emirates))
         country = sha256_encode(str(address_obj.get_country()))
         postcode = sha256_encode(str(address_obj.postcode))
 
@@ -2248,7 +2249,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             last_names=[last_name],
             phones=[contact_number],
             states=[state],
-            cities=[],
+            cities=[city],
             zip_codes=[postcode],
             country_codes=[country],
             client_user_agent= "$CLIENT_USER_AGENT",
