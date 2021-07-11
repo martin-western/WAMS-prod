@@ -219,7 +219,7 @@ class FetchShippingAddressListAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
 
-            address_objs = Address.objects.filter(type="shipping", is_deleted=False, user=user, location_group__uuid=location_group_uuid)
+            address_objs = Address.objects.filter(type_addr="shipping", is_deleted=False, user=user, location_group__uuid=location_group_uuid)
 
             address_list = []
             for address_obj in address_objs:
@@ -1547,19 +1547,20 @@ class SelectOfflineAddressAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
+            is_b2b = data["is_b2b"]
             shipping_address_uuid = data["shippingAddressUuid"]
-            billing_address_uuid = data["billingAddressUuid"]
-            username = data["username"]
-
             shipping_address_obj = Address.objects.get(uuid=shipping_address_uuid)
-            billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
+            username = data["username"]
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=shipping_address_obj.location_group)
-            
             cart_obj.shipping_address = shipping_address_obj
-            cart_obj.billing_address = billing_address_obj
             cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
             cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
+
+            if is_b2b:
+                billing_address_uuid = data["billingAddressUuid"]
+                billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
+                cart_obj.billing_address = billing_address_obj
             cart_obj.save()
             
             response["status"] = 200
@@ -2942,7 +2943,7 @@ class FetchOrderDetailsAPI(APIView):
                 data = json.loads(data)
 
             order_uuid = data["uuid"]
-
+            is_b2b = data["is_b2b"]
             order_obj = Order.objects.get(uuid=order_uuid)
             voucher_obj = order_obj.voucher
             is_voucher_applied = voucher_obj is not None
@@ -2967,7 +2968,8 @@ class FetchOrderDetailsAPI(APIView):
                 response["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
             response["shippingMethod"] = unit_order_objs[0].shipping_method
             response["shippingAddress"] = self.get_address_dict(order_obj.shipping_address)
-            response["billingAddress"] = self.get_address_dict(order_obj.billing_address)
+            if is_b2b:
+                response["billingAddress"] = self.get_address_dict(order_obj.billing_address)
             unit_order_list = []
             custom_data = []
             for unit_order_obj in unit_order_objs:
@@ -3347,38 +3349,17 @@ class FetchOfflineUserProfileAPI(APIView):
                 return Response(data=response)
 
             username = data["username"]
-
+            is_b2b = data["is_b2b"]
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
 
             response["firstName"] = dealshub_user_obj.first_name
             response["lastName"] = dealshub_user_obj.last_name
             response["emailId"] = dealshub_user_obj.email
             response["contactNumber"] = dealshub_user_obj.contact_number
-
-            address_list = []
-            if Address.objects.filter(user=dealshub_user_obj).exists():
-                address_objs = Address.objects.filter(user=dealshub_user_obj)
-
-                for address_obj in address_objs:
-                    temp_dict = {}
-                    temp_dict['firstName'] = address_obj.first_name
-                    temp_dict['lastName'] = address_obj.last_name
-                    temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
-                    temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
-                    temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
-                    temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
-                    temp_dict['state'] = address_obj.state
-                    temp_dict['emirates'] = address_obj.emirates
-                    temp_dict['country'] = address_obj.get_country()
-                    temp_dict['postcode'] = address_obj.postcode
-                    temp_dict['contactNumber'] = str(address_obj.contact_number)
-                    temp_dict['tag'] = str(address_obj.tag)
-                    temp_dict['uuid'] = str(address_obj.uuid)
-
-                    address_list.append(temp_dict)
-
-            response['addressList'] = address_list
-
+            response['shippingAddressList'] = get_address_list(type_addr="shipping")
+            if is_b2b:
+                response['billingAddressList'] = get_address_list(type_addr="billing")
+                response['primeBillingAddress'] = dealshub_user_obj.prime_billing_address
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

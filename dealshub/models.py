@@ -853,7 +853,7 @@ class Address(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
 
-    type = models.CharField(max_length=64, null=True, blank=True, default="shipping")   # shipping, billing
+    type_addr = models.CharField(max_length=64, null=True, blank=True, default="shipping")   # shipping, billing
 
     objects = AddressManager()
     recovery = AddressRecoveryManager()
@@ -1691,7 +1691,7 @@ class DealsHubUser(User):
     website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
     otp_attempts = models.IntegerField(default=0)
     user_token = models.CharField(default="", max_length=200)
-
+    prime_billing_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.SET_NULL)
     class Meta:
         verbose_name = "DealsHubUser"
         verbose_name_plural = "DealsHubUser"

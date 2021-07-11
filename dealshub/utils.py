@@ -2289,3 +2289,32 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+
+def get_address_list(type_addr=""):
+    '''
+    Returns the shipping/billing address list based upon TYPE_ADDR in ["shipping", "billing"]
+    '''
+    address_list = []
+    if type_addr == "":
+        return address_list
+    address_objs = Address.objects.filter(user=dealshub_user_obj).filter(type_addr=type_addr)
+    if address_objs.exists():
+        for address_obj in address_objs:
+            temp_dict = {}
+            temp_dict['firstName'] = address_obj.first_name
+            temp_dict['lastName'] = address_obj.last_name
+            temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
+            temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
+            temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
+            temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
+            temp_dict['state'] = address_obj.state
+            temp_dict['emirates'] = address_obj.emirates
+            temp_dict['country'] = address_obj.get_country()
+            temp_dict['postcode'] = address_obj.postcode
+            temp_dict['contactNumber'] = str(address_obj.contact_number)
+            temp_dict['tag'] = str(address_obj.tag)
+            temp_dict['uuid'] = str(address_obj.uuid)
+
+            address_list.append(temp_dict)
+    return address_list
