@@ -9484,6 +9484,11 @@ class PlaceOnlineOrderAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
             is_fast_cart = data.get("is_fast_cart", False)
+            
+            if is_fast_cart == "false":
+                is_fast_cart = False
+            elif is_fast_cart == "true":
+                is_fast_cart = True
 
             online_payment_mode = data.get("online_payment_mode","card")
             
