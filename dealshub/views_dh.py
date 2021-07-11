@@ -258,7 +258,7 @@ class FetchShippingAddressListAPI(APIView):
         return Response(data=response)
 
 #API with activity log
-class EditShippingAddressAPI(APIView):
+class EditAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -306,7 +306,7 @@ class EditShippingAddressAPI(APIView):
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
 
-            render_value =  "Shipping Address updated offline for " + address_obj.user.username
+            render_value = address_obj.type_addr + " Address updated offline for " + address_obj.user.username
             activitylog(request.user, Address, "updated", address_obj.uuid, prev_address_obj, address_obj, address_obj.location_group, render_value)
             response['status'] = 200
 
@@ -10368,7 +10368,7 @@ class FetchSEODataAPI(APIView):
 
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
-EditShippingAddress = EditShippingAddressAPI.as_view()
+EditAddress = EditAddressAPI.as_view()
 
 CreateShippingAddress = CreateShippingAddressAPI.as_view()
 
