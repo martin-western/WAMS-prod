@@ -2280,7 +2280,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         event_request = EventRequest(
             events=events,
             pixel_id=pixel_id,
-            test_event_code="TEST16315",
+            test_event_code="TEST47576",
         )
         event_response = event_request.execute()
 
