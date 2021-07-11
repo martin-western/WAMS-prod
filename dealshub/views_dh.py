@@ -440,6 +440,67 @@ class CreateOfflineShippingAddressAPI(APIView):
 
         return Response(data=response)
 
+class CreateOfflineBillingAddressAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateOfflineBillingAddressAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            username = data["username"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            if DealsHubUser.objects.filter(username=username).exists():
+
+                dealshub_user_obj = DealsHubUser.objects.get(username=username)
+                first_name = str(dealshub_user_obj.first_name)
+                last_name = str(dealshub_user_obj.last_name)
+                line1 = data["line1"]
+                line2 = data["line2"]
+                line3 = data["line3"]
+                line4 = data["line4"]
+                address_lines = json.dumps([line1, line2, line3, line4])
+                state = data["state"]
+                postcode = data["postcode"]
+                emirates = data.get("emirates", "")
+                if postcode==None:
+                    postcode = ""
+                contact_number = dealshub_user_obj.contact_number
+                tag = data.get("tag", "")
+                if tag==None:
+                    tag = ""
+
+                billing_address_obj = Address.objects.create(user=dealshub_user_obj,
+                                                    first_name=first_name,
+                                                    last_name=last_name, 
+                                                    address_lines=address_lines, 
+                                                    state=state, 
+                                                    postcode=postcode, 
+                                                    contact_number=contact_number, 
+                                                    tag=tag, 
+                                                    location_group=location_group_obj, 
+                                                    emirates=emirates, 
+                                                    type_addr="billing")
+
+                response["uuid"] = billing_address_obj.uuid
+
+                render_value = "New Offline Billing Address created for " + username
+                activitylog(request.user, Address, "created", billing_address_obj.uuid, None, billing_address_obj, location_group_obj, render_value)
+                response['status'] = 200
+            else:
+                response["status"] = 409
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOfflineBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
 
 class DeleteShippingAddressAPI(APIView):
 
@@ -10312,6 +10373,8 @@ EditShippingAddress = EditShippingAddressAPI.as_view()
 CreateShippingAddress = CreateShippingAddressAPI.as_view()
 
 CreateOfflineShippingAddress = CreateOfflineShippingAddressAPI.as_view()
+
+CreateOfflineBillingAddress = CreateOfflineBillingAddressAPI.as_view()
 
 DeleteShippingAddress = DeleteShippingAddressAPI.as_view()
 

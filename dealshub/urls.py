@@ -92,6 +92,7 @@ urlpatterns = [
     url(r'^address/edit-shipping-address/$', views.EditShippingAddress),
     url(r'^address/create-shipping-address/$', views.CreateShippingAddress),
     url(r'^address/create-offline-shipping-address/$', views.CreateOfflineShippingAddress),
+    url(r'^address/create-offline-billing-address/$', views.CreateOfflineBillingAddress),
     url(r'^address/delete-shipping-address/$', views.DeleteShippingAddress),
 
     url(r'^cart/add-to-cart/$', views.AddToCart),
