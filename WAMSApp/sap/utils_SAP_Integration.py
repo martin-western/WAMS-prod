@@ -171,7 +171,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
 
         result["atp_threshold"] = atp_threshold
         result["holding_threshold"] = holding_threshold
-        logger.info("price and stock result : %s",str(json.dumps(result)))
+        # logger.info("price and stock result : %s",str(json.dumps(result)))
         
         result["status"] = 200
         result["message"] = "Success"
