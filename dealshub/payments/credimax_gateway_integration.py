@@ -99,7 +99,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 "order":{
                     "id": str(order_id),
                     "amount": amount,
-                    "currency": "BHD",
+                    "currency": currency,
                 },
             }
 
@@ -122,14 +122,15 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 "sessionId":session_id,
                 "success_indicator":success_indicator,
                 "order": { 
-                    "currency": "BHD", 
+                    "currency": currency, 
                     "amount": amount,
                     "id": order_id,
                 },
                 "billing": {
                     "address": {
-                        "street": address_lines[0] + "\n"+ address_lines[1] + "\n"+address_lines[2] + "\n",
-                        "street2":address_lines[3] + "\n"+ neighbourhood + "\n"+emirates + "\n",
+                        "street": address_lines[0] + "\n" + address_lines[1] + "\n",
+                        "street2":address_lines[2] + "\n" + address_lines[3] + "\n",
+                        "city":emirates,
                         "postcodeZip":postcode,
                         "country_code": country_code,
                     },
