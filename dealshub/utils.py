@@ -2239,7 +2239,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
 
         now_time = int(time.time())
         logger.info("in calling_facebook_api:- ")
-        logger.info(request)
+        logger.info(request.__dict__)
 
         FacebookAdsApi.init(access_token=access_token)
 
