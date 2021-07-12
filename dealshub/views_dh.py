@@ -1714,8 +1714,8 @@ class FetchActiveOrderDetailsAPI(APIView):
 
             update_cart_bill(cart_obj)
             
-            if cart_obj.shipping_address==None and Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj).count()>0:
-                cart_obj.shipping_address = Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj)[0]
+            if cart_obj.shipping_address==None and Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj, type_addr="shipping").count()>0:
+                cart_obj.shipping_address = Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj, type_addr="shipping")[0]
                 cart_obj.save()
 
             address_obj = cart_obj.shipping_address
@@ -1835,7 +1835,7 @@ class PlaceOrderRequestAPI(APIView):
 
                 try:
                     if cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         cart_obj.shipping_address = address_obj
                         cart_obj.save()
                 except Exception as e:
@@ -1889,7 +1889,7 @@ class PlaceOrderRequestAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -2288,7 +2288,7 @@ class PlaceOrderAPI(APIView):
 
                 try:
                     if cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         cart_obj.shipping_address = address_obj
                         cart_obj.save()
                 except Exception as e:
@@ -2314,6 +2314,7 @@ class PlaceOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
+                                                 billing_address=cart_obj.billing_address,
                                                  to_pay=cart_obj.to_pay,
                                                  real_to_pay=cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
@@ -2364,7 +2365,7 @@ class PlaceOrderAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -3423,9 +3424,9 @@ class FetchOfflineUserProfileAPI(APIView):
             response["lastName"] = dealshub_user_obj.last_name
             response["emailId"] = dealshub_user_obj.email
             response["contactNumber"] = dealshub_user_obj.contact_number
-            response['shippingAddressList'] = get_address_list(type_addr="shipping")
+            response['shippingAddressList'] = get_address_list(dealshub_user_obj, type_addr="shipping")
             if is_b2b:
-                response['billingAddressList'] = get_address_list(type_addr="billing")
+                response['billingAddressList'] = get_address_list(dealshub_user_obj, type_addr="billing")
                 response['primeBillingAddress'] = dealshub_user_obj.prime_billing_address
             response["status"] = 200
         except Exception as e:
@@ -4356,7 +4357,7 @@ class PaymentTransactionAPI(APIView):
 
                     try:
                         if cart_obj.shipping_address==None:
-                            address_obj = Address.objects.filter(user=cart_obj.owner)[0]
+                            address_obj = Address.objects.filter(user=cart_obj.owner, type_addr="shipping")[0]
                             cart_obj.shipping_address = address_obj
                             cart_obj.save()
                     except Exception as e:
@@ -4429,7 +4430,7 @@ class PaymentTransactionAPI(APIView):
 
                     try:
                         if fast_cart_obj.shipping_address==None:
-                            address_obj = Address.objects.filter(user=fast_cart_obj.owner)[0]
+                            address_obj = Address.objects.filter(user=fast_cart_obj.owner, type_addr="shipping")[0]
                             fast_cart_obj.shipping_address = address_obj
                             fast_cart_obj.save()
                     except Exception as e:
@@ -9406,7 +9407,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -9629,7 +9630,7 @@ class PlaceOnlineOrderAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:

@@ -2291,7 +2291,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))
 
 
-def get_address_list(type_addr=""):
+def get_address_list(dealshub_user_obj, type_addr=""):
     '''
     Returns the shipping/billing address list based upon TYPE_ADDR in ["shipping", "billing"]
     '''
