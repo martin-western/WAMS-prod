@@ -577,7 +577,7 @@ class AddToCartAPI(APIView):
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
-                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    contents=[Content(product_id="PLBT9957D", quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
                 calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
