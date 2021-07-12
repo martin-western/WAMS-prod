@@ -2285,7 +2285,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             test_event_code="TEST16315",
         )
         event_response = event_request.execute()
-        logger.info(event_request)
+        logger.info(event_response)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
