@@ -1624,6 +1624,8 @@ class SelectOfflineAddressAPI(APIView):
                 billing_address_uuid = data["billingAddressUuid"]
                 billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
                 cart_obj.billing_address = billing_address_obj
+                dealshub_user_obj.prime_billing_address = billing_address_obj
+                dealshub_user_obj.save()
             cart_obj.save()
             
             response["status"] = 200
