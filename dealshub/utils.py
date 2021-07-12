@@ -2252,7 +2252,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
-            client_ip_address=str(request.META["HTTP_X_FORWARDED_FOR"]),
+            client_ip_address=('"' + str(request.META["HTTP_X_FORWARDED_FOR"]) + '"'),
             fbp= "fb.1.1625138246273.541394957",
         )
 
