@@ -2222,6 +2222,7 @@ def sha256_encode(string):
 
 def calling_facebook_api(event_name,user,request,custom_data=None):
     try:
+        from ipware import get_client_ip
         email = sha256_encode(str(user.email))
         first_name = sha256_encode(str(user.first_name))
         last_name = sha256_encode(str(user.last_name))
@@ -2239,7 +2240,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
 
         now_time = int(time.time())
         logger.info("in calling_facebook_api:- ")
-        logger.info(request.META)
+        logger.info(get_client_ip(request, request_header_order=['X_FORWARDED_FOR', 'REMOTE_ADDR']))
 
         FacebookAdsApi.init(access_token=access_token)
 
@@ -2252,7 +2253,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
-            client_ip_address=request.META["HTTP_X_REAL_IP"],
+            client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
             fbp= "fb.1.1625138246273.541394957",
         )
 
