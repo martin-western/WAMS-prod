@@ -1568,29 +1568,25 @@ class SelectAddressAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            shipping_address_uuid = data["shippingAddressUuid"]
-            billing_address_uuid = data["billingAddressUuid"]
+            address_uuid = data["addressUuid"]
 
-            shipping_address_obj = Address.objects.get(uuid=shipping_address_uuid)
-            billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
+            address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
 
             if data.get("is_fast_cart", False)==True:
-                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=shipping_address_obj.location_group)
-                fast_cart_obj.shipping_address = shipping_address_obj
-                fast_cart_obj.billing_address = billing_address_obj
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+                fast_cart_obj.shipping_address = address_obj
                 fast_cart_obj.save()
             else:
-                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=shipping_address_obj.location_group)
-                cart_obj.shipping_address = shipping_address_obj
-                cart_obj.billing_address = billing_address_obj
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+                cart_obj.shipping_address = address_obj
                 cart_obj.save()
 
             response["status"] = 200
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,custom_data=None)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SelectAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
