@@ -2252,6 +2252,8 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
+            client_user_agent= "$CLIENT_USER_AGENT",
+            fbc= "fb.1.1554763741205.AbCdEfGhIjKlMnOpQrStUvWxYz1234567890",
             client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
             fbp= "fb.1.1625138246273.541394957",
         )
