@@ -508,7 +508,7 @@ class CreateOfflineBillingAddressAPI(APIView):
 
         return Response(data=response)
 
-class DeleteShippingAddressAPI(APIView):
+class DeleteAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -518,7 +518,7 @@ class DeleteShippingAddressAPI(APIView):
         try:
 
             data = request.data
-            logger.info("DeleteShippingAddressAPI: %s", str(data))
+            logger.info("DeleteAddressAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -532,6 +532,10 @@ class DeleteShippingAddressAPI(APIView):
                 cart_obj.shipping_address = None
                 cart_obj.save()
 
+            if cart_obj.billing_address != None and cart_obj.billing_address.pk == address_obj.pk:
+                cart_obj.billing_address = None
+                cart_obj.save()
+
             address_obj.is_deleted = True
             address_obj.save()
 
@@ -541,11 +545,11 @@ class DeleteShippingAddressAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("DeleteShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("DeleteAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DeleteAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -10381,7 +10385,7 @@ CreateOfflineShippingAddress = CreateOfflineShippingAddressAPI.as_view()
 
 CreateOfflineBillingAddress = CreateOfflineBillingAddressAPI.as_view()
 
-DeleteShippingAddress = DeleteShippingAddressAPI.as_view()
+DeleteAddress = DeleteAddressAPI.as_view()
 
 AddToCart = AddToCartAPI.as_view()
 
