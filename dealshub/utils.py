@@ -2244,27 +2244,19 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         FacebookAdsApi.init(access_token=access_token)
 
         user_data = UserData(
-            emails=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            first_names=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            last_names=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            phones=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            states=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            cities=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            zip_codes=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            country_codes=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
+            emails=[email],
+            first_names=[first_name],
+            last_names=[last_name],
+            phones=[contact_number],
+            cities=[],
+            states=[state],
+            zip_codes=[postcode],
+            country_codes=[country],
             client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
             fbp= "fb.1.1625138246273.541394957",
         )
 
         events = []
-        # event = Event(
-        #     event_name=event_name,
-        #     event_time=now_time,
-        #     user_data=user_data,
-        #     event_source_url= event_source_url,
-        #     action_source=ActionSource.WEBSITE,
-        # )
-        # events = [event]
         if custom_data == None:
             event = Event(
                 event_name=event_name,
