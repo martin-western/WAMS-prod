@@ -495,6 +495,12 @@ class CreateOfflineBillingAddressAPI(APIView):
                 response['status'] = 200
             else:
                 response["status"] = 409
+            
+            try:
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("CreateOfflineBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
