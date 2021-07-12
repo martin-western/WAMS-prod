@@ -2252,8 +2252,8 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
-            client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
-            fbp= "fb.1.1625138246273.541394989",
+            client_ip_address="",
+            fbp= "fb.1.1625138246273.541394957",
         )
 
         events = []
@@ -2285,6 +2285,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             test_event_code="TEST16315",
         )
         event_response = event_request.execute()
+        logger.info(event_request)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
