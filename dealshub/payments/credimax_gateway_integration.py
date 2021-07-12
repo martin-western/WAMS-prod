@@ -120,7 +120,6 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 fast_cart_obj.save()
             response["transactionData"] = {
                 "sessionId":session_id,
-                "success_indicator":success_indicator,
                 "order": { 
                     "currency": currency, 
                     "amount": amount,
