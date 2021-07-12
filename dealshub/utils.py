@@ -2237,8 +2237,8 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
 
         now_time = int(time.time())
         logger.info("in calling_facebook_api:- ")
-        x_forwarded_for = request.META["HTTP_X_FORWARDED_FOR"]
-        logger.info(request.META)
+        # x_forwarded_for = request.META["HTTP_X_FORWARDED_FOR"]
+        # logger.info(request.META)
 
         FacebookAdsApi.init(access_token=access_token)
 
