@@ -2222,14 +2222,12 @@ def sha256_encode(string):
 
 def calling_facebook_api(event_name,user,request,custom_data=None):
     try:
-        logger.info("in calling_facebook_api")
         email = sha256_encode(str(user.email))
         first_name = sha256_encode(str(user.first_name))
         last_name = sha256_encode(str(user.last_name))
         address_obj = Address.objects.filter(user=user).first()
         contact_number = sha256_encode(str(address_obj.contact_number))
         state = sha256_encode(str(address_obj.state))
-        city = sha256_encode(str(address_obj.emirates))
         country = sha256_encode(str(address_obj.get_country()))
         postcode = sha256_encode(str(address_obj.postcode))
 
@@ -2240,6 +2238,8 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         # event_source_url = "https://www.wigme.com"
 
         now_time = int(time.time())
+        logger.info("in calling_facebook_api:- ")
+        logger.info(request.META["HTTP_X_FORWARDED_FOR"])
 
         FacebookAdsApi.init(access_token=access_token)
 
@@ -2252,8 +2252,6 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
-            client_user_agent= "$CLIENT_USER_AGENT",
-            fbc= "fb.1.1554763741205.AbCdEfGhIjKlMnOpQrStUvWxYz1234567890",
             client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
             fbp= "fb.1.1625138246273.541394957",
         )
@@ -2284,11 +2282,9 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         event_request = EventRequest(
             events=events,
             pixel_id=pixel_id,
-            test_event_code="TEST63889",
+            test_event_code="TEST16315",
         )
         event_response = event_request.execute()
-        logger.info("ending calling_facebook_api")
-        logger.info(event_response)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
