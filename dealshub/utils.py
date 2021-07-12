@@ -2259,35 +2259,35 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         )
 
         events = []
-        event = Event(
-            event_name=event_name,
-            event_time=now_time,
-            user_data=user_data,
-            event_source_url= event_source_url,
-            action_source=ActionSource.WEBSITE,
-        )
-        events = [event]
-        # if custom_data == None:
-            # event = Event(
-            #     event_name=event_name,
-            #     event_time=now_time,
-            #     user_data=user_data,
-            #     event_source_url= event_source_url,
-            #     action_source=ActionSource.WEBSITE,
-            # )
-            # events = [event]
+        # event = Event(
+        #     event_name=event_name,
+        #     event_time=now_time,
+        #     user_data=user_data,
+        #     event_source_url= event_source_url,
+        #     action_source=ActionSource.WEBSITE,
+        # )
+        # events = [event]
+        if custom_data == None:
+            event = Event(
+                event_name=event_name,
+                event_time=now_time,
+                user_data=user_data,
+                event_source_url= event_source_url,
+                action_source=ActionSource.WEBSITE,
+            )
+            events = [event]
 
-        # else:
-        #     for custom_data_item in custom_data:
-        #         event = Event(
-        #             event_name=event_name,
-        #             event_time=now_time,
-        #             user_data=user_data,
-        #             event_source_url= event_source_url, 
-        #             action_source=ActionSource.WEBSITE,
-        #             custom_data=custom_data_item,
-        #         )
-        #         events.append(event)
+        else:
+            for custom_data_item in custom_data:
+                event = Event(
+                    event_name=event_name,
+                    event_time=now_time,
+                    user_data=user_data,
+                    event_source_url= event_source_url, 
+                    action_source=ActionSource.WEBSITE,
+                    custom_data=custom_data_item,
+                )
+                events.append(event)
     
         event_request = EventRequest(
             events=events,
