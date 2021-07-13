@@ -284,7 +284,7 @@ class Image(models.Model):
                     thumb.save(thumb_io, im_type)
                     thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
                     self.optimal_image = thumb_file
-                    logger.info(self.optimal_image)            
+                    logger.info(self.optimal_image.url)            
                         
             if self.thumbnail == None:
                 size = 128, 128
