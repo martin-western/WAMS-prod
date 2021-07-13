@@ -337,7 +337,7 @@ class Image(models.Model):
                 if format_name.lower()=="gif":
                     self.webp_image = self.image
                 else:
-                    thumb.thumbnail((1500, 1500))
+                    thumb.thumbnail((150, 150))
                     thumb = thumb.convert('RGB')
                     thumb_io = BytesIO()
                     thumb = rotate_image(thumb)
