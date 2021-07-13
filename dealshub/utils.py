@@ -2004,7 +2004,7 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
                     if resolution=="low":
                         temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
                     else:
-                        if unit_banner_image_obj.hovering_banner_image.optimal_image:  
+                        if unit_banner_image_obj.hovering_banner_image.optimal_image!=None:  
                             temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.optimal_image.url
                         else:
                             temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
