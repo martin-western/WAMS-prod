@@ -3899,7 +3899,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
         return Response(data=response)
 
 
-class FetchSectionProductDetail(APIView):
+class FetchSectionDetail(APIView):
     
     def post(self, request, *args, **kwargs):
 
@@ -3908,7 +3908,7 @@ class FetchSectionProductDetail(APIView):
         try:
             data = request.data
             language_code = data.get("language","en")
-            logger.info("SaveDealshubAdminSectionsOrderAPI: %s", str(data))
+            logger.info("FetchSectionDetail: %s", str(data))
             limit = data.get("limit", False)
             is_dealshub = data.get("isDealshub", False)
             location_group_uuid = data["locationGroupUuid"]
@@ -3951,7 +3951,7 @@ class FetchSectionProductDetail(APIView):
             response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchSectionDetail: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
