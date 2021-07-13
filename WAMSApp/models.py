@@ -271,7 +271,7 @@ class Image(models.Model):
 
             if self.optimal_image == None:
                 size_image = get_image_dimensions(self.image)
-                size = 1500,1500
+                size = 150,150
                 if size_image <= size:
                     self.optimal_image = None
                 else:
