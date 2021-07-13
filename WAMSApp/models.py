@@ -282,6 +282,7 @@ class Image(models.Model):
                     thumb_io = BytesIO()
                     thumb = rotate_image(thumb)
                     thumb.save(thumb_io, im_type)
+                    logger.info(size_image)
 
                     thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
                     self.optimal_image = thumb_file             
