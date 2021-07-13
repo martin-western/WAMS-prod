@@ -94,7 +94,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 "apiOperation": "CREATE_CHECKOUT_SESSION",
                 "interaction":{
                     "operation": "AUTHORIZE",
-                    "returnUrl": "http://bahrain.wigme.com/transaction-processing/",
+                    "returnUrl": "https://qakrypton.omnycomm.com/transaction-processing/",
                 },
                 "order":{
                     "id": str(order_id),
@@ -120,6 +120,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 fast_cart_obj.save()
             response["transactionData"] = {
                 "sessionId":session_id,
+                "success_indicator":success_indicator,
                 "order": { 
                     "currency": currency, 
                     "amount": amount,
