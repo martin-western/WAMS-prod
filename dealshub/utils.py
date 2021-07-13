@@ -1769,6 +1769,32 @@ def send_b2b_user_status_change_mail(b2b_user_obj):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_b2b_user_status_change_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
+def get_section_product_listing_details(is_dealshub, language_code,section_objs):
+    dealshub_admin_sections = []
+    for section_obj in section_objs:
+        custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+        if is_dealshub==True and custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0).exists()==False:
+            continue
+        temp_dict = {}
+        temp_dict["name"] = str(section_obj.get_name(language_code))
+        temp_dict["isPublished"] = section_obj.is_published
+        temp_dict["type"] = "ProductListing"
+        temp_dict["uuid"] = str(section_obj.uuid)
+        dealshub_admin_sections.append(temp_dict)
+    return dealshub_admin_sections 
+
+
+def get_banner_type(banner_objs):
+    dealshub_admin_sections = []
+    for banner_obj in banner_objs:
+        temp_dict = {}
+        temp_dict["uuid"] = banner_obj.uuid
+        temp_dict["name"] = banner_obj.name
+        temp_dict["type"] = "Banner"
+        temp_dict["isPublished"] = banner_obj.is_published
+        temp_dict["bannerType"] = banner_obj.banner_type.name
+        dealshub_admin_sections.append(temp_dict)
+    return dealshub_admin_sections 
 
 # utility method for FetchDealshubAdminSectionsAPI
 def get_section_products(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs):

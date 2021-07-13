@@ -3808,13 +3808,13 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 section_objs = valid_section_objs
                                 
             dealshub_admin_sections = []
-            section_products_list = get_section_products(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs)
+            section_products_list = get_section_product_listing_details(is_dealshub, language_code,section_objs)
             banner_objs = Banner.objects.filter(location_group__uuid=location_group_uuid, parent=parent_banner_obj).order_by('order_index')
 
             if is_dealshub==True:
                 banner_objs = banner_objs.filter(is_published=True)
             
-            banner_image_objs_list = get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs)
+            banner_image_objs_list = get_banner_type(banner_objs)
             dealshub_admin_sections += section_products_list
             dealshub_admin_sections += banner_image_objs_list
             dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: int(i["orderIndex"]))
@@ -3898,6 +3898,62 @@ class FetchDealshubAdminSectionsAPI(APIView):
         
         return Response(data=response)
 
+
+class FetchSectionProductDetail(APIView):
+    
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            language_code = data.get("language","en")
+            logger.info("SaveDealshubAdminSectionsOrderAPI: %s", str(data))
+            limit = data.get("limit", False)
+            is_dealshub = data.get("isDealshub", False)
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            section_uuid = data["SectionUuid"]
+            banner_uuid = data["BannerUuid"]
+            parent_banner_uuid = data.get("parent_banner_uuid","")
+            parent_banner_obj = None
+            if parent_banner_uuid!="":
+                parent_banner_obj = Banner.objects.get(uuid=parent_banner_uuid)
+
+            resolution = data.get("resolution", "low")
+            section_objs = Section.objects.get(uuid = section_uuid)
+
+            if is_dealshub==True:
+                section_objs = section_objs.filter(is_published=True)
+                valid_section_objs = Section.objects.none()
+                for section_obj in section_objs:
+                    promotion_obj = section_obj.promotion
+                    if promotion_obj is not None:
+                        if check_valid_promotion(promotion_obj):
+                            valid_section_objs |= Section.objects.filter(pk=section_obj.pk)
+                    else:
+                        valid_section_objs |= Section.objects.filter(pk=section_obj.pk)
+                section_objs = valid_section_objs
+                                
+            dealshub_admin_sections = []
+            section_products_list = get_section_products(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs)
+            banner_objs = Banner.objects.get(uuid = banner_uuid)
+
+            if is_dealshub==True:
+                banner_objs = banner_objs.filter(is_published=True)
+            
+            banner_image_objs_list = get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs)
+            dealshub_admin_sections += section_products_list
+            dealshub_admin_sections += banner_image_objs_list
+            dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: int(i["orderIndex"]))
+            
+            response["sections_list"] = dealshub_admin_sections
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
 
 #API with active log
 class SaveDealshubAdminSectionsOrderAPI(APIView):
