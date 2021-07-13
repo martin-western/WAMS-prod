@@ -1129,27 +1129,21 @@ def contact_us_send_email(your_email, message, to_email, password):
 
 
 def notify_low_stock(dealshub_product_obj):
-    try:
-        custom_permission_objs = CustomPermission.objects.filter(location_groups__in=[dealshub_product_obj.location_group])
-        for custom_permission_obj in custom_permission_objs:
-            try:
-                body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
-
-                with get_connection(
-                    host="smtp.gmail.com",
-                    port=587, 
-                    username="nisarg@omnycomm.com", 
-                    password="verjtzgeqareribg",
-                    use_tls=True) as connection:
-                    email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
-                                         body=body,
-                                         from_email='nisarg@omnycomm.com',
-                                         to=[custom_permission_obj.user.email],
-                                         connection=connection)
-                    email.send(fail_silently=True)
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("notify_low_stock: %s at %s", e, str(exc_tb.tb_lineno))        
+    try:   
+        body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username="nisarg@omnycomm.com", 
+            password="verjtzgeqareribg",
+            use_tls=True) as connection:
+            email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
+                                    body=body,
+                                    from_email='nisarg@omnycomm.com',
+                                    to=["wigme@westernint.com","hari.pk@westernint.com","support@westernint.com","rikas.k@westernint.com"],
+                                    connection=connection)
+            email.send(fail_silently=True)
+         
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("notify_low_stock: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1159,8 +1153,9 @@ def notify_grn_error(order_obj):
     try:
         custom_permission_objs = CustomPermission.objects.filter(location_groups__in=[order_obj.location_group])
         email_list = []
+        email_record_names = ["support@westernint.com","wigme@westernint.com","hari.pk@westernint.com","rikas.k@westernint.com"]
         for custom_permission_obj in custom_permission_objs:
-            if custom_permission_obj.user.email!="":
+            if custom_permission_obj.user.email in email_record_names:
                 email_list.append(custom_permission_obj.user.email)
         try:
             body = "This is to inform you that order number "+order_obj.bundleid+" has GRN error. Kindly check on Omnycomm and take appropriate action."
@@ -1189,8 +1184,10 @@ def notify_new_products_email(filepath, location_group_obj):
         location_group_name = location_group_obj.name
         user_objs = CustomPermission.objects.filter(location_groups__pk = location_group_obj.pk)
         email_list = []
+        email_record_names = ["hari.pk@westernint.com","rikas.k@westernint.com","rashid.c@westernint.com","wigme.dm@westernint.com","arsal.k@westernint.com","support@westernint.com",]
         for user_obj in user_objs:
-            email_list.append(user_obj.user.email)
+            if user_obj.user.email in email_record_names:
+                email_list.append(user_obj.user.email)
         try:
             body = "Please find the attached sheet for new products published on " + location_group_name + "."
             subject = "Notification for new products created on " + location_group_name
@@ -1934,16 +1931,28 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
                             else:
                                 temp_dict2["url-ar"] = ""
                         else:
-                            temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
-                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                            if unit_banner_image_obj.image.optimal_image!=None:
+                                temp_dict2["url-jpg"] = unit_banner_image_obj.image.optimal_image.url
+                                temp_dict2["url"] = unit_banner_image_obj.image.optimal_image.url
+                            else:
+                                temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["url"] = unit_banner_image_obj.image.image.url
                             temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
                             if unit_banner_image_obj.image_ar!=None:
-                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
+                                if unit_banner_image_obj.image.optimal_image!=None:
+                                    temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.optimal_image.url
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.optimal_image.url
+                                else:
+                                    temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
                                 temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
                             else:
-                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
+                                if unit_banner_image_obj.image.optimal_image!=None:
+                                    temp_dict2["url-jpg"] = unit_banner_image_obj.image.optimal_image.url
+                                    temp_dict2["url"] = unit_banner_image_obj.image.optimal_image.url
+                                else:
+                                    temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
+                                    temp_dict2["url"] = unit_banner_image_obj.image.image.url
                                 temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1960,16 +1969,28 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
                             else:
                                 temp_dict2["mobileUrl-ar"] = ""
                         else:
-                            temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
-                            temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+                            if unit_banner_image_obj.mobile_image.optimal_image!=None:
+                                temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.optimal_image.url
+                                temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.optimal_image.url
+                            else:
+                                temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
+                                temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
                             temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
                             if unit_banner_image_obj.mobile_image_ar!=None:
-                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                if unit_banner_image_obj.mobile_image_ar.optimal_image!=None:   
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.optimal_image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.optimal_image.url
+                                else:
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
                                 temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
                             else:
-                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                if unit_banner_image_obj.mobile_image.optimal_image!=None:
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.optimal_image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.optimal_image.url
+                                else:
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
                                 temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image.webp_image.url
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1981,7 +2002,10 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
                     if resolution=="low":
                         temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
                     else:
-                        temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
+                        if unit_banner_image_obj.hovering_banner_image.optimal_image!=None:  
+                            temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.optimal_image.url
+                        else:
+                            temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
                 else:
                     temp_dict2["hoveringBannerUrl"] = ""
                     temp_dict2["hoveringBannerUuid"] = ""
@@ -2222,7 +2246,6 @@ def sha256_encode(string):
 
 def calling_facebook_api(event_name,user,request,custom_data=None):
     try:
-        logger.info("in calling_facebook_api")
         email = sha256_encode(str(user.email))
         first_name = sha256_encode(str(user.first_name))
         last_name = sha256_encode(str(user.last_name))
@@ -2234,11 +2257,12 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
 
         access_token = "EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG"
         pixel_id = '501666847923989'
-        event_source_url = "https://qa.wigme.com"
-        #prod
-        # event_source_url = "https://www.wigme.com"
+        event_source_url = "https://www.wigme.com"
 
         now_time = int(time.time())
+        logger.info("in calling_facebook_api:- ")
+        # x_forwarded_for = request.META["HTTP_X_FORWARDED_FOR"]
+        # logger.info(request.META)
 
         FacebookAdsApi.init(access_token=access_token)
 
@@ -2252,6 +2276,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             zip_codes=[postcode],
             country_codes=[country],
             client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
+            client_user_agent=request.META["HTTP_USER_AGENT"],
             fbp= "fb.1.1625138246273.541394957",
         )
 
@@ -2281,9 +2306,10 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         event_request = EventRequest(
             events=events,
             pixel_id=pixel_id,
-            test_event_code="TEST16315",
+            test_event_code="TEST63889",
         )
         event_response = event_request.execute()
+        logger.info(event_response)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
