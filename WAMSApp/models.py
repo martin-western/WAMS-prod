@@ -7,6 +7,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.core.cache import cache
+from django.core.files.images import get_image_dimensions
 
 from PIL import Image as IMAGE
 from PIL import ExifTags
@@ -221,6 +222,7 @@ class Image(models.Model):
 
     description = models.TextField(null=True, blank=True)
     image = models.ImageField(upload_to='')
+    optimal_image = models.ImageField(upload_to = 'optimal_image',null=True, blank=True)
     thumbnail = models.ImageField(upload_to='thumbnails', null=True, blank=True)
     small_image = models.ImageField(upload_to='small_image', null=True, blank=True)
     mid_image = models.ImageField(upload_to='midsize', null=True, blank=True)
@@ -267,8 +269,23 @@ class Image(models.Model):
                 except Exception as e:
                     return image
 
-             
-                      
+            if self.optimal_image == None:
+                size_image = get_image_dimensions(self.image)
+                size = 1500,1500
+                if size_image <= size:
+                    self.optimal_image = None
+                else:
+                    thumb = IMAGE.open(self.image)
+                    infile = self.image.file.name
+                    im_type = thumb.format
+                    thumb.thumbnail(size)
+                    thumb_io = BytesIO()
+                    thumb = rotate_image(thumb)
+                    thumb.save(thumb_io, im_type)
+
+                    thumb_file = InMemoryUploadedFile(thumb_io, None, infile, 'image/'+im_type, thumb_io.getbuffer().nbytes, None)
+                    self.optimal_image = thumb_file             
+                        
             if self.thumbnail == None:
                 size = 128, 128
                 thumb = IMAGE.open(self.image)
