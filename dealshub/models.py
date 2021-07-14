@@ -959,7 +959,7 @@ class Cart(models.Model):
 
         self.modified_date = timezone.now()
         if self.billing_address != None:
-            self.billing_address.type = "billing"
+            self.billing_address.type_addr = "billing"
             self.billing_address.save()
         super(Cart, self).save(*args, **kwargs)
 
