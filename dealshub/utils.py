@@ -2298,7 +2298,7 @@ def get_address_list(dealshub_user_obj, type_addr=""):
     address_list = []
     if type_addr == "":
         return address_list
-    address_objs = Address.objects.filter(user=dealshub_user_obj).filter(type_addr=type_addr)
+    address_objs = Address.objects.filter(user=dealshub_user_obj,type_addr=type_addr)
     if address_objs.exists():
         for address_obj in address_objs:
             temp_dict = {}
