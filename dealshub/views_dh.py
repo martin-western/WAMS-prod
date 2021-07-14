@@ -3055,9 +3055,9 @@ class FetchOrderDetailsAPI(APIView):
                 response["voucherCode"] = voucher_obj.voucher_code
                 response["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
             response["shippingMethod"] = unit_order_objs[0].shipping_method
-            response["shippingAddress"] = self.get_address_dict(order_obj.shipping_address)
+            response["shippingAddress"] = get_address_dict(order_obj.shipping_address)
             if is_b2b:
-                response["billingAddress"] = self.get_address_dict(order_obj.billing_address)
+                response["billingAddress"] = get_address_dict(order_obj.billing_address)
             unit_order_list = []
             custom_data = []
             for unit_order_obj in unit_order_objs:
@@ -3132,28 +3132,6 @@ class FetchOrderDetailsAPI(APIView):
         
         return Response(data=response)
 
-    def get_address_dict(self, address_obj):
-        '''
-        Returns the address information in a dict format
-        '''
-        if address_obj == None:
-            return {}
-        else:
-            return {
-                "firstName": address_obj.first_name,
-                "lastName": address_obj.last_name,
-                "line1": json.loads(address_obj.address_lines)[0],
-                "line2": json.loads(address_obj.address_lines)[1],
-                "line3": json.loads(address_obj.address_lines)[2],
-                "line4": json.loads(address_obj.address_lines)[3],
-                "emirates": address_obj.emirates,
-                "state": address_obj.state,
-                "country": address_obj.get_country(),
-                "postcode": address_obj.postcode,
-                "contactNumber": str(address_obj.contact_number),
-                "tag": str(address_obj.tag),
-                "uuid": str(address_obj.uuid)
-            }
 
 class FetchOrderVersionDetailsAPI(APIView):
 
@@ -3448,7 +3426,7 @@ class FetchOfflineUserProfileAPI(APIView):
             response['shippingAddressList'] = get_address_list(dealshub_user_obj, type_addr="shipping")
             if is_b2b:
                 response['billingAddressList'] = get_address_list(dealshub_user_obj, type_addr="billing")
-                response['primeBillingAddress'] = dealshub_user_obj.prime_billing_address
+                response['primeBillingAddress'] = get_address_dict(dealshub_user_obj.prime_billing_address)
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

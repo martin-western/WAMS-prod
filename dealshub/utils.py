@@ -2326,20 +2326,28 @@ def get_address_list(dealshub_user_obj, type_addr=""):
     address_objs = Address.objects.filter(user=dealshub_user_obj,type_addr=type_addr)
     if address_objs.exists():
         for address_obj in address_objs:
-            temp_dict = {}
-            temp_dict['firstName'] = address_obj.first_name
-            temp_dict['lastName'] = address_obj.last_name
-            temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
-            temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
-            temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
-            temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
-            temp_dict['state'] = address_obj.state
-            temp_dict['emirates'] = address_obj.emirates
-            temp_dict['country'] = address_obj.get_country()
-            temp_dict['postcode'] = address_obj.postcode
-            temp_dict['contactNumber'] = str(address_obj.contact_number)
-            temp_dict['tag'] = str(address_obj.tag)
-            temp_dict['uuid'] = str(address_obj.uuid)
-
-            address_list.append(temp_dict)
+            address_list.append(get_address_dict(address_obj))
     return address_list
+
+def get_address_dict(address_obj):
+    '''
+    Returns the address information in a dict format
+    '''
+    if address_obj == None:
+        return {}
+    else:
+        return {
+            "firstName": address_obj.first_name,
+            "lastName": address_obj.last_name,
+            "line1": json.loads(address_obj.address_lines)[0],
+            "line2": json.loads(address_obj.address_lines)[1],
+            "line3": json.loads(address_obj.address_lines)[2],
+            "line4": json.loads(address_obj.address_lines)[3],
+            "emirates": address_obj.emirates,
+            "state": address_obj.state,
+            "country": address_obj.get_country(),
+            "postcode": address_obj.postcode,
+            "contactNumber": str(address_obj.contact_number),
+            "tag": str(address_obj.tag),
+            "uuid": str(address_obj.uuid)
+        }
