@@ -62,6 +62,8 @@ urlpatterns = [
     url(r'^fetch-b2b-dealshub-admin-sections/$', views.FetchB2BDealshubAdminSections),
     url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
     url(r'^fetch-section-detail',views.FetchSectionDetail),
+    url(r'^fetch-b2b-section-detail',views.FetchB2BSectionDetail),
+    
     url(r'^save-dealshub-admin-sections-order/$', views.SaveDealshubAdminSectionsOrder),
 
     url(r'^search-section-products-autocomplete/$', views.SearchSectionProductsAutocomplete),
