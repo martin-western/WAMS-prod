@@ -3775,6 +3775,11 @@ class FetchB2BDealshubAdminSectionsOCAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            
+            parent_banner_uuid = data.get("parent_banner_uuid","")
+            parent_banner_obj = None
+            if parent_banner_uuid!="":
+                parent_banner_obj = Banner.objects.get(uuid=parent_banner_uuid)
 
             b2b_user_obj = None
             dealshub_user_obj = None
