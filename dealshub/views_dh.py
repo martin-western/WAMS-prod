@@ -2406,6 +2406,7 @@ class PlaceOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
+                                                 billing_address=fast_cart_obj.billing_address,
                                                  to_pay=fast_cart_obj.to_pay,
                                                  real_to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
@@ -2507,6 +2508,7 @@ class PlaceOfflineOrderAPI(APIView):
 
             order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
+                                             billing_address=cart_obj.billing_address,
                                              to_pay=cart_obj.to_pay,
                                              real_to_pay=cart_obj.to_pay,
                                              order_placed_date=timezone.now(),
@@ -4378,6 +4380,7 @@ class PaymentTransactionAPI(APIView):
 
                     order_obj = Order.objects.create(owner=cart_obj.owner, 
                                                      shipping_address=cart_obj.shipping_address,
+                                                     billing_address=cart_obj.billing_address,
                                                      to_pay=cart_obj.to_pay,
                                                      real_to_pay=cart_obj.to_pay,
                                                      order_placed_date=timezone.now(),
@@ -4452,6 +4455,7 @@ class PaymentTransactionAPI(APIView):
 
                     order_obj = Order.objects.create(owner=fast_cart_obj.owner, 
                                                      shipping_address=fast_cart_obj.shipping_address,
+                                                     billing_address=fast_cart_obj.billing_address,
                                                      to_pay=fast_cart_obj.to_pay,
                                                      real_to_pay=fast_cart_obj.to_pay,
                                                      order_placed_date=timezone.now(),
@@ -9385,6 +9389,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
+                                                 billing_address=cart_obj.billing_address,
                                                  to_pay=cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
@@ -9451,6 +9456,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
+                                                 billing_address=fast_cart_obj.billing_address,
                                                  to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
@@ -9594,6 +9600,7 @@ class PlaceOnlineOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
+                                                 billing_address=cart_obj.billing_address,
                                                  to_pay=cart_obj.to_pay,
                                                  real_to_pay = cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
@@ -9680,6 +9687,7 @@ class PlaceOnlineOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
+                                                 billing_address=fast_cart_obj.billing_address,
                                                  to_pay=fast_cart_obj.to_pay,
                                                  real_to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
