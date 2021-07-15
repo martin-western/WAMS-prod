@@ -3488,7 +3488,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
         return Response(data=response)
 
 
-class FetchB2BSectionDetail(APIView):
+class FetchB2BSectionDetailAPI(APIView):
     
     def post(self, request, *args, **kwargs):
 
@@ -6635,3 +6635,5 @@ FetchProductReviewMail = FetchProductReviewMailAPI.as_view()
 SubmitProductReviewMail = SubmitProductReviewMailAPI.as_view()
 
 FetchSectionDetail = FetchSectionDetailAPI.as_view()
+
+FetchB2BSectionDetail = FetchB2BSectionDetailAPI.as_view()
