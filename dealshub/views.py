@@ -3517,30 +3517,33 @@ class FetchB2BSectionDetailAPI(APIView):
             is_user_authenticated = check_account_status(b2b_user_obj)
 
             resolution = data.get("resolution", "low")
-            section_objs = Section.objects.get(uuid = section_uuid)
-
-            if is_dealshub==True:
-                section_objs = section_objs.filter(is_published=True)
-                valid_section_objs = Section.objects.none()
-                for section_obj in section_objs:
-                    promotion_obj = section_obj.promotion
-                    if promotion_obj is not None:
-                        if check_valid_promotion(promotion_obj):
-                            valid_section_objs |= Section.objects.filter(pk=section_obj.pk)
-                    else:
-                        valid_section_objs |= Section.objects.filter(pk=section_obj.pk)
-                section_objs = valid_section_objs
-                                
             dealshub_admin_sections = []
-            section_products_list = get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs)
-            banner_objs = Banner.objects.get(uuid = banner_uuid)
+            if section_uuid != "":
+                section_objs = Section.objects.get(uuid = section_uuid)
 
-            if is_dealshub==True:
-                banner_objs = banner_objs.filter(is_published=True)
-            
-            banner_image_objs_list = get_banner_image_objects_b2b(is_dealshub, language_code, resolution, banner_objs)
-            dealshub_admin_sections += section_products_list
-            dealshub_admin_sections += banner_image_objs_list
+                if is_dealshub==True:
+                    section_objs = section_objs.filter(is_published=True)
+                    valid_section_objs = Section.objects.none()
+                    for section_obj in section_objs:
+                        promotion_obj = section_obj.promotion
+                        if promotion_obj is not None:
+                            if check_valid_promotion(promotion_obj):
+                                valid_section_objs |= Section.objects.filter(pk=section_obj.pk)
+                        else:
+                            valid_section_objs |= Section.objects.filter(pk=section_obj.pk)
+                    section_objs = valid_section_objs
+                                    
+                    section_products_list = get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs)
+                    dealshub_admin_sections += section_products_list
+                    
+            if banner_uuid != "":
+                banner_objs = Banner.objects.get(uuid = banner_uuid)
+
+                if is_dealshub==True:
+                    banner_objs = banner_objs.filter(is_published=True)
+                
+                banner_image_objs_list = get_banner_image_objects_b2b(is_dealshub, language_code, resolution, banner_objs)
+                dealshub_admin_sections += banner_image_objs_list
             dealshub_admin_sections = sorted(dealshub_admin_sections, key = lambda i: int(i["orderIndex"]))
             
             response["sections_list"] = dealshub_admin_sections
