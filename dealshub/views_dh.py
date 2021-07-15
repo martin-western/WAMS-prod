@@ -350,6 +350,8 @@ class CreateAddressAPI(APIView):
             if tag==None:
                 tag = ""
             type_addr = data.get("typeAddr", "shipping")
+            if type_addr not in ["shipping", "billing"]:
+                type_addr = "shipping"
 
             if dealshub_user_obj.first_name=="":
                 dealshub_user_obj.first_name = first_name
