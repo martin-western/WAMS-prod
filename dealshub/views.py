@@ -3775,7 +3775,7 @@ class FetchB2BDealshubAdminSectionsOCAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            
+
             parent_banner_uuid = data.get("parent_banner_uuid","")
             parent_banner_obj = None
             if parent_banner_uuid!="":
@@ -3864,8 +3864,8 @@ class FetchB2BSectionDetailAPI(APIView):
             limit = data.get("limit", False)
             is_dealshub = data.get("isDealshub", False)
 
-            section_uuid = data["SectionUuid"]
-            banner_uuid = data["BannerUuid"]
+            section_uuid = data.get("SectionUuid","")
+            banner_uuid = data.get("BannerUuid","")
             location_group_uuid = data["locationGroupUuid"]
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
