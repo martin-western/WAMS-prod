@@ -203,7 +203,7 @@ class FetchWishListAPI(APIView):
         return Response(data=response)
 
 
-class FetchShippingAddressListAPI(APIView):
+class FetchAddressListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -211,37 +211,28 @@ class FetchShippingAddressListAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchShippingAddressListAPI: %s", str(data))
+            logger.info("FetchAddressListAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             user = request.user
-
+            is_b2b = data["is_b2b"]
             location_group_uuid = data["locationGroupUuid"]
-
-            address_objs = Address.objects.filter(type_addr="shipping", is_deleted=False, user=user, location_group__uuid=location_group_uuid)
-
-            address_list = []
+            address_objs = Address.objects.filter(is_deleted=False, user=user, location_group__uuid=location_group_uuid)
+            
+            shipping_address_list = []
+            billing_address_list = []
             for address_obj in address_objs:
-                temp_dict = {}
-                temp_dict['firstName'] = address_obj.first_name
-                temp_dict['lastName'] = address_obj.last_name
-                temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
-                temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
-                temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
-                temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
-                temp_dict['state'] = address_obj.state
-                temp_dict['country'] = address_obj.get_country()
-                temp_dict['postcode'] = address_obj.postcode
-                temp_dict['contactNumber'] = str(address_obj.contact_number)
-                temp_dict['tag'] = str(address_obj.tag)
-                temp_dict['neighbourhood'] = str(address_obj.neighbourhood)
-                temp_dict['emirates'] = str(address_obj.emirates)
-                temp_dict['uuid'] = str(address_obj.uuid)
+                if address_obj.type_addr == "shipping":
+                    shipping_address_list.append(get_address_dict(address_obj))
+                elif is_b2b:
+                    billing_address_list.append(get_address_dict(address_obj))
 
-                address_list.append(temp_dict)
-
-            response['addressList'] = address_list
+            response['shippingAddressList'] = shipping_address_list
+            if is_b2b:
+                response['billingAddressList'] = billing_address_list
+                response['primeBillingAddress'] = get_address_dict(user.prime_billing_address)
+            
             response['status'] = 200
 
             try:
@@ -249,11 +240,11 @@ class FetchShippingAddressListAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchShippingAddressListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchAddressListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchShippingAddressListAPI: %s at %s",e, str(exc_tb.tb_lineno))
+            logger.error("FetchAddressListAPI: %s at %s",e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -10361,7 +10352,7 @@ class FetchSEODataAPI(APIView):
         return Response(data=response)
 
 
-FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
+FetchAddressList = FetchAddressListAPI.as_view()
 
 EditAddress = EditAddressAPI.as_view()
 
