@@ -90,7 +90,7 @@ urlpatterns = [
 
     url(r'^address/fetch-address-list/$', views.FetchAddressList),
     url(r'^address/edit-address/$', views.EditAddress),
-    url(r'^address/create-shipping-address/$', views.CreateShippingAddress),
+    url(r'^address/create-address/$', views.CreateAddress),
     url(r'^address/create-offline-shipping-address/$', views.CreateOfflineShippingAddress),
     url(r'^address/create-offline-billing-address/$', views.CreateOfflineBillingAddress),
     url(r'^address/delete-address/$', views.DeleteAddress),

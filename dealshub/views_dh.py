@@ -315,7 +315,7 @@ class EditAddressAPI(APIView):
         return Response(data=response)
 
 
-class CreateShippingAddressAPI(APIView):
+class CreateAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -323,7 +323,7 @@ class CreateShippingAddressAPI(APIView):
         try:
 
             data = request.data
-            logger.info("CreateShippingAddressAPI: %s", str(data))
+            logger.info("CreateAddressAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -349,13 +349,24 @@ class CreateShippingAddressAPI(APIView):
             tag = data.get("tag", "")
             if tag==None:
                 tag = ""
+            type_addr = data.get("typeAddr", "shipping")
 
             if dealshub_user_obj.first_name=="":
                 dealshub_user_obj.first_name = first_name
                 dealshub_user_obj.last_name = last_name
                 dealshub_user_obj.save()
 
-            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj, neighbourhood=neighbourhood, emirates=emirates)
+            address_obj = Address.objects.create(first_name=first_name, 
+                                                last_name=last_name, 
+                                                address_lines=address_lines, 
+                                                state=state, postcode=postcode, 
+                                                contact_number=contact_number, 
+                                                user=dealshub_user_obj, 
+                                                tag=tag, 
+                                                location_group=location_group_obj, 
+                                                neighbourhood=neighbourhood, 
+                                                emirates=emirates,
+                                                type_addr=type_addr)
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
@@ -364,11 +375,11 @@ class CreateShippingAddressAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("CreateAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1563,18 +1574,25 @@ class SelectAddressAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            address_uuid = data["addressUuid"]
+            is_b2b = data["is_b2b"]
+            shipping_address_uuid = data["shippingAddressUuid"]
+            billing_address_uuid = data["billingAddressUuid"]
 
-            address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            shipping_address_obj = Address.objects.get(uuid=shipping_address_uuid)
+            billing_address_obj = None
+            if is_b2b:
+                billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
 
             if data.get("is_fast_cart", False)==True:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
-                fast_cart_obj.shipping_address = address_obj
+                fast_cart_obj.shipping_address = shipping_address_obj
+                fast_cart_obj.billing_address = billing_address_obj
                 fast_cart_obj.save()
             else:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
-                cart_obj.shipping_address = address_obj
+                cart_obj.shipping_address = shipping_address_obj
+                cart_obj.billing_address = billing_address_obj
                 cart_obj.save()
 
             response["status"] = 200
@@ -10356,7 +10374,7 @@ FetchAddressList = FetchAddressListAPI.as_view()
 
 EditAddress = EditAddressAPI.as_view()
 
-CreateShippingAddress = CreateShippingAddressAPI.as_view()
+CreateAddress = CreateAddressAPI.as_view()
 
 CreateOfflineShippingAddress = CreateOfflineShippingAddressAPI.as_view()
 
