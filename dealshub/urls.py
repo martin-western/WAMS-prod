@@ -60,7 +60,10 @@ urlpatterns = [
     url(r'^deactivate-cod-dealshub-product/$', views.DeactivateCODDealsHubProduct),
 
     url(r'^fetch-b2b-dealshub-admin-sections/$', views.FetchB2BDealshubAdminSections),
+    url(r'^fetch-b2b-dealshub-admin-sections-oc/$', views.FetchB2BDealshubAdminSectionsOC),
+
     url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
+    url(r'^fetch-dealshub-admin-sections-oc/$', views.FetchDealshubAdminSectionsOC),
     url(r'^fetch-section-detail',views.FetchSectionDetail),
     url(r'^fetch-b2b-section-detail',views.FetchB2BSectionDetail),
     
