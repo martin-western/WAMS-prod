@@ -4085,6 +4085,8 @@ class FetchDealshubAdminSectionsOCAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             parent_banner_uuid = data.get("parent_banner_uuid","")
             parent_banner_obj = None
+            logger.info("REQUEST USER",request.user.username)
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             if parent_banner_uuid!="":
                 parent_banner_obj = Banner.objects.get(uuid=parent_banner_uuid)
 
