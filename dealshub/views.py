@@ -3407,7 +3407,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
         try:
 
             data = request.data
-            logger.info("FetchB2BDealshubAdminSectionsOCAPI: %s", str(data))
+            logger.info("FetchB2BDealshubAdminSectionsAPI: %s", str(data))
 
             language_code = data.get("language","en")
 
@@ -3749,7 +3749,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchB2BDealshubAdminSectionsOCAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchB2BDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
