@@ -1129,27 +1129,21 @@ def contact_us_send_email(your_email, message, to_email, password):
 
 
 def notify_low_stock(dealshub_product_obj):
-    try:
-        custom_permission_objs = CustomPermission.objects.filter(location_groups__in=[dealshub_product_obj.location_group])
-        for custom_permission_obj in custom_permission_objs:
-            try:
-                body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
-
-                with get_connection(
-                    host="smtp.gmail.com",
-                    port=587, 
-                    username="nisarg@omnycomm.com", 
-                    password="verjtzgeqareribg",
-                    use_tls=True) as connection:
-                    email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
-                                         body=body,
-                                         from_email='nisarg@omnycomm.com',
-                                         to=[custom_permission_obj.user.email],
-                                         connection=connection)
-                    email.send(fail_silently=True)
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("notify_low_stock: %s at %s", e, str(exc_tb.tb_lineno))        
+    try:   
+        body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username="nisarg@omnycomm.com", 
+            password="verjtzgeqareribg",
+            use_tls=True) as connection:
+            email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
+                                    body=body,
+                                    from_email='nisarg@omnycomm.com',
+                                    to=["wigme@westernint.com","hari.pk@westernint.com","support@westernint.com","rikas.k@westernint.com"],
+                                    connection=connection)
+            email.send(fail_silently=True)
+         
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("notify_low_stock: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1159,8 +1153,9 @@ def notify_grn_error(order_obj):
     try:
         custom_permission_objs = CustomPermission.objects.filter(location_groups__in=[order_obj.location_group])
         email_list = []
+        email_record_names = ["support@westernint.com","wigme@westernint.com","hari.pk@westernint.com","rikas.k@westernint.com"]
         for custom_permission_obj in custom_permission_objs:
-            if custom_permission_obj.user.email!="":
+            if custom_permission_obj.user.email in email_record_names:
                 email_list.append(custom_permission_obj.user.email)
         try:
             body = "This is to inform you that order number "+order_obj.bundleid+" has GRN error. Kindly check on Omnycomm and take appropriate action."
@@ -1189,8 +1184,10 @@ def notify_new_products_email(filepath, location_group_obj):
         location_group_name = location_group_obj.name
         user_objs = CustomPermission.objects.filter(location_groups__pk = location_group_obj.pk)
         email_list = []
+        email_record_names = ["hari.pk@westernint.com","rikas.k@westernint.com","rashid.c@westernint.com","wigme.dm@westernint.com","arsal.k@westernint.com","support@westernint.com",]
         for user_obj in user_objs:
-            email_list.append(user_obj.user.email)
+            if user_obj.user.email in email_record_names:
+                email_list.append(user_obj.user.email)
         try:
             body = "Please find the attached sheet for new products published on " + location_group_name + "."
             subject = "Notification for new products created on " + location_group_name
@@ -2560,82 +2557,108 @@ def sha256_encode(string):
 
 def calling_facebook_api(event_name,user,request,custom_data=None):
     try:
-        logger.info("in calling_facebook_api")
         email = sha256_encode(str(user.email))
         first_name = sha256_encode(str(user.first_name))
         last_name = sha256_encode(str(user.last_name))
         address_obj = Address.objects.filter(user=user).first()
         contact_number = sha256_encode(str(address_obj.contact_number))
         state = sha256_encode(str(address_obj.state))
-        city = sha256_encode(str(address_obj.emirates))
         country = sha256_encode(str(address_obj.get_country()))
         postcode = sha256_encode(str(address_obj.postcode))
 
         access_token = "EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG"
         pixel_id = '501666847923989'
-        event_source_url = "https://qa.wigme.com"
-        #prod
-        # event_source_url = "https://www.wigme.com"
+        event_source_url = "https://www.wigme.com"
 
         now_time = int(time.time())
+        logger.info("in calling_facebook_api:- ")
+        # x_forwarded_for = request.META["HTTP_X_FORWARDED_FOR"]
+        # logger.info(request.META)
 
         FacebookAdsApi.init(access_token=access_token)
 
         user_data = UserData(
-            emails=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            first_names=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            last_names=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            phones=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            states=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            cities=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            zip_codes=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            country_codes=["309a0a5c3e211326ae75ca18196d301a9bdbd1a882a4d2569511033da23f0abd"],
-            client_ip_address="123.123.123.123",
+            emails=[email],
+            first_names=[first_name],
+            last_names=[last_name],
+            phones=[contact_number],
+            cities=[],
+            states=[state],
+            zip_codes=[postcode],
+            country_codes=[country],
+            client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
+            client_user_agent=request.META["HTTP_USER_AGENT"],
             fbp= "fb.1.1625138246273.541394957",
-            client_user_agent= "$CLIENT_USER_AGENT",
-            fbc= "fb.1.1554763741205.AbCdEfGhIjKlMnOpQrStUvWxYz1234567890",
         )
 
         events = []
-        event = Event(
-            event_name=event_name,
-            event_time=now_time,
-            user_data=user_data,
-            event_source_url= event_source_url,
-            action_source=ActionSource.WEBSITE,
-        )
-        events = [event]
-        # if custom_data == None:
-            # event = Event(
-            #     event_name=event_name,
-            #     event_time=now_time,
-            #     user_data=user_data,
-            #     event_source_url= event_source_url,
-            #     action_source=ActionSource.WEBSITE,
-            # )
-            # events = [event]
+        if custom_data == None:
+            event = Event(
+                event_name=event_name,
+                event_time=now_time,
+                user_data=user_data,
+                event_source_url= event_source_url,
+                action_source=ActionSource.WEBSITE,
+            )
+            events = [event]
 
-        # else:
-        #     for custom_data_item in custom_data:
-        #         event = Event(
-        #             event_name=event_name,
-        #             event_time=now_time,
-        #             user_data=user_data,
-        #             event_source_url= event_source_url, 
-        #             action_source=ActionSource.WEBSITE,
-        #             custom_data=custom_data_item,
-        #         )
-        #         events.append(event)
+        else:
+            for custom_data_item in custom_data:
+                event = Event(
+                    event_name=event_name,
+                    event_time=now_time,
+                    user_data=user_data,
+                    event_source_url= event_source_url, 
+                    action_source=ActionSource.WEBSITE,
+                    custom_data=custom_data_item,
+                )
+                events.append(event)
     
         event_request = EventRequest(
             events=events,
             pixel_id=pixel_id,
-            test_event_code="TEST47576",
+            test_event_code="TEST70359",
         )
         event_response = event_request.execute()
-        logger.info("ending calling_facebook_api")
         logger.info(event_response)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))
+
+
+def get_address_list(dealshub_user_obj, type_addr=""):
+    '''
+    Returns the shipping/billing address list based upon TYPE_ADDR in ["shipping", "billing"]
+    '''
+    address_list = []
+    if type_addr == "":
+        return address_list
+    address_objs = Address.objects.filter(user=dealshub_user_obj,type_addr=type_addr)
+    if address_objs.exists():
+        for address_obj in address_objs:
+            address_list.append(get_address_dict(address_obj))
+    return address_list
+
+def get_address_dict(address_obj):
+    '''
+    Returns the address information in a dict format
+    '''
+    if address_obj == None:
+        return {}
+    else:
+        return {
+            "firstName": address_obj.first_name,
+            "lastName": address_obj.last_name,
+            "line1": json.loads(address_obj.address_lines)[0],
+            "line2": json.loads(address_obj.address_lines)[1],
+            "line3": json.loads(address_obj.address_lines)[2],
+            "line4": json.loads(address_obj.address_lines)[3],
+            "emirates": address_obj.emirates,
+            "state": address_obj.state,
+            "country": address_obj.get_country(),
+            "postcode": address_obj.postcode,
+            "contactNumber": str(address_obj.contact_number),
+            "tag": str(address_obj.tag),
+            "uuid": str(address_obj.uuid)
+        }

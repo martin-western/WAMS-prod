@@ -221,7 +221,7 @@ class FetchShippingAddressListAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
 
-            address_objs = Address.objects.filter(is_shipping=True, is_deleted=False, user=user, location_group__uuid=location_group_uuid)
+            address_objs = Address.objects.filter(type_addr="shipping", is_deleted=False, user=user, location_group__uuid=location_group_uuid)
 
             address_list = []
             for address_obj in address_objs:
@@ -260,7 +260,7 @@ class FetchShippingAddressListAPI(APIView):
         return Response(data=response)
 
 #API with activity log
-class EditShippingAddressAPI(APIView):
+class EditAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -308,7 +308,7 @@ class EditShippingAddressAPI(APIView):
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
 
-            render_value =  "Shipping Address updated offline for " + address_obj.user.username
+            render_value = address_obj.type_addr + " Address updated offline for " + address_obj.user.username
             activitylog(request.user, Address, "updated", address_obj.uuid, prev_address_obj, address_obj, address_obj.location_group, render_value)
             response['status'] = 200
 
@@ -442,8 +442,75 @@ class CreateOfflineShippingAddressAPI(APIView):
 
         return Response(data=response)
 
+class CreateOfflineBillingAddressAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
 
-class DeleteShippingAddressAPI(APIView):
+            data = request.data
+            logger.info("CreateOfflineBillingAddressAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            location_group_uuid = data["locationGroupUuid"]
+            username = data["username"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            if DealsHubUser.objects.filter(username=username).exists():
+
+                dealshub_user_obj = DealsHubUser.objects.get(username=username)
+                first_name = str(dealshub_user_obj.first_name)
+                last_name = str(dealshub_user_obj.last_name)
+                line1 = data["line1"]
+                line2 = data["line2"]
+                line3 = data["line3"]
+                line4 = data["line4"]
+                address_lines = json.dumps([line1, line2, line3, line4])
+                state = data["state"]
+                postcode = data["postcode"]
+                emirates = data.get("emirates", "")
+                if postcode==None:
+                    postcode = ""
+                contact_number = dealshub_user_obj.contact_number
+                tag = data.get("tag", "")
+                if tag==None:
+                    tag = ""
+
+                billing_address_obj = Address.objects.create(user=dealshub_user_obj,
+                                                    first_name=first_name,
+                                                    last_name=last_name, 
+                                                    address_lines=address_lines, 
+                                                    state=state, 
+                                                    postcode=postcode, 
+                                                    contact_number=contact_number, 
+                                                    tag=tag, 
+                                                    location_group=location_group_obj, 
+                                                    emirates=emirates, 
+                                                    type_addr="billing")
+
+                response["uuid"] = billing_address_obj.uuid
+
+                render_value = "New Offline Billing Address created for " + username
+                activitylog(request.user, Address, "created", billing_address_obj.uuid, None, billing_address_obj, location_group_obj, render_value)
+                response['status'] = 200
+            else:
+                response["status"] = 409
+            
+            try:
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("CreateOfflineBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateOfflineBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+class DeleteAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -453,7 +520,7 @@ class DeleteShippingAddressAPI(APIView):
         try:
 
             data = request.data
-            logger.info("DeleteShippingAddressAPI: %s", str(data))
+            logger.info("DeleteAddressAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -467,6 +534,10 @@ class DeleteShippingAddressAPI(APIView):
                 cart_obj.shipping_address = None
                 cart_obj.save()
 
+            if cart_obj.billing_address != None and cart_obj.billing_address.pk == address_obj.pk:
+                cart_obj.billing_address = None
+                cart_obj.save()
+
             address_obj.is_deleted = True
             address_obj.save()
 
@@ -476,11 +547,11 @@ class DeleteShippingAddressAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("DeleteShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("DeleteAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DeleteAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1554,16 +1625,22 @@ class SelectOfflineAddressAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            address_uuid = data["addressUuid"]
+            is_b2b = data["is_b2b"]
+            shipping_address_uuid = data["shippingAddressUuid"]
+            shipping_address_obj = Address.objects.get(uuid=shipping_address_uuid)
             username = data["username"]
-
-            address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
-            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
-            
-            cart_obj.shipping_address = address_obj
+            cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=shipping_address_obj.location_group)
+            cart_obj.shipping_address = shipping_address_obj
             cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
             cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
+
+            if is_b2b:
+                billing_address_uuid = data["billingAddressUuid"]
+                billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
+                cart_obj.billing_address = billing_address_obj
+                dealshub_user_obj.prime_billing_address = billing_address_obj
+                dealshub_user_obj.save()
             cart_obj.save()
             
             response["status"] = 200
@@ -1651,8 +1728,8 @@ class FetchActiveOrderDetailsAPI(APIView):
 
             update_cart_bill(cart_obj)
             
-            if cart_obj.shipping_address==None and Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj).count()>0:
-                cart_obj.shipping_address = Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj)[0]
+            if cart_obj.shipping_address==None and Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj, type_addr="shipping").count()>0:
+                cart_obj.shipping_address = Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj, type_addr="shipping")[0]
                 cart_obj.save()
 
             address_obj = cart_obj.shipping_address
@@ -1773,7 +1850,7 @@ class PlaceOrderRequestAPI(APIView):
 
                 try:
                     if cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         cart_obj.shipping_address = address_obj
                         cart_obj.save()
                 except Exception as e:
@@ -1827,7 +1904,7 @@ class PlaceOrderRequestAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -2227,7 +2304,7 @@ class PlaceOrderAPI(APIView):
 
                 try:
                     if cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         cart_obj.shipping_address = address_obj
                         cart_obj.save()
                 except Exception as e:
@@ -2253,6 +2330,7 @@ class PlaceOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
+                                                 billing_address=cart_obj.billing_address,
                                                  to_pay=cart_obj.to_pay,
                                                  real_to_pay=cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
@@ -2304,7 +2382,7 @@ class PlaceOrderAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -2328,6 +2406,7 @@ class PlaceOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
+                                                 billing_address=fast_cart_obj.billing_address,
                                                  to_pay=fast_cart_obj.to_pay,
                                                  real_to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
@@ -2429,6 +2508,7 @@ class PlaceOfflineOrderAPI(APIView):
 
             order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
+                                             billing_address=cart_obj.billing_address,
                                              to_pay=cart_obj.to_pay,
                                              real_to_pay=cart_obj.to_pay,
                                              order_placed_date=timezone.now(),
@@ -2953,7 +3033,7 @@ class FetchOrderDetailsAPI(APIView):
                 data = json.loads(data)
 
             order_uuid = data["uuid"]
-
+            is_b2b = data["is_b2b"]
             order_obj = Order.objects.get(uuid=order_uuid)
             voucher_obj = order_obj.voucher
             is_voucher_applied = voucher_obj is not None
@@ -2977,27 +3057,9 @@ class FetchOrderDetailsAPI(APIView):
                 response["voucherCode"] = voucher_obj.voucher_code
                 response["voucherDiscount"] = voucher_obj.get_voucher_discount(order_obj.get_subtotal())
             response["shippingMethod"] = unit_order_objs[0].shipping_method
-
-            address_obj = order_obj.shipping_address
-            if address_obj==None:
-                response["shippingAddress"] = {}
-            else:
-                response["shippingAddress"] = {
-                    "firstName": address_obj.first_name,
-                    "lastName": address_obj.last_name,
-                    "line1": json.loads(address_obj.address_lines)[0],
-                    "line2": json.loads(address_obj.address_lines)[1],
-                    "line3": json.loads(address_obj.address_lines)[2],
-                    "line4": json.loads(address_obj.address_lines)[3],
-                    "emirates": address_obj.emirates,
-                    "state": address_obj.state,
-                    "country": address_obj.get_country(),
-                    "postcode": address_obj.postcode,
-                    "contactNumber": str(address_obj.contact_number),
-                    "tag": str(address_obj.tag),
-                    "uuid": str(address_obj.uuid)
-                }
-
+            response["shippingAddress"] = get_address_dict(order_obj.shipping_address)
+            if is_b2b:
+                response["billingAddress"] = get_address_dict(order_obj.billing_address)
             unit_order_list = []
             custom_data = []
             for unit_order_obj in unit_order_objs:
@@ -3356,38 +3418,17 @@ class FetchOfflineUserProfileAPI(APIView):
                 return Response(data=response)
 
             username = data["username"]
-
+            is_b2b = data["is_b2b"]
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
 
             response["firstName"] = dealshub_user_obj.first_name
             response["lastName"] = dealshub_user_obj.last_name
             response["emailId"] = dealshub_user_obj.email
             response["contactNumber"] = dealshub_user_obj.contact_number
-
-            address_list = []
-            if Address.objects.filter(user=dealshub_user_obj).exists():
-                address_objs = Address.objects.filter(user=dealshub_user_obj)
-
-                for address_obj in address_objs:
-                    temp_dict = {}
-                    temp_dict['firstName'] = address_obj.first_name
-                    temp_dict['lastName'] = address_obj.last_name
-                    temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
-                    temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
-                    temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
-                    temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
-                    temp_dict['state'] = address_obj.state
-                    temp_dict['emirates'] = address_obj.emirates
-                    temp_dict['country'] = address_obj.get_country()
-                    temp_dict['postcode'] = address_obj.postcode
-                    temp_dict['contactNumber'] = str(address_obj.contact_number)
-                    temp_dict['tag'] = str(address_obj.tag)
-                    temp_dict['uuid'] = str(address_obj.uuid)
-
-                    address_list.append(temp_dict)
-
-            response['addressList'] = address_list
-
+            response['shippingAddressList'] = get_address_list(dealshub_user_obj, type_addr="shipping")
+            if is_b2b:
+                response['billingAddressList'] = get_address_list(dealshub_user_obj, type_addr="billing")
+                response['primeBillingAddress'] = get_address_dict(dealshub_user_obj.prime_billing_address)
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4318,7 +4359,7 @@ class PaymentTransactionAPI(APIView):
 
                     try:
                         if cart_obj.shipping_address==None:
-                            address_obj = Address.objects.filter(user=cart_obj.owner)[0]
+                            address_obj = Address.objects.filter(user=cart_obj.owner, type_addr="shipping")[0]
                             cart_obj.shipping_address = address_obj
                             cart_obj.save()
                     except Exception as e:
@@ -4339,6 +4380,7 @@ class PaymentTransactionAPI(APIView):
 
                     order_obj = Order.objects.create(owner=cart_obj.owner, 
                                                      shipping_address=cart_obj.shipping_address,
+                                                     billing_address=cart_obj.billing_address,
                                                      to_pay=cart_obj.to_pay,
                                                      real_to_pay=cart_obj.to_pay,
                                                      order_placed_date=timezone.now(),
@@ -4392,7 +4434,7 @@ class PaymentTransactionAPI(APIView):
 
                     try:
                         if fast_cart_obj.shipping_address==None:
-                            address_obj = Address.objects.filter(user=fast_cart_obj.owner)[0]
+                            address_obj = Address.objects.filter(user=fast_cart_obj.owner, type_addr="shipping")[0]
                             fast_cart_obj.shipping_address = address_obj
                             fast_cart_obj.save()
                     except Exception as e:
@@ -4413,6 +4455,7 @@ class PaymentTransactionAPI(APIView):
 
                     order_obj = Order.objects.create(owner=fast_cart_obj.owner, 
                                                      shipping_address=fast_cart_obj.shipping_address,
+                                                     billing_address=fast_cart_obj.billing_address,
                                                      to_pay=fast_cart_obj.to_pay,
                                                      real_to_pay=fast_cart_obj.to_pay,
                                                      order_placed_date=timezone.now(),
@@ -7623,13 +7666,6 @@ class SetShippingMethodAPI(APIView):
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
             order_shipping_method = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method
   
-            if "weight" in data and shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and order_shipping_method != shipping_method:
-                modified_weight = data["weight"]
-                if sendex_add_consignment(order_obj, modified_weight) == "failure":
-                    logger.warning("SetShippingMethodAPI: failed status from sendex api")
-                else:
-                    logger.info("SetShippingMethodAPI: Success in sendex api")
- 
             # after checking for all the shipping methods possible
             sap_info_render = []
 
@@ -7812,6 +7848,14 @@ class SetShippingMethodAPI(APIView):
             VersionOrder.objects.create(order=order_obj,
                                         user= omnycomm_user,
                                         change_information=json.dumps(order_status_change_information))
+
+            if "weight" in data and shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"]:
+                modified_weight = data["weight"]
+                if sendex_add_consignment(order_obj, modified_weight) == "failure":
+                    logger.warning("SetShippingMethodAPI: failed status from sendex api")
+                else:
+                    logger.info("SetShippingMethodAPI: Success in sendex api")
+
             if sap_manual_update_status:
                 sap_manual_update(order_obj, omnycomm_user)
                 logger.info("SetShippingMethodAPI: sap_manual_update_status: %s", str(sap_manual_update_status))
@@ -9345,6 +9389,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
+                                                 billing_address=cart_obj.billing_address,
                                                  to_pay=cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=cart_obj.voucher,
@@ -9380,7 +9425,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -9411,6 +9456,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
+                                                 billing_address=fast_cart_obj.billing_address,
                                                  to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
                                                  voucher=fast_cart_obj.voucher,
@@ -9554,6 +9600,7 @@ class PlaceOnlineOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
+                                                 billing_address=cart_obj.billing_address,
                                                  to_pay=cart_obj.to_pay,
                                                  real_to_pay = cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
@@ -9609,7 +9656,7 @@ class PlaceOnlineOrderAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj)[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -9640,6 +9687,7 @@ class PlaceOnlineOrderAPI(APIView):
 
                 order_obj = Order.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
+                                                 billing_address=fast_cart_obj.billing_address,
                                                  to_pay=fast_cart_obj.to_pay,
                                                  real_to_pay=fast_cart_obj.to_pay,
                                                  order_placed_date=timezone.now(),
@@ -10356,13 +10404,15 @@ class FetchSEODataAPI(APIView):
 
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
-EditShippingAddress = EditShippingAddressAPI.as_view()
+EditAddress = EditAddressAPI.as_view()
 
 CreateShippingAddress = CreateShippingAddressAPI.as_view()
 
 CreateOfflineShippingAddress = CreateOfflineShippingAddressAPI.as_view()
 
-DeleteShippingAddress = DeleteShippingAddressAPI.as_view()
+CreateOfflineBillingAddress = CreateOfflineBillingAddressAPI.as_view()
+
+DeleteAddress = DeleteAddressAPI.as_view()
 
 AddToCart = AddToCartAPI.as_view()
 
