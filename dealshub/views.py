@@ -3519,7 +3519,7 @@ class FetchB2BSectionDetailAPI(APIView):
             resolution = data.get("resolution", "low")
             dealshub_admin_sections = []
             if section_uuid != "":
-                section_objs = Section.objects.get(uuid = section_uuid)
+                section_objs = Section.objects.filter(uuid = section_uuid)
 
                 if is_dealshub==True:
                     section_objs = section_objs.filter(is_published=True)
@@ -3537,7 +3537,7 @@ class FetchB2BSectionDetailAPI(APIView):
                     dealshub_admin_sections += section_products_list
                     
             if banner_uuid != "":
-                banner_objs = Banner.objects.get(uuid = banner_uuid)
+                banner_objs = Banner.objects.filter(uuid = banner_uuid)
 
                 if is_dealshub==True:
                     banner_objs = banner_objs.filter(is_published=True)
@@ -3725,7 +3725,7 @@ class FetchSectionDetailAPI(APIView):
             dealshub_admin_sections = []
             
             if section_uuid != "":
-                section_objs = Section.objects.get(uuid = section_uuid)
+                section_objs = Section.objects.filter(uuid = section_uuid)
 
                 if is_dealshub==True:
                     section_objs = section_objs.filter(is_published=True)
@@ -3743,7 +3743,7 @@ class FetchSectionDetailAPI(APIView):
                 dealshub_admin_sections += section_products_list
 
             if banner_uuid != "":    
-                banner_objs = Banner.objects.get(uuid = banner_uuid)
+                banner_objs = Banner.objects.filter(uuid = banner_uuid)
 
                 if is_dealshub==True:
                     banner_objs = banner_objs.filter(is_published=True)
