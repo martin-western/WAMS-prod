@@ -3874,7 +3874,7 @@ class FetchB2BSectionDetailAPI(APIView):
             if request.user != None and str(request.user)!="AnonymousUser":
                 logger.info("REQUEST USER: %s", str(request.user.username))
                 b2b_user_obj = B2BUser.objects.get(user = request.user)
-                dealshub_user_obj = DealsHubUser.objects.get(user=request.user.user)
+                dealshub_user_obj = DealsHubUser.objects.get(user=request.user)
             is_user_authenticated = check_account_status(b2b_user_obj)
 
             resolution = data.get("resolution", "low")
