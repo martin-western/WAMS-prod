@@ -1991,7 +1991,7 @@ class NetworkGlobalLog(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     request = models.TextField(blank = True,default='{}')
     response = models.TextField(blank = True,default='{}')
-    status = models.TextField(blank = True,default="")
+    status_code = models.TextField(blank = True,default="")
     merchant_reference=models.CharField(max_length=256, blank=True, default='')
 
     def __str__(self):
