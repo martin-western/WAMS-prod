@@ -348,7 +348,7 @@ class EditShippingAddressAPI(APIView):
         return Response(data=response)
 
 
-class CreateAddressAPI(APIView):
+class CreateShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -356,7 +356,7 @@ class CreateAddressAPI(APIView):
         try:
 
             data = request.data
-            logger.info("CreateAddressAPI: %s", str(data))
+            logger.info("CreateShippingAddressAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -382,9 +382,6 @@ class CreateAddressAPI(APIView):
             tag = data.get("tag", "")
             if tag==None:
                 tag = ""
-            type_addr = data.get("typeAddr", "shipping")
-            if type_addr not in ["shipping", "billing"]:
-                type_addr = "shipping"
 
             if dealshub_user_obj.first_name=="":
                 dealshub_user_obj.first_name = first_name
@@ -401,7 +398,7 @@ class CreateAddressAPI(APIView):
                                                 location_group=location_group_obj, 
                                                 neighbourhood=neighbourhood, 
                                                 emirates=emirates,
-                                                type_addr=type_addr)
+                                                type_addr="shipping")
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
@@ -410,11 +407,79 @@ class CreateAddressAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("CreateAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("CreateAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateBillingAddressAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateBillingAddressAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            first_name = data["firstName"]
+            last_name = data.get("lastName", "")
+            line1 = data["line1"]
+            line2 = data["line2"]
+            line3 = ""
+            line4 = location_group_obj.location.name
+            address_lines = json.dumps([line1, line2, line3, line4])
+            state = ""
+            postcode = ""
+            neighbourhood = data.get("neighbourhood", "")
+            emirates = data.get("emirates", "")
+            if postcode==None:
+                postcode = ""
+            contact_number = dealshub_user_obj.contact_number
+            tag = data.get("tag", "")
+            if tag==None:
+                tag = ""
+
+            if dealshub_user_obj.first_name=="":
+                dealshub_user_obj.first_name = first_name
+                dealshub_user_obj.last_name = last_name
+                dealshub_user_obj.save()
+
+            address_obj = Address.objects.create(first_name=first_name, 
+                                                last_name=last_name, 
+                                                address_lines=address_lines, 
+                                                state=state, postcode=postcode, 
+                                                contact_number=contact_number, 
+                                                user=dealshub_user_obj, 
+                                                tag=tag, 
+                                                location_group=location_group_obj, 
+                                                neighbourhood=neighbourhood, 
+                                                emirates=emirates,
+                                                type_addr="billing")
+
+            response["uuid"] = address_obj.uuid
+            response['status'] = 200
+
+            try:
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("CreateBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -10484,7 +10549,9 @@ FetchBillingAddressList = FetchBillingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
 
-CreateAddress = CreateAddressAPI.as_view()
+CreateShippingAddress = CreateShippingAddressAPI.as_view()
+
+CreateBillingAddress = CreateBillingAddressAPI.as_view()
 
 CreateOfflineShippingAddress = CreateOfflineShippingAddressAPI.as_view()
 
