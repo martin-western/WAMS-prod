@@ -1983,3 +1983,23 @@ class UnitOrderMailRequest(models.Model):
         else:
             return self.status
         return html_message
+
+
+class NetworkGlobalLog(models.Model):
+    uuid = models.CharField(max_length=200,unique=True)
+    user = models.ForeignKey(DealsHubUser, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(auto_now_add=True)
+    request = models.TextField(blank = True,default='{}')
+    response = models.TextField(blank = True,default='{}')
+    status = models.TextField(blank = True,default="")
+    merchant_reference=models.CharField(max_length=256, blank=True, default='')
+
+    def __str__(self):
+        return str(self.merchant_reference)
+
+    def save(self, *args, **kwargs):
+
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(NetworkGlobalLog, self).save(*args, **kwargs)

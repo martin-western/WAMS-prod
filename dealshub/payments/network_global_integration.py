@@ -1,7 +1,7 @@
 from WAMSApp.models import *
 from WAMSApp.utils import *
 from dealshub.constants import *
-
+from dealshub.models import NetworkGlobalLog
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -133,8 +133,22 @@ class MakePaymentNetworkGlobalAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
             
+            network_global_log_obj = NetworkGlobalLog.objects.create(
+                user=dealshub_user_obj,
+                request=json.dumps(body),
+                merchant_reference=merchant_reference,
+                )           
+            
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers, timeout=10)
             
+            try:
+                network_global_log_obj.response = payment_response.content
+                network_global_log_obj.status_code = payment_response.status_code
+                network_global_log_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("MakePaymentNetworkGlobalAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
             response["payment_response"] = json.loads(payment_response.content)
             response["error"] = "Payment Success"
             response["status"] = 200
@@ -250,7 +264,21 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
 
+            network_global_log_obj = NetworkGlobalLog.objects.create(
+                user=dealshub_user_obj,
+                request=json.dumps(body),
+                merchant_reference=merchant_reference,
+                )           
+            
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers, timeout=10)
+            
+            try:
+                network_global_log_obj.response = payment_response.content
+                network_global_log_obj.status_code = payment_response.status_code
+                network_global_log_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("MakePaymentNetworkGlobalAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["payment_response"] = json.loads(payment_response.content)
             response["error"] = "Payment Success"
