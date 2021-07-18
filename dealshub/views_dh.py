@@ -205,7 +205,7 @@ class FetchWishListAPI(APIView):
         return Response(data=response)
 
 
-class FetchAddressListAPI(APIView):
+class FetchShippingAddressListAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -213,28 +213,21 @@ class FetchAddressListAPI(APIView):
         response['status'] = 500
         try:
             data = request.data
-            logger.info("FetchAddressListAPI: %s", str(data))
+            logger.info("FetchShippingAddressListAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
             user = request.user
-            is_b2b = data["is_b2b"]
-            location_group_uuid = data["locationGroupUuid"]
-            address_objs = Address.objects.filter(is_deleted=False, user=user, location_group__uuid=location_group_uuid)
-            
-            shipping_address_list = []
-            billing_address_list = []
-            for address_obj in address_objs:
-                if address_obj.type_addr == "shipping":
-                    shipping_address_list.append(get_address_dict(address_obj))
-                elif is_b2b:
-                    billing_address_list.append(get_address_dict(address_obj))
 
-            response['shippingAddressList'] = shipping_address_list
-            if is_b2b:
-                response['billingAddressList'] = billing_address_list
-                response['primeBillingAddress'] = get_address_dict(user.prime_billing_address)
-            
+            location_group_uuid = data["locationGroupUuid"]
+
+            address_objs = Address.objects.filter(type_addr="shipping", is_deleted=False, user=user, location_group__uuid=location_group_uuid)
+
+            address_list = []
+            for address_obj in address_objs:
+                address_list.append(get_address_dict(address_obj))
+
+            response['addressList'] = address_list
             response['status'] = 200
 
             try:
@@ -242,11 +235,49 @@ class FetchAddressListAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchAddressListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchShippingAddressListAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchAddressListAPI: %s at %s",e, str(exc_tb.tb_lineno))
+            logger.error("FetchShippingAddressListAPI: %s at %s",e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class FetchBillingAddressListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchBillingAddressListAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            user = request.user
+            location_group_uuid = data["locationGroupUuid"]
+            address_objs = Address.objects.filter(type_addr="billing", is_deleted=False, user=user, location_group__uuid=location_group_uuid)
+            
+            billing_address_list = []
+            for address_obj in address_objs:
+                billing_address_list.append(get_address_dict(address_obj))
+
+            response['billingAddressList'] = billing_address_list
+            response['primeBillingAddress'] = get_address_dict(user.prime_billing_address)
+            response['status'] = 200
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchBillingAddressListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBillingAddressListAPI: %s at %s",e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -10413,7 +10444,9 @@ class FetchSEODataAPI(APIView):
         return Response(data=response)
 
 
-FetchAddressList = FetchAddressListAPI.as_view()
+FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
+
+FetchBillingAddressList = FetchBillingAddressListAPI.as_view()
 
 EditShippingAddress = EditShippingAddressAPI.as_view()
 

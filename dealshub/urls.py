@@ -94,7 +94,8 @@ urlpatterns = [
     url(r'^update-super-category-image/$', views.UpdateSuperCategoryImage),
     url(r'^update-unit-banner/$', views.UpdateUnitBanner),
 
-    url(r'^address/fetch-address-list/$', views.FetchAddressList),
+    url(r'^address/fetch-shipping-address-list/$', views.FetchShippingAddressList),
+    url(r'^address/fetch-billing-address-list/$', views.FetchBillingAddressList),
     url(r'^address/edit-shipping-address/$', views.EditShippingAddress),
     url(r'^address/create-address/$', views.CreateAddress),
     url(r'^address/create-offline-shipping-address/$', views.CreateOfflineShippingAddress),
