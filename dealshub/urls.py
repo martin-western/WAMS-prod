@@ -116,6 +116,7 @@ urlpatterns = [
     url(r'^cart/update-fast-cart-details/$', views.UpdateFastCartDetails),
 
     url(r'^checkout/select-address/$', views.SelectAddress),
+    url(r'^checkout/select-billing-address/$', views.SelectBillingAddress),
     url(r'^checkout/select-offline-address/$', views.SelectOfflineAddress),
     url(r'^checkout/select-payment-mode/$', views.SelectPaymentMode),
     url(r'^checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),

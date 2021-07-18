@@ -1618,25 +1618,18 @@ class SelectAddressAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            is_b2b = data["is_b2b"]
-            shipping_address_uuid = data["shippingAddressUuid"]
-            billing_address_uuid = data["billingAddressUuid"]
+            address_uuid = data["addressUuid"]
 
+            address_obj = Address.objects.get(uuid=address_uuid)
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            shipping_address_obj = Address.objects.get(uuid=shipping_address_uuid)
-            billing_address_obj = None
-            if is_b2b:
-                billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
 
             if data.get("is_fast_cart", False)==True:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
-                fast_cart_obj.shipping_address = shipping_address_obj
-                fast_cart_obj.billing_address = billing_address_obj
+                fast_cart_obj.shipping_address = address_obj
                 fast_cart_obj.save()
             else:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
-                cart_obj.shipping_address = shipping_address_obj
-                cart_obj.billing_address = billing_address_obj
+                cart_obj.shipping_address = address_obj
                 cart_obj.save()
 
             response["status"] = 200
@@ -1651,6 +1644,47 @@ class SelectAddressAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("SelectAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class SelectBillingAddressAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SelectBillingAddressAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            billing_address_uuid = data["billingAddressUuid"]
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
+
+            if data.get("is_fast_cart", False)==True:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+                fast_cart_obj.billing_address = billing_address_obj
+                fast_cart_obj.save()
+            else:
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+                cart_obj.billing_address = billing_address_obj
+                cart_obj.save()
+
+            response["status"] = 200
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SelectBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                            
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SelectBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -10479,6 +10513,8 @@ UpdateOfflineCartDetails = UpdateOfflineCartDetailsAPI.as_view()
 RemoveFromCart = RemoveFromCartAPI.as_view()
 
 SelectAddress = SelectAddressAPI.as_view()
+
+SelectBillingAddress = SelectBillingAddressAPI.as_view()
 
 SelectOfflineAddress = SelectOfflineAddressAPI.as_view()
 
