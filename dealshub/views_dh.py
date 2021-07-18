@@ -260,7 +260,7 @@ class FetchShippingAddressListAPI(APIView):
         return Response(data=response)
 
 #API with activity log
-class EditAddressAPI(APIView):
+class EditShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -269,7 +269,7 @@ class EditAddressAPI(APIView):
         try:
 
             data = request.data
-            logger.info("EditAddressAPI: %s", str(data))
+            logger.info("EditShippingAddressAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -308,7 +308,7 @@ class EditAddressAPI(APIView):
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
 
-            render_value = address_obj.type_addr + " Address updated offline for " + address_obj.user.username
+            render_value = address_obj.type_addr + " address updated offline for " + address_obj.user.username
             activitylog(request.user, Address, "updated", address_obj.uuid, prev_address_obj, address_obj, address_obj.location_group, render_value)
             response['status'] = 200
 
@@ -317,11 +317,11 @@ class EditAddressAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("EditAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("EditShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("EditAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("EditShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -510,7 +510,7 @@ class CreateOfflineBillingAddressAPI(APIView):
 
         return Response(data=response)
 
-class DeleteAddressAPI(APIView):
+class DeleteShippingAddressAPI(APIView):
 
     def post(self, request, *args, **kwargs):
 
@@ -520,7 +520,7 @@ class DeleteAddressAPI(APIView):
         try:
 
             data = request.data
-            logger.info("DeleteAddressAPI: %s", str(data))
+            logger.info("DeleteShippingAddressAPI: %s", str(data))
             if not isinstance(data, dict):
                 data = json.loads(data)
 
@@ -547,11 +547,11 @@ class DeleteAddressAPI(APIView):
                 calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("DeleteAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("DeleteShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("DeleteAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("DeleteShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1625,7 +1625,7 @@ class SelectOfflineAddressAPI(APIView):
             if not isinstance(data, dict):
                 data = json.loads(data)
 
-            is_b2b = data["is_b2b"]
+            is_b2b = data.get("is_b2b", False)
             shipping_address_uuid = data["shippingAddressUuid"]
             shipping_address_obj = Address.objects.get(uuid=shipping_address_uuid)
             username = data["username"]
@@ -3418,7 +3418,7 @@ class FetchOfflineUserProfileAPI(APIView):
                 return Response(data=response)
 
             username = data["username"]
-            is_b2b = data["is_b2b"]
+            is_b2b = data.get("is_b2b", False)
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
 
             response["firstName"] = dealshub_user_obj.first_name
@@ -10404,7 +10404,7 @@ class FetchSEODataAPI(APIView):
 
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
-EditAddress = EditAddressAPI.as_view()
+EditShippingAddress = EditShippingAddressAPI.as_view()
 
 CreateShippingAddress = CreateShippingAddressAPI.as_view()
 
@@ -10412,7 +10412,7 @@ CreateOfflineShippingAddress = CreateOfflineShippingAddressAPI.as_view()
 
 CreateOfflineBillingAddress = CreateOfflineBillingAddressAPI.as_view()
 
-DeleteAddress = DeleteAddressAPI.as_view()
+DeleteShippingAddress = DeleteShippingAddressAPI.as_view()
 
 AddToCart = AddToCartAPI.as_view()
 

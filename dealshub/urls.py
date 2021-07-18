@@ -95,11 +95,11 @@ urlpatterns = [
     url(r'^update-unit-banner/$', views.UpdateUnitBanner),
 
     url(r'^address/fetch-shipping-address-list/$', views.FetchShippingAddressList),
-    url(r'^address/edit-address/$', views.EditAddress),
+    url(r'^address/edit-shipping-address/$', views.EditShippingAddress),
     url(r'^address/create-shipping-address/$', views.CreateShippingAddress),
     url(r'^address/create-offline-shipping-address/$', views.CreateOfflineShippingAddress),
     url(r'^address/create-offline-billing-address/$', views.CreateOfflineBillingAddress),
-    url(r'^address/delete-address/$', views.DeleteAddress),
+    url(r'^address/delete-shipping-address/$', views.DeleteShippingAddress),
 
     url(r'^cart/add-to-cart/$', views.AddToCart),
     url(r'^cart/add-to-offline_cart/$',views.AddToOfflineCart),
