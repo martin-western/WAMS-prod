@@ -3033,7 +3033,7 @@ class FetchOrderDetailsAPI(APIView):
                 data = json.loads(data)
 
             order_uuid = data["uuid"]
-            is_b2b = data["is_b2b"]
+            is_b2b = data.get("is_b2b", False)
             order_obj = Order.objects.get(uuid=order_uuid)
             voucher_obj = order_obj.voucher
             is_voucher_applied = voucher_obj is not None
