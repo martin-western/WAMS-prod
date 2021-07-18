@@ -642,7 +642,8 @@ class DealsHubProduct(models.Model):
                 logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
 
         try:
-            if self.location_group.name in ["WIGMe - UAE","WIGme - Dubai"]:
+            if self.location_group.name in ["WIGMe - UAE","WIGme - Dubai","WIGme - KWT","WIGme - BAH","WIGme - B2B"]:
+                # algolia index updated only for prod all location groups + Dubai for QA only.
                 logger.info("Update DealsHubProduct to Index: %s",str(self))
                 p1 = threading.Thread(target = add_product_to_index, args=(self,))
                 p1.start()

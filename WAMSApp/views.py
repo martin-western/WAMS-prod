@@ -1987,18 +1987,18 @@ class SaveProductAPI(APIView):
             product_obj.quantity = quantity
             
             product_obj.pfl_product_name = pfl_product_name
-            product_obj.pfl_product_features = json.dumps(pfl_product_features)
-            product_obj.pfl_product_features_ar = json.dumps(pfl_product_features_ar)
+            product_obj.pfl_product_features = pfl_product_features
+            product_obj.pfl_product_features_ar = pfl_product_features_ar
 
             product_obj.factory_notes = factory_notes
 
             product_obj.is_bundle_product = is_bundle_product
 
-            product_obj.faqs = json.dumps(faqs)
-            product_obj.how_to_use = json.dumps(how_to_use)
+            product_obj.faqs = faqs
+            product_obj.how_to_use = how_to_use
             
             if str(dynamic_form_attributes)!="{}":
-                product_obj.dynamic_form_attributes = json.dumps(dynamic_form_attributes)
+                product_obj.dynamic_form_attributes = dynamic_form_attributes
             
             product_obj.is_sap_exception = is_sap_exception
 

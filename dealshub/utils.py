@@ -1129,27 +1129,21 @@ def contact_us_send_email(your_email, message, to_email, password):
 
 
 def notify_low_stock(dealshub_product_obj):
-    try:
-        custom_permission_objs = CustomPermission.objects.filter(location_groups__in=[dealshub_product_obj.location_group])
-        for custom_permission_obj in custom_permission_objs:
-            try:
-                body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
-
-                with get_connection(
-                    host="smtp.gmail.com",
-                    port=587, 
-                    username="nisarg@omnycomm.com", 
-                    password="verjtzgeqareribg",
-                    use_tls=True) as connection:
-                    email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
-                                         body=body,
-                                         from_email='nisarg@omnycomm.com',
-                                         to=[custom_permission_obj.user.email],
-                                         connection=connection)
-                    email.send(fail_silently=True)
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("notify_low_stock: %s at %s", e, str(exc_tb.tb_lineno))        
+    try:   
+        body = "This is to inform you that "+dealshub_product_obj.get_seller_sku()+" product is out of stock. Kindly check with SAP and take appropriate action."
+        with get_connection(
+            host="smtp.gmail.com",
+            port=587, 
+            username="nisarg@omnycomm.com", 
+            password="verjtzgeqareribg",
+            use_tls=True) as connection:
+            email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
+                                    body=body,
+                                    from_email='nisarg@omnycomm.com',
+                                    to=["wigme@westernint.com","hari.pk@westernint.com","support@westernint.com","rikas.k@westernint.com"],
+                                    connection=connection)
+            email.send(fail_silently=True)
+         
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("notify_low_stock: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1159,8 +1153,9 @@ def notify_grn_error(order_obj):
     try:
         custom_permission_objs = CustomPermission.objects.filter(location_groups__in=[order_obj.location_group])
         email_list = []
+        email_record_names = ["support@westernint.com","wigme@westernint.com","hari.pk@westernint.com","rikas.k@westernint.com"]
         for custom_permission_obj in custom_permission_objs:
-            if custom_permission_obj.user.email!="":
+            if custom_permission_obj.user.email in email_record_names:
                 email_list.append(custom_permission_obj.user.email)
         try:
             body = "This is to inform you that order number "+order_obj.bundleid+" has GRN error. Kindly check on Omnycomm and take appropriate action."
@@ -1189,8 +1184,10 @@ def notify_new_products_email(filepath, location_group_obj):
         location_group_name = location_group_obj.name
         user_objs = CustomPermission.objects.filter(location_groups__pk = location_group_obj.pk)
         email_list = []
+        email_record_names = ["hari.pk@westernint.com","rikas.k@westernint.com","rashid.c@westernint.com","wigme.dm@westernint.com","arsal.k@westernint.com","support@westernint.com",]
         for user_obj in user_objs:
-            email_list.append(user_obj.user.email)
+            if user_obj.user.email in email_record_names:
+                email_list.append(user_obj.user.email)
         try:
             body = "Please find the attached sheet for new products published on " + location_group_name + "."
             subject = "Notification for new products created on " + location_group_name
@@ -1769,6 +1766,34 @@ def send_b2b_user_status_change_mail(b2b_user_obj):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_b2b_user_status_change_mail: %s at %s", e, str(exc_tb.tb_lineno))
 
+def get_section_product_listing_details(is_dealshub, language_code,section_objs):
+    dealshub_admin_sections = []
+    for section_obj in section_objs:
+        custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+        if is_dealshub==True and custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0).exists()==False:
+            continue
+        temp_dict = {}
+        temp_dict["orderIndex"] = int(section_obj.order_index)
+        temp_dict["name"] = str(section_obj.get_name(language_code))
+        temp_dict["isPublished"] = section_obj.is_published
+        temp_dict["type"] = "ProductListing"
+        temp_dict["uuid"] = str(section_obj.uuid)
+        dealshub_admin_sections.append(temp_dict)
+    return dealshub_admin_sections 
+
+
+def get_banner_type(banner_objs):
+    dealshub_admin_sections = []
+    for banner_obj in banner_objs:
+        temp_dict = {}
+        temp_dict["uuid"] = banner_obj.uuid
+        temp_dict["name"] = banner_obj.name
+        temp_dict["orderIndex"] = int(banner_obj.order_index)
+        temp_dict["type"] = "Banner"
+        temp_dict["isPublished"] = banner_obj.is_published
+        temp_dict["bannerType"] = banner_obj.banner_type.name
+        dealshub_admin_sections.append(temp_dict)
+    return dealshub_admin_sections 
 
 # utility method for FetchDealshubAdminSectionsAPI
 def get_section_products(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs):
@@ -1892,6 +1917,289 @@ def get_section_products(location_group_obj, is_dealshub, language_code, resolut
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("FetchDealshubAdminSectionsAPI get_section_products: %s at %s", e, str(exc_tb.tb_lineno))
 
+def get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs):
+    try:
+        dealshub_admin_sections = []
+        for section_obj in section_objs:
+            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+            if is_dealshub==True and custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0).exists()==False:
+                continue
+            temp_dict = {}
+            temp_dict["orderIndex"] = section_obj.order_index
+            temp_dict["type"] = "ProductListing"
+            temp_dict["uuid"] = str(section_obj.uuid)
+            temp_dict["name"] = str(section_obj.name)
+            temp_dict["listingType"] = str(section_obj.listing_type)
+            temp_dict["createdOn"] = str(datetime.datetime.strftime(section_obj.created_date, "%d %b, %Y"))
+            temp_dict["modifiedOn"] = str(datetime.datetime.strftime(section_obj.modified_date, "%d %b, %Y"))
+            temp_dict["createdBy"] = str(section_obj.created_by)
+            temp_dict["modifiedBy"] = str(section_obj.modified_by)
+            temp_dict["isPublished"] = section_obj.is_published
+
+            promotion_obj = section_obj.promotion
+            if promotion_obj is None:
+                temp_dict["is_promotional"] = False
+                temp_dict["start_time"] = None
+                temp_dict["end_time"] = None
+                temp_dict["promotion_tag"] = None
+                temp_dict["remaining_time"] = None
+            else:
+                temp_dict["is_promotional"] = True
+                temp_dict["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
+                temp_dict["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
+                now_time = datetime.datetime.now()
+                total_seconds = (timezone.localtime(promotion_obj.end_time).replace(tzinfo=None) - now_time).total_seconds()
+                temp_dict["remaining_time"] = {
+                    "days": int(total_seconds/(3600*24)),
+                    "hours": int(total_seconds/3600)%24,
+                    "minutes": int(total_seconds/60)%60,
+                    "seconds": int(total_seconds)%60
+                }
+                temp_dict["promotion_tag"] = str(promotion_obj.promotion_tag)
+
+            hovering_banner_img = section_obj.hovering_banner_image
+            if hovering_banner_img is not None:
+                temp_dict["hoveringBannerUuid"] = section_obj.hovering_banner_image.pk
+                if resolution=="low":
+                    temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.mid_image.url
+                else:
+                    temp_dict["hoveringBannerUrl"] = section_obj.hovering_banner_image.image.url
+            else:
+                temp_dict["hoveringBannerUrl"] = ""
+                temp_dict["hoveringBannerUuid"] = ""
+
+            temp_products = []
+
+            custom_product_section_objs = CustomProductSection.objects.filter(section=section_obj)
+            if is_dealshub==True:
+                custom_product_section_objs = custom_product_section_objs.exclude(product__now_price=0).exclude(product__stock=0)
+
+            dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
+            
+            section_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+            
+            section_products = list(section_products)
+            section_products.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
+            
+            section_products = section_products[:40]
+            if limit==True:
+                if section_obj.listing_type=="Carousel":
+                    section_products = section_products[:14]
+                elif section_obj.listing_type=="Grid Stack":
+                    section_products = section_products[:14]
+
+            for dealshub_product_obj in section_products:
+                if dealshub_product_obj.now_price==0:
+                    continue
+                temp_dict2 = {}
+
+                temp_dict2["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                temp_dict2["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
+                temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
+                temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
+                temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
+                temp_dict2["displayId"] = dealshub_product_obj.get_product_id()
+                temp_dict2["uuid"] = dealshub_product_obj.uuid
+                temp_dict2["link"] = dealshub_product_obj.url
+
+                if is_dealshub==True:
+                    temp_dict2["category"] = dealshub_product_obj.get_category(language_code)
+                    temp_dict2["currency"] = dealshub_product_obj.get_currency()
+                    temp_dict2["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
+                    temp_dict2["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
+                else:
+                    temp_dict2["now_price"] = dealshub_product_obj.now_price
+                    temp_dict2["now_price_cohort1"] = dealshub_product_obj.now_price_cohort1
+                    temp_dict2["now_price_cohort2"] = dealshub_product_obj.now_price_cohort2
+                    temp_dict2["now_price_cohort3"] = dealshub_product_obj.now_price_cohort3
+                    temp_dict2["now_price_cohort4"] = dealshub_product_obj.now_price_cohort4
+                    temp_dict2["now_price_cohort5"] = dealshub_product_obj.now_price_cohort5
+
+                    temp_dict2["promotional_price"] = dealshub_product_obj.promotional_price
+                    temp_dict2["promotional_price_cohort1"] = dealshub_product_obj.promotional_price_cohort1
+                    temp_dict2["promotional_price_cohort2"] = dealshub_product_obj.promotional_price_cohort2
+                    temp_dict2["promotional_price_cohort3"] = dealshub_product_obj.promotional_price_cohort3
+                    temp_dict2["promotional_price_cohort4"] = dealshub_product_obj.promotional_price_cohort4
+                    temp_dict2["promotional_price_cohort5"] = dealshub_product_obj.promotional_price_cohort5
+
+                temp_dict2["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
+                temp_dict2["moq"] = dealshub_product_obj.get_moq(dealshub_user_obj)
+                temp_dict2["stock"] = dealshub_product_obj.stock
+                temp_dict2["is_new_arrival"] = dealshub_product_obj.is_new_arrival
+                temp_dict2["is_on_sale"] = dealshub_product_obj.is_on_sale
+                if promotion_obj==None:
+                    product_promotion_details = get_product_promotion_details(dealshub_product_obj)
+                    for key in product_promotion_details.keys():
+                        temp_dict2[key]=product_promotion_details[key]
+                temp_dict2["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+                if dealshub_product_obj.stock>0:
+                    temp_dict2["isStockAvailable"] = True
+                else:
+                    temp_dict2["isStockAvailable"] = False
+
+                temp_products.append(temp_dict2)
+            temp_dict["products"] = temp_products
+            dealshub_admin_sections.append(temp_dict)
+
+        return dealshub_admin_sections
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("FetchB2BDealshubAdminSectionsAPI get_section_products: %s at %s", e, str(exc_tb.tb_lineno))        
+
+def get_banner_image_objects_b2b(is_dealshub, language_code, resolution, banner_objs):
+    try:
+        dealshub_admin_sections = []
+        for banner_obj in banner_objs:
+            unit_banner_image_objs = UnitBannerImage.objects.filter(banner=banner_obj)
+
+            if is_dealshub:
+                valid_unit_banner_image_objs = UnitBannerImage.objects.none()
+                for unit_banner_image_obj in unit_banner_image_objs:
+                    promotion_obj = unit_banner_image_obj.promotion
+                    if promotion_obj is not None:
+                        if check_valid_promotion(promotion_obj):
+                            valid_unit_banner_image_objs |= UnitBannerImage.objects.filter(pk=unit_banner_image_obj.pk)
+                    else:
+                        valid_unit_banner_image_objs |= UnitBannerImage.objects.filter(pk=unit_banner_image_obj.pk)
+                unit_banner_image_objs = valid_unit_banner_image_objs
+
+            banner_images = []
+            temp_dict = {}
+            temp_dict["orderIndex"] = banner_obj.order_index
+            temp_dict["type"] = "Banner"
+            temp_dict["uuid"] = banner_obj.uuid
+            temp_dict["name"] = banner_obj.name
+            temp_dict["bannerType"] = banner_obj.banner_type.name
+            temp_dict["limit"] = banner_obj.banner_type.limit
+            for unit_banner_image_obj in unit_banner_image_objs:
+                temp_dict2 = {}
+                temp_dict2["uid"] = unit_banner_image_obj.uuid
+                temp_dict2["httpLink"] = unit_banner_image_obj.http_link
+                temp_dict2["url"] = ""
+                temp_dict2["url-ar"] = ""
+
+                try:
+                    if unit_banner_image_obj.image!=None:
+                        if resolution=="low":
+                            temp_dict2["url"] = unit_banner_image_obj.image.mid_image.url
+                            if unit_banner_image_obj.image_ar!=None:
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.mid_image.url
+                            else:
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image.mid_image.url
+                        else:
+                            temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
+                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                            temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
+                            if unit_banner_image_obj.image_ar!=None:
+                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
+                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
+                            else:
+                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchB2BDealshubAdminSectionsAPI: %s at %s with image %s", e, str(exc_tb.tb_lineno),  str(unit_banner_image_obj.uuid))
+
+                temp_dict2["mobileUrl"] = ""
+                temp_dict2["mobileUrl-ar"] = ""
+                if unit_banner_image_obj.mobile_image!=None:
+                    if resolution=="low":
+                        temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.mid_image.url
+                        if unit_banner_image_obj.mobile_image_ar!=None:
+                            temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.mid_image.url
+                        else:
+                            temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.mid_image.url
+                    else:
+                        temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
+                        temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+                        temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
+                        if unit_banner_image_obj.mobile_image_ar!=None:
+                            temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                            temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                            temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
+                        else:
+                            temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
+                            temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
+                            temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image.webp_image.url
+
+                hovering_banner_img = unit_banner_image_obj.hovering_banner_image
+                if hovering_banner_img is not None:
+                    temp_dict2["hoveringBannerUuid"] = unit_banner_image_obj.hovering_banner_image.pk
+                    if resolution=="low":
+                        temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
+                    else:
+                        temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
+                else:
+                    temp_dict2["hoveringBannerUrl"] = ""
+                    temp_dict2["hoveringBannerUuid"] = ""
+
+                promotion_obj = unit_banner_image_obj.promotion
+                if promotion_obj is None:
+                    temp_dict2["is_promotional"] = False
+                    temp_dict2["start_time"] = None
+                    temp_dict2["end_time"] = None
+                    temp_dict2["promotion_tag"] = None
+                else:
+                    temp_dict2["is_promotional"] = True
+                    temp_dict2["start_time"] = str(timezone.localtime(promotion_obj.start_time))[:19]
+                    temp_dict2["end_time"] = str(timezone.localtime(promotion_obj.end_time))[:19]
+                    temp_dict2["promotion_tag"] = str(promotion_obj.promotion_tag)
+
+
+                custom_product_unit_banner_objs = CustomProductUnitBanner.objects.filter(unit_banner=unit_banner_image_obj)
+                if is_dealshub==True:
+                    custom_product_unit_banner_objs = custom_product_unit_banner_objs.exclude(product__now_price=0).exclude(product__stock=0)
+
+                dealshub_product_uuid_list = list(custom_product_unit_banner_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
+                unit_banner_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+
+                unit_banner_products = list(unit_banner_products)
+                unit_banner_products.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
+
+                if is_dealshub==False :
+                    temp_products = []
+                    for dealshub_product_obj in unit_banner_products[:40]:
+                        if dealshub_product_obj.now_price==0:
+                            continue
+                        temp_dict3 = {}
+
+                        temp_dict3["thumbnailImageUrl"] = dealshub_product_obj.get_display_image_url()
+                        temp_dict3["optimizedThumbnailImageUrl"] = dealshub_product_obj.get_optimized_display_image_url()
+                        temp_dict3["name"] = dealshub_product_obj.get_name(language_code)
+                        temp_dict3["displayId"] = dealshub_product_obj.get_product_id()
+                        temp_dict3["sellerSku"] = dealshub_product_obj.get_seller_sku()
+                        temp_dict3["brand"] = dealshub_product_obj.get_brand(language_code)
+                        temp_dict3["uuid"] = dealshub_product_obj.uuid
+                        temp_dict3["link"] = dealshub_product_obj.url
+
+                        promotion_obj = dealshub_product_obj.promotion
+
+                        temp_dict3["promotional_price"] = dealshub_product_obj.promotional_price
+                        temp_dict3["now_price"] = dealshub_product_obj.now_price
+                        temp_dict3["was_price"] = dealshub_product_obj.was_price
+                        temp_dict3["stock"] = dealshub_product_obj.stock
+                        temp_dict3["allowedQty"] = dealshub_product_obj.get_allowed_qty()
+                        if dealshub_product_obj.stock>0:
+                            temp_dict3["isStockAvailable"] = True
+                        else:
+                            temp_dict3["isStockAvailable"] = False
+
+                        temp_products.append(temp_dict3)    # No need to Send all
+                    temp_dict2["products"] = temp_products
+                
+                temp_dict2["has_products"] = len(unit_banner_products)>0
+                banner_images.append(temp_dict2)
+
+            temp_dict["bannerImages"] = banner_images
+            temp_dict["isPublished"] = banner_obj.is_published
+
+            dealshub_admin_sections.append(temp_dict)
+        return dealshub_admin_sections
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("FetchB2BDealshubAdminSectionsAPI get_banner_image_objects: %s at %s", e, str(exc_tb.tb_lineno))
 # utility method for FetchDealshubAdminSectionsAPI
 def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs):
     try:
@@ -1934,16 +2242,28 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
                             else:
                                 temp_dict2["url-ar"] = ""
                         else:
-                            temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
-                            temp_dict2["url"] = unit_banner_image_obj.image.image.url
+                            if unit_banner_image_obj.image.optimal_image!=None:
+                                temp_dict2["url-jpg"] = unit_banner_image_obj.image.optimal_image.url
+                                temp_dict2["url"] = unit_banner_image_obj.image.optimal_image.url
+                            else:
+                                temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
+                                temp_dict2["url"] = unit_banner_image_obj.image.image.url
                             temp_dict2["urlWebp"] = unit_banner_image_obj.image.webp_image.url
                             if unit_banner_image_obj.image_ar!=None:
-                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
+                                if unit_banner_image_obj.image.optimal_image!=None:
+                                    temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.optimal_image.url
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.optimal_image.url
+                                else:
+                                    temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image_ar.image.url
+                                    temp_dict2["url-ar"] = unit_banner_image_obj.image_ar.image.url
                                 temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image_ar.webp_image.url
                             else:
-                                temp_dict2["url-jpg-ar"] = unit_banner_image_obj.image.image.url
-                                temp_dict2["url-ar"] = unit_banner_image_obj.image.image.url
+                                if unit_banner_image_obj.image.optimal_image!=None:
+                                    temp_dict2["url-jpg"] = unit_banner_image_obj.image.optimal_image.url
+                                    temp_dict2["url"] = unit_banner_image_obj.image.optimal_image.url
+                                else:
+                                    temp_dict2["url-jpg"] = unit_banner_image_obj.image.image.url
+                                    temp_dict2["url"] = unit_banner_image_obj.image.image.url
                                 temp_dict2["urlWebp-ar"] = unit_banner_image_obj.image.webp_image.url
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1960,16 +2280,28 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
                             else:
                                 temp_dict2["mobileUrl-ar"] = ""
                         else:
-                            temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
-                            temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
+                            if unit_banner_image_obj.mobile_image.optimal_image!=None:
+                                temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.optimal_image.url
+                                temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.optimal_image.url
+                            else:
+                                temp_dict2["mobileUrl-jpg"] = unit_banner_image_obj.mobile_image.image.url
+                                temp_dict2["mobileUrl"] = unit_banner_image_obj.mobile_image.image.url
                             temp_dict2["mobileUrlWebp"] = unit_banner_image_obj.mobile_image.webp_image.url
                             if unit_banner_image_obj.mobile_image_ar!=None:
-                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                if unit_banner_image_obj.mobile_image_ar.optimal_image!=None:   
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.optimal_image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.optimal_image.url
+                                else:
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image_ar.image.url
                                 temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image_ar.webp_image.url
                             else:
-                                temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
-                                temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                if unit_banner_image_obj.mobile_image.optimal_image!=None:
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.optimal_image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.optimal_image.url
+                                else:
+                                    temp_dict2["mobileUrl-jpg-ar"] = unit_banner_image_obj.mobile_image.image.url
+                                    temp_dict2["mobileUrl-ar"] = unit_banner_image_obj.mobile_image.image.url
                                 temp_dict2["mobileUrlWebp-ar"] = unit_banner_image_obj.mobile_image.webp_image.url
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1981,7 +2313,10 @@ def get_banner_image_objects(is_dealshub, language_code, resolution, banner_objs
                     if resolution=="low":
                         temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.mid_image.url
                     else:
-                        temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
+                        if unit_banner_image_obj.hovering_banner_image.optimal_image!=None:  
+                            temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.optimal_image.url
+                        else:
+                            temp_dict2["hoveringBannerUrl"] = unit_banner_image_obj.hovering_banner_image.image.url
                 else:
                     temp_dict2["hoveringBannerUrl"] = ""
                     temp_dict2["hoveringBannerUuid"] = ""
@@ -2071,8 +2406,8 @@ def sendex_add_consignment(order_obj, modified_weight):
         sendex_dict["PackageType"] = "Parcel"
         sendex_dict["CurrencyCode"] = order_obj.get_currency()
         sendex_dict["NcndAmount"] = str(float(order_obj.get_sendex_ncnd_amount()))
-        sendex_dict["ItemDescription"] = ""
-        sendex_dict["SpecialInstruction"] = ""
+        sendex_dict["ItemDescription"] = get_sellersku_and_quantity(order_obj)
+        sendex_dict["SpecialInstruction"] = order_obj.additional_note
         sendex_dict["BranchName"] = "Dubai"
         response = get_sendex_api_response(sendex_dict, SENDEX_ADD_CONSIGNMENT_URL)
         order_obj.sendex_request_json = json.dumps(sendex_dict)
@@ -2219,15 +2554,6 @@ def sha256_encode(string):
     result = hashlib.sha256(string.encode())
     return result.hexdigest()
 
-def visitor_ip_address(request):
-
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
 
 def calling_facebook_api(event_name,user,request,custom_data=None):
     try:
@@ -2242,6 +2568,12 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
 
         access_token = "EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG"
         pixel_id = '501666847923989'
+        event_source_url = "https://www.wigme.com"
+
+        now_time = int(time.time())
+        logger.info("in calling_facebook_api:- ")
+        # x_forwarded_for = request.META["HTTP_X_FORWARDED_FOR"]
+        # logger.info(request.META)
 
         FacebookAdsApi.init(access_token=access_token)
 
@@ -2254,14 +2586,18 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             states=[state],
             zip_codes=[postcode],
             country_codes=[country],
+            client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
+            client_user_agent=request.META["HTTP_USER_AGENT"],
+            fbp= "fb.1.1625138246273.541394957",
         )
 
         events = []
         if custom_data == None:
             event = Event(
                 event_name=event_name,
-                event_time=int(time.time()),
+                event_time=now_time,
                 user_data=user_data,
+                event_source_url= event_source_url,
                 action_source=ActionSource.WEBSITE,
             )
             events = [event]
@@ -2270,8 +2606,9 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             for custom_data_item in custom_data:
                 event = Event(
                     event_name=event_name,
-                    event_time=int(time.time()),
+                    event_time=now_time,
                     user_data=user_data,
+                    event_source_url= event_source_url, 
                     action_source=ActionSource.WEBSITE,
                     custom_data=custom_data_item,
                 )
@@ -2280,11 +2617,10 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         event_request = EventRequest(
             events=events,
             pixel_id=pixel_id,
-            test_event_code="TEST89694",
+            test_event_code="TEST70359",
         )
-        logger.info("calling_facebook_api success 1:- ",json.loads(event_request.execute()))
-        # event_response = event_request.execute()
-        # logger.info("calling_facebook_api success 2:- ",event_request.execute())
+        event_response = event_request.execute()
+        logger.info(event_response)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()

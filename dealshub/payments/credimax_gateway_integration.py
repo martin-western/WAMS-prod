@@ -94,12 +94,12 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 "apiOperation": "CREATE_CHECKOUT_SESSION",
                 "interaction":{
                     "operation": "AUTHORIZE",
-                    "returnUrl": "https://qakrypton.omnycomm.com/transaction-processing/",
+                    "returnUrl": "https://bahrain.wigme.com/transaction-processing/",
                 },
                 "order":{
                     "id": str(order_id),
                     "amount": amount,
-                    "currency": "BHD",
+                    "currency": currency,
                 },
             }
 
@@ -120,16 +120,16 @@ class MakePaymentCredimaxGatewayAPI(APIView):
                 fast_cart_obj.save()
             response["transactionData"] = {
                 "sessionId":session_id,
-                "success_indicator":success_indicator,
                 "order": { 
-                    "currency": "BHD", 
+                    "currency": currency, 
                     "amount": amount,
                     "id": order_id,
                 },
                 "billing": {
                     "address": {
-                        "street": address_lines[0] + "\n"+ address_lines[1] + "\n"+address_lines[2] + "\n",
-                        "street2":address_lines[3] + "\n"+ neighbourhood + "\n"+emirates + "\n",
+                        "street": address_lines[0] + "\n" + address_lines[1] + "\n",
+                        "street2":address_lines[2] + "\n" + address_lines[3] + "\n",
+                        "city":emirates,
                         "postcodeZip":postcode,
                         "country_code": country_code,
                     },
