@@ -143,7 +143,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
             
             try:
                 network_global_log_obj.response = payment_response.content
-                network_global_log_obj.status_code = payment_response.status_code
+                network_global_log_obj.is_response_received = True
                 network_global_log_obj.save()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -274,7 +274,7 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
             
             try:
                 network_global_log_obj.response = payment_response.content
-                network_global_log_obj.status_code = payment_response.status_code
+                network_global_log_obj.is_response_received = True
                 network_global_log_obj.save()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
