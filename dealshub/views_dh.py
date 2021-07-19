@@ -2899,13 +2899,15 @@ class FetchOrderRequestListAPI(APIView):
                         "line2": json.loads(address_obj.address_lines)[1],
                         "emirates": address_obj.emirates
                     }
+                    temp_dict["billingAddress"] = {}
                     billing_address_obj = order_request_obj.billing_address
-                    temp_dict["billingAddress"] = {
-                        "tag": billing_address_obj.tag,
-                        "line1": json.loads(billing_address_obj.address_lines)[0],
-                        "line2": json.loads(billing_address_obj.address_lines)[1],
-                        "emirates": billing_address_obj.emirates
-                    }
+                    if billing_address_obj != None:
+                        temp_dict["billingAddress"] = {
+                            "tag": billing_address_obj.tag,
+                            "line1": json.loads(billing_address_obj.address_lines)[0],
+                            "line2": json.loads(billing_address_obj.address_lines)[1],
+                            "emirates": billing_address_obj.emirates
+                        }
 
                     unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
                     if order_request_obj.request_status == "Approved" and unit_order_request_objs.exclude(request_status="Rejected").count() != unit_order_request_objs.count():
