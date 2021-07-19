@@ -2800,7 +2800,7 @@ class FetchOrderListAPI(APIView):
                     temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address()
                     temp_dict["billingAddress"] = ""
                     if order_obj.billing_address != None:
-                        temp_dict["billingAddress"] = order_obj.billing_address.get_address()
+                        temp_dict["billingAddress"] = order_obj.billing_address.get_shipping_address()
 
                     unit_order_objs = UnitOrder.objects.filter(order=order_obj)
                     unit_order_list = []
