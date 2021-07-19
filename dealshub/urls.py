@@ -95,8 +95,10 @@ urlpatterns = [
     url(r'^update-unit-banner/$', views.UpdateUnitBanner),
 
     url(r'^address/fetch-shipping-address-list/$', views.FetchShippingAddressList),
+    url(r'^address/fetch-billing-address-list/$', views.FetchBillingAddressList),
     url(r'^address/edit-shipping-address/$', views.EditShippingAddress),
     url(r'^address/create-shipping-address/$', views.CreateShippingAddress),
+    url(r'^address/create-billing-address/$', views.CreateBillingAddress),
     url(r'^address/create-offline-shipping-address/$', views.CreateOfflineShippingAddress),
     url(r'^address/create-offline-billing-address/$', views.CreateOfflineBillingAddress),
     url(r'^address/delete-shipping-address/$', views.DeleteShippingAddress),
@@ -115,6 +117,7 @@ urlpatterns = [
     url(r'^cart/update-fast-cart-details/$', views.UpdateFastCartDetails),
 
     url(r'^checkout/select-address/$', views.SelectAddress),
+    url(r'^checkout/select-billing-address/$', views.SelectBillingAddress),
     url(r'^checkout/select-offline-address/$', views.SelectOfflineAddress),
     url(r'^checkout/select-payment-mode/$', views.SelectPaymentMode),
     url(r'^checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),
