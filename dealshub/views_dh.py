@@ -1994,7 +1994,10 @@ class PlaceOrderRequestAPI(APIView):
                     if cart_obj.shipping_address==None:
                         address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         cart_obj.shipping_address = address_obj
-                        cart_obj.save()
+                    if cart_obj.billing_address==None:
+                        billing_address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="billing")[0]
+                        cart_obj.billing_address = billing_address_obj
+                    cart_obj.save()
                 except Exception as e:
                     pass
 
@@ -2014,6 +2017,7 @@ class PlaceOrderRequestAPI(APIView):
                     cod_charge = 0
                 order_request_obj = OrderRequest.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
+                                                 billing_address=cart_obj.billing_address,
                                                  to_pay=cart_obj.to_pay,
                                                  real_to_pay=cart_obj.to_pay,
                                                  voucher=cart_obj.voucher,
@@ -2034,6 +2038,7 @@ class PlaceOrderRequestAPI(APIView):
                     unit_cart_obj.delete()
 
                 # cart_obj points to None
+                cart_obj.billing_address = None
                 cart_obj.shipping_address = None
                 cart_obj.voucher = None
                 cart_obj.to_pay = 0
@@ -2048,7 +2053,10 @@ class PlaceOrderRequestAPI(APIView):
                     if fast_cart_obj.shipping_address==None:
                         address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         fast_cart_obj.shipping_address = address_obj
-                        fast_cart_obj.save()
+                    if fast_cart_obj.billing_address==None:
+                        billing_address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="billing")[0]
+                        fast_cart_obj.billing_address = billing_address_obj
+                    fast_cart_obj.save()
                 except Exception as e:
                     pass
 
@@ -2063,6 +2071,7 @@ class PlaceOrderRequestAPI(APIView):
 
                 order_request_obj = OrderRequest.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
+                                                 billing_address=fast_cart_obj.billing_address,
                                                  to_pay=fast_cart_obj.to_pay,
                                                  real_to_pay=fast_cart_obj.to_pay,
                                                  voucher=fast_cart_obj.voucher,
@@ -2076,7 +2085,8 @@ class PlaceOrderRequestAPI(APIView):
                                                           initial_quantity=fast_cart_obj.quantity,
                                                           initial_price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
 
-                # cart_obj points to None
+                # fast_cart_obj points to None
+                fast_cart_obj.billing_address = None
                 fast_cart_obj.shipping_address = None
                 fast_cart_obj.voucher = None
                 fast_cart_obj.to_pay = 0
@@ -2164,6 +2174,7 @@ class ProcessOrderRequestAPI(APIView):
 
                 order_obj = Order.objects.create(owner = order_request_obj.owner,
                                                  shipping_address=order_request_obj.shipping_address,
+                                                 billing_address=order_request_obj.billing_address,
                                                  to_pay=order_request_obj.to_pay,
                                                  real_to_pay=order_request_obj.to_pay,
                                                  payment_mode = order_request_obj.payment_mode,
@@ -2373,6 +2384,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
 
             order_obj = Order.objects.create(owner = order_request_obj.owner,
                                              shipping_address=order_request_obj.shipping_address,
+                                             billing_address=order_request_obj.billing_address,
                                              to_pay=order_request_obj.to_pay,
                                              real_to_pay=order_request_obj.to_pay,
                                              order_placed_date=timezone.now(),
@@ -2786,6 +2798,9 @@ class FetchOrderListAPI(APIView):
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                     temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address()
+                    temp_dict["billingAddress"] = ""
+                    if order_obj.billing_address != None:
+                        temp_dict["billingAddress"] = order_obj.billing_address.get_address()
 
                     unit_order_objs = UnitOrder.objects.filter(order=order_obj)
                     unit_order_list = []
@@ -2883,6 +2898,13 @@ class FetchOrderRequestListAPI(APIView):
                         "line1": json.loads(address_obj.address_lines)[0],
                         "line2": json.loads(address_obj.address_lines)[1],
                         "emirates": address_obj.emirates
+                    }
+                    billing_address_obj = order_request_obj.billing_address
+                    temp_dict["billingAddress"] = {
+                        "tag": billing_address_obj.tag,
+                        "line1": json.loads(billing_address_obj.address_lines)[0],
+                        "line2": json.loads(billing_address_obj.address_lines)[1],
+                        "emirates": billing_address_obj.emirates
                     }
 
                     unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)

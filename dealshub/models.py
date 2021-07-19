@@ -1055,7 +1055,8 @@ class OrderRequest(models.Model):
     owner = models.ForeignKey('DealsHubUser',on_delete = models.CASCADE)
     uuid = models.CharField(max_length = 200,default="")
     date_created = models.DateTimeField(auto_now_add=True)
-    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="orderrequest_set_from_shipping_address")
+    billing_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="orderrequest_set_from_billing_address")
     payment_mode = models.CharField(max_length=50, default="COD")
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
@@ -1086,6 +1087,10 @@ class OrderRequest(models.Model):
                 except Exception as e:
                     pass
                 self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+
+        if self.billing_address != None:
+            self.billing_address.type_addr = "billing"
+            self.billing_address.save()
 
         super(OrderRequest, self).save(*args, **kwargs)
 
