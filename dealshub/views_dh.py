@@ -1730,11 +1730,11 @@ class SelectBillingAddressAPI(APIView):
             billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
 
             if data.get("is_fast_cart", False)==True:
-                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=billing_address_obj.location_group)
                 fast_cart_obj.billing_address = billing_address_obj
                 fast_cart_obj.save()
             else:
-                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=address_obj.location_group)
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=billing_address_obj.location_group)
                 cart_obj.billing_address = billing_address_obj
                 cart_obj.save()
 
