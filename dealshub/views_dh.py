@@ -264,7 +264,8 @@ class FetchBillingAddressListAPI(APIView):
             for address_obj in address_objs:
                 billing_address_list.append(get_address_dict(address_obj))
 
-            logger.info(f"FetchBillingAddressListAPI: {request.user}, {billing_address_list}, {user}, {user.username}")
+            hasattr1 = hasattr(user, "prime_billing_address")
+            logger.info(f"FetchBillingAddressListAPI: {request.user}, {billing_address_list}, {user}, {user.pk}, {user.username}, isinstance={isinstance(user, DealsHubUser)}, hasattr1={hasattr1}")
             response['billingAddressList'] = billing_address_list
             response['primeBillingAddress'] = get_address_dict(user.prime_billing_address)
             response['status'] = 200
