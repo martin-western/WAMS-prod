@@ -380,9 +380,9 @@ class CreateShippingAddressAPI(APIView):
             if postcode==None:
                 postcode = ""
             contact_number = dealshub_user_obj.contact_number
-            tag = data.get("tag", "")
+            tag = data.get("tag", "home")
             if tag==None:
-                tag = ""
+                tag = "home"
 
             if dealshub_user_obj.first_name=="":
                 dealshub_user_obj.first_name = first_name
@@ -448,9 +448,9 @@ class CreateBillingAddressAPI(APIView):
             if postcode==None:
                 postcode = ""
             contact_number = dealshub_user_obj.contact_number
-            tag = data.get("tag", "")
+            tag = data.get("tag", "home")
             if tag==None:
-                tag = ""
+                tag = "home"
 
             if dealshub_user_obj.first_name=="":
                 dealshub_user_obj.first_name = first_name
