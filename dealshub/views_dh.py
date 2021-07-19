@@ -7352,7 +7352,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             
             currency = location_group_obj.location.currency
 
-            paginator = Paginator(order_objs, 20)
+            paginator = Paginator(order_objs, 10)
             total_orders = order_objs.count()
             order_objs = paginator.page(page)
 
