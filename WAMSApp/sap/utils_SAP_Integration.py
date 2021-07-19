@@ -817,7 +817,7 @@ def create_holding_transfer_report(dealshub_product_objs):
                     common_row[9] = str(response_dict["stock_status"])
                     common_row[10] = str(response_dict["SAP_message"])
 
-                    if isNoneOrEmpty(response_dict["total_holding_after"]) != True:
+                    if isNoneOrEmpty(response_dict["total_holding_after"]) != True and dealshub_product_obj.product.base_product.brand.name.lower() != "ecka":
                         dealshub_product_obj.stock = int(response_dict["total_holding_after"])
                         dealshub_product_obj.save()
 
