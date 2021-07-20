@@ -225,23 +225,7 @@ class FetchShippingAddressListAPI(APIView):
 
             address_list = []
             for address_obj in address_objs:
-                temp_dict = {}
-                temp_dict['firstName'] = address_obj.first_name
-                temp_dict['lastName'] = address_obj.last_name
-                temp_dict['line1'] = json.loads(address_obj.address_lines)[0]
-                temp_dict['line2'] = json.loads(address_obj.address_lines)[1]
-                temp_dict['line3'] = json.loads(address_obj.address_lines)[2]
-                temp_dict['line4'] = json.loads(address_obj.address_lines)[3]
-                temp_dict['state'] = address_obj.state
-                temp_dict['country'] = address_obj.get_country()
-                temp_dict['postcode'] = address_obj.postcode
-                temp_dict['contactNumber'] = str(address_obj.contact_number)
-                temp_dict['tag'] = str(address_obj.tag)
-                temp_dict['neighbourhood'] = str(address_obj.neighbourhood)
-                temp_dict['emirates'] = str(address_obj.emirates)
-                temp_dict['uuid'] = str(address_obj.uuid)
-
-                address_list.append(temp_dict)
+                address_list.append(get_address_dict(address_obj))
 
             response['addressList'] = address_list
             response['status'] = 200
@@ -256,6 +240,45 @@ class FetchShippingAddressListAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchShippingAddressListAPI: %s at %s",e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
+
+class FetchBillingAddressListAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchBillingAddressListAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            user = request.user
+            location_group_uuid = data["locationGroupUuid"]
+            address_objs = Address.objects.filter(type_addr="billing", is_deleted=False, user=user, location_group__uuid=location_group_uuid)
+            
+            billing_address_list = []
+            for address_obj in address_objs:
+                billing_address_list.append(get_address_dict(address_obj))
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=user.username)
+            response['billingAddressList'] = billing_address_list
+            response['primeBillingAddress'] = get_address_dict(dealshub_user_obj.prime_billing_address)
+            response['status'] = 200
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchBillingAddressListAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchBillingAddressListAPI: %s at %s",e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
 
@@ -357,16 +380,26 @@ class CreateShippingAddressAPI(APIView):
             if postcode==None:
                 postcode = ""
             contact_number = dealshub_user_obj.contact_number
-            tag = data.get("tag", "")
+            tag = data.get("tag", "home")
             if tag==None:
-                tag = ""
+                tag = "home"
 
             if dealshub_user_obj.first_name=="":
                 dealshub_user_obj.first_name = first_name
                 dealshub_user_obj.last_name = last_name
                 dealshub_user_obj.save()
 
-            address_obj = Address.objects.create(first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, user=dealshub_user_obj, tag=tag, location_group=location_group_obj, neighbourhood=neighbourhood, emirates=emirates)
+            address_obj = Address.objects.create(first_name=first_name, 
+                                                last_name=last_name, 
+                                                address_lines=address_lines, 
+                                                state=state, postcode=postcode, 
+                                                contact_number=contact_number, 
+                                                user=dealshub_user_obj, 
+                                                tag=tag, 
+                                                location_group=location_group_obj, 
+                                                neighbourhood=neighbourhood, 
+                                                emirates=emirates,
+                                                type_addr="shipping")
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
@@ -380,6 +413,74 @@ class CreateShippingAddressAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("CreateShippingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+class CreateBillingAddressAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        response['status'] = 500
+        try:
+
+            data = request.data
+            logger.info("CreateBillingAddressAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+
+            first_name = data["firstName"]
+            last_name = data.get("lastName", "")
+            line1 = data["line1"]
+            line2 = data["line2"]
+            line3 = ""
+            line4 = location_group_obj.location.name
+            address_lines = json.dumps([line1, line2, line3, line4])
+            state = ""
+            postcode = ""
+            neighbourhood = data.get("neighbourhood", "")
+            emirates = data.get("emirates", "")
+            if postcode==None:
+                postcode = ""
+            contact_number = dealshub_user_obj.contact_number
+            tag = data.get("tag", "home")
+            if tag==None:
+                tag = "home"
+
+            if dealshub_user_obj.first_name=="":
+                dealshub_user_obj.first_name = first_name
+                dealshub_user_obj.last_name = last_name
+                dealshub_user_obj.save()
+
+            address_obj = Address.objects.create(first_name=first_name, 
+                                                last_name=last_name, 
+                                                address_lines=address_lines, 
+                                                state=state, postcode=postcode, 
+                                                contact_number=contact_number, 
+                                                user=dealshub_user_obj, 
+                                                tag=tag, 
+                                                location_group=location_group_obj, 
+                                                neighbourhood=neighbourhood, 
+                                                emirates=emirates,
+                                                type_addr="billing")
+
+            response["uuid"] = address_obj.uuid
+            response['status'] = 200
+
+            try:
+                calling_facebook_api(event_name="FindLocation",user=dealshub_user_obj,request=request,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("CreateBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("CreateBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
@@ -1612,6 +1713,47 @@ class SelectAddressAPI(APIView):
         
         return Response(data=response)
 
+
+class SelectBillingAddressAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("SelectBillingAddressAPI: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            billing_address_uuid = data["billingAddressUuid"]
+            dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
+
+            if data.get("is_fast_cart", False)==True:
+                fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=billing_address_obj.location_group)
+                fast_cart_obj.billing_address = billing_address_obj
+                fast_cart_obj.save()
+            else:
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=billing_address_obj.location_group)
+                cart_obj.billing_address = billing_address_obj
+                cart_obj.save()
+
+            response["status"] = 200
+
+            try:
+                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("SelectBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                            
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("SelectBillingAddressAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
 #API with active log
 class SelectOfflineAddressAPI(APIView):
 
@@ -1852,7 +1994,10 @@ class PlaceOrderRequestAPI(APIView):
                     if cart_obj.shipping_address==None:
                         address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         cart_obj.shipping_address = address_obj
-                        cart_obj.save()
+                    if cart_obj.billing_address==None:
+                        billing_address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="billing")[0]
+                        cart_obj.billing_address = billing_address_obj
+                    cart_obj.save()
                 except Exception as e:
                     pass
 
@@ -1872,6 +2017,7 @@ class PlaceOrderRequestAPI(APIView):
                     cod_charge = 0
                 order_request_obj = OrderRequest.objects.create(owner=cart_obj.owner,
                                                  shipping_address=cart_obj.shipping_address,
+                                                 billing_address=cart_obj.billing_address,
                                                  to_pay=cart_obj.to_pay,
                                                  real_to_pay=cart_obj.to_pay,
                                                  voucher=cart_obj.voucher,
@@ -1892,6 +2038,7 @@ class PlaceOrderRequestAPI(APIView):
                     unit_cart_obj.delete()
 
                 # cart_obj points to None
+                cart_obj.billing_address = None
                 cart_obj.shipping_address = None
                 cart_obj.voucher = None
                 cart_obj.to_pay = 0
@@ -1906,7 +2053,10 @@ class PlaceOrderRequestAPI(APIView):
                     if fast_cart_obj.shipping_address==None:
                         address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
                         fast_cart_obj.shipping_address = address_obj
-                        fast_cart_obj.save()
+                    if fast_cart_obj.billing_address==None:
+                        billing_address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="billing")[0]
+                        fast_cart_obj.billing_address = billing_address_obj
+                    fast_cart_obj.save()
                 except Exception as e:
                     pass
 
@@ -1921,6 +2071,7 @@ class PlaceOrderRequestAPI(APIView):
 
                 order_request_obj = OrderRequest.objects.create(owner=fast_cart_obj.owner,
                                                  shipping_address=fast_cart_obj.shipping_address,
+                                                 billing_address=fast_cart_obj.billing_address,
                                                  to_pay=fast_cart_obj.to_pay,
                                                  real_to_pay=fast_cart_obj.to_pay,
                                                  voucher=fast_cart_obj.voucher,
@@ -1934,7 +2085,8 @@ class PlaceOrderRequestAPI(APIView):
                                                           initial_quantity=fast_cart_obj.quantity,
                                                           initial_price=fast_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))
 
-                # cart_obj points to None
+                # fast_cart_obj points to None
+                fast_cart_obj.billing_address = None
                 fast_cart_obj.shipping_address = None
                 fast_cart_obj.voucher = None
                 fast_cart_obj.to_pay = 0
@@ -2022,6 +2174,7 @@ class ProcessOrderRequestAPI(APIView):
 
                 order_obj = Order.objects.create(owner = order_request_obj.owner,
                                                  shipping_address=order_request_obj.shipping_address,
+                                                 billing_address=order_request_obj.billing_address,
                                                  to_pay=order_request_obj.to_pay,
                                                  real_to_pay=order_request_obj.to_pay,
                                                  payment_mode = order_request_obj.payment_mode,
@@ -2231,6 +2384,7 @@ class PlaceB2BOnlineOrderAPI(APIView):
 
             order_obj = Order.objects.create(owner = order_request_obj.owner,
                                              shipping_address=order_request_obj.shipping_address,
+                                             billing_address=order_request_obj.billing_address,
                                              to_pay=order_request_obj.to_pay,
                                              real_to_pay=order_request_obj.to_pay,
                                              order_placed_date=timezone.now(),
@@ -2644,6 +2798,9 @@ class FetchOrderListAPI(APIView):
                     if is_voucher_applied:
                         temp_dict["voucherCode"] = voucher_obj.voucher_code
                     temp_dict["shippingAddress"] = order_obj.shipping_address.get_shipping_address()
+                    temp_dict["billingAddress"] = ""
+                    if order_obj.billing_address != None:
+                        temp_dict["billingAddress"] = order_obj.billing_address.get_shipping_address()
 
                     unit_order_objs = UnitOrder.objects.filter(order=order_obj)
                     unit_order_list = []
@@ -2742,6 +2899,15 @@ class FetchOrderRequestListAPI(APIView):
                         "line2": json.loads(address_obj.address_lines)[1],
                         "emirates": address_obj.emirates
                     }
+                    temp_dict["billingAddress"] = {}
+                    billing_address_obj = order_request_obj.billing_address
+                    if billing_address_obj != None:
+                        temp_dict["billingAddress"] = {
+                            "tag": billing_address_obj.tag,
+                            "line1": json.loads(billing_address_obj.address_lines)[0],
+                            "line2": json.loads(billing_address_obj.address_lines)[1],
+                            "emirates": billing_address_obj.emirates
+                        }
 
                     unit_order_request_objs = UnitOrderRequest.objects.filter(order_request=order_request_obj)
                     if order_request_obj.request_status == "Approved" and unit_order_request_objs.exclude(request_status="Rejected").count() != unit_order_request_objs.count():
@@ -7214,7 +7380,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
             
             currency = location_group_obj.location.currency
 
-            paginator = Paginator(order_objs, 20)
+            paginator = Paginator(order_objs, 10)
             total_orders = order_objs.count()
             order_objs = paginator.page(page)
 
@@ -10408,9 +10574,13 @@ class FetchSEODataAPI(APIView):
 
 FetchShippingAddressList = FetchShippingAddressListAPI.as_view()
 
+FetchBillingAddressList = FetchBillingAddressListAPI.as_view()
+
 EditShippingAddress = EditShippingAddressAPI.as_view()
 
 CreateShippingAddress = CreateShippingAddressAPI.as_view()
+
+CreateBillingAddress = CreateBillingAddressAPI.as_view()
 
 CreateOfflineShippingAddress = CreateOfflineShippingAddressAPI.as_view()
 
@@ -10439,6 +10609,8 @@ UpdateOfflineCartDetails = UpdateOfflineCartDetailsAPI.as_view()
 RemoveFromCart = RemoveFromCartAPI.as_view()
 
 SelectAddress = SelectAddressAPI.as_view()
+
+SelectBillingAddress = SelectBillingAddressAPI.as_view()
 
 SelectOfflineAddress = SelectOfflineAddressAPI.as_view()
 

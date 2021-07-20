@@ -2660,5 +2660,6 @@ def get_address_dict(address_obj):
             "postcode": address_obj.postcode,
             "contactNumber": str(address_obj.contact_number),
             "tag": str(address_obj.tag),
-            "uuid": str(address_obj.uuid)
+            "uuid": str(address_obj.uuid),
+            "neighbourhood": str(address_obj.neighbourhood)
         }

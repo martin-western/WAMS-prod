@@ -395,6 +395,7 @@ class FetchOnSaleProductsAPI(APIView):
                 
                 temp_dict2 = {}
                 temp_dict2["name"] = dealshub_product_obj.get_name(language_code)
+                temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
                 temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
                 temp_dict2["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
                 temp_dict2["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
@@ -497,6 +498,7 @@ class FetchNewArrivalProductsAPI(APIView):
                 temp_dict2["brand"] = dealshub_product_obj.get_brand(language_code)
                 temp_dict2["now_price"] = dealshub_product_obj.get_now_price(dealshub_user_obj)
                 temp_dict2["was_price"] = dealshub_product_obj.get_was_price(dealshub_user_obj)
+                temp_dict2["sellerSku"] = dealshub_product_obj.get_seller_sku()
                 temp_dict2["promotional_price"] = dealshub_product_obj.get_promotional_price(dealshub_user_obj)
                 temp_dict2["moq"] = dealshub_product_obj.get_moq(dealshub_user_obj)
                 temp_dict2["stock"] = dealshub_product_obj.stock
