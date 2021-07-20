@@ -93,7 +93,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             body = {
                 "apiOperation": "CREATE_CHECKOUT_SESSION",
                 "interaction":{
-                    "operation": "AUTHORIZE",
+                    "operation": "PURCHASE",
                     "returnUrl": "https://bahrain.wigme.com/transaction-processing/",
                 },
                 "order":{
