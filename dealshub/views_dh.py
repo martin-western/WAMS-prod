@@ -6762,6 +6762,8 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "today_returned_amount" : total_orders_status_amount_list[3],
                     "cancelled": total_orders_status_count_list[4],
                     "today_cancelled_amount" : total_orders_status_amount_list[4],
+                    "net_sales" : today_total_orders - total_orders_status_count_list[4] - total_orders_status_count_list[3],
+                    "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[4] - total_orders_status_amount_list[3]),2)
                 }
                 temp_dict["monthly"] = {
                     "sales" : month_total_sales,
@@ -6777,6 +6779,8 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "monthly_returned_amount" : total_monthly_orders_status_amount_list[3],
                     "cancelled": total_monthly_orders_status_count_list[4],
                     "monthly_cancelled_amount" : total_monthly_orders_status_amount_list[4],
+                    "net_sales" : month_total_orders - total_monthly_orders_status_count_list[4] - total_monthly_orders_status_count_list[3],
+                    "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[4] - total_monthly_orders_status_amount_list[3]),2)
                 }
                 temp_dict["currency"] = location_group_obj.location.currency
                 temp_dict["username"] = sales_target_obj.user.username
