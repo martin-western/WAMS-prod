@@ -2857,6 +2857,7 @@ class UploadProductImageAPI(APIView):
                     render_value = "In product {} best image {} are added".format(product_obj.product_name,image_obj.image.url)        
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             response['status'] = 200
+            product_obj.save()
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
