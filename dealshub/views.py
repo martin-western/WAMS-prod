@@ -3896,8 +3896,8 @@ class FetchB2BSectionDetailAPI(APIView):
                             valid_section_objs |= Section.objects.filter(pk=section_obj.pk)
                     section_objs = valid_section_objs
                                     
-                    section_products_list = get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs)
-                    dealshub_admin_sections += section_products_list
+                section_products_list = get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs)
+                dealshub_admin_sections += section_products_list
                     
             if banner_uuid != "":
                 banner_objs = Banner.objects.filter(uuid = banner_uuid)
