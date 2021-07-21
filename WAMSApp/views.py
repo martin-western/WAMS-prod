@@ -4884,6 +4884,8 @@ class DeleteImageAPI(APIView):
                 sub_images_obj.save()
                 render_value = 'Image {} is removed from sub image {}.'.format(image_bucket_obj,sub_images_obj)
                 activitylog(user=request.user,table_name=SubImages,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
+            product_obj.no_of_images_for_filter -= 1
+            product_obj.save()
             response['status'] = 200
 
         except Exception as e:
