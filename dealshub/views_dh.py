@@ -80,6 +80,7 @@ class AddToWishListAPI(APIView):
                 return Response(data=response)
 
             dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
+            logger.info(request.user)
             wish_list_obj = WishList.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
             unit_wish_list_obj = None
             
