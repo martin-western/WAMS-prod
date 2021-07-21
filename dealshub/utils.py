@@ -1917,7 +1917,7 @@ def get_section_products(location_group_obj, is_dealshub, language_code, resolut
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("FetchDealshubAdminSectionsAPI get_section_products: %s at %s", e, str(exc_tb.tb_lineno))
 
-def get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs):
+def get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs,dealshub_user_obj=None):
     try:
         dealshub_admin_sections = []
         for section_obj in section_objs:
