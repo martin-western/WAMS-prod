@@ -3185,10 +3185,10 @@ class PublishDealsHubProductAPI(APIView):
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
             prev_product_obj = deepcopy(dealshub_product_obj)
             
-            # if dealshub_product_obj.product.no_of_images_for_filter==0:
-            #     response['status'] = 407
-            #     response['message'] = 'product without images cannot be published'
-            #     return Response(data=response)
+            if dealshub_product_obj.product.no_of_images_for_filter==0:
+                response['status'] = 407
+                response['message'] = 'product without images cannot be published'
+                return Response(data=response)
 
             dealshub_product_obj.is_published = True
             dealshub_product_obj.save()
