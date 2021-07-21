@@ -3185,10 +3185,10 @@ class PublishDealsHubProductAPI(APIView):
             dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
             prev_product_obj = deepcopy(dealshub_product_obj)
             
-            # if dealshub_product_obj.product.no_of_images_for_filter==0:
-            #     response['status'] = 407
-            #     response['message'] = 'product without images cannot be published'
-            #     return Response(data=response)
+            if dealshub_product_obj.product.no_of_images_for_filter==0:
+                response['status'] = 407
+                response['message'] = 'product without images cannot be published'
+                return Response(data=response)
 
             dealshub_product_obj.is_published = True
             dealshub_product_obj.save()
@@ -3757,7 +3757,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
 class FetchB2BDealshubAdminSectionsOCAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]  # remove this
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -3768,6 +3768,11 @@ class FetchB2BDealshubAdminSectionsOCAPI(APIView):
             logger.info("FetchB2BDealshubAdminSectionsAPI: %s", str(data))
 
             language_code = data.get("language","en")
+
+            # if is_oc_user(request.user)==False:
+            #     response['status'] = 403
+            #     logger.warning("UnPublishDealsHubProductsAPI Restricted Access!")
+            #     return Response(data=response)
 
             limit = data.get("limit", False)
             is_dealshub = data.get("isDealshub", False)
@@ -3785,8 +3790,8 @@ class FetchB2BDealshubAdminSectionsOCAPI(APIView):
 
             b2b_user_obj = None
             dealshub_user_obj = None
+            logger.info("REQUEST USER in FetchB2BDealshubAdminSectionsOCAPI: %s", str(request.user))
             if request.user != None and str(request.user)!="AnonymousUser":
-                logger.info("REQUEST USER: %s", str(request.user))
                 b2b_user_obj = B2BUser.objects.get(username = request.user.username)
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             is_user_authenticated = check_account_status(b2b_user_obj)
@@ -3873,12 +3878,7 @@ class FetchB2BSectionDetailAPI(APIView):
 
             b2b_user_obj = None
             dealshub_user_obj = None
-            if request.user != None and str(request.user)!="AnonymousUser":
-                logger.info("REQUEST USER: %s", str(request.user.__dict__))
-                b2b_user_obj = B2BUser.objects.get(username = request.user.username)
-                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-            is_user_authenticated = check_account_status(b2b_user_obj)
-
+            logger.info("REQUEST USER in FetchB2BSectionDetailAPI: %s", str(request.user))
             resolution = data.get("resolution", "low")
             dealshub_admin_sections = []
             if section_uuid != "":
@@ -3896,8 +3896,8 @@ class FetchB2BSectionDetailAPI(APIView):
                             valid_section_objs |= Section.objects.filter(pk=section_obj.pk)
                     section_objs = valid_section_objs
                                     
-                    section_products_list = get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs)
-                    dealshub_admin_sections += section_products_list
+                section_products_list = get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs)
+                dealshub_admin_sections += section_products_list
                     
             if banner_uuid != "":
                 banner_objs = Banner.objects.filter(uuid = banner_uuid)
