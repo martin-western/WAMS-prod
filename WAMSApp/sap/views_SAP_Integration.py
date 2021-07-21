@@ -309,7 +309,8 @@ class UpdateProductHoldingDetailsAPI(APIView):
                         response['status'] = 503
                         return Response(data=response)
                     logger.info("sucess holding transfer, %s", str(SAP_message))
-                    if dealshub_product_obj.product.base_product.brand.name.lower() != "ecka":
+                    brand_name = dealshub_product_obj.product.base_product.brand.name.lower()
+                    if not(brand_name == "ecka" and dealshub_product_obj.location_group.name in ["WIGMe - UAE", "WIGme - B2B"]):
                         dealshub_product_obj.stock = transfer_result["total_holding_after"]
                     dealshub_product_obj.save()
                 except Exception as e:
