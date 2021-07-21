@@ -2471,13 +2471,14 @@ def update_shipping_status_in_unit_orders(order_obj, order_status, oc_user):
     if order_status == unit_order_objs[0].current_status_admin:
         return
 
+    old_order_status = unit_order_objs[0].current_status_admin
     for unit_order_obj in unit_order_objs:
         set_order_status(unit_order_obj, order_status)
         
     order_status_change_information = {
         "event": "order_status",
         "information": {
-            "old_status": unit_order_objs[0].current_status_admin,
+            "old_status": old_order_status,
             "new_status": order_status
         }
     }
