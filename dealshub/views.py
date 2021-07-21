@@ -3757,7 +3757,7 @@ class FetchB2BDealshubAdminSectionsAPI(APIView):
 
 class FetchB2BDealshubAdminSectionsOCAPI(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]  # remove this
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -3768,6 +3768,11 @@ class FetchB2BDealshubAdminSectionsOCAPI(APIView):
             logger.info("FetchB2BDealshubAdminSectionsAPI: %s", str(data))
 
             language_code = data.get("language","en")
+
+            # if is_oc_user(request.user)==False:
+            #     response['status'] = 403
+            #     logger.warning("UnPublishDealsHubProductsAPI Restricted Access!")
+            #     return Response(data=response)
 
             limit = data.get("limit", False)
             is_dealshub = data.get("isDealshub", False)
@@ -3785,8 +3790,8 @@ class FetchB2BDealshubAdminSectionsOCAPI(APIView):
 
             b2b_user_obj = None
             dealshub_user_obj = None
+            logger.info("REQUEST USER in FetchB2BDealshubAdminSectionsOCAPI: %s", str(request.user))
             if request.user != None and str(request.user)!="AnonymousUser":
-                logger.info("REQUEST USER: %s", str(request.user))
                 b2b_user_obj = B2BUser.objects.get(username = request.user.username)
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
             is_user_authenticated = check_account_status(b2b_user_obj)
@@ -3873,6 +3878,7 @@ class FetchB2BSectionDetailAPI(APIView):
 
             b2b_user_obj = None
             dealshub_user_obj = None
+            logger.info("REQUEST USER in FetchB2BSectionDetailAPI: %s", str(request.user))
             if request.user != None and str(request.user)!="AnonymousUser":
                 logger.info("REQUEST USER: %s", str(request.user.__dict__))
                 b2b_user_obj = B2BUser.objects.get(username = request.user.username)
