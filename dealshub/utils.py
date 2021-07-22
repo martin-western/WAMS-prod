@@ -1257,7 +1257,7 @@ def refresh_stock(order_obj):
             #     stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
 
             wigme_location_group_obj = LocationGroup.objects.get(name="WIGMe - UAE")
-            if dealshub_product_obj.location_group==wigme_location_group_obj:
+            if dealshub_product_obj.location_group==wigme_location_group_obj and dealshub_product_obj.product.base_product.brand.name.lower() != "ecka":
                 dealshub_product_obj.stock = int(total_holding)
             
             if holding_threshold > total_holding:
