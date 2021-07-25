@@ -384,7 +384,7 @@ class FetchOnSaleProductsAPI(APIView):
                 is_user_authenticated = check_account_status(b2b_user_obj)
 
             page = int(data.get("page",1))
-            paginator = Paginator(dealshub_product_objs, 50)
+            paginator = Paginator(dealshub_product_objs, 40)
             dealshub_product_objs = paginator.page(page)
 
             products = []
@@ -484,7 +484,7 @@ class FetchNewArrivalProductsAPI(APIView):
                 is_user_authenticated = check_account_status(b2b_user_obj)
 
             page = int(data.get("page",1))
-            paginator = Paginator(dealshub_product_objs, 50)
+            paginator = Paginator(dealshub_product_objs, 40)
             dealshub_product_objs = paginator.page(page)
 
             products = []
@@ -633,7 +633,7 @@ class FetchSectionProductsAPI(APIView):
             temp_dict["productsArray"] = []
 
             page = int(data.get("page",1))
-            paginator = Paginator(dealshub_product_objs, 50)
+            paginator = Paginator(dealshub_product_objs, 40)
             dealshub_product_objs = paginator.page(page)
             custom_data = []
             for dealshub_product_obj in dealshub_product_objs:
@@ -5088,7 +5088,7 @@ class FetchUnitBannerProductsAPI(APIView):
                 dealshub_product_objs.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
 
             page = int(data.get('page', 1))
-            paginator = Paginator(dealshub_product_objs, 50)
+            paginator = Paginator(dealshub_product_objs, 40)
             dealshub_product_objs = paginator.page(page)
 
             product_list = []
