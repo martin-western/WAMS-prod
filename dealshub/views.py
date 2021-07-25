@@ -1051,7 +1051,7 @@ class SearchAPI(APIView):
             #     exc_type, exc_obj, exc_tb = sys.exc_info()
             #     logger.error("SearchAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
-            paginator = Paginator(available_dealshub_products, 50)
+            paginator = Paginator(available_dealshub_products, 40)
             dealshub_product_objs = paginator.page(page)            
             products = []
             custom_data = []
@@ -1397,7 +1397,7 @@ class SearchWIGAPI(APIView):
 
             if len(brand_filter)>0:
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
-            paginator = Paginator(available_dealshub_products, 50)
+            paginator = Paginator(available_dealshub_products, 40)
             dealshub_product_objs = paginator.page(page)
             temp_pk_list = []
             for dealshub_product_obj in dealshub_product_objs:
@@ -1664,7 +1664,7 @@ class SearchWIG2API(APIView):
 
             if len(brand_filter)>0:
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
-            paginator = Paginator(available_dealshub_products, 50)
+            paginator = Paginator(available_dealshub_products, 40)
             dealshub_product_objs = paginator.page(page)
             temp_pk_list = []
             for dealshub_product_obj in dealshub_product_objs:
@@ -1882,7 +1882,7 @@ class SearchDaycartAPI(APIView):
             if len(brand_filter)>0:
                 available_dealshub_products = available_dealshub_products.filter(product__base_product__brand__name__in=brand_filter)
 
-            paginator = Paginator(available_dealshub_products, 50)
+            paginator = Paginator(available_dealshub_products, 40)
             dealshub_product_objs = paginator.page(page)            
             products = []
             currency = location_group_obj.location.currency
