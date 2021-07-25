@@ -1257,7 +1257,7 @@ def refresh_stock(order_obj):
             #     stock = fetch_refresh_stock(seller_sku, "3000", "TG01")
 
             wigme_location_group_obj = LocationGroup.objects.get(name="WIGMe - UAE")
-            if dealshub_product_obj.location_group==wigme_location_group_obj:
+            if dealshub_product_obj.location_group==wigme_location_group_obj and dealshub_product_obj.product.base_product.brand.name.lower() != "ecka":
                 dealshub_product_obj.stock = int(total_holding)
             
             if holding_threshold > total_holding:
@@ -1917,7 +1917,7 @@ def get_section_products(location_group_obj, is_dealshub, language_code, resolut
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("FetchDealshubAdminSectionsAPI get_section_products: %s at %s", e, str(exc_tb.tb_lineno))
 
-def get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs):
+def get_section_product_b2b(location_group_obj, is_dealshub, language_code, resolution, limit, section_objs,dealshub_user_obj=None):
     try:
         dealshub_admin_sections = []
         for section_obj in section_objs:
@@ -2471,13 +2471,14 @@ def update_shipping_status_in_unit_orders(order_obj, order_status, oc_user):
     if order_status == unit_order_objs[0].current_status_admin:
         return
 
+    old_order_status = unit_order_objs[0].current_status_admin
     for unit_order_obj in unit_order_objs:
         set_order_status(unit_order_obj, order_status)
         
     order_status_change_information = {
         "event": "order_status",
         "information": {
-            "old_status": unit_order_objs[0].current_status_admin,
+            "old_status": old_order_status,
             "new_status": order_status
         }
     }

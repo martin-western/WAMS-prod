@@ -2857,6 +2857,7 @@ class UploadProductImageAPI(APIView):
                     render_value = "In product {} best image {} are added".format(product_obj.product_name,image_obj.image.url)        
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             response['status'] = 200
+            product_obj.save()
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4883,6 +4884,8 @@ class DeleteImageAPI(APIView):
                 sub_images_obj.save()
                 render_value = 'Image {} is removed from sub image {}.'.format(image_bucket_obj,sub_images_obj)
                 activitylog(user=request.user,table_name=SubImages,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
+            product_obj.no_of_images_for_filter -= 1
+            product_obj.save()
             response['status'] = 200
 
         except Exception as e:

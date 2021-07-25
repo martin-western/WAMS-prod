@@ -236,7 +236,6 @@ class UpdateNestoProductAPI(APIView):
 
             brand_obj, created = Brand.objects.get_or_create(name=brand, organization=organization_obj)
             brand_obj_prev = deepcopy(brand_obj)
-            brand_obj.description = about_brand
             brand_obj.save()
             render_value = f"Brand {brand_obj} is updated/created by {request.user}."
             activitylog(user=request.user,table_name=Brand,action_type='updated',location_group_obj=None,prev_instance=brand_obj_prev,current_instance=brand_obj,table_item_pk=brand_obj.pk,render=render_value,is_nesto=True)
@@ -248,12 +247,12 @@ class UpdateNestoProductAPI(APIView):
                 render_value = f"CustomPermission {custom_permission_obj} is updated by {request.user}."
                 activitylog(user=request.user,table_name=CustomPermission,action_type='updated',location_group_obj=None,prev_instance=custom_permission_obj_prev,current_instance=custom_permission_obj,table_item_pk=custom_permission_obj.pk,render=render_value,is_nesto=True)
 
-            # nesto_product_obj.article_number = article_number
+            nesto_product_obj.article_number = article_number
             nesto_product_obj.product_name = product_name
             nesto_product_obj.product_name_ar = product_name_ar
             nesto_product_obj.product_name_ecommerce = product_name_ecommerce
-            # nesto_product_obj.barcode = barcode
-            # nesto_product_obj.uom = uom
+            nesto_product_obj.barcode = barcode
+            nesto_product_obj.uom = uom
             nesto_product_obj.language_key = language_key
             nesto_product_obj.brand = brand_obj
             nesto_product_obj.weight_volume = weight_volume
