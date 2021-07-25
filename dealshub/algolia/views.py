@@ -180,7 +180,7 @@ class SearchWIG3API(APIView):
 
             search_data["brands"] = data.get("brand_filter", [])
             search_data["page"] = int(data.get("page", 1)) - 1
-            search_data["pageSize"] = 50
+            search_data["pageSize"] = 40
 
             # Ranking
             search_data["ranking"] = 0
