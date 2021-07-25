@@ -7474,6 +7474,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                     temp_dict["emailId"] = order_obj.owner.email
                     temp_dict["contactNumer"] = order_obj.owner.contact_number
                     temp_dict["shippingAddress"] = shipping_address
+                    temp_dict["billingAddress"] = get_address_dict(order_obj.billing_address)
                     temp_dict["adminNote"] = order_obj.admin_note
                     temp_dict["additionalNote"] = order_obj.additional_note
 
