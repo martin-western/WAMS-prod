@@ -642,7 +642,8 @@ class DealsHubProduct(models.Model):
                 logger.error("Save method DealsHubProduct: %s at %s", e, str(exc_tb.tb_lineno))
 
         try:
-            if self.location_group.name in ["WIGMe - UAE","WIGme - Dubai"]:
+            if self.location_group.name in ["WIGMe - UAE","WIGme - Dubai","WIGme - KWT","WIGme - BAH","WIGme - B2B"]:
+                # algolia index updated only for prod all location groups + Dubai for QA only.
                 logger.info("Update DealsHubProduct to Index: %s",str(self))
                 p1 = threading.Thread(target = add_product_to_index, args=(self,))
                 p1.start()
@@ -853,8 +854,7 @@ class Address(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
 
-    is_shipping = models.BooleanField(default=True)
-    is_billing = models.BooleanField(default=True)
+    type_addr = models.CharField(max_length=64, null=True, blank=True, default="shipping")   # shipping, billing
 
     objects = AddressManager()
     recovery = AddressRecoveryManager()
@@ -942,7 +942,8 @@ class Cart(models.Model):
     uuid = models.CharField(max_length=200, default="")
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
-    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="cart_set_from_shipping_address")
+    billing_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="cart_set_from_billing_address")
     payment_mode = models.CharField(default="COD", max_length=100)
     to_pay = models.FloatField(default=0)
     merchant_reference = models.CharField(max_length=200, default="")
@@ -958,6 +959,9 @@ class Cart(models.Model):
             self.uuid = str(uuid.uuid4())
 
         self.modified_date = timezone.now()
+        if self.billing_address != None:
+            self.billing_address.type_addr = "billing"
+            self.billing_address.save()
         super(Cart, self).save(*args, **kwargs)
 
     def get_subtotal(self, offline=False):
@@ -1051,7 +1055,8 @@ class OrderRequest(models.Model):
     owner = models.ForeignKey('DealsHubUser',on_delete = models.CASCADE)
     uuid = models.CharField(max_length = 200,default="")
     date_created = models.DateTimeField(auto_now_add=True)
-    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="orderrequest_set_from_shipping_address")
+    billing_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="orderrequest_set_from_billing_address")
     payment_mode = models.CharField(max_length=50, default="COD")
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
@@ -1082,6 +1087,10 @@ class OrderRequest(models.Model):
                 except Exception as e:
                     pass
                 self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+
+        if self.billing_address != None:
+            self.billing_address.type_addr = "billing"
+            self.billing_address.save()
 
         super(OrderRequest, self).save(*args, **kwargs)
 
@@ -1207,7 +1216,8 @@ class Order(models.Model):
     owner = models.ForeignKey('DealsHubUser', on_delete=models.CASCADE)
     uuid = models.CharField(max_length=200, default="")
     date_created = models.DateTimeField(auto_now_add=True)
-    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="order_set_from_shipping_address")
+    billing_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="order_set_from_billing_address")
     payment_mode = models.CharField(default="COD", max_length=100)
     to_pay = models.FloatField(default=0)
     real_to_pay = models.FloatField(default=0)
@@ -1275,7 +1285,6 @@ class Order(models.Model):
                 except Exception as e:
                     pass
                 self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
-
         super(Order, self).save(*args, **kwargs)
 
     def get_date_created(self):
@@ -1608,7 +1617,8 @@ class FastCart(models.Model):
     uuid = models.CharField(max_length=200, default="")
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
     voucher = models.ForeignKey(Voucher, null=True, blank=True, on_delete=models.SET_NULL)
-    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE)
+    shipping_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="fastcart_set_from_shipping_address")
+    billing_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE, related_name="fastcart_set_from_billing_address")
     payment_mode = models.CharField(default="COD", max_length=100)
     to_pay = models.FloatField(default=0)
     merchant_reference = models.CharField(max_length=200, default="")
@@ -1623,6 +1633,9 @@ class FastCart(models.Model):
             self.uuid = str(uuid.uuid4())
 
         self.modified_date = timezone.now()
+        if self.billing_address != None:
+            self.billing_address.type_addr = "billing"
+            self.billing_address.save()
         super(FastCart, self).save(*args, **kwargs)
 
     def get_subtotal(self):
@@ -1684,7 +1697,7 @@ class DealsHubUser(User):
     website_group = models.ForeignKey(WebsiteGroup, null=True, blank=True, on_delete=models.SET_NULL)
     otp_attempts = models.IntegerField(default=0)
     user_token = models.CharField(default="", max_length=200)
-
+    prime_billing_address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.SET_NULL)
     class Meta:
         verbose_name = "DealsHubUser"
         verbose_name_plural = "DealsHubUser"

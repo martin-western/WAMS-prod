@@ -24,7 +24,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         credentials = (SAP_USERNAME, SAP_PASSWORD)
         
         body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,CUSTOMER_ID)
-        logger.info("price and stock req body :%s", str(body))
+        # logger.info("price and stock req body :%s", str(body))
         response = requests.post(url=PRICE_STOCK_URL, auth=credentials, data=body, headers=headers, timeout=10)
         
         content = response.content
@@ -817,7 +817,9 @@ def create_holding_transfer_report(dealshub_product_objs):
                     common_row[9] = str(response_dict["stock_status"])
                     common_row[10] = str(response_dict["SAP_message"])
 
-                    if isNoneOrEmpty(response_dict["total_holding_after"]) != True:
+                    brand_name = dealshub_product_obj.product.base_product.brand.name.lower()
+                    location_group_obj = dealshub_product_obj.location_group
+                    if not(isNoneOrEmpty(response_dict["total_holding_after"])) and not(brand_name == "ecka" and location_group_obj.name in ["WIGMe - UAE", "WIGme - B2B"]):
                         dealshub_product_obj.stock = int(response_dict["total_holding_after"])
                         dealshub_product_obj.save()
 

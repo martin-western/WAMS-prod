@@ -60,7 +60,13 @@ urlpatterns = [
     url(r'^deactivate-cod-dealshub-product/$', views.DeactivateCODDealsHubProduct),
 
     url(r'^fetch-b2b-dealshub-admin-sections/$', views.FetchB2BDealshubAdminSections),
+    url(r'^fetch-b2b-dealshub-admin-sections-oc/$', views.FetchB2BDealshubAdminSectionsOC),
+
     url(r'^fetch-dealshub-admin-sections/$', views.FetchDealshubAdminSections),
+    url(r'^fetch-dealshub-admin-sections-oc/$', views.FetchDealshubAdminSectionsOC),
+    url(r'^fetch-section-detail',views.FetchSectionDetail),
+    url(r'^fetch-b2b-section-detail',views.FetchB2BSectionDetail),
+    
     url(r'^save-dealshub-admin-sections-order/$', views.SaveDealshubAdminSectionsOrder),
 
     url(r'^search-section-products-autocomplete/$', views.SearchSectionProductsAutocomplete),
@@ -89,9 +95,12 @@ urlpatterns = [
     url(r'^update-unit-banner/$', views.UpdateUnitBanner),
 
     url(r'^address/fetch-shipping-address-list/$', views.FetchShippingAddressList),
+    url(r'^address/fetch-billing-address-list/$', views.FetchBillingAddressList),
     url(r'^address/edit-shipping-address/$', views.EditShippingAddress),
     url(r'^address/create-shipping-address/$', views.CreateShippingAddress),
+    url(r'^address/create-billing-address/$', views.CreateBillingAddress),
     url(r'^address/create-offline-shipping-address/$', views.CreateOfflineShippingAddress),
+    url(r'^address/create-offline-billing-address/$', views.CreateOfflineBillingAddress),
     url(r'^address/delete-shipping-address/$', views.DeleteShippingAddress),
 
     url(r'^cart/add-to-cart/$', views.AddToCart),
@@ -108,6 +117,7 @@ urlpatterns = [
     url(r'^cart/update-fast-cart-details/$', views.UpdateFastCartDetails),
 
     url(r'^checkout/select-address/$', views.SelectAddress),
+    url(r'^checkout/select-billing-address/$', views.SelectBillingAddress),
     url(r'^checkout/select-offline-address/$', views.SelectOfflineAddress),
     url(r'^checkout/select-payment-mode/$', views.SelectPaymentMode),
     url(r'^checkout/fetch-active-order-details/$', views.FetchActiveOrderDetails),

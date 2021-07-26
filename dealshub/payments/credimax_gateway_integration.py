@@ -93,7 +93,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             body = {
                 "apiOperation": "CREATE_CHECKOUT_SESSION",
                 "interaction":{
-                    "operation": "AUTHORIZE",
+                    "operation": "PURCHASE",
                     "returnUrl": "https://bahrain.wigme.com/transaction-processing/",
                 },
                 "order":{
@@ -105,6 +105,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 
             credimax_gateway_response = requests.post('https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/'+merchant_id+'/session',headers=headers, data=json.dumps(body), timeout=10)
             credimax_gateway_response_dict = json.loads(credimax_gateway_response.content)
+            logger.info("INFOOMakePaymentCredimaxGatewayAPI: %s",credimax_gateway_response_dict)
             session_id = credimax_gateway_response_dict["session"]["id"]
             success_indicator = credimax_gateway_response_dict["successIndicator"]
             logger.error("MakePaymentCredimaxGatewayAPI: %s at %s",session_id,success_indicator)
