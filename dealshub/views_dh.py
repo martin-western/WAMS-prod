@@ -1775,7 +1775,7 @@ class SelectOfflineAddressAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=shipping_address_obj.location_group)
             cart_obj.shipping_address = shipping_address_obj
-            cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
+            # cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
             # cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
 
             if is_b2b:
@@ -2660,7 +2660,6 @@ class PlaceOfflineOrderAPI(APIView):
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-            logger.info(f"PlaceOfflineOrderAPI: to_pay: {cart_obj.to_pay}, offline_delivery_fee: {cart_obj.offline_delivery_fee}, offline_cod_charge: {cart_obj.offline_cod_charge}")
             order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
                                              billing_address=cart_obj.billing_address,
