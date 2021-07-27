@@ -1775,8 +1775,6 @@ class SelectOfflineAddressAPI(APIView):
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=shipping_address_obj.location_group)
             cart_obj.shipping_address = shipping_address_obj
-            # cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
-            # cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
 
             if is_b2b:
                 billing_address_uuid = data["billingAddressUuid"]
@@ -3584,6 +3582,8 @@ class FetchOfflineUserProfileAPI(APIView):
                 return Response(data=response)
 
             username = data["username"]
+            location_group_uuid = data.get("locationGroupUuid", "")
+            is_set_default_COD_charges = data.get("isSetDefaultCODCharges", False)
             is_b2b = data.get("is_b2b", False)
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
 
@@ -3595,6 +3595,13 @@ class FetchOfflineUserProfileAPI(APIView):
             if is_b2b:
                 response['billingAddressList'] = get_address_list(dealshub_user_obj, type_addr="billing")
                 response['primeBillingAddress'] = get_address_dict(dealshub_user_obj.prime_billing_address)
+            if is_set_default_COD_charges:
+                location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
+                cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
+                cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
+                cart_obj.save()            
+            
             response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
