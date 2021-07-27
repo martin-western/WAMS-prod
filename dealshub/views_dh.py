@@ -6556,7 +6556,13 @@ class FetchProductReviewsAPI(APIView):
                         "modified_date" : str(timezone.localtime(admin_comment_obj.modified_date).strftime("%d %b, %Y"))
                     }
 
-                review_content = None
+                review_content = {
+                    "subject" : "None",
+                    "content" : "None",
+                    "upvotes_count" : "0",
+                    "admin_comment" : None,
+                    "image_url_list": []
+                }
                 if review_content_obj is not None:
                     image_objs = review_content_obj.images.all()
                     image_url_list = []
