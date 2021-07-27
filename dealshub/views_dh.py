@@ -1776,7 +1776,7 @@ class SelectOfflineAddressAPI(APIView):
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=shipping_address_obj.location_group)
             cart_obj.shipping_address = shipping_address_obj
             cart_obj.offline_delivery_fee = cart_obj.location_group.delivery_fee
-            cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
+            # cart_obj.offline_cod_charge = cart_obj.location_group.cod_charge
 
             if is_b2b:
                 billing_address_uuid = data["billingAddressUuid"]
