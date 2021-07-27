@@ -2660,7 +2660,7 @@ class PlaceOfflineOrderAPI(APIView):
             unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
             
             omnycomm_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-
+            logger.info(f"PlaceOfflineOrderAPI: to_pay: {cart_obj.to_pay}, offline_delivery_fee: {cart_obj.offline_delivery_fee}, offline_cod_charge: {cart_obj.offline_cod_charge}")
             order_obj = Order.objects.create(owner=cart_obj.owner,
                                              shipping_address=cart_obj.shipping_address,
                                              billing_address=cart_obj.billing_address,
