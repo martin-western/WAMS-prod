@@ -1395,22 +1395,45 @@ class Order(models.Model):
 
     def get_customer_id_for_final_sap_billing(self):
         shipping_method = UnitOrder.objects.filter(order=self)[0].shipping_method.lower()
-        if shipping_method=="wig fleet" and self.payment_status.lower()=="cod":
-            return CUSTOMER_ID_FINAL_BILLING_WIG_COD
-        if shipping_method=="wig fleet" and self.payment_status.lower()=="paid":
-            return CUSTOMER_ID_FINAL_BILLING_WIG_ONLINE
-        if shipping_method=="grand gaadi" and self.payment_status.lower()=="cod":
-            return CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_COD
-        if shipping_method=="grand gaadi" and self.payment_status.lower()=="paid":
-            return CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_ONLINE
-        if shipping_method=="sendex" and self.payment_status.lower()=="cod":
-            return CUSTOMER_ID_FINAL_BILLING_SENDEX_COD
-        if shipping_method=="sendex" and self.payment_status.lower()=="paid":
-            return CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE
-        if shipping_method=="standard" and self.payment_status.lower()=="cod":
+        if shipping_method not in ["wig fleet", "grand gaadi", "sendex", "standard"]:
+            return
+        payment_status = self.payment_status.lower()
+        if shipping_method == "standard" and payment_status == "cod":
             return CUSTOMER_ID_FINAL_BILLING_STANDARD_COD
-        if shipping_method=="standard" and self.payment_status.lower()=="paid":
+        if shipping_method == "standard" and payment_status == "paid":
             return CUSTOMER_ID_FINAL_BILLING_STANDARD_ONLINE
+        is_b2b = "is_b2b" if self.location_group.is_b2b else "is_not_b2b"
+        customer_id_dict = {
+            "is_b2b": {
+                "wig fleet": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_WIG_COD_B2B,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_WIG_ONLINE_B2B
+                },
+                "grand gaadi": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_COD_B2B,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_ONLINE_B2B
+                },
+                "sendex": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_SENDEX_COD_B2B,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE_B2B
+                }
+            },
+            "is_not_b2b": {
+                "wig fleet": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_WIG_COD,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_WIG_ONLINE
+                },
+                "grand gaadi": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_COD,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_ONLINE
+                },
+                "sendex": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_SENDEX_COD,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE
+                }
+            }
+        }
+        return customer_id_dict[is_b2b][shipping_method][payment_status]
 
     def get_total_quantity(self):
         total_quantity = 0
