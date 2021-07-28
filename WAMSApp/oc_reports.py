@@ -2228,7 +2228,7 @@ def bulk_download_brand_seo_details_report(filename, uuid, location_group_obj):
 
         for seo_brand_obj in seo_brand_objs:
             try:
-                
+                cnt +=1
                 common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt-1)
                 common_row[1] = str(seo_brand_obj.uuid)
