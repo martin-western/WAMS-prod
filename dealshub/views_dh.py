@@ -7660,7 +7660,7 @@ class ResendSAPOrderAPI(APIView):
 
             sap_info_render = []
             if order_obj.location_group.is_sap_enabled:
-                is_final_response = handle_resend_SAP_processing(order_obj, response)
+                is_final_response = handle_resend_SAP_processing(order_obj, data, response)
                 if is_final_response:
                     return Response(data=response)
             response["sap_info_render"] = sap_info_render
