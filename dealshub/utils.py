@@ -1307,7 +1307,7 @@ def calculate_gtm(order_obj):
                 "revenue": str(total_amount),
                 "tax": str(vat),
                 "shipping": str(delivery_fee),
-                "coupon": "",
+                "coupon": "" if order_obj.voucher is None else order_obj.voucher ,
                 "currency": str(order_obj.get_currency())
             },
             "products": product_list
