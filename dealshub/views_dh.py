@@ -7589,25 +7589,10 @@ class SetShippingMethodAPI(APIView):
 
             shipping_method = data["shippingMethod"]
             unit_order_uuid_list = data["unitOrderUuidList"]
-            sap_manual_update_status = data["isSapManualUpdate"]
+            is_sap_manual_update = data["isSapManualUpdate"]
+            modified_weight = data.get("weight", "")
             order_obj = UnitOrder.objects.get(uuid=unit_order_uuid_list[0]).order
-            order_shipping_method = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")[0].shipping_method
   
-            if "weight" in data and shipping_method.lower()=="sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"] and order_shipping_method != shipping_method:
-                modified_weight = data["weight"]
-                if sendex_add_consignment(order_obj, modified_weight) == "failure":
-                    logger.warning("SetShippingMethodAPI: failed status from sendex api")
-                else:
-                    logger.info("SetShippingMethodAPI: Success in sendex api")
- 
-            # after checking for all the shipping methods possible
-            sap_info_render = []
-
-            if not(sap_manual_update_status) and order_obj.location_group.is_sap_enabled and order_shipping_method != shipping_method:
-                is_final_response = handle_intercompany_billing_SAP(order_obj, data, response, sap_info_render)
-                if is_final_response:
-                    return Response(data=response)
-
             for unit_order_obj in UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled"):
                 set_shipping_method(unit_order_obj, shipping_method)
 
@@ -7623,9 +7608,22 @@ class SetShippingMethodAPI(APIView):
             VersionOrder.objects.create(order=order_obj,
                                         user= omnycomm_user,
                                         change_information=json.dumps(order_status_change_information))
-            if sap_manual_update_status:
+            
+            if modified_weight != "" and shipping_method.lower() == "sendex" and order_obj.location_group.website_group.name.lower() in ["daycart", "shopnesto"]:
+                if sendex_add_consignment(order_obj, modified_weight) == "failure":
+                    logger.warning("SetShippingMethodAPI: failed status from sendex api")
+                else:
+                    logger.info("SetShippingMethodAPI: Success in sendex api")
+ 
+            sap_info_render = []
+            if is_sap_manual_update:
                 sap_manual_update(order_obj, omnycomm_user)
-                logger.info("SetShippingMethodAPI: sap_manual_update_status: %s", str(sap_manual_update_status))
+                logger.info("SetShippingMethodAPI: is_sap_manual_update: %s", str(is_sap_manual_update))
+            
+            elif order_obj.location_group.is_sap_enabled:
+                is_final_response = handle_intercompany_billing_SAP(order_obj, data, response, sap_info_render)
+                if is_final_response:
+                    return Response(data=response)
 
             response["sap_info_render"] = sap_info_render
             response["status"] = 200
