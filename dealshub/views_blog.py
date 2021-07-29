@@ -262,7 +262,8 @@ class FetchBlogPostListAPI(APIView):
             is_available = True
             if int(paginator.num_pages) == int(page):
                 is_available = False
-
+            
+            blog_post_list.sort(key=lambda t: blog_post_objs(t.date_created))
             response["blogPostList"] = blog_post_list
             response["isAvailable"] = is_available
             response['status'] = 200
