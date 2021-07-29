@@ -1730,7 +1730,13 @@ def generate_sap_order_format(unit_order_list):
 
     workbook.close()
 
-def handle_SAP_processing(order_obj, data, response, sap_info_render):
+def handle_intercompany_billing_SAP(order_obj, data, response, sap_info_render, is_resend=False):
+    '''
+        Executes the Intercompany Billing SAP Process for the given order_obj.
+
+        
+        is_resend (bool): True represents that we are resending the SAP punching data since the previous one failed for some reason.
+    '''
     is_final_response = True
     user_input_requirement, is_final_response_temp = get_user_input_requirement(order_obj, response)
     if is_final_response_temp:
@@ -1738,7 +1744,7 @@ def handle_SAP_processing(order_obj, data, response, sap_info_render):
     user_input_sap = data.get("user_input_sap", None)
 
     if user_input_sap == None:
-        modal_info_list = get_modal_info_list(order_obj, user_input_requirement)
+        modal_info_list = get_modal_info_list(order_obj, user_input_requirement, is_resend=is_resend)
         if len(modal_info_list) > 0:
             response["modal_info_list"] = modal_info_list
             response["status"] = 200
@@ -1752,14 +1758,14 @@ def handle_SAP_processing(order_obj, data, response, sap_info_render):
             if grouped_unit_orders[brand_name][0].sap_status=="In GRN":
                 continue
             company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
-            order_information, is_final_response_temp = get_order_information(order_obj, company_code_obj, grouped_unit_orders, response, user_input_requirement, user_input_sap)
+            order_information, is_final_response_temp = get_order_information(order_obj, company_code_obj, grouped_unit_orders, response, user_input_requirement, user_input_sap, is_resend=is_resend)
             if is_final_response_temp:
                 return is_final_response_temp
 
-            logger.info("handle_SAP_processing : FINAL ORDER INFO : %s", str(order_information))
+            logger.info("handle_intercompany_billing_SAP : FINAL ORDER INFO : %s", str(order_information))
             orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information)
 
-            if is_manual_intervention_required(orig_result_pre):
+            if not(is_resend) and is_manual_intervention_required(orig_result_pre):
                 order_obj.sap_status = "Manual"
                 order_obj.save()
             save_unit_order_information(order_obj, order_information, sap_info_render, orig_result_pre)
@@ -1802,8 +1808,8 @@ def get_modal_info_list(order_obj, user_input_requirement, is_resend=False):
         if user_input_requirement[seller_sku]==True:
             result = fetch_prices_and_stock(seller_sku, company_code_obj.code)
             result["uuid"] = unit_order_obj.uuid
+            result["seller_sku"] = seller_sku
             if not(is_resend):
-                result["seller_sku"] = seller_sku
                 result["disable_atp_holding"] = False
                 result["disable_atp"] = False
                 result["disable_holding"] = False
@@ -1921,37 +1927,3 @@ def save_unit_order_information(order_obj, order_information, sap_info_render, o
         unit_order_obj.sap_intercompany_info = json.dumps(orig_result_pre)
         unit_order_obj.sap_status = "In GRN"
         unit_order_obj.save()
-
-
-def handle_resend_SAP_processing(order_obj, data, response):
-    is_final_response = True
-    user_input_requirement, is_final_response_temp = get_user_input_requirement(order_obj, response)
-    if is_final_response_temp:
-        return is_final_response_temp
-
-    user_input_sap = data.get("user_input_sap", None)
-    
-    if user_input_sap == None:
-        modal_info_list = get_modal_info_list(order_obj, user_input_requirement, is_resend=True)
-        if len(modal_info_list) > 0:
-            response["modal_info_list"] = modal_info_list
-            response["status"] = 200
-            return is_final_response
-
-    error_flag = 0
-    sap_info_render = []
-    unit_order_objs = UnitOrder.objects.filter(order=order_obj).exclude(current_status_admin="cancelled")
-
-    if unit_order_objs.filter(grn_filename="").exists():
-        grouped_unit_orders = get_unit_orders_grouped_by_brand(unit_order_objs)
-        for brand_name in grouped_unit_orders: 
-            if grouped_unit_orders[brand_name][0].sap_status=="In GRN":
-                continue
-            company_code_obj = CompanyCodeSAP.objects.get(location_group=order_obj.location_group, brand__name=brand_name)
-            order_information, is_final_response_temp = get_order_information(order_obj, company_code_obj, grouped_unit_orders, response, user_input_requirement, user_input_sap, is_resend=True)
-            if is_final_response_temp:
-                return is_final_response_temp
-
-            logger.info("handle_resend_SAP_processing : FINAL ORDER INFO : %s", str(order_information))
-            orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information)
-            save_unit_order_information(order_obj, order_information, sap_info_render, orig_result_pre)

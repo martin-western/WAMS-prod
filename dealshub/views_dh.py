@@ -7604,7 +7604,7 @@ class SetShippingMethodAPI(APIView):
             sap_info_render = []
 
             if not(sap_manual_update_status) and order_obj.location_group.is_sap_enabled and order_shipping_method != shipping_method:
-                is_final_response = handle_SAP_processing(order_obj, data, response, sap_info_render)
+                is_final_response = handle_intercompany_billing_SAP(order_obj, data, response, sap_info_render)
                 if is_final_response:
                     return Response(data=response)
 
@@ -7660,7 +7660,7 @@ class ResendSAPOrderAPI(APIView):
 
             sap_info_render = []
             if order_obj.location_group.is_sap_enabled:
-                is_final_response = handle_resend_SAP_processing(order_obj, data, response)
+                is_final_response = handle_intercompany_billing_SAP(order_obj, data, response, sap_info_render, is_resend=True)
                 if is_final_response:
                     return Response(data=response)
             response["sap_info_render"] = sap_info_render
