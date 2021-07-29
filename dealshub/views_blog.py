@@ -256,14 +256,14 @@ class FetchBlogPostListAPI(APIView):
                 temp_dict["uuid"] = blog_post_obj.uuid
                 temp_dict["is_published"] = blog_post_obj.is_published
                 temp_dict["cover_image"] = blog_post_obj.get_cover_image()
-
+                temp_dict["date_created"] = blog_post_obj.date_created    
                 blog_post_list.append(temp_dict)
 
             is_available = True
             if int(paginator.num_pages) == int(page):
                 is_available = False
             
-            blog_post_list.sort(key=lambda t: blog_post_objs(t.date_created))
+            blog_post_list.sort(blog_post_list,key=lambda t: t["date_created"])
             response["blogPostList"] = blog_post_list
             response["isAvailable"] = is_available
             response['status'] = 200
