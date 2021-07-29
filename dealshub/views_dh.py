@@ -6461,7 +6461,14 @@ class FetchReviewsAdminAPI(APIView):
                         "modified_date" : str(timezone.localtime(admin_comment_obj.modified_date).strftime("%d %b, %Y"))
                     }
 
-                review_content = None
+
+                review_content = {
+                    "subject" : "None",
+                    "content" : "None",
+                    "upvotes_count" : "0",
+                    "admin_comment" : None,
+                    "image_url_list": []
+                }
                 if review_content_obj is not None:
                     image_objs = review_content_obj.images.all()
                     image_url_list = []
@@ -6600,7 +6607,14 @@ class FetchProductReviewsAPI(APIView):
                 if Review.objects.filter(product__uuid=product_code, dealshub_user__username=request.user.username).exclude(is_published=False).exists():
                     is_user_reviewed = True
                     review_obj = Review.objects.get(product__uuid=product_code, dealshub_user__username=request.user.username)
-                    review_content = None
+
+                    review_content = {
+                        "subject" : "None",
+                        "content" : "None",
+                        "upvotes_count" : "0",
+                        "admin_comment" : None,
+                        "image_url_list": []
+                    }                    
                     review_content_obj = review_obj.content
                     if review_content_obj is not None:
                         image_objs = review_content_obj.images.all()
