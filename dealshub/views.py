@@ -280,7 +280,7 @@ class FetchProductDetailsAPI(APIView):
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
-                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.get_actual_price(dealshub_user_obj))],
+                    contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.get_actual_price(dealshub_user_obj))],
                 )
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=custom_data)
@@ -337,7 +337,7 @@ class FetchSimilarProductsAPI(APIView):
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
-                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 )
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=custom_data)
@@ -422,7 +422,7 @@ class FetchOnSaleProductsAPI(APIView):
                         currency=dealshub_product_obj.get_currency(),
                         content_name=dealshub_product_obj.get_name(),
                         content_category=dealshub_product_obj.get_category(),
-                        contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                        contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                     ))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -521,7 +521,7 @@ class FetchNewArrivalProductsAPI(APIView):
                         currency=dealshub_product_obj.get_currency(),
                         content_name=dealshub_product_obj.get_name(),
                         content_category=dealshub_product_obj.get_category(),
-                        contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                        contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                     ))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -668,7 +668,7 @@ class FetchSectionProductsAPI(APIView):
                         currency=dealshub_product_obj.get_currency(),
                         content_name=dealshub_product_obj.get_name(),
                         content_category=dealshub_product_obj.get_category(),
-                        contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                        contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                     ))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1091,7 +1091,7 @@ class SearchAPI(APIView):
                             currency=dealshub_product_obj.get_currency(),
                             content_name=dealshub_product_obj.get_name(),
                             content_category=dealshub_product_obj.get_category(),
-                            contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                            contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                         ))
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1442,7 +1442,7 @@ class SearchWIGAPI(APIView):
                             currency=dealshub_product_obj.get_currency(),
                             content_name=dealshub_product_obj.get_name(),
                             content_category=dealshub_product_obj.get_category(),
-                            contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                            contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                         ))
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1710,7 +1710,7 @@ class SearchWIG2API(APIView):
                             currency=dealshub_product_obj.get_currency(),
                             content_name=dealshub_product_obj.get_name(),
                             content_category=dealshub_product_obj.get_category(),
-                            contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                            contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                         ))
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4670,7 +4670,7 @@ class FetchDealshubPriceAPI(APIView):
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
-                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=custom_data)
@@ -5126,7 +5126,7 @@ class FetchUnitBannerProductsAPI(APIView):
                         currency=dealshub_product_obj.get_currency(),
                         content_name=dealshub_product_obj.get_name(),
                         content_category=dealshub_product_obj.get_category(),
-                        contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                        contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                     ))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
