@@ -27,7 +27,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         api_record_sap_obj = APIRecordSAP.objects.create(url=PRICE_STOCK_URL,
                                                         caller="fetch_prices_and_stock",
                                                         request_body=body,
-                                                        seller_sku_list=[seller_sku]
+                                                        seller_sku_list=json.dumps([seller_sku])
                                                       )
         response = requests.post(url=PRICE_STOCK_URL, auth=credentials, data=body, headers=headers, timeout=20)
         api_record_sap_obj.set_received_response(response.content)
@@ -276,9 +276,9 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
             api_record_sap_obj = APIRecordSAP.objects.create(url=TRANSFER_HOLDING_URL,
                                                             caller="transfer_from_atp_to_holding",
                                                             request_body=body,
-                                                            seller_sku_list=[seller_sku]
+                                                            seller_sku_list=json.dumps([seller_sku])
                                                         )
-            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=10)
+            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=20)
             api_record_sap_obj.set_received_response(response.content)
             content = response.content
             xml_content = xmltodict.parse(content)
@@ -434,9 +434,9 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
             api_record_sap_obj = APIRecordSAP.objects.create(url=TRANSFER_HOLDING_URL,
                                                         caller="holding_atp_transfer",
                                                         request_body=body,
-                                                        seller_sku_list=[seller_sku]
+                                                        seller_sku_list=json.dumps([seller_sku])
                                                       )
-            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=10)
+            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=20)
             api_record_sap_obj.set_received_response(response.content)
             content = response.content
             xml_content = xmltodict.parse(content)
@@ -509,7 +509,7 @@ def create_intercompany_sales_order(company_code, order_information, seller_sku_
         api_record_sap_obj = APIRecordSAP.objects.create(url=ONLINE_ORDER_URL,
                                                         caller="create_intercompany_sales_order",
                                                         request_body=body,
-                                                        seller_sku_list=seller_sku_list
+                                                        seller_sku_list=json.dumps(seller_sku_list)
                                                     )
         response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers, timeout=20)
         api_record_sap_obj.set_received_response(response.content)
@@ -689,7 +689,7 @@ def create_final_order(company_code, order_information, seller_sku_list):
         api_record_sap_obj = APIRecordSAP.objects.create(url=ONLINE_ORDER_URL,
                                                         caller="create_final_order",
                                                         request_body=body,
-                                                        seller_sku_list=seller_sku_list
+                                                        seller_sku_list=json.dumps(seller_sku_list)
                                                     )
         response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers, timeout=20)
         api_record_sap_obj.set_received_response(response.content)
@@ -889,9 +889,9 @@ def fetch_product_holding_details(dealshub_product_obj):
             api_record_sap_obj = APIRecordSAP.objects.create(url=PRODUCT_HOLDING_URL,
                                                             caller="fetch_product_holding_details",
                                                             request_body=body,
-                                                            seller_sku_list=[seller_sku]
+                                                            seller_sku_list=json.dumps([seller_sku])
                                                         )
-            response = requests.post(url=PRODUCT_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=10)
+            response = requests.post(url=PRODUCT_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=20)
             api_record_sap_obj.set_received_response(response.content)
 
             content = response.content
