@@ -2170,7 +2170,7 @@ class APIRecordSAP(models.Model):
     A record for each API call made regarding SAP
     '''
     url = models.TextField(default="")
-    api_name = models.TextField(default="")
+    caller = models.TextField(default="")
     request_body = models.TextField(default="")
     response_body = models.TextField(default="")
     seller_sku_list = models.TextField(default="[]")
@@ -2179,14 +2179,13 @@ class APIRecordSAP(models.Model):
     time_responded = models.DateTimeField()
     
     def __str__(self):
-        name = f"{self.api_name} response"
+        name = f"{self.caller} response"
         return f"{name} received" if self.is_response_received else f"{name} not received"
 
-    def set_response_received(self):
-        '''
-        Set is_response_received to True
-        '''
+    def set_received_response(self, response_body):
+        self.response_body = response_body
         self.is_response_received = True
+        self.time_responded = timezone.now()
         super(APIRecordSAP, self).save()
 
     def save(self, *args, **kwargs):
