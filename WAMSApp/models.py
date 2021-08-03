@@ -508,6 +508,7 @@ class OmnyCommUser(User):
     designation = models.CharField(max_length=200, default="Content Manager",blank=True,null=True)
     permission_list = models.TextField(default="[]")
     website_group = models.ForeignKey("WebsiteGroup", null=True, blank=True, on_delete=models.SET_NULL)
+    is_admin = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if self.pk == None:

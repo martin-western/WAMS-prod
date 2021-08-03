@@ -99,7 +99,7 @@ class AddToWishListAPI(APIView):
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
-                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
                 calling_facebook_api(event_name="AddToWishlist",user=dealshub_user_obj,request=request,custom_data=custom_data)
@@ -183,7 +183,7 @@ class FetchWishListAPI(APIView):
                         currency=unit_wish_list_obj.product.get_currency(),
                         content_name=unit_wish_list_obj.product.get_name(),
                         content_category=unit_wish_list_obj.product.get_category(),
-                        contents=[Content(product_id=unit_wish_list_obj.product.get_seller_sku(), quantity=unit_wish_list_obj.product.stock, item_price=unit_wish_list_obj.product.now_price)],
+                        contents=[Content(product_id=unit_wish_list_obj.product.get_product_id(), quantity=unit_wish_list_obj.product.stock, item_price=unit_wish_list_obj.product.now_price)],
                     ))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -750,7 +750,7 @@ class AddToCartAPI(APIView):
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
-                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
                 calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
@@ -853,7 +853,7 @@ class AddToFastCartAPI(APIView):
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
-                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
                 calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
@@ -963,7 +963,7 @@ class AddToOfflineCartAPI(APIView):
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
-                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
                 calling_facebook_api(event_name="AddToCart",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
@@ -1027,7 +1027,7 @@ class FetchCartDetailsAPI(APIView):
                             currency=unit_cart_obj.product.get_currency(),
                             content_name=unit_cart_obj.product.get_name(),
                             content_category=unit_cart_obj.product.get_category(),
-                            contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))],
+                            contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.get_actual_price_for_customer(dealshub_user_obj))],
                         ))
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1142,7 +1142,7 @@ class FetchOfflineCartDetailsAPI(APIView):
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
                         content_category=unit_cart_obj.product.get_category(),
-                        contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                        contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                     ))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1241,7 +1241,7 @@ class UpdateCartDetailsAPI(APIView):
                     currency=unit_cart_obj.product.get_currency(),
                     content_name=unit_cart_obj.product.get_name(),
                     content_category=unit_cart_obj.product.get_category(),
-                    contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                    contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                 ))
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1392,7 +1392,7 @@ class UpdateOfflineCartDetailsAPI(APIView):
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
                         content_category=unit_cart_obj.product.get_category(),
-                        contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                        contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                     ))
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1565,7 +1565,7 @@ class UpdateFastCartDetailsAPI(APIView):
                     currency=fast_cart_obj.product.get_currency(),
                     content_name=fast_cart_obj.product.get_name(),
                     content_category=fast_cart_obj.product.get_category(),
-                    contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
+                    contents=[Content(product_id=fast_cart_obj.product.get_product_id(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                 ))
                 calling_facebook_api(event_name="AddToCart",user=fast_cart_obj.owner,request=request,custom_data=custom_data)
             except Exception as e:
@@ -1604,7 +1604,7 @@ class RemoveFromCartAPI(APIView):
                     currency=unit_cart_obj.product.get_currency(),
                     content_name=unit_cart_obj.product.get_name(),
                     content_category=unit_cart_obj.product.get_category(),
-                    contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                    contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                 ))
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1835,7 +1835,7 @@ class SelectPaymentModeAPI(APIView):
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
                         content_category=unit_cart_obj.product.get_category(),
-                        contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                        contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                     ))
                 calling_facebook_api(event_name="InitiateCheckout",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
@@ -1950,7 +1950,7 @@ class FetchActiveOrderDetailsAPI(APIView):
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
                         content_category=unit_cart_obj.product.get_category(),
-                        contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                        contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                     ))
                 calling_facebook_api(event_name="InitiateCheckout",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
@@ -2309,7 +2309,7 @@ class PlaceInquiryAPI(APIView):
                     currency=dealshub_product_obj.get_currency(),
                     content_name=dealshub_product_obj.get_name(),
                     content_category=dealshub_product_obj.get_category(),
-                    contents=[Content(product_id=dealshub_product_obj.get_seller_sku(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
+                    contents=[Content(product_id=dealshub_product_obj.get_product_id(), quantity=dealshub_product_obj.stock, item_price=dealshub_product_obj.now_price)],
                 ))
                 calling_facebook_api(event_name="Contact",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
@@ -2511,7 +2511,7 @@ class PlaceOrderAPI(APIView):
                             currency=unit_cart_obj.product.get_currency(),
                             content_name=unit_cart_obj.product.get_name(),
                             content_category=unit_cart_obj.product.get_category(),
-                            contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                            contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                         ))
                     calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,request=request,custom_data=custom_data)
                 except Exception as e:
@@ -2583,7 +2583,7 @@ class PlaceOrderAPI(APIView):
                         currency=fast_cart_obj.product.get_currency(),
                         content_name=fast_cart_obj.product.get_name(),
                         content_category=fast_cart_obj.product.get_category(),
-                        contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
+                        contents=[Content(product_id=fast_cart_obj.product.get_product_id(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                     ))
                     calling_facebook_api(event_name="Purchase",user=fast_cart_obj.owner,request=request,custom_data=custom_data)
                 except Exception as e:
@@ -2690,7 +2690,7 @@ class PlaceOfflineOrderAPI(APIView):
                         currency=unit_cart_obj.product.get_currency(),
                         content_name=unit_cart_obj.product.get_name(),
                         content_category=unit_cart_obj.product.get_category(),
-                        contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                        contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                     ))
                 calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,request=request,custom_data=custom_data)
             except Exception as e:
@@ -2825,7 +2825,7 @@ class FetchOrderListAPI(APIView):
                                 currency=unit_order_obj.product.get_currency(),
                                 content_name=unit_order_obj.product.get_name(),
                                 content_category=unit_order_obj.product.get_category(),
-                                contents=[Content(product_id=unit_order_obj.product.get_seller_sku(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
+                                contents=[Content(product_id=unit_order_obj.product.get_product_id(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
                             ))
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -3263,7 +3263,7 @@ class FetchOrderDetailsAPI(APIView):
                         currency=unit_order_obj.product.get_currency(),
                         content_name=unit_order_obj.product.get_name(),
                         content_category=unit_order_obj.product.get_category(),
-                        contents=[Content(product_id=unit_order_obj.product.get_seller_sku(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
+                        contents=[Content(product_id=unit_order_obj.product.get_product_id(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
                     ))
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4207,7 +4207,7 @@ class FetchCustomerOrdersAPI(APIView):
                             currency=unit_order_obj.product.get_currency(),
                             content_name=unit_order_obj.product.get_name(),
                             content_category=unit_order_obj.product.get_category(),
-                            contents=[Content(product_id=unit_order_obj.product.get_seller_sku(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
+                            contents=[Content(product_id=unit_order_obj.product.get_product_id(), quantity=unit_order_obj.product.stock, item_price=unit_order_obj.product.now_price)],
                         ))
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4584,7 +4584,7 @@ class PaymentTransactionAPI(APIView):
                                 currency=unit_cart_obj.product.get_currency(),
                                 content_name=unit_cart_obj.product.get_name(),
                                 content_category=unit_cart_obj.product.get_category(),
-                                contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                                contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                             ))
                         calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,request=request,custom_data=custom_data)
                     except Exception as e:
@@ -4656,7 +4656,7 @@ class PaymentTransactionAPI(APIView):
                             currency=fast_cart_obj.product.get_currency(),
                             content_name=fast_cart_obj.product.get_name(),
                             content_category=fast_cart_obj.product.get_category(),
-                            contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
+                            contents=[Content(product_id=fast_cart_obj.product.get_product_id(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                         ))
                         calling_facebook_api(event_name="Purchase",user=fast_cart_obj.owner,request=request,custom_data=custom_data)
                     except Exception as e:
@@ -6461,7 +6461,14 @@ class FetchReviewsAdminAPI(APIView):
                         "modified_date" : str(timezone.localtime(admin_comment_obj.modified_date).strftime("%d %b, %Y"))
                     }
 
-                review_content = None
+
+                review_content = {
+                    "subject" : "None",
+                    "content" : "None",
+                    "upvotes_count" : "0",
+                    "admin_comment" : None,
+                    "image_url_list": []
+                }
                 if review_content_obj is not None:
                     image_objs = review_content_obj.images.all()
                     image_url_list = []
@@ -6600,7 +6607,14 @@ class FetchProductReviewsAPI(APIView):
                 if Review.objects.filter(product__uuid=product_code, dealshub_user__username=request.user.username).exclude(is_published=False).exists():
                     is_user_reviewed = True
                     review_obj = Review.objects.get(product__uuid=product_code, dealshub_user__username=request.user.username)
-                    review_content = None
+
+                    review_content = {
+                        "subject" : "None",
+                        "content" : "None",
+                        "upvotes_count" : "0",
+                        "admin_comment" : None,
+                        "image_url_list": []
+                    }                    
                     review_content_obj = review_obj.content
                     if review_content_obj is not None:
                         image_objs = review_content_obj.images.all()
@@ -6941,8 +6955,8 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "today_returned_amount" : total_orders_status_amount_list[3],
                     "cancelled": total_orders_status_count_list[4],
                     "today_cancelled_amount" : total_orders_status_amount_list[4],
-                    "net_sales" : today_total_orders - total_orders_status_count_list[4] - total_orders_status_count_list[3],
-                    "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[4] - total_orders_status_amount_list[3]),2)
+                    "net_sales" : today_total_orders - total_orders_status_count_list[3],
+                    "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[3]),2)
                 }
                 temp_dict["monthly"] = {
                     "sales" : month_total_sales,
@@ -6958,8 +6972,8 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "monthly_returned_amount" : total_monthly_orders_status_amount_list[3],
                     "cancelled": total_monthly_orders_status_count_list[4],
                     "monthly_cancelled_amount" : total_monthly_orders_status_amount_list[4],
-                    "net_sales" : month_total_orders - total_monthly_orders_status_count_list[4] - total_monthly_orders_status_count_list[3],
-                    "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[4] - total_monthly_orders_status_amount_list[3]),2)
+                    "net_sales" : month_total_orders - total_monthly_orders_status_count_list[3],
+                    "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[3]),2)
                 }
                 temp_dict["currency"] = location_group_obj.location.currency
                 temp_dict["username"] = sales_target_obj.user.username
@@ -7108,8 +7122,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "today_returned_amount" : total_orders_status_amount_list[3],
                 "cancelled": total_orders_status_count_list[4],
                 "today_cancelled_amount" : total_orders_status_amount_list[4],
-                "net_sales" : today_total_orders - total_orders_status_count_list[4] - total_orders_status_count_list[3],
-                "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[4] - total_orders_status_amount_list[3]),2)
+                "net_sales" : today_total_orders - total_orders_status_count_list[3],
+                "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[3]),2)
 
             }
             response["monthly"] = {
@@ -7126,8 +7140,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "monthly_returned_amount" : total_monthly_orders_status_amount_list[3],
                 "cancelled": total_monthly_orders_status_count_list[4],
                 "monthly_cancelled_amount" : total_monthly_orders_status_amount_list[4],
-                "net_sales" : month_total_orders - total_monthly_orders_status_count_list[4] - total_monthly_orders_status_count_list[3],
-                "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[4] - total_monthly_orders_status_amount_list[3]),2)
+                "net_sales" : month_total_orders - total_monthly_orders_status_count_list[3],
+                "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[3]),2)
  
             }
             response["currency"] = location_group_obj.location.currency
@@ -7273,8 +7287,8 @@ class FetchFilteredOrderAnalyticsAPI(APIView):
                 "filtered_returned_amount" : total_filtered_orders_status_amount_list[3],
                 "cancelled": total_filtered_orders_status_count_list[4],
                 "filtered_cancelled_amount" : total_filtered_orders_status_amount_list[4],
-                "net_sales" : real_total_orders - total_filtered_orders_status_count_list[4] - total_filtered_orders_status_count_list[3], 
-                "net_sales_amount" : round(float(total_sales - total_filtered_orders_status_amount_list[4] - total_filtered_orders_status_amount_list[3]),2)
+                "net_sales" : real_total_orders - total_filtered_orders_status_count_list[3], 
+                "net_sales_amount" : round(float(total_sales - total_filtered_orders_status_amount_list[3]),2)
             }
             response["status"] = 200
 
@@ -9816,7 +9830,7 @@ class PlaceOnlineOrderAPI(APIView):
                             currency=unit_cart_obj.product.get_currency(),
                             content_name=unit_cart_obj.product.get_name(),
                             content_category=unit_cart_obj.product.get_category(),
-                            contents=[Content(product_id=unit_cart_obj.product.get_seller_sku(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
+                            contents=[Content(product_id=unit_cart_obj.product.get_product_id(), quantity=unit_cart_obj.quantity, item_price=unit_cart_obj.product.now_price)],
                         ))
                     calling_facebook_api(event_name="Purchase",user=dealshub_user_obj,request=request,custom_data=custom_data)
                 except Exception as e:
@@ -9901,7 +9915,7 @@ class PlaceOnlineOrderAPI(APIView):
                         currency=fast_cart_obj.product.get_currency(),
                         content_name=fast_cart_obj.product.get_name(),
                         content_category=fast_cart_obj.product.get_category(),
-                        contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
+                        contents=[Content(product_id=fast_cart_obj.product.get_product_id(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                     ))
                     calling_facebook_api(event_name="Purchase",user=fast_cart_obj.owner,request=request,custom_data=custom_data)
                 except Exception as e:
@@ -10075,7 +10089,7 @@ class FetchFastCartDetailsAPI(APIView):
                     currency=fast_cart_obj.product.get_currency(),
                     content_name=fast_cart_obj.product.get_name(),
                     content_category=fast_cart_obj.product.get_category(),
-                    contents=[Content(product_id=fast_cart_obj.product.get_seller_sku(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
+                    contents=[Content(product_id=fast_cart_obj.product.get_product_id(), quantity=fast_cart_obj.quantity, item_price=fast_cart_obj.product.now_price)],
                 ))
                 calling_facebook_api(event_name="Purchase",user=fast_cart_obj.owner,request=request,custom_data=custom_data)
             except Exception as e:

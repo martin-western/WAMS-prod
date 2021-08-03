@@ -1307,7 +1307,7 @@ def calculate_gtm(order_obj):
                 "revenue": str(total_amount),
                 "tax": str(vat),
                 "shipping": str(delivery_fee),
-                "coupon": "",
+                "coupon": "" if order_obj.voucher==None else str(order_obj.voucher.voucher_code) ,
                 "currency": str(order_obj.get_currency())
             },
             "products": product_list
@@ -2569,7 +2569,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
 
         access_token = "EAAFwjqw5ZBQoBAEPNNkat7AkfrDZCqDs9MIYf6jKHDdHTiqwrqwTZCHNBK4xHJqVZBoIvF1PBdl5dezVOZBE2NSzoXuwjM5Vq1ca5LvZC4D2UaJiZAZBXZAyWsWT7Y0sY7QKpSUsMppY3l91HuxLBHYFOorYcyZCDoJIi87mMtO6P9wmC9IzldfGTG"
         pixel_id = '501666847923989'
-        event_source_url = "https://www.wigme.com"
+        event_source_url = "https://b2b.wigme.com"
 
         now_time = int(time.time())
         logger.info("in calling_facebook_api:- ")
@@ -2589,7 +2589,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             country_codes=[country],
             client_ip_address=request.META["HTTP_X_FORWARDED_FOR"],
             client_user_agent=request.META["HTTP_USER_AGENT"],
-            fbp= "fb.1.1625138246273.541394957",
+            fbp= "fb.1.1627378308009.637490042",
         )
 
         events = []
@@ -2618,7 +2618,6 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         event_request = EventRequest(
             events=events,
             pixel_id=pixel_id,
-            test_event_code="TEST70359",
         )
         event_response = event_request.execute()
         logger.info(event_response)

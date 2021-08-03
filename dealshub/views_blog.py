@@ -239,7 +239,7 @@ class FetchBlogPostListAPI(APIView):
                 data = json.loads(data)
 
             location_group_uuid = data["locationGroupUuid"]
-            blog_post_objs = BlogPost.objects.filter(location_group__uuid=location_group_uuid)
+            blog_post_objs = BlogPost.objects.filter(location_group__uuid=location_group_uuid).order_by("-date_created")
 
             page = data.get("page",1)
             paginator = Paginator(blog_post_objs,20)
@@ -256,13 +256,13 @@ class FetchBlogPostListAPI(APIView):
                 temp_dict["uuid"] = blog_post_obj.uuid
                 temp_dict["is_published"] = blog_post_obj.is_published
                 temp_dict["cover_image"] = blog_post_obj.get_cover_image()
-
+                temp_dict["date_created"] = blog_post_obj.date_created    
                 blog_post_list.append(temp_dict)
 
             is_available = True
             if int(paginator.num_pages) == int(page):
                 is_available = False
-
+            
             response["blogPostList"] = blog_post_list
             response["isAvailable"] = is_available
             response['status'] = 200
