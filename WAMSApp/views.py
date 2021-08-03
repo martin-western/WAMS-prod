@@ -8458,6 +8458,22 @@ class ResetOmnyCommUserPasswordAPI(APIView):
 
         return Response(data=response)
 
+
+class FetchCurrentVersionAPI(APIView):
+    
+    def post(self, request, *args, **kwargs):
+        
+        response = {}
+        response['status'] = 500
+        try:
+            response["version_count"] = Config.objects.all()[0].version_count
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("LogoutUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class LogoutOCUserAPI(APIView):
     
     def post(self, request, *args, **kwargs):
@@ -8485,6 +8501,7 @@ class LogoutOCUserAPI(APIView):
 
         return Response(data=response)
 
+FetchCurrentVersion = FetchCurrentVersionAPI.as_view()
 
 DownloadDynamicExcelTemplate = DownloadDynamicExcelTemplateAPI.as_view()
 
