@@ -1630,7 +1630,7 @@ auditlog.register(Report.products.through)
 class Config(models.Model):
 
     product_404_image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
-
+    version_count = models.IntegerField(default=0,null=True)
     class Meta:
         verbose_name = "Config"
         verbose_name_plural = "Config"
