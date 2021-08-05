@@ -721,8 +721,13 @@ class FetchSuperCategoriesAPI(APIView):
                 response["superCategoryList"] = json.loads(cached_value)
                 response['status'] = 200
                 return Response(data=response)
-
-            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            website_group_obj = WebsiteGroup.objects.none()
+            try:
+                website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            except:
+                location_group_uuid = data["locationGroupUuid"]
+                location_group_obj = LocationGroup.objects.get(uuid = location_group_uuid)
+                website_group_obj = location_group_obj.website_group
 
             super_category_objs = website_group_obj.super_categories.all()
 
