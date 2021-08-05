@@ -44,15 +44,25 @@ class CreateBlogPostAPI(APIView):
             body = data["body"]
             author = data["author"]
             location_group_uuid = data["locationGroupUuid"]
+            date_created = data.get("date_created","")
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            blog_post_obj = BlogPost.objects.create(
-                title=title,
-                author=author,
-                headline=headline,
-                location_group = location_group_obj,
-                body=body)   
-            
+            if date_created == "":
+                blog_post_obj = BlogPost.objects.create(
+                    title=title,
+                    author=author,
+                    headline=headline,
+                    location_group = location_group_obj,
+                    body=body)   
+            else:
+                blog_post_obj = BlogPost.objects.create(
+                    title=title,
+                    author=author,
+                    headline=headline,
+                    location_group = location_group_obj,
+                    date_created = date_created,
+                    body=body)
+
             response["blogPostUuid"] = blog_post_obj.uuid
             response['status'] = 200
 

@@ -1866,7 +1866,7 @@ class BlogPost(models.Model):
     headline = models.CharField(max_length=255,default="",blank=True)
     author = models.CharField(max_length=200,default="",blank=True)
     body = models.TextField(default="")
-    date_created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(default=timezone.now)
     is_published = models.BooleanField(default=False)
     cover_image = models.ForeignKey(Image,null=True,blank=True,related_name="cover_image")
     blog_images = models.ManyToManyField(Image,blank=True,related_name="blog_images")
