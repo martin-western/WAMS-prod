@@ -2165,4 +2165,24 @@ class CompanyCodeSAP(models.Model):
     def __str__(self):
         return self.location_group.name + ' - ' + self.brand.name
 
+class SAPAttributes(models.Model):
+    product = models.ForeignKey(BaseProduct, null=True, on_delete=models.DO_NOTHING)
+    alternate_uom = models.CharField(max_length=100, default="") 
+    base_uom = models.CharField(max_length=100, default="") 
+    conversion_factor = models.CharField(max_length=100, default="") 
+    gross_weight = models.CharField(max_length=100, default="") 
+    gross_weight_unit = models.CharField(max_length=100, default="") 
+    net_weight = models.CharField(max_length=100, default="") 
+    net_weight_unit = models.CharField(max_length=100, default="") 
+    lenght = models.CharField(max_length=100, default="") 
+    width = models.CharField(max_length=100, default="") 
+    height = models.CharField(max_length=100, default="") 
+    length_measurement_unit = models.CharField(max_length=100, default="") 
+    country_name = models.CharField(max_length=100, default="") 
+    
+    certification_type = models.CharField(max_length=100, default="") 
+    validity_start_date = models.CharField(max_length=100, default="") 
+    validity_end_date = models.CharField(max_length=100, default="") 
+
+    
     
