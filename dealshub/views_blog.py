@@ -91,13 +91,15 @@ class EditBlogPostAPI(APIView):
             author = data["author"]
             blog_post_uuid = data["blogPostUuid"]
             is_cover_image = data.get("isCoverImage",False)   
-
+            date_created = data.get("date_created","")
             blog_post_obj = BlogPost.objects.get(uuid=blog_post_uuid)
 
             blog_post_obj.title = title
             blog_post_obj.headline = headline
             blog_post_obj.author = author
             blog_post_obj.body = body
+            if date_created !="":
+                blog_post_obj.date_created = date_created
 
             response["coverImageUrl"] = ""
             if is_cover_image==str(True):
