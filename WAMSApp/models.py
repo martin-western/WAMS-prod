@@ -2165,4 +2165,39 @@ class CompanyCodeSAP(models.Model):
     def __str__(self):
         return self.location_group.name + ' - ' + self.brand.name
 
+
+class APIRecordSAP(models.Model):
+    '''
+    A record for each API call made regarding SAP
+    '''
+    url = models.TextField(default="")
+    caller = models.TextField(default="")
+    request_body = models.TextField(default="")
+    response_body = models.TextField(default="")
+    seller_sku_list = models.TextField(default="[]")
+    is_response_received = models.BooleanField(default=False)
+    time_requested = models.DateTimeField()
+    time_responded = models.DateTimeField()
+    
+    def __str__(self):
+        name = f"{self.caller} response"
+        return f"{name} received" if self.is_response_received else f"{name} not received"
+
+    def set_received_response(self, response_body):
+        self.response_body = response_body
+        self.is_response_received = True
+        self.time_responded = timezone.now()
+        super(APIRecordSAP, self).save()
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.time_requested = timezone.now()
+            self.time_responded = None
+        else:
+            self.time_responded = timezone.now()
+        super(APIRecordSAP, self).save(*args, **kwargs)
+
+    
+    
+
     
