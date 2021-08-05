@@ -747,8 +747,6 @@ class FetchSuperCategoriesAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["category_name"] = category_obj.get_name(language_code)
                     temp_dict2["category_name_en"] = category_obj.get_name("en")
-                    if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
-                        category_list.append(temp_dict2)
                     
                     sub_category_list = []
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)[:30]
@@ -760,7 +758,7 @@ class FetchSuperCategoriesAPI(APIView):
                             sub_category_list.append(temp_dict3)
                     
                     temp_dict2["sub_category_list"] = sub_category_list
-                    if len(sub_category_list)>0:
+                    if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
                         category_list.append(temp_dict2)
 
                 temp_dict["category_list"] = category_list
