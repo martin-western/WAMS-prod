@@ -2177,7 +2177,7 @@ class APIRecordSAP(models.Model):
     seller_sku_list = models.TextField(default="[]")
     is_response_received = models.BooleanField(default=False)
     time_requested = models.DateTimeField()
-    time_responded = models.DateTimeField()
+    time_responded = models.DateTimeField(null=True)
     
     def __str__(self):
         name = f"{self.caller} response"
