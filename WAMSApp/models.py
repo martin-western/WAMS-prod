@@ -2165,7 +2165,11 @@ class CompanyCodeSAP(models.Model):
     def __str__(self):
         return self.location_group.name + ' - ' + self.brand.name
 
-class SAPAttributes(models.Model):
+class SAPAttributeSet(models.Model):
+    '''
+    Attributes of a BaseProduct are pulled from SAP and this class represents a set of such attributes.
+    '''
+    uuid = models.CharField(max_length=200, default="")
     product = models.ForeignKey(BaseProduct, null=True, on_delete=models.DO_NOTHING)
     alternate_uom = models.CharField(max_length=100, default="") 
     base_uom = models.CharField(max_length=100, default="") 
@@ -2182,7 +2186,58 @@ class SAPAttributes(models.Model):
     
     certification_type = models.CharField(max_length=100, default="") 
     validity_start_date = models.CharField(max_length=100, default="") 
-    validity_end_date = models.CharField(max_length=100, default="") 
+    validity_end_date = models.CharField(max_length=100, default="")
 
-    
-    
+    def __str__(self):
+        return f"SAP attr {self.uuid} - {self.product.base_product_name}"
+
+    def save(self, *args, **kwargs):
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(SAPAttributeSet, self).save(*args, **kwargs)
+
+    def get_packed_attributes(self):
+        '''
+        Returns a dictionary of all the required attributes pulled from SAP
+        '''
+        return {
+            "alternate_uom": self.alternate_uom, 
+            "base_uom": self.base_uom, 
+            "conversion_factor": self.conversion_factor, 
+            "gross_weight": self.gross_weight, 
+            "gross_weight_unit": self.gross_weight_unit, 
+            "net_weight": self.net_weight, 
+            "net_weight_unit": self.net_weight_unit, 
+            "lenght": self.lenght, 
+            "width": self.width, 
+            "height": self.height, 
+            "length_measurement_unit": self.length_measurement_unit, 
+            "country_name": self.country_name, 
+            "certification_type": self.certification_type, 
+            "validity_start_date": self.validity_start_date, 
+            "validity_end_date": self.validity_end_date
+        }  
+
+    def get_attribute_codes(self):
+        '''
+        Returns a dictionary of SAP codes with respect to all the required attributes
+        '''
+        return {
+            "alternate_uom": "AUOM", 
+            "base_uom": "BUOM", 
+            "conversion_factor": "CFACT", 
+            "gross_weight": "GWEIG", 
+            "gross_weight_unit": "GWEIU", 
+            "net_weight": "NWEIG", 
+            "net_weight_unit": "NWEIU", 
+            "lenght": "LAENG", 
+            "width": "BREIT", 
+            "height": "HOEHE", 
+            "length_measurement_unit": "MEABM", 
+            "country_name": "LANDX", 
+            "certification_type": "CERT_TYPE", 
+            "validity_start_date": "VLSTDT", 
+            "validity_end_date": "VLENDT"
+        }   
+        
