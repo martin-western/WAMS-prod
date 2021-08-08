@@ -721,8 +721,13 @@ class FetchSuperCategoriesAPI(APIView):
                 response["superCategoryList"] = json.loads(cached_value)
                 response['status'] = 200
                 return Response(data=response)
-
-            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            website_group_obj = WebsiteGroup.objects.none()
+            try:
+                website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            except:
+                location_group_uuid = data["locationGroupUuid"]
+                location_group_obj = LocationGroup.objects.get(uuid = location_group_uuid)
+                website_group_obj = location_group_obj.website_group
 
             super_category_objs = website_group_obj.super_categories.all()
 
@@ -735,14 +740,27 @@ class FetchSuperCategoriesAPI(APIView):
                 temp_dict["imageUrl"] = ""
                 if super_category_obj.image!=None:
                     temp_dict["imageUrl"] = super_category_obj.image.thumbnail.url
+                
                 category_list = []
                 category_objs = Category.objects.filter(super_category=super_category_obj)[:30]
                 for category_obj in category_objs:
                     temp_dict2 = {}
                     temp_dict2["category_name"] = category_obj.get_name(language_code)
                     temp_dict2["category_name_en"] = category_obj.get_name("en")
+                    
+                    sub_category_list = []
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)[:30]
+                    for sub_category_obj in sub_category_objs:
+                        temp_dict3 = {}
+                        temp_dict3["sub_category_name"] = sub_category_obj.get_name(language_code)
+                        temp_dict3["sub_category_name_en"] = sub_category_obj.get_name("en")
+                        if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
+                            sub_category_list.append(temp_dict3)
+                    
+                    temp_dict2["sub_category_list"] = sub_category_list
                     if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
                         category_list.append(temp_dict2)
+
                 temp_dict["category_list"] = category_list
                 if len(category_list)>0:
                     super_category_list.append(temp_dict)
