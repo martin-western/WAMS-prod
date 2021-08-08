@@ -2170,7 +2170,7 @@ class SAPAttributeSet(models.Model):
     Attributes of a BaseProduct are pulled from SAP and this class represents a set of such attributes.
     '''
     uuid = models.CharField(max_length=200, default="")
-    base_product = models.ForeignKey(BaseProduct, on_delete=models.DO_NOTHING)
+    base_product = models.ForeignKey(BaseProduct, null=True, on_delete=models.DO_NOTHING)
     alternate_uom = models.CharField(max_length=100, default="") 
     base_uom = models.CharField(max_length=100, default="") 
     conversion_factor = models.CharField(max_length=100, default="") 
@@ -2178,7 +2178,7 @@ class SAPAttributeSet(models.Model):
     gross_weight_unit = models.CharField(max_length=100, default="") 
     net_weight = models.CharField(max_length=100, default="") 
     net_weight_unit = models.CharField(max_length=100, default="") 
-    lenght = models.CharField(max_length=100, default="") 
+    length = models.CharField(max_length=100, default="") 
     width = models.CharField(max_length=100, default="") 
     height = models.CharField(max_length=100, default="") 
     length_measurement_unit = models.CharField(max_length=100, default="") 
@@ -2238,7 +2238,7 @@ class SAPCertificate(models.Model):
     SAP certificate information of a base_product/article (seller sku)
     '''
     uuid = models.CharField(max_length=200, default="")
-    base_product = models.ForeignKey(BaseProduct, on_delete=models.DO_NOTHING)
+    base_product = models.ForeignKey(BaseProduct, null=True, on_delete=models.DO_NOTHING)
     certificate_type = models.CharField(max_length=100, default="") 
     validity_start_date = models.CharField(max_length=100, default="") 
     validity_end_date = models.CharField(max_length=100, default="")
