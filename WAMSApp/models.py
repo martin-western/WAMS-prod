@@ -2202,6 +2202,7 @@ class SAPAttributeSet(models.Model):
         Returns a dictionary of all the required attributes pulled from SAP
         '''
         return {
+            "uuid": self.uuid,
             "alternate_uom": self.alternate_uom, 
             "base_uom": self.base_uom, 
             "conversion_factor": self.conversion_factor, 
