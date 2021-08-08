@@ -2170,7 +2170,7 @@ class SAPAttributeSet(models.Model):
     Attributes of a BaseProduct are pulled from SAP and this class represents a set of such attributes.
     '''
     uuid = models.CharField(max_length=200, default="")
-    product = models.ForeignKey(BaseProduct, null=True, on_delete=models.DO_NOTHING)
+    base_product = models.ForeignKey(BaseProduct, on_delete=models.DO_NOTHING)
     alternate_uom = models.CharField(max_length=100, default="") 
     base_uom = models.CharField(max_length=100, default="") 
     conversion_factor = models.CharField(max_length=100, default="") 
@@ -2183,10 +2183,6 @@ class SAPAttributeSet(models.Model):
     height = models.CharField(max_length=100, default="") 
     length_measurement_unit = models.CharField(max_length=100, default="") 
     country_name = models.CharField(max_length=100, default="") 
-    
-    certification_type = models.CharField(max_length=100, default="") 
-    validity_start_date = models.CharField(max_length=100, default="") 
-    validity_end_date = models.CharField(max_length=100, default="")
 
     def __str__(self):
         return f"SAP attr {self.uuid} - {self.product.base_product_name}"
@@ -2197,7 +2193,7 @@ class SAPAttributeSet(models.Model):
 
         super(SAPAttributeSet, self).save(*args, **kwargs)
 
-    def get_packed_attributes(self):
+    def get_attributes_dict(self):
         '''
         Returns a dictionary of all the required attributes pulled from SAP
         '''
@@ -2210,14 +2206,11 @@ class SAPAttributeSet(models.Model):
             "gross_weight_unit": self.gross_weight_unit, 
             "net_weight": self.net_weight, 
             "net_weight_unit": self.net_weight_unit, 
-            "lenght": self.lenght, 
+            "length": self.length, 
             "width": self.width, 
             "height": self.height, 
             "length_measurement_unit": self.length_measurement_unit, 
             "country_name": self.country_name, 
-            "certification_type": self.certification_type, 
-            "validity_start_date": self.validity_start_date, 
-            "validity_end_date": self.validity_end_date
         }  
 
     def get_attribute_codes(self):
@@ -2232,11 +2225,49 @@ class SAPAttributeSet(models.Model):
             "gross_weight_unit": "GWEIU", 
             "net_weight": "NWEIG", 
             "net_weight_unit": "NWEIU", 
-            "lenght": "LAENG", 
+            "length": "LAENG", 
             "width": "BREIT", 
             "height": "HOEHE", 
             "length_measurement_unit": "MEABM", 
             "country_name": "LANDX", 
+        }   
+        
+
+class SAPCertificate(models.Model):
+    '''
+    SAP certificate information of a base_product/article (seller sku)
+    '''
+    uuid = models.CharField(max_length=200, default="")
+    base_product = models.ForeignKey(BaseProduct, on_delete=models.DO_NOTHING)
+    certificate_type = models.CharField(max_length=100, default="") 
+    validity_start_date = models.CharField(max_length=100, default="") 
+    validity_end_date = models.CharField(max_length=100, default="")
+
+    def __str__(self):
+        return f"SAP certificate {self.uuid} - {self.product.base_product_name}"
+
+    def save(self, *args, **kwargs):
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(SAPCertificate, self).save(*args, **kwargs)
+
+    def get_certificate_dict(self):
+        '''
+        Returns a dictionary w.r.t the SAPCertificate object
+        '''
+        return {
+            "uuid": self.uuid,
+            "certification_type": self.certification_type, 
+            "validity_start_date": self.validity_start_date, 
+            "validity_end_date": self.validity_end_date
+        }  
+
+    def get_certificate_codes(self):
+        '''
+        Returns a dictionary of SAP codes with respect to the certificate data
+        '''
+        return {
             "certification_type": "CERT_TYPE", 
             "validity_start_date": "VLSTDT", 
             "validity_end_date": "VLENDT"
