@@ -358,9 +358,19 @@ class FetchSAPAttributesAPI(APIView):
             for sap_attribute_set_obj in sap_attribute_set_objs:
                 if sap_attribute_set_obj.alternate_uom in sap_attribute_set_dict:
                     continue
-                sap_attribute_set_dict[sap_attribute_set_obj.alternate_uom] = sap_attribute_set_obj.get_packed_attributes()
+                sap_attribute_set_dict[sap_attribute_set_obj.alternate_uom] = sap_attribute_set_obj.get_attributes_dict()
             response['sapAttributeSetObjs'] = sap_attribute_set_dict
             response['sapAttributeSetCodes'] = sap_attribute_set_objs[0].get_attribute_codes()
+            
+            sap_certificate_objs = BaseProduct.sapcertificate_set.all()
+            sap_certificate_dict = {}
+            for sap_certificate_obj in sap_certificate_objs:
+                if sap_certificate_obj.certificate_type in sap_certificate_dict:
+                    continue
+                sap_certificate_dict[sap_certificate_obj.certificate_type] = sap_certificate_obj.get_certificate_dict()
+            response['sapCertificateObjs'] = sap_certificate_dict
+            response['sapCertificateCodes'] = sap_certificate_objs[0].get_certificate_codes()
+            
             response['status'] = 200
 
         except Exception as e:
