@@ -2185,7 +2185,7 @@ class SAPAttributeSet(models.Model):
     country_name = models.CharField(max_length=100, default="") 
 
     def __str__(self):
-        return f"SAP attr {self.uuid} - {self.product.base_product_name}"
+        return f"SAP attr {self.uuid} - {self.base_product.base_product_name}"
 
     def save(self, *args, **kwargs):
         if self.uuid == None or self.uuid=="":
@@ -2244,7 +2244,7 @@ class SAPCertificate(models.Model):
     validity_end_date = models.CharField(max_length=100, default="")
 
     def __str__(self):
-        return f"SAP certificate {self.uuid} - {self.product.base_product_name}"
+        return f"SAP cert {self.uuid} - {self.base_product.base_product_name}"
 
     def save(self, *args, **kwargs):
         if self.uuid == None or self.uuid=="":
