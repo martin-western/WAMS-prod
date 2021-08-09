@@ -2171,18 +2171,18 @@ class SAPAttributeSet(models.Model):
     '''
     uuid = models.CharField(max_length=200, default="")
     base_product = models.ForeignKey(BaseProduct, null=True, on_delete=models.DO_NOTHING)
-    alternate_uom = models.CharField(max_length=100, default="") 
-    base_uom = models.CharField(max_length=100, default="") 
-    conversion_factor = models.CharField(max_length=100, default="") 
-    gross_weight = models.CharField(max_length=100, default="") 
-    gross_weight_unit = models.CharField(max_length=100, default="") 
-    net_weight = models.CharField(max_length=100, default="") 
-    net_weight_unit = models.CharField(max_length=100, default="") 
-    length = models.CharField(max_length=100, default="") 
-    width = models.CharField(max_length=100, default="") 
-    height = models.CharField(max_length=100, default="") 
-    length_measurement_unit = models.CharField(max_length=100, default="") 
-    country_name = models.CharField(max_length=100, default="") 
+    alternate_uom = models.CharField(max_length=100, null=True, default="") 
+    base_uom = models.CharField(max_length=100, null=True, default="") 
+    conversion_factor = models.CharField(max_length=100, null=True, default="") 
+    gross_weight = models.CharField(max_length=100, null=True, default="") 
+    gross_weight_unit = models.CharField(max_length=100, null=True, default="") 
+    net_weight = models.CharField(max_length=100, null=True, default="") 
+    net_weight_unit = models.CharField(max_length=100, null=True, default="") 
+    length = models.CharField(max_length=100, null=True, default="") 
+    width = models.CharField(max_length=100, null=True, default="") 
+    height = models.CharField(max_length=100, null=True, default="") 
+    length_measurement_unit = models.CharField(max_length=100, null=True, default="") 
+    country_name = models.CharField(max_length=100, null=True, default="") 
 
     def __str__(self):
         return f"SAP attr {self.uuid} - {self.base_product.base_product_name}"
@@ -2239,9 +2239,9 @@ class SAPCertificate(models.Model):
     '''
     uuid = models.CharField(max_length=200, default="")
     base_product = models.ForeignKey(BaseProduct, null=True, on_delete=models.DO_NOTHING)
-    certificate_type = models.CharField(max_length=100, default="") 
-    validity_start_date = models.CharField(max_length=100, default="") 
-    validity_end_date = models.CharField(max_length=100, default="")
+    certificate_type = models.CharField(max_length=100, null=True, default="") 
+    validity_start_date = models.CharField(max_length=100, null=True, default="") 
+    validity_end_date = models.CharField(max_length=100, null=True, default="")
 
     def __str__(self):
         return f"SAP cert {self.uuid} - {self.base_product.base_product_name}"
