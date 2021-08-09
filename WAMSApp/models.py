@@ -2212,25 +2212,7 @@ class SAPAttributeSet(models.Model):
             "length_measurement_unit": self.length_measurement_unit, 
             "country_name": self.country_name 
         }  
-
-    def get_attribute_codes(self):
-        '''
-        Returns a dictionary of SAP codes with respect to all the required attributes
-        '''
-        return {
-            "alternate_uom": "AUOM", 
-            "base_uom": "BUOM", 
-            "conversion_factor": "CFACT", 
-            "gross_weight": "GWEIG", 
-            "gross_weight_unit": "GWEIU", 
-            "net_weight": "NWEIG", 
-            "net_weight_unit": "NWEIU", 
-            "length": "LAENG", 
-            "width": "BREIT", 
-            "height": "HOEHE", 
-            "length_measurement_unit": "MEABM", 
-            "country_name": "LANDX" 
-        }   
+  
         
 
 class SAPCertificate(models.Model):
@@ -2261,17 +2243,7 @@ class SAPCertificate(models.Model):
             "certification_type": self.certification_type, 
             "validity_start_date": self.validity_start_date, 
             "validity_end_date": self.validity_end_date
-        }  
-
-    def get_certificate_codes(self):
-        '''
-        Returns a dictionary of SAP codes with respect to the certificate data
-        '''
-        return {
-            "certification_type": "CERT_TYPE", 
-            "validity_start_date": "VLSTDT", 
-            "validity_end_date": "VLENDT"
-        }   
+        }     
         
 
 class APIRecordSAP(models.Model):

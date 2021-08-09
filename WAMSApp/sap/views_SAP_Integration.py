@@ -360,7 +360,7 @@ class FetchSAPAttributesAPI(APIView):
                     continue
                 sap_attribute_set_dict[sap_attribute_set_obj.alternate_uom] = sap_attribute_set_obj.get_attributes_dict()
             response['sapAttributeSetObjs'] = sap_attribute_set_dict
-            response['sapAttributeSetCodes'] = sap_attribute_set_objs[0].get_attribute_codes()
+            response['sapAttributeSetCodes'] = SAP_ATTR_CODES
             
             sap_certificate_objs = base_product_obj.sapcertificate_set.all()
             sap_certificate_dict = {}
@@ -369,7 +369,7 @@ class FetchSAPAttributesAPI(APIView):
                     continue
                 sap_certificate_dict[sap_certificate_obj.certificate_type] = sap_certificate_obj.get_certificate_dict()
             response['sapCertificateObjs'] = sap_certificate_dict
-            response['sapCertificateCodes'] = sap_certificate_objs[0].get_certificate_codes()
+            response['sapCertificateCodes'] = SAP_CERT_CODES
             
             response['status'] = 200
 
