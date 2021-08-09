@@ -44,25 +44,21 @@ class CreateBlogPostAPI(APIView):
             body = data["body"]
             author = data["author"]
             location_group_uuid = data["locationGroupUuid"]
-            date_created = data.get("date_created","")
+            date_created = data.get("dateCreated","")
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
 
-            if date_created == "":
-                blog_post_obj = BlogPost.objects.create(
-                    title=title,
-                    author=author,
-                    headline=headline,
-                    location_group = location_group_obj,
-                    body=body)   
-            else:
-                blog_post_obj = BlogPost.objects.create(
-                    title=title,
-                    author=author,
-                    headline=headline,
-                    location_group = location_group_obj,
-                    date_created = date_created,
-                    body=body)
-
+            blog_post_obj = BlogPost.objects.create(
+                title=title,
+                author=author,
+                headline=headline,
+                location_group = location_group_obj,
+                body=body)   
+            if date_created != "":
+                try:
+                    blog_post_obj.date_created = date_created
+                except Exception as e:
+                    logger.error("CreateBlogPostAPI: Enter date properly")
+        
             response["blogPostUuid"] = blog_post_obj.uuid
             response['status'] = 200
 
@@ -91,7 +87,7 @@ class EditBlogPostAPI(APIView):
             author = data["author"]
             blog_post_uuid = data["blogPostUuid"]
             is_cover_image = data.get("isCoverImage",False)   
-            date_created = data.get("date_created","")
+            date_created = data.get("dateCreated","")
             blog_post_obj = BlogPost.objects.get(uuid=blog_post_uuid)
 
             blog_post_obj.title = title
@@ -99,7 +95,10 @@ class EditBlogPostAPI(APIView):
             blog_post_obj.author = author
             blog_post_obj.body = body
             if date_created !="":
-                blog_post_obj.date_created = date_created
+                try:
+                    blog_post_obj.date_created = date_created
+                except Exception as e:
+                    logger.error("EditBlogPostAPI: Enter date properly")
 
             response["coverImageUrl"] = ""
             if is_cover_image==str(True):
