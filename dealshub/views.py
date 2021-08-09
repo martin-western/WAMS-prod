@@ -237,6 +237,14 @@ class FetchProductDetailsAPI(APIView):
                 image_list.append(temp_image)
                 response["heroImageUrl"] = Config.objects.all()[0].product_404_image.image.url
 
+            temp_pfl_image_list = create_response_images(product_obj.pfl_images.all())
+            for temp_pfg_image in temp_pfl_image_list:
+                image_list.append(temp_pfg_image)
+            
+            temp_pfl_generated_image_list = create_response_images(product_obj.pfl_generated_images.all())
+            for temp_pfg_generated_image in temp_pfl_generated_image_list:
+                image_list.append(temp_pfg_generated_image)
+
             response["productImagesUrl"] = image_list
 
             try:
