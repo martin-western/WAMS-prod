@@ -214,6 +214,14 @@ class FetchProductDetailsAPI(APIView):
                     except Exception as e:
                         pass
 
+                temp_pfl_image_list = create_response_images(product_obj.pfl_images.all())
+                for temp_pfg_image in temp_pfl_image_list:
+                    image_list.append(temp_pfg_image)
+                
+                temp_pfl_generated_image_list = create_response_images(product_obj.pfl_generated_images.all())
+                for temp_pfg_generated_image in temp_pfl_generated_image_list:
+                    image_list.append(temp_pfg_generated_image)
+
                 if dealshub_product_obj.location_group.name=="PARA JOHN - UAE":
                     aplus_content_image_objs = product_obj.aplus_content_images.all()
                     for aplus_content_image_obj in aplus_content_image_objs:
