@@ -353,7 +353,7 @@ class FetchSAPAttributesAPI(APIView):
                 response['status'] = 403
                 return Response(data=response)
 
-            sap_attribute_set_objs = BaseProduct.sapattributeset_set.all()
+            sap_attribute_set_objs = base_product_obj.sapattributeset_set.all()
             sap_attribute_set_dict = {}
             for sap_attribute_set_obj in sap_attribute_set_objs:
                 if sap_attribute_set_obj.alternate_uom in sap_attribute_set_dict:
@@ -362,7 +362,7 @@ class FetchSAPAttributesAPI(APIView):
             response['sapAttributeSetObjs'] = sap_attribute_set_dict
             response['sapAttributeSetCodes'] = sap_attribute_set_objs[0].get_attribute_codes()
             
-            sap_certificate_objs = BaseProduct.sapcertificate_set.all()
+            sap_certificate_objs = base_product_obj.sapcertificate_set.all()
             sap_certificate_dict = {}
             for sap_certificate_obj in sap_certificate_objs:
                 if sap_certificate_obj.certificate_type in sap_certificate_dict:
