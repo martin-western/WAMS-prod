@@ -2210,7 +2210,7 @@ class SAPAttributeSet(models.Model):
             "width": self.width, 
             "height": self.height, 
             "length_measurement_unit": self.length_measurement_unit, 
-            "country_name": self.country_name, 
+            "country_name": self.country_name 
         }  
 
     def get_attribute_codes(self):
@@ -2229,7 +2229,7 @@ class SAPAttributeSet(models.Model):
             "width": "BREIT", 
             "height": "HOEHE", 
             "length_measurement_unit": "MEABM", 
-            "country_name": "LANDX", 
+            "country_name": "LANDX" 
         }   
         
 
