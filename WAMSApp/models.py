@@ -2240,7 +2240,7 @@ class SAPCertificate(models.Model):
         '''
         return {
             "uuid": self.uuid,
-            "certification_type": self.certification_type, 
+            "certificate_type": self.certificate_type, 
             "validity_start_date": self.validity_start_date, 
             "validity_end_date": self.validity_end_date
         }     
