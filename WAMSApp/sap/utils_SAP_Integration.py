@@ -24,13 +24,13 @@ def fetch_prices_and_stock(seller_sku,company_code):
         credentials = (SAP_USERNAME, SAP_PASSWORD)
         
         body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,CUSTOMER_ID)
-        api_record_sap_obj = APIRecordSAP.objects.create(url=PRICE_STOCK_URL,
-                                                        caller="fetch_prices_and_stock",
-                                                        request_body=body,
-                                                        seller_sku_list=json.dumps([seller_sku])
-                                                      )
+        # api_record_sap_obj = APIRecordSAP.objects.create(url=PRICE_STOCK_URL,
+        #                                                 caller="fetch_prices_and_stock",
+        #                                                 request_body=body,
+        #                                                 seller_sku_list=json.dumps([seller_sku])
+        #                                               )
         response = requests.post(url=PRICE_STOCK_URL, auth=credentials, data=body, headers=headers, timeout=30)
-        api_record_sap_obj.set_received_response(response.content)
+        # api_record_sap_obj.set_received_response(response.content)
         
         content = response.content
         xml_content = xmltodict.parse(content)
@@ -273,13 +273,13 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
         if len(transfer_information) > 0:
             logger.info("tansfer info : %s", str(json.dumps(transfer_information)))
             body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
-            api_record_sap_obj = APIRecordSAP.objects.create(url=TRANSFER_HOLDING_URL,
-                                                            caller="transfer_from_atp_to_holding",
-                                                            request_body=body,
-                                                            seller_sku_list=json.dumps([seller_sku])
-                                                        )
+            # api_record_sap_obj = APIRecordSAP.objects.create(url=TRANSFER_HOLDING_URL,
+            #                                                 caller="transfer_from_atp_to_holding",
+            #                                                 request_body=body,
+            #                                                 seller_sku_list=json.dumps([seller_sku])
+            #                                             )
             response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=30)
-            api_record_sap_obj.set_received_response(response.content)
+            # api_record_sap_obj.set_received_response(response.content)
             content = response.content
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
@@ -431,13 +431,13 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
 
         if len(transfer_information) > 0:
             body = xml_generator_for_holding_tansfer(company_code,CUSTOMER_ID,transfer_information)
-            api_record_sap_obj = APIRecordSAP.objects.create(url=TRANSFER_HOLDING_URL,
-                                                        caller="holding_atp_transfer",
-                                                        request_body=body,
-                                                        seller_sku_list=json.dumps([seller_sku])
-                                                      )
+            # api_record_sap_obj = APIRecordSAP.objects.create(url=TRANSFER_HOLDING_URL,
+            #                                             caller="holding_atp_transfer",
+            #                                             request_body=body,
+            #                                             seller_sku_list=json.dumps([seller_sku])
+            #                                           )
             response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=30)
-            api_record_sap_obj.set_received_response(response.content)
+            # api_record_sap_obj.set_received_response(response.content)
             content = response.content
             xml_content = xmltodict.parse(content)
             response_dict = json.loads(json.dumps(xml_content))
@@ -886,13 +886,13 @@ def fetch_product_holding_details(dealshub_product_obj):
             
             body = xml_generator_for_product_holding_details(company_code,seller_sku)
 
-            api_record_sap_obj = APIRecordSAP.objects.create(url=PRODUCT_HOLDING_URL,
-                                                            caller="fetch_product_holding_details",
-                                                            request_body=body,
-                                                            seller_sku_list=json.dumps([seller_sku])
-                                                        )
+            # api_record_sap_obj = APIRecordSAP.objects.create(url=PRODUCT_HOLDING_URL,
+            #                                                 caller="fetch_product_holding_details",
+            #                                                 request_body=body,
+            #                                                 seller_sku_list=json.dumps([seller_sku])
+            #                                             )
             response = requests.post(url=PRODUCT_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=30)
-            api_record_sap_obj.set_received_response(response.content)
+            # api_record_sap_obj.set_received_response(response.content)
 
             content = response.content
             xml_content = xmltodict.parse(content)

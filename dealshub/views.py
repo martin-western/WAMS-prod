@@ -245,15 +245,6 @@ class FetchProductDetailsAPI(APIView):
                     temp_image["original"] = temp_pfg_image["midimage_url"]
                     temp_image["thumbnail"] = temp_pfg_image["thumbnail_url"]
                     image_list.append(temp_image)
-                
-                temp_pfl_generated_image_list = create_response_images(product_obj.pfl_generated_images.all())
-                for temp_pfl_generated_image in temp_pfl_generated_image_list:
-                    temp_image = {}
-                    temp_image["high-res"] = temp_pfl_generated_image["main_url"] 
-                    temp_image["original"] = temp_pfl_generated_image["midimage_url"]
-                    temp_image["thumbnail"] = temp_pfl_generated_image["thumbnail_url"]
-                    image_list.append(temp_image)
-
 
             response["productImagesUrl"] = image_list
 

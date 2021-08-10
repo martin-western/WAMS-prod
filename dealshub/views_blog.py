@@ -56,6 +56,7 @@ class CreateBlogPostAPI(APIView):
             if date_created != "":
                 try:
                     blog_post_obj.date_created = date_created
+                    blog_post_obj.save()
                 except Exception as e:
                     logger.error("CreateBlogPostAPI: Enter date properly")
         
