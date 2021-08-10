@@ -52,6 +52,30 @@ SAP_PASSWORD = "geepas"     # QA
 
 #********************************************#
 
+#**************** SAP codes *******************#
+
+SAP_ATTR_CODES = {
+    "alternate_uom": "AUOM", 
+    "base_uom": "BUOM", 
+    "conversion_factor": "CFACT", 
+    "gross_weight": "GWEIG", 
+    "gross_weight_unit": "GWEIU", 
+    "net_weight": "NWEIG", 
+    "net_weight_unit": "NWEIU", 
+    "length": "LAENG", 
+    "width": "BREIT", 
+    "height": "HOEHE", 
+    "length_measurement_unit": "MEABM", 
+    "country_name": "LANDX" 
+} 
+
+SAP_CERT_CODES = {
+    "certificate_type": "CERT_TYPE", 
+    "validity_start_date": "VLSTDT", 
+    "validity_end_date": "VLENDT"
+}
+
+#***********************************************#
 
 ######### PRODUCTION URLS ##########
 # PRICE_STOCK_URL = "http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_stock_price/300/zser_stock_price/zbin_stock_price"
@@ -70,12 +94,12 @@ SAP_PASSWORD = "geepas"     # QA
 # CUSTOMER_ID_FINAL_BILLING_STANDARD_ONLINE = "50000871"
 
 # For B2B
-# CUSTOMER_ID_FINAL_BILLING_WIG_COD_B2B = "50001128"
-# CUSTOMER_ID_FINAL_BILLING_WIG_ONLINE_B2B = "50001129"
-# CUSTOMER_ID_FINAL_BILLING_SENDEX_COD_B2B = "50001111"
-# CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE_B2B = "50001112"
-# CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_COD_B2B = "50001130"
-# CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_ONLINE_B2B = "50001131"
+# CUSTOMER_ID_FINAL_BILLING_WIG_COD_B2B = "50001166"
+# CUSTOMER_ID_FINAL_BILLING_WIG_ONLINE_B2B = "50001167"
+# CUSTOMER_ID_FINAL_BILLING_SENDEX_COD_B2B = "50001168"
+# CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE_B2B = "50001169"
+# CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_COD_B2B = "50001170"
+# CUSTOMER_ID_FINAL_BILLING_GRAND_GAADI_ONLINE_B2B = "50001171"
 
 # GRN_FOLDER_NAME = "OMNICOM-PRD"
 

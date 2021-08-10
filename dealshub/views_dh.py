@@ -7959,9 +7959,11 @@ class SetShippingMethodAPI(APIView):
                                 return Response(data=response)
                         order_information["items"] = []
                         
+                        seller_sku_list = []
                         for unit_order_obj in grouped_unit_orders[brand_name]:
 
                             seller_sku = unit_order_obj.product.get_seller_sku()
+                            seller_sku_list.append(seller_sku)
                             x_value = ""
                             
                             if user_input_requirement[seller_sku]==True:
@@ -7974,7 +7976,7 @@ class SetShippingMethodAPI(APIView):
                             order_information["items"] += item_list
                         logger.info("FINAL ORDER INFO: %s", str(order_information))
 
-                        orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information)
+                        orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information, seller_sku_list)
 
                         manual_intervention_required = is_manual_intervention_required(orig_result_pre)
 
@@ -8168,9 +8170,11 @@ class ResendSAPOrderAPI(APIView):
                             order_information["trn"] = b2b_user_obj.vat_certificate_id
                         order_information["items"] = []
                         
+                        seller_sku_list = []
                         for unit_order_obj in grouped_unit_orders[brand_name]:
 
                             seller_sku = unit_order_obj.product.get_seller_sku()
+                            seller_sku_list.append(seller_sku)
                             x_value = ""
                             
                             if user_input_requirement[seller_sku]==True:
@@ -8182,7 +8186,7 @@ class ResendSAPOrderAPI(APIView):
                                 item.update({"price": price})
                             order_information["items"] += item_list
 
-                        orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information)
+                        orig_result_pre = create_intercompany_sales_order(company_code_obj.code, order_information, seller_sku_list)
 
                         for item in order_information["items"]:
                             
@@ -9741,7 +9745,7 @@ class PlaceOnlineOrderAPI(APIView):
             order_obj = None
 
             if Order.objects.filter(merchant_reference=merchant_reference).exists():
-                reponse["message"] = "Credentials for older order."
+                response["message"] = "Credentials for older order."
                 logger.warning("PlaceOnlineOrderAPI: Credentials for older order!")
                 return Response(data=response)
             
@@ -10220,9 +10224,9 @@ class GRNProcessingCronAPI(APIView):
                             order_information["trn"] = b2b_user_obj.vat_certificate_id
 
                         unit_order_information_list = []
-
+                        seller_sku_list = []
                         for unit_order_obj in UnitOrder.objects.filter(order=order_obj):
-
+                            seller_sku_list.append(unit_order_obj.product.get_seller_sku())
                             unit_order_final_billing_information = json.loads(unit_order_obj.order_information)["final_billing_info"]
                             
                             if unit_order_final_billing_information != {}:
@@ -10230,7 +10234,7 @@ class GRNProcessingCronAPI(APIView):
                         
                         order_information["unit_order_information_list"] = unit_order_information_list
 
-                        result = create_final_order(WIGME_COMPANY_CODE, order_information)
+                        result = create_final_order(WIGME_COMPANY_CODE, order_information, seller_sku_list)
                         
                         doc_list = result["doc_list"]
                         do_exists = 0

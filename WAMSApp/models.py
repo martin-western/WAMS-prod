@@ -1630,7 +1630,7 @@ auditlog.register(Report.products.through)
 class Config(models.Model):
 
     product_404_image = models.ForeignKey(Image, null=True, blank=True, on_delete=models.SET_NULL)
-
+    version_count = models.IntegerField(default=0,null=True)
     class Meta:
         verbose_name = "Config"
         verbose_name_plural = "Config"
@@ -2164,5 +2164,120 @@ class CompanyCodeSAP(models.Model):
 
     def __str__(self):
         return self.location_group.name + ' - ' + self.brand.name
+
+class SAPAttributeSet(models.Model):
+    '''
+    Attributes of a BaseProduct are pulled from SAP and this class represents a set of such attributes.
+    '''
+    uuid = models.CharField(max_length=200, default="")
+    base_product = models.ForeignKey(BaseProduct, null=True, on_delete=models.DO_NOTHING)
+    alternate_uom = models.CharField(max_length=100, null=True, default="") 
+    base_uom = models.CharField(max_length=100, null=True, default="") 
+    conversion_factor = models.CharField(max_length=100, null=True, default="") 
+    gross_weight = models.CharField(max_length=100, null=True, default="") 
+    gross_weight_unit = models.CharField(max_length=100, null=True, default="") 
+    net_weight = models.CharField(max_length=100, null=True, default="") 
+    net_weight_unit = models.CharField(max_length=100, null=True, default="") 
+    length = models.CharField(max_length=100, null=True, default="") 
+    width = models.CharField(max_length=100, null=True, default="") 
+    height = models.CharField(max_length=100, null=True, default="") 
+    length_measurement_unit = models.CharField(max_length=100, null=True, default="") 
+    country_name = models.CharField(max_length=100, null=True, default="") 
+
+    def __str__(self):
+        return f"SAP attr {self.uuid} - {self.base_product.base_product_name}"
+
+    def save(self, *args, **kwargs):
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(SAPAttributeSet, self).save(*args, **kwargs)
+
+    def get_attributes_dict(self):
+        '''
+        Returns a dictionary of all the required attributes pulled from SAP
+        '''
+        return {
+            "uuid": self.uuid,
+            "alternate_uom": self.alternate_uom, 
+            "base_uom": self.base_uom, 
+            "conversion_factor": self.conversion_factor, 
+            "gross_weight": self.gross_weight, 
+            "gross_weight_unit": self.gross_weight_unit, 
+            "net_weight": self.net_weight, 
+            "net_weight_unit": self.net_weight_unit, 
+            "length": self.length, 
+            "width": self.width, 
+            "height": self.height, 
+            "length_measurement_unit": self.length_measurement_unit, 
+            "country_name": self.country_name 
+        }  
+  
+        
+
+class SAPCertificate(models.Model):
+    '''
+    SAP certificate information of a base_product/article (seller sku)
+    '''
+    uuid = models.CharField(max_length=200, default="")
+    base_product = models.ForeignKey(BaseProduct, null=True, on_delete=models.DO_NOTHING)
+    certificate_type = models.CharField(max_length=100, null=True, default="") 
+    validity_start_date = models.CharField(max_length=100, null=True, default="") 
+    validity_end_date = models.CharField(max_length=100, null=True, default="")
+
+    def __str__(self):
+        return f"SAP cert {self.uuid} - {self.base_product.base_product_name}"
+
+    def save(self, *args, **kwargs):
+        if self.uuid == None or self.uuid=="":
+            self.uuid = str(uuid.uuid4())
+
+        super(SAPCertificate, self).save(*args, **kwargs)
+
+    def get_certificate_dict(self):
+        '''
+        Returns a dictionary w.r.t the SAPCertificate object
+        '''
+        return {
+            "uuid": self.uuid,
+            "certificate_type": self.certificate_type, 
+            "validity_start_date": self.validity_start_date, 
+            "validity_end_date": self.validity_end_date
+        }     
+        
+
+class APIRecordSAP(models.Model):
+    '''
+    A record for each API call made regarding SAP
+    '''
+    url = models.TextField(default="")
+    caller = models.TextField(default="")
+    request_body = models.TextField(default="")
+    response_body = models.TextField(default="")
+    seller_sku_list = models.TextField(default="[]")
+    is_response_received = models.BooleanField(default=False)
+    time_requested = models.DateTimeField()
+    time_responded = models.DateTimeField(null=True)
+    
+    def __str__(self):
+        name = f"{self.caller} response"
+        return f"{name} received" if self.is_response_received else f"{name} not received"
+
+    def set_received_response(self, response_body):
+        self.response_body = response_body
+        self.is_response_received = True
+        self.time_responded = timezone.now()
+        super(APIRecordSAP, self).save()
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.time_requested = timezone.now()
+            self.time_responded = None
+        else:
+            self.time_responded = timezone.now()
+        super(APIRecordSAP, self).save(*args, **kwargs)
+
+    
+    
 
     

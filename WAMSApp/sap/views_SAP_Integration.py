@@ -326,6 +326,62 @@ class UpdateProductHoldingDetailsAPI(APIView):
         return Response(data=response)
 
 
+class FetchSAPAttributesAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        
+        try:
+            data = request.data
+            logger.info("FetchSAPAttributesAPI: %s", str(data))
+
+            if not isinstance(data, dict):
+                data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchSAPAttributesAPI Restricted Access!")
+                return Response(data=response)
+
+            base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
+            permissible_brands = custom_permission_filter_brands(request.user)
+
+            if base_product_obj.brand not in permissible_brands:
+                logger.warning("FetchSAPAttributesAPI Restricted Access!")
+                response['status'] = 403
+                return Response(data=response)
+
+            sap_attribute_set_objs = base_product_obj.sapattributeset_set.all()
+            sap_attribute_set_dict = {}
+            for sap_attribute_set_obj in sap_attribute_set_objs:
+                if sap_attribute_set_obj.alternate_uom in sap_attribute_set_dict:
+                    continue
+                sap_attribute_set_dict[sap_attribute_set_obj.alternate_uom] = sap_attribute_set_obj.get_attributes_dict()
+            response['sapAttributeSetObjs'] = sap_attribute_set_dict
+            response['sapAttributeSetCodes'] = SAP_ATTR_CODES
+            
+            sap_certificate_objs = base_product_obj.sapcertificate_set.all()
+            sap_certificate_dict = {}
+            for sap_certificate_obj in sap_certificate_objs:
+                if sap_certificate_obj.certificate_type in sap_certificate_dict:
+                    continue
+                sap_certificate_dict[sap_certificate_obj.certificate_type] = sap_certificate_obj.get_certificate_dict()
+            response['sapCertificateObjs'] = sap_certificate_dict
+            response['sapCertificateCodes'] = SAP_CERT_CODES
+            
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchSAPAttributesAPI: %s at %s",
+                         e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
+
 BulkHoldingTransfer = BulkHoldingTransferAPI.as_view()
 
 FetchPriceAndStock = FetchPriceAndStockAPI.as_view()
@@ -335,3 +391,5 @@ HoldingTransfer = HoldingTransferAPI.as_view()
 FetchProductHoldingDetails = FetchProductHoldingDetailsAPI.as_view()
 
 UpdateProductHoldingDetails = UpdateProductHoldingDetailsAPI.as_view()
+
+FetchSAPAttributes = FetchSAPAttributesAPI.as_view()
