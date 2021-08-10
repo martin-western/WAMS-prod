@@ -9745,7 +9745,7 @@ class PlaceOnlineOrderAPI(APIView):
             order_obj = None
 
             if Order.objects.filter(merchant_reference=merchant_reference).exists():
-                reponse["message"] = "Credentials for older order."
+                response["message"] = "Credentials for older order."
                 logger.warning("PlaceOnlineOrderAPI: Credentials for older order!")
                 return Response(data=response)
             

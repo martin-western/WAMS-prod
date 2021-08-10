@@ -2071,7 +2071,7 @@ def fetch_refresh_stock(seller_sku, company_code, location_code):
                                                         request_body=body,
                                                         seller_sku_list=json.dumps([seller_sku])
                                                       )
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=20)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=10)
         api_record_sap_obj.set_received_response(response2.content)
         content = response2.content
         content = xmltodict.parse(content)
