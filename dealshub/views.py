@@ -240,11 +240,20 @@ class FetchProductDetailsAPI(APIView):
             if dealshub_product_obj.location_group.name == "WIGme - B2B": 
                 temp_pfl_image_list = create_response_images(product_obj.pfl_images.all())
                 for temp_pfg_image in temp_pfl_image_list:
-                    image_list.append(temp_pfg_image)
+                    temp_image = {}
+                    temp_image["high-res"] = temp_pfg_image["main_url"] 
+                    temp_image["original"] = temp_pfg_image["midimage_url"]
+                    temp_image["thumbnail"] = temp_pfg_image["thumbnail_url"]
+                    image_list.append(temp_image)
                 
                 temp_pfl_generated_image_list = create_response_images(product_obj.pfl_generated_images.all())
-                for temp_pfg_generated_image in temp_pfl_generated_image_list:
-                    image_list.append(temp_pfg_generated_image)
+                for temp_pfl_generated_image in temp_pfl_generated_image_list:
+                    temp_image = {}
+                    temp_image["high-res"] = temp_pfl_generated_image["main_url"] 
+                    temp_image["original"] = temp_pfl_generated_image["midimage_url"]
+                    temp_image["thumbnail"] = temp_pfl_generated_image["thumbnail_url"]
+                    image_list.append(temp_image)
+
 
             response["productImagesUrl"] = image_list
 
