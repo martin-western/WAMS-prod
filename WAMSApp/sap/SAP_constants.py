@@ -70,7 +70,7 @@ SAP_ATTR_CODES = {
 } 
 
 SAP_CERT_CODES = {
-    "certification_type": "CERT_TYPE", 
+    "certificate_type": "CERT_TYPE", 
     "validity_start_date": "VLSTDT", 
     "validity_end_date": "VLENDT"
 }
