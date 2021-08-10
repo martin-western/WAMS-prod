@@ -173,7 +173,7 @@ def fetch_prices(product_id,company_code):
                                                         request_body=body,
                                                         seller_sku_list=json.dumps([product_id])
                                                       )
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=20)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=30)
         api_record_sap_obj.set_received_response(response2.content)
         
         content = response2.content
@@ -308,7 +308,7 @@ def fetch_prices_dealshub(uuid1, company_code):
                                                         request_body=body,
                                                         seller_sku_list=json.dumps([product_id])
                                                       )
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=20)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=30)
         api_record_sap_obj.set_received_response(response2.content)
         content = response2.content
         content = xmltodict.parse(content)
@@ -1702,7 +1702,7 @@ def get_sap_batch_and_uom(company_code, seller_sku):
                                                         request_body=body,
                                                         seller_sku_list=json.dumps([seller_sku])
                                                       )
-        sap_response = requests.post(url, auth=credentials, data=body, headers=headers, timeout=20)
+        sap_response = requests.post(url, auth=credentials, data=body, headers=headers, timeout=30)
         api_record_sap_obj.set_received_response(sap_response.content)
         content = sap_response.content
         content = xmltodict.parse(content)
@@ -2441,7 +2441,7 @@ def get_recommended_browse_node(seller_sku,channel):
                                                         request_body=body,
                                                         seller_sku_list=json.dumps([seller_sku])
                                                       )
-        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=20)
+        response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=30)
         api_record_sap_obj.set_received_response(response2.content)
         content = response2.content
         content = xmltodict.parse(content)

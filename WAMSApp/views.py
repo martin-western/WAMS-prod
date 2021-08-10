@@ -5129,7 +5129,7 @@ class SapIntegrationAPI(APIView):
                                                                 request_body=body,
                                                                 seller_sku_list=json.dumps([seller_sku])
                                                             )
-                response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=20)
+                response2 = requests.post(url, auth=credentials, data=body, headers=headers, timeout=30)
                 api_record_sap_obj.set_received_response(response2.content)
                 content = response2.content
                 content = xmltodict.parse(content)

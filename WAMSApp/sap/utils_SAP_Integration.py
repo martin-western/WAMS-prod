@@ -29,7 +29,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
                                                         request_body=body,
                                                         seller_sku_list=json.dumps([seller_sku])
                                                       )
-        response = requests.post(url=PRICE_STOCK_URL, auth=credentials, data=body, headers=headers, timeout=20)
+        response = requests.post(url=PRICE_STOCK_URL, auth=credentials, data=body, headers=headers, timeout=30)
         api_record_sap_obj.set_received_response(response.content)
         
         content = response.content
@@ -278,7 +278,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
                                                             request_body=body,
                                                             seller_sku_list=json.dumps([seller_sku])
                                                         )
-            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=20)
+            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=30)
             api_record_sap_obj.set_received_response(response.content)
             content = response.content
             xml_content = xmltodict.parse(content)
@@ -436,7 +436,7 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
                                                         request_body=body,
                                                         seller_sku_list=json.dumps([seller_sku])
                                                       )
-            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=20)
+            response = requests.post(url=TRANSFER_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=30)
             api_record_sap_obj.set_received_response(response.content)
             content = response.content
             xml_content = xmltodict.parse(content)
@@ -511,7 +511,7 @@ def create_intercompany_sales_order(company_code, order_information, seller_sku_
                                                         request_body=body,
                                                         seller_sku_list=json.dumps(seller_sku_list)
                                                     )
-        response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers, timeout=20)
+        response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers, timeout=30)
         api_record_sap_obj.set_received_response(response.content)
         content = response.content
         xml_content = xmltodict.parse(content)
@@ -691,7 +691,7 @@ def create_final_order(company_code, order_information, seller_sku_list):
                                                         request_body=body,
                                                         seller_sku_list=json.dumps(seller_sku_list)
                                                     )
-        response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers, timeout=20)
+        response = requests.post(url=ONLINE_ORDER_URL, auth=credentials, data=body, headers=headers, timeout=30)
         api_record_sap_obj.set_received_response(response.content)
         
         content = response.content
@@ -891,7 +891,7 @@ def fetch_product_holding_details(dealshub_product_obj):
                                                             request_body=body,
                                                             seller_sku_list=json.dumps([seller_sku])
                                                         )
-            response = requests.post(url=PRODUCT_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=20)
+            response = requests.post(url=PRODUCT_HOLDING_URL, auth=credentials, data=body, headers=headers, timeout=30)
             api_record_sap_obj.set_received_response(response.content)
 
             content = response.content
