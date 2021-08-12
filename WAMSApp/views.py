@@ -8468,7 +8468,7 @@ class ResetOmnyCommUserPasswordAPI(APIView):
 class FetchCurrentVersionAPI(APIView):
     
     def post(self, request, *args, **kwargs):
-        
+
         response = {}
         response['status'] = 500
         try:
