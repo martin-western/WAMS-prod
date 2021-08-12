@@ -8472,10 +8472,10 @@ class FetchCurrentVersionAPI(APIView):
         response = {}
         response['status'] = 500
         try:
-            response["version_count"] = Config.objects.all()[0].version_count
+            response["version_count"] = Config.objects.last().version_count
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("LogoutUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchCurrentVersionAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
