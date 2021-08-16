@@ -5750,9 +5750,9 @@ class FetchAdminActivityLogsAPI(APIView):
             # filter by action
             # filter by tag( search )
             
-            activity_log_objs = activity_log_objs.order_by("-pk")
-
-            total_activities = activity_log_objs.count()
+            # Displaying most recent 2500 logs
+            activity_log_objs = activity_log_objs.order_by("-pk")[:2500]
+            total_activities = 2500
             paginator  = Paginator(activity_log_objs,50)
             total_pages = int(paginator.num_pages)
 
