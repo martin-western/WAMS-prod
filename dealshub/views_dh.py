@@ -35,6 +35,7 @@ from WAMSApp.sap.utils_SAP_Integration import *
 
 from facebook_business.adobjects.serverside.content import Content
 from facebook_business.adobjects.serverside.custom_data import CustomData
+import africastalking
 
 import sys
 import logging
@@ -2618,6 +2619,10 @@ class PlaceOrderAPI(APIView):
                 elif website_group=="daycart":
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
+                elif website_group=="geepasuganda":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_geepas_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -5361,6 +5366,22 @@ class SendOTPSMSLoginAPI(APIView):
                     url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
                     r = requests.get(url, timeout=10)
 
+                elif location_group_obj.website_group.name.lower() == "geepasuganda":
+                    africastalking.initialize(
+                        username='geepasug',
+                        api_key='e5d7fd9be205264e7dd649fa904dbe36952f8c64efa21bea53b7b537f23155b9'
+                    )
+                    sms = africastalking.SMS
+                    recipients = ["+256"+contact_number]    #["+917043300725"]
+                    message = "Hey,Uganda OTP Testing SMS feature!"
+                    sender = "48659"
+                    try:
+                        response = sms.send(message, recipients, sender)
+                        print (response)
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        logger.error("SendOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("SendOTPSMSLoginAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -5767,10 +5788,27 @@ class VerifyOTPSMSLoginAPI(APIView):
                                 "sid": sender_id
                             }
                             r = requests.post(url=url, data=req_data, timeout=10)
+                        
                         elif location_group_obj.website_group.name.lower()=="kryptonworld":
                             contact_number = "971"+contact_number
                             url ="https://api.antwerp.ae/Send?phonenumbers="+contact_number+"&sms.sender=Krypton&sms.text="+message+"&sms.typesms=sms&apiKey=RUVFRkZCNEUtRkI5MC00QkM5LUFBMEMtQzRBMUI1NDQxRkE5"
                             r = requests.get(url, timeout=10)
+
+                        elif location_group_obj.website_group.name.lower() == "geepasuganda":
+                            africastalking.initialize(
+                                username='geepasug',
+                                api_key='e5d7fd9be205264e7dd649fa904dbe36952f8c64efa21bea53b7b537f23155b9'
+                            )
+                            sms = africastalking.SMS
+                            recipients = ["+256"+contact_number]    #["+917043300725"]
+                            message = "Hey,Uganda OTP Testing SMS feature!"
+                            sender = "48659"
+                            try:
+                                response = sms.send(message, recipients, sender)
+                                print (response)
+                            except Exception as e:
+                                exc_type, exc_obj, exc_tb = sys.exc_info()
+                                logger.error("VerifyOTPSMSLogin: %s at %s", e, str(exc_tb.tb_lineno))
 
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -9953,6 +9991,10 @@ class PlaceOnlineOrderAPI(APIView):
                 elif website_group=="daycart":
                     message = 'Your order has been confirmed!'
                     p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
+                    p2.start()
+                elif website_group=="geepasuganda":
+                    message = 'Your order has been confirmed!'
+                    p2 = threading.Thread(target=send_geepas_order_status_sms , args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
