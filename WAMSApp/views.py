@@ -5730,6 +5730,7 @@ class FetchAdminActivityLogsAPI(APIView):
             page = int(page)
             from_date = data.get("from_date","")
             to_date = data.get("to_date","")
+            search_string = data.get("search_string","")
 
             location_group_obj = None
             if location_group_uuid!="":
@@ -5744,7 +5745,10 @@ class FetchAdminActivityLogsAPI(APIView):
             if to_date!="":
                 to_date = to_date[:10]+"T23:59:59+04:00"
                 activity_log_objs = activity_log_objs.filter(created_date__lte=to_date)
-            
+
+            if search_string!="":
+                activity_log_objs = activity_log_objs.filter(Q(user__username__icontains=search_string) | Q(user__first_name__icontains=search_string) | Q(user__last_name__icontains=search_string) | Q(table_name__icontains=search_string))
+                
             # filter by model name
             # filter by user
             # filter by action
