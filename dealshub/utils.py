@@ -405,6 +405,7 @@ def send_geepas_order_status_sms(unit_order_obj,message):
         location_group_obj = unit_order_obj.order.location_group
         sms_country_info = json.loads(location_group_obj.sms_country_info)
         prefix_code = sms_country_info["prefix_code"]
+        sender = sms_country_info["sender_id"]
         contact_number = "+" + prefix_code + dealshub_user_obj.contact_number
 
         africastalking.initialize(
@@ -413,7 +414,6 @@ def send_geepas_order_status_sms(unit_order_obj,message):
         )
         sms = africastalking.SMS
         recipients = [contact_number]    #["+917043300725"]
-        sender = "48659"
         try:
             response = sms.send(message, recipients, sender)
             print (response)
