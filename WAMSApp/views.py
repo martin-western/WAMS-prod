@@ -2712,7 +2712,6 @@ class UploadProductImageAPI(APIView):
                     render_value = 'ImageBucket is created'
                     activitylog(user=request.user,table_name=ImageBucket,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render=render_value)
                         
-                    product_obj.no_of_images_for_filter += 1
 
                     if data["channel_name"] == "" or data["channel_name"] == None:
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
@@ -2773,7 +2772,6 @@ class UploadProductImageAPI(APIView):
                     index += 1
                     sub_image_index = 0
                     is_sub_image = False
-                    product_obj.no_of_images_for_filter += 1
                     if(index <= 8):
                         sub_image_index = index
                         is_sub_image = True
@@ -2796,13 +2794,11 @@ class UploadProductImageAPI(APIView):
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "white_background_images":
                 for image_obj in image_objs:
-                    product_obj.no_of_images_for_filter += 1
                     product_obj.white_background_images.add(image_obj)
                     render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "lifestyle_images":
                 for image_obj in image_objs:
-                    product_obj.no_of_images_for_filter += 1
                     product_obj.lifestyle_images.add(image_obj)
                     render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
@@ -2858,6 +2854,7 @@ class UploadProductImageAPI(APIView):
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             response['status'] = 200
             product_obj.save()
+            update_images_count(product_obj)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -4884,8 +4881,8 @@ class DeleteImageAPI(APIView):
                 sub_images_obj.save()
                 render_value = 'Image {} is removed from sub image {}.'.format(image_bucket_obj,sub_images_obj)
                 activitylog(user=request.user,table_name=SubImages,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
-            product_obj.no_of_images_for_filter -= 1
             product_obj.save()
+            update_images_count(product_obj)
             response['status'] = 200
 
         except Exception as e:
