@@ -2295,7 +2295,7 @@ class ThirdPartyAPIRecord(APIRecordSAP):
     def save(self, *args, **kwargs):
         if self.pk == None:
             self.time_requested = timezone.now()
-            self.time_responded = None
+            self.time_responded = timezone.now()
         else:
             self.time_responded = timezone.now()
         super(ThirdPartyAPIRecord, self).save(*args, **kwargs)
