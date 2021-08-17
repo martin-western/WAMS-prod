@@ -4800,7 +4800,7 @@ class RemoveImageAPI(APIView):
                 activitylog(user=request.user,table_name=ProductImage,action_type='deleted',location_group_obj=None,prev_instance=prev_productimage_instance,current_instance=None,table_item_pk=productimage_obj.pk,render=render_value)   
             
             product_obj.save()
-
+            update_images_count(product_obj)
             if data["image_category"] != "best_images":
                 render_value = '{} image {} is deleted from product {}'.format(data["image_category"],image_obj.image.url,product_obj.base_product.seller_sku)
                 activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=None,table_item_pk=product_obj.pk,render=render_value)            
