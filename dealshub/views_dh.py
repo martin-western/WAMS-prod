@@ -223,7 +223,7 @@ class FetchShippingAddressListAPI(APIView):
 
             location_group_uuid = data["locationGroupUuid"]
 
-            address_objs = Address.objects.filter(type_addr="shipping", is_deleted=False, user=user, location_group__uuid=location_group_uuid)
+            address_objs = Address.objects.filter(is_shipping=True, is_deleted=False, user=user, location_group__uuid=location_group_uuid)
 
             address_list = []
             for address_obj in address_objs:
@@ -260,7 +260,7 @@ class FetchBillingAddressListAPI(APIView):
 
             user = request.user
             location_group_uuid = data["locationGroupUuid"]
-            address_objs = Address.objects.filter(type_addr="billing", is_deleted=False, user=user, location_group__uuid=location_group_uuid)
+            address_objs = Address.objects.filter(is_billing=True, is_deleted=False, user=user, location_group__uuid=location_group_uuid)
             
             billing_address_list = []
             for address_obj in address_objs:
@@ -333,7 +333,7 @@ class EditShippingAddressAPI(APIView):
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
 
-            render_value = address_obj.type_addr + " address updated offline for " + address_obj.user.username
+            render_value = "Address updated offline for " + address_obj.user.username
             activitylog(request.user, Address, "updated", address_obj.uuid, prev_address_obj, address_obj, address_obj.location_group, render_value)
             response['status'] = 200
 
@@ -401,7 +401,7 @@ class CreateShippingAddressAPI(APIView):
                                                 location_group=location_group_obj, 
                                                 neighbourhood=neighbourhood, 
                                                 emirates=emirates,
-                                                type_addr="shipping")
+                                                is_shipping=True)
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
@@ -469,7 +469,7 @@ class CreateBillingAddressAPI(APIView):
                                                 location_group=location_group_obj, 
                                                 neighbourhood=neighbourhood, 
                                                 emirates=emirates,
-                                                type_addr="billing")
+                                                is_billing=True)
 
             response["uuid"] = address_obj.uuid
             response['status'] = 200
@@ -591,7 +591,7 @@ class CreateOfflineBillingAddressAPI(APIView):
                                                     tag=tag, 
                                                     location_group=location_group_obj, 
                                                     emirates=emirates, 
-                                                    type_addr="billing")
+                                                    is_billing=True)
 
                 response["uuid"] = billing_address_obj.uuid
 
@@ -1772,6 +1772,8 @@ class SelectOfflineAddressAPI(APIView):
             is_b2b = data.get("is_b2b", False)
             shipping_address_uuid = data["shippingAddressUuid"]
             shipping_address_obj = Address.objects.get(uuid=shipping_address_uuid)
+            shipping_address_obj.is_shipping = True
+            shipping_address_obj.save()
             username = data["username"]
             dealshub_user_obj = DealsHubUser.objects.get(username=username)
             cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=shipping_address_obj.location_group)
@@ -1780,6 +1782,8 @@ class SelectOfflineAddressAPI(APIView):
             if is_b2b:
                 billing_address_uuid = data["billingAddressUuid"]
                 billing_address_obj = Address.objects.get(uuid=billing_address_uuid)
+                billing_address_obj.is_billing = True
+                billing_address_obj.save()
                 cart_obj.billing_address = billing_address_obj
                 dealshub_user_obj.prime_billing_address = billing_address_obj
                 dealshub_user_obj.save()
@@ -1870,8 +1874,8 @@ class FetchActiveOrderDetailsAPI(APIView):
 
             update_cart_bill(cart_obj)
             
-            if cart_obj.shipping_address==None and Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj, type_addr="shipping").count()>0:
-                cart_obj.shipping_address = Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj, type_addr="shipping")[0]
+            if cart_obj.shipping_address==None and Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj, is_shipping=True).count()>0:
+                cart_obj.shipping_address = Address.objects.filter(is_deleted=False, user=request.user, location_group=location_group_obj, is_shipping=True)[0]
                 cart_obj.save()
 
             address_obj = cart_obj.shipping_address
@@ -1992,10 +1996,10 @@ class PlaceOrderRequestAPI(APIView):
 
                 try:
                     if cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, is_shipping=True)[0]
                         cart_obj.shipping_address = address_obj
                     if cart_obj.billing_address==None:
-                        billing_address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="billing")[0]
+                        billing_address_obj = Address.objects.filter(user=dealshub_user_obj, is_billing=True)[0]
                         cart_obj.billing_address = billing_address_obj
                     cart_obj.save()
                 except Exception as e:
@@ -2051,10 +2055,10 @@ class PlaceOrderRequestAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, is_shipping=True)[0]
                         fast_cart_obj.shipping_address = address_obj
                     if fast_cart_obj.billing_address==None:
-                        billing_address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="billing")[0]
+                        billing_address_obj = Address.objects.filter(user=dealshub_user_obj, is_billing=True)[0]
                         fast_cart_obj.billing_address = billing_address_obj
                     fast_cart_obj.save()
                 except Exception as e:
@@ -2458,7 +2462,7 @@ class PlaceOrderAPI(APIView):
 
                 try:
                     if cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, is_shipping=True)[0]
                         cart_obj.shipping_address = address_obj
                         cart_obj.save()
                 except Exception as e:
@@ -2536,7 +2540,7 @@ class PlaceOrderAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, is_shipping=True)[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -4537,7 +4541,7 @@ class PaymentTransactionAPI(APIView):
 
                     try:
                         if cart_obj.shipping_address==None:
-                            address_obj = Address.objects.filter(user=cart_obj.owner, type_addr="shipping")[0]
+                            address_obj = Address.objects.filter(user=cart_obj.owner, is_shipping=True)[0]
                             cart_obj.shipping_address = address_obj
                             cart_obj.save()
                     except Exception as e:
@@ -4612,7 +4616,7 @@ class PaymentTransactionAPI(APIView):
 
                     try:
                         if fast_cart_obj.shipping_address==None:
-                            address_obj = Address.objects.filter(user=fast_cart_obj.owner, type_addr="shipping")[0]
+                            address_obj = Address.objects.filter(user=fast_cart_obj.owner, is_shipping=True)[0]
                             fast_cart_obj.shipping_address = address_obj
                             fast_cart_obj.save()
                     except Exception as e:
@@ -9665,7 +9669,7 @@ class PlaceDaycartOnlineOrderAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, is_shipping=True)[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:
@@ -9896,7 +9900,7 @@ class PlaceOnlineOrderAPI(APIView):
 
                 try:
                     if fast_cart_obj.shipping_address==None:
-                        address_obj = Address.objects.filter(user=dealshub_user_obj, type_addr="shipping")[0]
+                        address_obj = Address.objects.filter(user=dealshub_user_obj, is_shipping=True)[0]
                         fast_cart_obj.shipping_address = address_obj
                         fast_cart_obj.save()
                 except Exception as e:

@@ -2681,12 +2681,18 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
 
 def get_address_list(dealshub_user_obj, type_addr=""):
     '''
-    Returns the shipping/billing address list based upon TYPE_ADDR in ["shipping", "billing"]
+    Returns the shipping/billing address list based upon `type_addr` in ["shipping", "billing"]
     '''
     address_list = []
-    if type_addr == "":
+    address_objs = None
+
+    if type_addr not in ["shipping", "billing"]:
         return address_list
-    address_objs = Address.objects.filter(user=dealshub_user_obj,type_addr=type_addr)
+    
+    if type_addr == "shipping":
+        address_objs = Address.objects.filter(user=dealshub_user_obj, is_shipping=True)
+    else:
+        address_objs = Address.objects.filter(user=dealshub_user_obj, is_billing=True)
     if address_objs.exists():
         for address_obj in address_objs:
             address_list.append(get_address_dict(address_obj))
