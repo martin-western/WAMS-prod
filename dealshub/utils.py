@@ -1907,7 +1907,7 @@ def get_section_products(location_group_obj, is_dealshub, language_code, resolut
 
             dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             
-            section_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+            section_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list,is_published=True)exclude(stock=0,now_price=0)
             
             section_products = list(section_products)
             section_products.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
