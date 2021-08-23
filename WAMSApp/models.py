@@ -1035,11 +1035,13 @@ class BaseProduct(models.Model):
     manufacturer = models.CharField(max_length=200, default="")
     manufacturer_part_number = models.CharField(max_length=200, default="")
     unedited_images = models.ManyToManyField(Image, related_name="unedited_images", blank=True)
+    country_of_origin = models.CharField(default="", blank=True, max_length=100)
 
     dimensions = models.TextField(blank=True, default=base_dimensions_json)
     history = AuditlogHistoryField()
 
     is_deleted = models.BooleanField(default=False)
+    is_nesto = models.BooleanField(default=False)
 
     objects = BaseProductManager()
     recovery = BaseProductRecoveryManager()
