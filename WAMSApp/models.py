@@ -1190,6 +1190,27 @@ class Product(models.Model):
     holding_threshold = models.IntegerField(default=5)
     user_manual = models.FileField(upload_to = 'user_manual',null=True, blank=True)
 
+    ####### Nesto Products Related Attributes #######
+    uom = models.CharField(default="", blank=True, max_length=100)
+    language_key = models.CharField(default="", blank=True, max_length=100)
+    storage_condition = models.TextField(default="", blank=True)
+    storage_condition_ar = models.TextField(default="", blank=True)
+    preparation_and_usage = models.TextField(default="", blank=True)
+    preparation_and_usage_ar = models.TextField(default="", blank=True)
+    allergic_information = models.TextField(default="", blank=True)
+    allergic_information_ar = models.TextField(default="", blank=True)
+    nutrition_facts = models.TextField(default="", blank=True)
+    ingredients = models.TextField(default="", blank=True)
+    ingredients_ar = models.TextField(default="", blank=True)
+    return_days = models.CharField(default="", blank=True, max_length=100)
+    product_status = models.CharField(default="", blank=True, max_length=200)
+
+    back_images = models.ManyToManyField(Image, related_name="product_to_back_images", blank=True)
+    side_images = models.ManyToManyField(Image, related_name="product_to_side_images", blank=True)
+    nutrition_images = models.ManyToManyField(Image, related_name="product_to_nutrition_images", blank=True)
+    product_content_images = models.ManyToManyField(Image, related_name="product_to_product_content_images", blank=True)
+    supplier_images = models.ManyToManyField(Image, related_name="product_to_supplier_image", blank=True)
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
