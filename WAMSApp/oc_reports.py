@@ -2731,7 +2731,6 @@ def create_stock_report(filename, uuid, brand_list, location_group_obj):
 def create_newsletter_subscribers_report(filename, uuid, location_group_obj):
 
     try:
-        logger.info("Here1")
         workbook = xlsxwriter.Workbook('./'+filename)
         worksheet = workbook.add_worksheet()
 
@@ -2746,15 +2745,14 @@ def create_newsletter_subscribers_report(filename, uuid, location_group_obj):
 
         location_group_obj = LocationGroup.objects.get(uuid=location_group_obj.uuid)
         blog_emails = json.loads(location_group_obj.blog_emails)
-        logger.info("Here2")
 
         for blog_email in blog_emails:
             try:
+                common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
                 common_row[1] = str(blog_email)
                 
                 colnum = 0
-                logger.info("Here3")
 
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
@@ -2762,17 +2760,13 @@ def create_newsletter_subscribers_report(filename, uuid, location_group_obj):
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Error create_newsletter_subscribers_report %s %s", e, str(exc_tb.tb_lineno))
-        logger.info("Here4")
 
         workbook.close()
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_newsletter_subscribers_report %s %s", e, str(exc_tb.tb_lineno))
 
-    logger.info("Here5")
-
     oc_report_obj = OCReport.objects.get(uuid=uuid)
     oc_report_obj.is_processed = True
     oc_report_obj.completion_date = timezone.now()
-    logger.info("Here6")
     oc_report_obj.save()
