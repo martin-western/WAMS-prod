@@ -2728,7 +2728,7 @@ def create_stock_report(filename, uuid, brand_list, location_group_obj):
         logger.error("Error create_stock_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def create_newsletter_subscribers_report(filename, uuid, custom_permission_obj, location_group_obj):
+def create_newsletter_subscribers_report(filename, uuid, location_group_obj):
 
     try:
         logger.info("Here1")

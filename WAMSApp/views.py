@@ -7061,8 +7061,9 @@ class CreateOCReportAPI(APIView):
                 p1 = threading.Thread(target=nesto_image_bucket_report, args=(filename,oc_report_obj.uuid,))
                 p1.start()
             elif report_type.lower()=="NewsletterSubscribers":
-                p1 = threading.Thread(target=create_newsletter_subscribers_report, args=(filename,oc_report_obj.uuid,custom_permission_obj,location_group_obj,))
-                p1.start()
+                # p1 = threading.Thread(target=create_newsletter_subscribers_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
+                # p1.start()
+                create_newsletter_subscribers_report(filename,oc_report_obj.uuid,location_group_obj)
             response["approved"] = True
             response['status'] = 200
         
