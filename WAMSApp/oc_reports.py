@@ -2760,11 +2760,11 @@ def create_newsletter_subscribers_report(filename, uuid, custom_permission_obj, 
                 logger.error("Error create_newsletter_subscribers_report %s %s", e, str(exc_tb.tb_lineno))
 
         workbook.close()
-        oc_report_obj = OCReport.objects.get(uuid=uuid)
-        oc_report_obj.is_processed = True
-        oc_report_obj.completion_date = timezone.now()
-        oc_report_obj.save()
-        notify_user_for_report(oc_report_obj)
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_newsletter_subscribers_report %s %s", e, str(exc_tb.tb_lineno))
+
+    oc_report_obj = OCReport.objects.get(uuid=uuid)
+    oc_report_obj.is_processed = True
+    oc_report_obj.completion_date = timezone.now()
+    oc_report_obj.save()
