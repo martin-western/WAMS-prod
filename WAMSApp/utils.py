@@ -1342,7 +1342,7 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     if(product_id=="" or product_id=="nan"):
                         raise Exception("Required Fields must not be empty!")
 
-                    product_obj = Product.objects.get(product_id=product_id)
+                    product_obj = Product.objects.get(product_id=product_id, base_product__brand__organization=organization_obj)
                     base_product_obj = product_obj.base_product
                     channel_product_obj = product_obj.channel_product
                 except Exception as e:
@@ -2380,7 +2380,7 @@ def content_health_filtered_list(filter_parameters,search_list_product_objs):
 
     return search_list_product_objs 
 
-def get_recommended_browse_node(seller_sku,channel):
+def get_recommended_browse_node(seller_sku,channel,brand_obj):
 
     try:
 
@@ -2399,7 +2399,7 @@ def get_recommended_browse_node(seller_sku,channel):
             "Younglife": "5000"
         }
         
-        product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
+        product_obj = Product.objects.filter(base_product__seller_sku=seller_sku, base_product__brand=brand_obj)[0]
         company_code = company_code_dict[product_obj.base_product.brand.name]
         body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                   <soapenv:Header />

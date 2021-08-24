@@ -250,6 +250,23 @@ class DealsHubProduct(models.Model):
 
     display_image_url = models.TextField(default="")
 
+    ####### Nesto Products Related Attributes #######
+    highlights = models.TextField(default="", blank=True)
+    substitute_products = models.ManyToManyField('self', related_name="dh_to_substitute_products", blank=True)
+    cross_selling_products = models.ManyToManyField('self', related_name="dh_to_cross_selling_products", blank=True)
+    upselling_products = models.ManyToManyField('self', related_name="dh_to_upselling_products", blank=True)
+    primary_keywords = models.TextField(default=json.dumps([]))
+    secondary_keywords = models.TextField(default=json.dumps([]))
+    VENDORS_TYPE = (
+        ("Market", "Market"),
+        ("Own Brand", "Own Brand"),
+        ("Four Digit", "Four Digit"),
+        ("Extras", "Extras"),
+        ("Vendor", "Vendor"),
+    )
+    vendor_category = models.CharField(default="", choices=VENDORS_TYPE, blank=True, max_length=50)
+
+
     class Meta:
         verbose_name = "DealsHub Product"
         verbose_name_plural = "DealsHub Products"
