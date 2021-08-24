@@ -1041,7 +1041,6 @@ class BaseProduct(models.Model):
     history = AuditlogHistoryField()
 
     is_deleted = models.BooleanField(default=False)
-    is_nesto = models.BooleanField(default=False)
 
     objects = BaseProductManager()
     recovery = BaseProductRecoveryManager()
