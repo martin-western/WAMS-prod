@@ -189,7 +189,7 @@ def fetch_prices_and_stock(seller_sku,company_code):
         logger.error("fetch_prices_and_stock: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
 
-def transfer_from_atp_to_holding(seller_sku,company_code):
+def transfer_from_atp_to_holding(seller_sku,company_code, organization_obj):
     
     try:
 
@@ -199,7 +199,7 @@ def transfer_from_atp_to_holding(seller_sku,company_code):
 
         transfer_information = []
 
-        product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
+        product_obj = Product.objects.get(base_product__seller_sku=seller_sku, base_product__brand__organization=organization_obj)
         is_sap_exception = product_obj.is_sap_exception
 
         result ={
@@ -832,7 +832,7 @@ def create_holding_transfer_report(dealshub_product_objs):
 
             if company_code != "BRAND NOT RECOGNIZED":
                 try :
-                    response_dict = transfer_from_atp_to_holding(seller_sku,company_code)
+                    response_dict = transfer_from_atp_to_holding(seller_sku,company_code, brand_obj.organization)
                    
                     common_row[3] = str(response_dict["atp_threshold"])
                     common_row[4] = str(response_dict["total_atp_before"])
