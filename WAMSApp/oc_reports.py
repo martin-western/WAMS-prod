@@ -2726,3 +2726,45 @@ def create_stock_report(filename, uuid, brand_list, location_group_obj):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error create_stock_report %s %s", e, str(exc_tb.tb_lineno))
+
+
+def create_newsletter_subscribers_report(filename, uuid, custom_permission_obj, location_group_obj):
+
+    try:
+        workbook = xlsxwriter.Workbook('./'+filename)
+        worksheet = workbook.add_worksheet()
+
+        row = ["Sr. No.",
+               "Subscribers"]
+
+        cnt = 0
+        colnum = 0
+        for k in row:
+            worksheet.write(cnt, colnum, k)
+            colnum += 1
+
+        location_group_obj = LocationGroup.objects.get(uuid=location_group_obj.uuid)
+        blog_emails = json.loads(location_group_obj.blog_emails)
+
+        for blog_email in blog_emails:
+            try:
+                common_row[0] = str(cnt)
+                common_row[1] = str(blog_email)
+                
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error create_newsletter_subscribers_report %s %s", e, str(exc_tb.tb_lineno))
+
+        workbook.close()
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+        notify_user_for_report(oc_report_obj)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_newsletter_subscribers_report %s %s", e, str(exc_tb.tb_lineno))
