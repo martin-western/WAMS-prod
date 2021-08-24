@@ -2648,11 +2648,12 @@ class ImportProductsAPI(APIView):
             import_format = data["import_format"]
             import_rule = data["import_rule"]
             import_file = data["import_file"]
-
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
             if import_format == "Amazon UK":
-                import_amazon_uk(import_rule, import_file)
+                import_amazon_uk(import_rule, import_file, organization_obj)
             elif import_format == "Amazon UAE":
-                import_amazon_uae(import_rule, import_file)
+                import_amazon_uae(import_rule, import_file, organization_obj)
 
             response['status'] = 200
 
@@ -3794,9 +3795,11 @@ class AddProductPFLBucketAPI(APIView):
                 data = json.loads(data)
 
             pfl_obj = PFL.objects.get(pk=int(data["pfl_pk"]))
-
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            
             product_id = data["product_name"].split("|")[1].strip()
-            product_obj = Product.objects.get(product_id=product_id)
+            product_obj = Product.objects.get(product_id=product_id, base_product__brand__organization=organization_obj)
 
             pfl_obj.product = product_obj
             pfl_obj.save()

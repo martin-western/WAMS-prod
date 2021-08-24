@@ -406,7 +406,7 @@ def create_new_product_amazon_uae(row):
     channel_product_obj.save()
 
 
-def import_amazon_uae(import_rule, import_file):
+def import_amazon_uae(import_rule, import_file, organization_obj):
     try:
         data = csv.reader(import_file)
         cnt = 0
@@ -416,7 +416,7 @@ def import_amazon_uae(import_rule, import_file):
                 try:
                     product_id = row[4]
                     print("Cnt is ", cnt)
-                    if Product.objects.filter(product_id=product_id).exists():
+                    if Product.objects.filter(product_id=product_id, base_product__brand__organization=organization_obj).exists():
                         product_obj = Product.objects.get(
                             product_id=product_id)
                         if import_rule == "Full":
