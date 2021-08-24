@@ -2757,6 +2757,8 @@ def create_newsletter_subscribers_report(filename, uuid, location_group_obj):
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
+                
+                cnt += 1
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Error create_newsletter_subscribers_report %s %s", e, str(exc_tb.tb_lineno))
