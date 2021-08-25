@@ -5376,9 +5376,10 @@ class SendOTPSMSLoginAPI(APIView):
                         api_key='e5d7fd9be205264e7dd649fa904dbe36952f8c64efa21bea53b7b537f23155b9'
                     )
                     sms = africastalking.SMS
-                    recipients = ["+256"+contact_number]    #["+917043300725"]
-                    message = "Hey,Uganda OTP Testing SMS feature!"
-                    sender = "48659"
+                    sms_country_info = json.loads(location_group_obj.sms_country_info)
+                    prefix_code = sms_country_info["prefix_code"]
+                    sender = sms_country_info["sender_id"]
+                    recipients = ["+" + prefix_code + contact_number]    #["+917043300725"]
                     try:
                         response = sms.send(message, recipients, sender)
                         print (response)
@@ -5804,9 +5805,11 @@ class VerifyOTPSMSLoginAPI(APIView):
                                 api_key='e5d7fd9be205264e7dd649fa904dbe36952f8c64efa21bea53b7b537f23155b9'
                             )
                             sms = africastalking.SMS
-                            recipients = ["+256"+contact_number]    #["+917043300725"]
-                            message = "Hey,Uganda OTP Testing SMS feature!"
-                            sender = "48659"
+                            sms_country_info = json.loads(location_group_obj.sms_country_info)
+                            prefix_code = sms_country_info["prefix_code"]
+                            sender = sms_country_info["sender_id"]
+                            recipients = ["+" + prefix_code + contact_number]    #["+917043300725"]
+
                             try:
                                 response = sms.send(message, recipients, sender)
                                 print (response)
