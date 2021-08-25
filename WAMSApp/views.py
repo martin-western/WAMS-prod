@@ -5750,7 +5750,7 @@ class FetchAdminActivityLogsAPI(APIView):
                 activity_log_objs = activity_log_objs.filter(created_date__lte=to_date)
 
             if search_string!="":
-                activity_log_objs = activity_log_objs.filter(Q(user__username__icontains=search_string) | Q(user__first_name__icontains=search_string) | Q(user__last_name__icontains=search_string) | Q(table_name__icontains=search_string))
+                activity_log_objs = activity_log_objs.filter(Q(user__username__icontains=search_string) | Q(user__first_name__icontains=search_string) | Q(user__last_name__icontains=search_string) | Q(table_name__icontains=search_string) | Q(render__icontains=search_string))
                 
             # filter by model name
             # filter by user
