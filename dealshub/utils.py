@@ -2624,7 +2624,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         event_source_url = "https://b2b.wigme.com"
 
         now_time = int(time.time())
-        logger.info("in calling_facebook_api:- ")
+        # logger.info("in calling_facebook_api:- ")
         # x_forwarded_for = request.META["HTTP_X_FORWARDED_FOR"]
         # logger.info(request.META)
 
@@ -2676,7 +2676,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))
+        # logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))
 
 
 def get_address_list(dealshub_user_obj, type_addr=""):
