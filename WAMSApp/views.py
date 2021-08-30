@@ -7725,6 +7725,7 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["additional_sub_categories"] = additional_sub_category_list
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
             response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
+            response["dealshub_content_permission"] = custom_permission_misc(request.user,"edit_dealshub_content")
 
             response["status"] = 200
 
