@@ -10209,7 +10209,7 @@ class GRNProcessingCronAPI(APIView):
                         temp_dict["uom"] = info[5]
                         if seller_sku not in GRN_information_dict:
                             GRN_information_dict[seller_sku] = []
-                        GRN_information_dict[seller_sku].append(GRN_information_dict)
+                        GRN_information_dict[seller_sku].append(temp_dict)
 
                     for unit_order_obj in unit_order_objs:
                         
