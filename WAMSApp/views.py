@@ -5759,17 +5759,15 @@ class FetchAdminActivityLogsAPI(APIView):
             
             # Displaying most recent 2500 logs
             activity_log_objs = activity_log_objs.order_by("-pk")[:2500]
-            total_activities = activity_log_objs.count()
-            paginator  = Paginator(activity_log_objs,50)
-            total_pages = int(paginator.num_pages)
+            total_activities = activity_log_objs[:10000000].count()
+            activity_log_objs  = activity_log_objs[(page - 1) * 50 : page * 50]
+            total_pages = int(total_activities / 50)
 
             if page > total_pages:
                 response['status'] = 404
                 response['message'] = "Page number out of range"
                 logger.warning("FetchAdminActivityLogsAPI : Page number out of range")
                 return Response(data=response)
-
-            activity_log_objs = paginator.page(page)
 
             activity_log_list = []
             for activity_log_obj in activity_log_objs:
@@ -5791,11 +5789,11 @@ class FetchAdminActivityLogsAPI(APIView):
                     logger.error("FetchAdminActivityLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))      
 
             is_available = True
-            if int(paginator.num_pages) == int(page):
+            if int(total_pages) == int(page):
                 is_available = False
 
             response["is_available"] = is_available
-            response["totalPages"] = paginator.num_pages
+            response["totalPages"] = total_pages
             response["totalActivites"] = total_activities
 
             response["activity_log_list"] = activity_log_list
