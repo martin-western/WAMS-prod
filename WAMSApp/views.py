@@ -50,6 +50,7 @@ import xmltodict
 import requests
 import json
 import os
+import math
 import xlrd
 import csv
 import datetime
@@ -5757,11 +5758,10 @@ class FetchAdminActivityLogsAPI(APIView):
             # filter by action
             # filter by tag( search )
             
-            # Displaying most recent 2500 logs
             activity_log_objs = activity_log_objs.order_by("-pk")
-            total_activities = activity_log_objs[:10000000].count()
+            total_activities = 50
             activity_log_objs  = activity_log_objs[(page - 1) * 50 : page * 50]
-            total_pages = int(total_activities / 50)
+            total_pages = int(math.ceil(total_activities / 50))
 
             if page > total_pages:
                 response['status'] = 404
