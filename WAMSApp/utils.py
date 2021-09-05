@@ -1342,7 +1342,7 @@ def upload_dynamic_excel_for_product(path,operation,request_user):
                     if(product_id=="" or product_id=="nan"):
                         raise Exception("Required Fields must not be empty!")
 
-                    product_obj = Product.objects.get(product_id=product_id)
+                    product_obj = Product.objects.get(product_id=product_id, base_product__brand__organization=organization_obj)
                     base_product_obj = product_obj.base_product
                     channel_product_obj = product_obj.channel_product
                 except Exception as e:
@@ -2380,7 +2380,7 @@ def content_health_filtered_list(filter_parameters,search_list_product_objs):
 
     return search_list_product_objs 
 
-def get_recommended_browse_node(seller_sku,channel):
+def get_recommended_browse_node(seller_sku,channel,brand_obj):
 
     try:
 
@@ -2399,7 +2399,7 @@ def get_recommended_browse_node(seller_sku,channel):
             "Younglife": "5000"
         }
         
-        product_obj = Product.objects.filter(base_product__seller_sku=seller_sku)[0]
+        product_obj = Product.objects.filter(base_product__seller_sku=seller_sku, base_product__brand=brand_obj)[0]
         company_code = company_code_dict[product_obj.base_product.brand.name]
         body = """<soapenv:Envelope xmlns:urn="urn:sap-com:document:sap:rfc:functions" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
                   <soapenv:Header />
@@ -3048,3 +3048,31 @@ def update_dealshub_products_of_wigme_sites(dealshub_product_obj_main, user):
         dealshub_product_obj.additional_sub_categories = dealshub_product_obj_main.additional_sub_categories.all()
         render_value = f"Dealshub product {dealshub_product_obj.get_seller_sku()} details updated by {user}."
         activitylog(user=user,table_name=DealsHubProduct,action_type='updated',location_group_obj=dealshub_product_obj.location_group,prev_instance=dealshub_product_obj_prev,current_instance=dealshub_product_obj,table_item_pk=dealshub_product_obj.uuid,render=render_value)
+
+
+def update_images_count(product_obj):
+    '''
+    For a `product_obj`, update the `no_of_images_for_filter variable` 
+    '''
+    try:
+        main_images_list = ImageBucket.objects.none()
+        main_images_objs = MainImages.objects.filter(product=product_obj,is_sourced=True)
+        for main_images_obj in main_images_objs:
+            main_images_list|=main_images_obj.main_images.all()
+
+        sub_images_list = ImageBucket.objects.none()
+        sub_images_objs = SubImages.objects.filter(product=product_obj,is_sourced=True)
+        for sub_images_obj in sub_images_objs:
+            sub_images_list|=sub_images_obj.sub_images.all()
+
+        m_count = len(main_images_list.distinct())
+        s_count = len(sub_images_list.distinct())
+        l_count = product_obj.lifestyle_images.count()
+        w_count = product_obj.white_background_images.count()
+
+        product_obj.no_of_images_for_filter = m_count + s_count + l_count + w_count
+        product_obj.save()
+    
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("update_images_count: Product UUID: %s - %s at %s", str(product_obj.uuid), e, str(exc_tb.tb_lineno))

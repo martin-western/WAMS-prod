@@ -250,6 +250,23 @@ class DealsHubProduct(models.Model):
 
     display_image_url = models.TextField(default="")
 
+    ####### Nesto Products Related Attributes #######
+    highlights = models.TextField(default="", blank=True)
+    substitute_products = models.ManyToManyField('self', related_name="dh_to_substitute_products", blank=True)
+    cross_selling_products = models.ManyToManyField('self', related_name="dh_to_cross_selling_products", blank=True)
+    upselling_products = models.ManyToManyField('self', related_name="dh_to_upselling_products", blank=True)
+    primary_keywords = models.TextField(default=json.dumps([]))
+    secondary_keywords = models.TextField(default=json.dumps([]))
+    VENDORS_TYPE = (
+        ("Market", "Market"),
+        ("Own Brand", "Own Brand"),
+        ("Four Digit", "Four Digit"),
+        ("Extras", "Extras"),
+        ("Vendor", "Vendor"),
+    )
+    vendor_category = models.CharField(default="", choices=VENDORS_TYPE, blank=True, max_length=50)
+
+
     class Meta:
         verbose_name = "DealsHub Product"
         verbose_name_plural = "DealsHub Products"
@@ -854,7 +871,8 @@ class Address(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
 
-    type_addr = models.CharField(max_length=64, null=True, blank=True, default="shipping")   # shipping, billing
+    is_shipping = models.BooleanField(default=True)
+    is_billing = models.BooleanField(default=False)
 
     objects = AddressManager()
     recovery = AddressRecoveryManager()
@@ -960,7 +978,7 @@ class Cart(models.Model):
 
         self.modified_date = timezone.now()
         if self.billing_address != None:
-            self.billing_address.type_addr = "billing"
+            self.billing_address.is_billing = True
             self.billing_address.save()
         super(Cart, self).save(*args, **kwargs)
 
@@ -1089,7 +1107,7 @@ class OrderRequest(models.Model):
                 self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
 
         if self.billing_address != None:
-            self.billing_address.type_addr = "billing"
+            self.billing_address.is_billing = True
             self.billing_address.save()
 
         super(OrderRequest, self).save(*args, **kwargs)
@@ -1657,7 +1675,7 @@ class FastCart(models.Model):
 
         self.modified_date = timezone.now()
         if self.billing_address != None:
-            self.billing_address.type_addr = "billing"
+            self.billing_address.is_billing = True
             self.billing_address.save()
         super(FastCart, self).save(*args, **kwargs)
 

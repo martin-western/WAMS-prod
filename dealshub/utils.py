@@ -32,6 +32,7 @@ from facebook_business.adobjects.serverside.event_request import EventRequest
 from facebook_business.adobjects.serverside.gender import Gender
 from facebook_business.adobjects.serverside.user_data import UserData
 from facebook_business.api import FacebookAdsApi
+import africastalking
 
 logger = logging.getLogger(__name__)
 
@@ -130,9 +131,13 @@ def set_order_status(unit_order_obj, order_status):
                 message = "Your order has been dispatched!"
                 p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                 p2.start()
-            if website_group=="shopnesto":
+            elif website_group=="shopnesto":
                 message = "Your order has been dispatched!"
                 p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
+                p2.start()
+            elif website_group=="geepasuganda":
+                message = "Your order has been dispatched!"
+                p2 = threading.Thread(target=send_geepas_order_status_sms , args=(unit_order_obj,message,))
                 p2.start()
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -160,9 +165,13 @@ def set_order_status(unit_order_obj, order_status):
                     message = "Your order has been delivered!"
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
-                if website_group=="shopnesto":
+                elif website_group=="shopnesto":
                     message = "Your order has been delivered!"
                     p2 = threading.Thread(target=send_wigme_order_status_sms , args=(unit_order_obj,message,))
+                    p2.start()
+                elif website_group=="geepasuganda":
+                    message = "Your order has been delivered!"
+                    p2 = threading.Thread(target=send_geepas_order_status_sms , args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -177,9 +186,13 @@ def set_order_status(unit_order_obj, order_status):
                     message = "Sorry, we were unable to deliver your order!"
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
-                if website_group=="shopnesto":
+                elif website_group=="shopnesto":
                     message = "Sorry, we were unable to deliver your order!"
                     p2 = threading.Thread(target=send_wigme_order_status_sms , args=(unit_order_obj,message,))
+                    p2.start()
+                elif website_group=="geepasuganda":
+                    message = "Sorry, we were unable to deliver your order!"
+                    p2 = threading.Thread(target=send_geepas_order_status_sms , args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -219,9 +232,12 @@ def set_order_status_without_mail(unit_order_obj, order_status):
             if website_group=="parajohn":
                 message = "Your order has been dispatched!"
                 send_parajohn_order_status_sms(unit_order_obj, message)
-            if website_group=="shopnesto":
+            elif website_group=="shopnesto":
                 message = "Your order has been dispatched!"
                 send_wigme_order_status_sms(unit_order_obj,message)
+            elif website_group=="geepasuganda":
+                message = "Your order has been dispatched!"
+                send_geepas_order_status_sms(unit_order_obj,message)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
@@ -245,9 +261,12 @@ def set_order_status_without_mail(unit_order_obj, order_status):
                 if website_group=="parajohn":
                     message = "Your order has been delivered!"
                     send_parajohn_order_status_sms(unit_order_obj,message)
-                if website_group=="shopnesto":
+                elif website_group=="shopnesto":
                     message = "Your order has been delivered!"
                     send_wigme_order_status_sms(unit_order_obj,message)
+                elif website_group=="geepasuganda":
+                    message = "Your order has been delivered!"
+                    send_geepas_order_status_sms(unit_order_obj,message)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
@@ -258,9 +277,12 @@ def set_order_status_without_mail(unit_order_obj, order_status):
                 if website_group=="parajohn":
                     message = "Sorry, we were unable to deliver your order!"
                     send_parajohn_order_status_sms(unit_order_obj,message)
-                if website_group=="shopnesto":
+                elif website_group=="shopnesto":
                     message = "Sorry, we were unable to deliver your order!"
                     send_wigme_order_status_sms(unit_order_obj,message)
+                elif website_group=="geepasuganda":
+                    message = "Sorry, we were unable to deliver your order!"
+                    send_geepas_order_status_sms(unit_order_obj,message)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("set_order_status: %s at %s", e, str(exc_tb.tb_lineno))
@@ -372,6 +394,36 @@ def send_wigme_order_status_sms(unit_order_obj,message):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("send_wigme_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
+
+def send_geepas_order_status_sms(unit_order_obj,message):
+    try:
+        dealshub_user_obj = unit_order_obj.order.owner
+        if dealshub_user_obj.contact_verified==False:
+            return
+        
+        logger.info("send_geepas_order_status_sms:", message)
+        location_group_obj = unit_order_obj.order.location_group
+        sms_country_info = json.loads(location_group_obj.sms_country_info)
+        prefix_code = sms_country_info["prefix_code"]
+        sender = sms_country_info["sender_id"]
+        contact_number = "+" + prefix_code + dealshub_user_obj.contact_number
+
+        africastalking.initialize(
+            username='geepasug',
+            api_key='e5d7fd9be205264e7dd649fa904dbe36952f8c64efa21bea53b7b537f23155b9'
+        )
+        sms = africastalking.SMS
+        recipients = [contact_number]    #["+917043300725"]
+        try:
+            response = sms.send(message, recipients, sender)
+            print (response)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("VerifyOTPSMSLogin: %s at %s", e, str(exc_tb.tb_lineno))
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("send_geepas_order_status_sms: %s at %s", e, str(exc_tb.tb_lineno))
 
 
 def send_daycart_order_status_sms(unit_order_obj,message):
@@ -1855,7 +1907,7 @@ def get_section_products(location_group_obj, is_dealshub, language_code, resolut
 
             dealshub_product_uuid_list = list(custom_product_section_objs.order_by('order_index').values_list("product__uuid", flat=True).distinct())
             
-            section_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list)
+            section_products = DealsHubProduct.objects.filter(uuid__in=dealshub_product_uuid_list,is_published=True).exclude(stock=0,now_price=0)
             
             section_products = list(section_products)
             section_products.sort(key=lambda t: dealshub_product_uuid_list.index(t.uuid))
@@ -2572,7 +2624,7 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
         event_source_url = "https://b2b.wigme.com"
 
         now_time = int(time.time())
-        logger.info("in calling_facebook_api:- ")
+        # logger.info("in calling_facebook_api:- ")
         # x_forwarded_for = request.META["HTTP_X_FORWARDED_FOR"]
         # logger.info(request.META)
 
@@ -2620,21 +2672,27 @@ def calling_facebook_api(event_name,user,request,custom_data=None):
             pixel_id=pixel_id,
         )
         event_response = event_request.execute()
-        logger.info(event_response)
+        # logger.info(event_response)
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))
+        # logger.error("calling_facebook_api: %s at %s", str(e), str(exc_tb.tb_lineno))
 
 
 def get_address_list(dealshub_user_obj, type_addr=""):
     '''
-    Returns the shipping/billing address list based upon TYPE_ADDR in ["shipping", "billing"]
+    Returns the shipping/billing address list based upon `type_addr` in ["shipping", "billing"]
     '''
     address_list = []
-    if type_addr == "":
+    address_objs = None
+
+    if type_addr not in ["shipping", "billing"]:
         return address_list
-    address_objs = Address.objects.filter(user=dealshub_user_obj,type_addr=type_addr)
+    
+    if type_addr == "shipping":
+        address_objs = Address.objects.filter(user=dealshub_user_obj, is_shipping=True)
+    else:
+        address_objs = Address.objects.filter(user=dealshub_user_obj, is_billing=True)
     if address_objs.exists():
         for address_obj in address_objs:
             address_list.append(get_address_dict(address_obj))

@@ -716,7 +716,7 @@ def create_new_product_amazon_uk(row):
     channel_product.save()
 
 
-def import_amazon_uk(import_rule, import_file):
+def import_amazon_uk(import_rule, import_file, organization_obj):
     try:
         data = csv.reader(import_file)
         cnt = 0
@@ -727,7 +727,7 @@ def import_amazon_uk(import_rule, import_file):
                     product_id=row[3]
                     logger.info("Adding product %s", str(cnt))
                     if Product.objects.filter(product_id=product_id).exists():
-                        product_obj = Product.objects.get(product_id=product_id)
+                        product_obj = Product.objects.get(product_id=product_id, base_product__brand__organization=organization_obj)
                         if import_rule=="Full":
                             update_product_full_amazon_uk(product_obj, row)
                         elif import_rule=="Partial":

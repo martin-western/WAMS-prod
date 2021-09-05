@@ -30,7 +30,7 @@ def generate_xml_for_post_product_data_amazon_uk(product_pk_list,seller_id):
             category = amazon_uk_product["category"]
             sub_category = amazon_uk_product["sub_category"]
 
-            amazon_uk_product["recommended_browse_nodes"] = get_recommended_browse_node(seller_sku,"Amazon UK")
+            amazon_uk_product["recommended_browse_nodes"] = get_recommended_browse_node(seller_sku,"Amazon UK", product_obj.base_product.brand)
             product_obj.channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product)
             product_obj.channel_product.save()
 
@@ -135,7 +135,7 @@ def generate_xml_for_partial_update_product_amazon_uk(product_pk_list,seller_id)
             category = amazon_uk_product_dict["category"]
             sub_category = amazon_uk_product_dict["sub_category"]
 
-            amazon_uk_product_dict["recommended_browse_nodes"] = get_recommended_browse_node(seller_sku,"Amazon UK")
+            amazon_uk_product_dict["recommended_browse_nodes"] = get_recommended_browse_node(seller_sku,"Amazon UK", product_obj.base_product.brand)
             product_obj.channel_product.amazon_uk_product_json = json.dumps(amazon_uk_product_dict)
             product_obj.channel_product.save()
 

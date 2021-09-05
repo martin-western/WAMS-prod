@@ -37,6 +37,8 @@ class SearchWIG3API(APIView):
         try:
             data = request.data
             logger.info("SearchWIG3API: %s", str(data))
+            if not isinstance(data, dict):
+                data = json.loads(data)
 
             search_string = data.get("name", "").strip()
             super_category_name = data.get("superCategory", "").strip()

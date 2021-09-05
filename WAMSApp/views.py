@@ -50,6 +50,7 @@ import xmltodict
 import requests
 import json
 import os
+import math
 import xlrd
 import csv
 import datetime
@@ -2648,11 +2649,12 @@ class ImportProductsAPI(APIView):
             import_format = data["import_format"]
             import_rule = data["import_rule"]
             import_file = data["import_file"]
-
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
             if import_format == "Amazon UK":
-                import_amazon_uk(import_rule, import_file)
+                import_amazon_uk(import_rule, import_file, organization_obj)
             elif import_format == "Amazon UAE":
-                import_amazon_uae(import_rule, import_file)
+                import_amazon_uae(import_rule, import_file, organization_obj)
 
             response['status'] = 200
 
@@ -2712,7 +2714,6 @@ class UploadProductImageAPI(APIView):
                     render_value = 'ImageBucket is created'
                     activitylog(user=request.user,table_name=ImageBucket,action_type='created',location_group_obj=None,prev_instance=None,current_instance=image_bucket_obj,table_item_pk=image_bucket_obj.pk,render=render_value)
                         
-                    product_obj.no_of_images_for_filter += 1
 
                     if data["channel_name"] == "" or data["channel_name"] == None:
                         main_images_obj , created = MainImages.objects.get_or_create(product=product_obj,is_sourced=True)
@@ -2773,7 +2774,6 @@ class UploadProductImageAPI(APIView):
                     index += 1
                     sub_image_index = 0
                     is_sub_image = False
-                    product_obj.no_of_images_for_filter += 1
                     if(index <= 8):
                         sub_image_index = index
                         is_sub_image = True
@@ -2796,13 +2796,11 @@ class UploadProductImageAPI(APIView):
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "white_background_images":
                 for image_obj in image_objs:
-                    product_obj.no_of_images_for_filter += 1
                     product_obj.white_background_images.add(image_obj)
                     render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             elif data["image_category"] == "lifestyle_images":
                 for image_obj in image_objs:
-                    product_obj.no_of_images_for_filter += 1
                     product_obj.lifestyle_images.add(image_obj)
                     render_value = "In product {} {} image {} are added".format(product_obj.product_name, data["image_category"], image_obj.image.url)        
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
@@ -2858,6 +2856,7 @@ class UploadProductImageAPI(APIView):
                     activitylog(user=request.user,table_name=Product,action_type='updated',location_group_obj=None,prev_instance=prev_instance,current_instance=product_obj,table_item_pk=product_obj.uuid,render=render_value)
             response['status'] = 200
             product_obj.save()
+            update_images_count(product_obj)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -3797,9 +3796,11 @@ class AddProductPFLBucketAPI(APIView):
                 data = json.loads(data)
 
             pfl_obj = PFL.objects.get(pk=int(data["pfl_pk"]))
-
+            custom_permission_obj = CustomPermission.objects.get(user=request.user)
+            organization_obj = custom_permission_obj.organization
+            
             product_id = data["product_name"].split("|")[1].strip()
-            product_obj = Product.objects.get(product_id=product_id)
+            product_obj = Product.objects.get(product_id=product_id, base_product__brand__organization=organization_obj)
 
             pfl_obj.product = product_obj
             pfl_obj.save()
@@ -4803,7 +4804,7 @@ class RemoveImageAPI(APIView):
                 activitylog(user=request.user,table_name=ProductImage,action_type='deleted',location_group_obj=None,prev_instance=prev_productimage_instance,current_instance=None,table_item_pk=productimage_obj.pk,render=render_value)   
             
             product_obj.save()
-
+            update_images_count(product_obj)
             if data["image_category"] != "best_images":
                 render_value = '{} image {} is deleted from product {}'.format(data["image_category"],image_obj.image.url,product_obj.base_product.seller_sku)
                 activitylog(user=request.user,table_name=Product,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=None,table_item_pk=product_obj.pk,render=render_value)            
@@ -4884,8 +4885,8 @@ class DeleteImageAPI(APIView):
                 sub_images_obj.save()
                 render_value = 'Image {} is removed from sub image {}.'.format(image_bucket_obj,sub_images_obj)
                 activitylog(user=request.user,table_name=SubImages,action_type='deleted',location_group_obj=None,prev_instance=prev_instance,current_instance=sub_images_obj,table_item_pk=sub_images_obj.pk,render=render_value)
-            product_obj.no_of_images_for_filter -= 1
             product_obj.save()
+            update_images_count(product_obj)
             response['status'] = 200
 
         except Exception as e:
@@ -5733,6 +5734,7 @@ class FetchAdminActivityLogsAPI(APIView):
             page = int(page)
             from_date = data.get("from_date","")
             to_date = data.get("to_date","")
+            search_string = data.get("search_string","")
 
             location_group_obj = None
             if location_group_uuid!="":
@@ -5747,25 +5749,25 @@ class FetchAdminActivityLogsAPI(APIView):
             if to_date!="":
                 to_date = to_date[:10]+"T23:59:59+04:00"
                 activity_log_objs = activity_log_objs.filter(created_date__lte=to_date)
-            
+
+            if search_string!="":
+                activity_log_objs = activity_log_objs.filter(Q(user__username__icontains=search_string) | Q(user__first_name__icontains=search_string) | Q(user__last_name__icontains=search_string) | Q(table_name__icontains=search_string) | Q(render__icontains=search_string))
+                
             # filter by model name
             # filter by user
             # filter by action
             # filter by tag( search )
             
             activity_log_objs = activity_log_objs.order_by("-pk")
-
-            total_activities = activity_log_objs.count()
-            paginator  = Paginator(activity_log_objs,50)
-            total_pages = int(paginator.num_pages)
+            total_activities = 50
+            activity_log_objs  = activity_log_objs[(page - 1) * 50 : page * 50]
+            total_pages = int(math.ceil(total_activities / 50))
 
             if page > total_pages:
                 response['status'] = 404
                 response['message'] = "Page number out of range"
                 logger.warning("FetchAdminActivityLogsAPI : Page number out of range")
                 return Response(data=response)
-
-            activity_log_objs = paginator.page(page)
 
             activity_log_list = []
             for activity_log_obj in activity_log_objs:
@@ -5787,11 +5789,11 @@ class FetchAdminActivityLogsAPI(APIView):
                     logger.error("FetchAdminActivityLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))      
 
             is_available = True
-            if int(paginator.num_pages) == int(page):
+            if int(total_pages) == int(page):
                 is_available = False
 
             response["is_available"] = is_available
-            response["totalPages"] = paginator.num_pages
+            response["totalPages"] = total_pages
             response["totalActivites"] = total_activities
 
             response["activity_log_list"] = activity_log_list
@@ -7056,6 +7058,9 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="nesto image bucket":
                 p1 = threading.Thread(target=nesto_image_bucket_report, args=(filename,oc_report_obj.uuid,))
                 p1.start()
+            elif report_type.lower()=="newslettersubscribers":
+                p1 = threading.Thread(target=create_newsletter_subscribers_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
+                p1.start()
             response["approved"] = True
             response['status'] = 200
         
@@ -7718,6 +7723,7 @@ class FetchDealshubProductDetailsAPI(APIView):
             response["additional_sub_categories"] = additional_sub_category_list
             response["dealshub_price_permission"] = custom_permission_price(request.user, "dealshub")
             response["dealshub_stock_permission"] = custom_permission_stock(request.user, "dealshub")
+            response["dealshub_content_permission"] = custom_permission_misc(request.user,"edit_dealshub_content")
 
             response["status"] = 200
 
@@ -8468,14 +8474,15 @@ class ResetOmnyCommUserPasswordAPI(APIView):
 class FetchCurrentVersionAPI(APIView):
     
     def post(self, request, *args, **kwargs):
-        
+
         response = {}
         response['status'] = 500
         try:
-            response["version_count"] = Config.objects.all()[0].version_count
+            response["version_count"] = Config.objects.last().version_count
+            response["status"] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("LogoutUserAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchCurrentVersionAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 

@@ -12,6 +12,7 @@ from WAMSApp.oc_reports import *
 
 import logging
 import json
+import math
 import pandas as pd
 import threading
 logger = logging.getLogger(__name__)
@@ -1462,18 +1463,15 @@ class FetchNestoActivityLogsAPI(APIView):
                 activity_log_objs = activity_log_objs.filter(created_date__lte=to_date)
             
             activity_log_objs = activity_log_objs.order_by("-pk")
-
-            total_activities = activity_log_objs.count()
-            paginator = Paginator(activity_log_objs,10)
-            total_pages = int(paginator.num_pages)
+            total_activities = 50
+            activity_log_objs  = activity_log_objs[(page - 1) * 50 : page * 50]
+            total_pages = int(math.ceil(total_activities / 50))
 
             if page > total_pages:
                 response['status'] = 404
                 response['message'] = "Page number out of range"
                 logger.warning("FetchNestoActivityLogsAPI : Page number out of range")
                 return Response(data=response)
-
-            activity_log_objs = paginator.page(page)
 
             activity_log_list = []
             for activity_log_obj in activity_log_objs:
@@ -1495,11 +1493,11 @@ class FetchNestoActivityLogsAPI(APIView):
                     logger.error("FetchNestoActivityLogsAPI: %s at %s", e, str(exc_tb.tb_lineno))      
 
             is_available = True
-            if int(paginator.num_pages) == int(page):
+            if int(total_pages) == int(page):
                 is_available = False
 
             response["is_available"] = is_available
-            response["totalPages"] = paginator.num_pages
+            response["totalPages"] = total_pages
             response["totalActivites"] = total_activities
 
             response["activity_log_list"] = activity_log_list
