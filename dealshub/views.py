@@ -806,7 +806,7 @@ class FetchHeadingSuperCategoriesAPI(APIView):
         try:
             data = request.data
             language_code = data.get("language","en")
-            logger.info("FetchHeadingCategoriesAPI: %s", str(data))
+            logger.info("FetchHeadingSuperCategoriesAPI: %s", str(data))
 
             super_category_names = ["Homeware","Appliances","ENTERTAINMENT","PERSONAL CARE","LIGHTING DEVICES","DIY Tools","BATH FITTINGS",]
             super_category_list = []
@@ -838,11 +838,11 @@ class FetchHeadingSuperCategoriesAPI(APIView):
                 calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchHeadingCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                logger.error("FetchHeadingSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("FetchHeadingCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            logger.error("FetchHeadingSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
 
