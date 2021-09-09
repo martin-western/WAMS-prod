@@ -793,6 +793,53 @@ class FetchSuperCategoriesAPI(APIView):
         return Response(data=response)
 
 
+class FetchHeadingSuperCategoriesAPI(APIView):
+    
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+
+        try:
+            data = request.data
+            language_code = data.get("language","en")
+            logger.info("FetchHeadingSuperCategoriesAPI: %s", str(data))
+
+            super_category_names = ["Homeware","Appliances","ENTERTAINMENT","PERSONAL CARE","LIGHTING DEVICES","DIY Tools","BATH FITTINGS",]
+            super_category_list = []
+            for super_category_name in super_category_names:
+                super_category_obj = SuperCategory.objects.filter(name=super_category_name).first()
+                temp_dict = {}
+                temp_dict["name"] = super_category_obj.get_name(language_code)
+                temp_dict["uuid"] = super_category_obj.uuid
+                temp_dict["imageUrl"] = ""
+                if category_obj.image!=None:
+                    temp_dict["imageUrl"] = super_category_obj.image.mid_image.url
+                category_objs = Category.objects.filter(super_category=super_category_obj)
+                for category_obj in category_objs:
+                    sub_category_list = []
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    for sub_category_obj in sub_category_objs:
+                        temp_dict2 = {}
+                        temp_dict2["name"] = sub_category_obj.get_name(language_code)
+                        temp_dict2["uuid"] = sub_category_obj.uuid
+                        sub_category_list.append(temp_dict2)
+                    temp_dict["subCategoryList"] = sub_category_list
+                    super_category_list.append(temp_dict)
+
+            response['SuperCategoryList'] = super_category_list
+            response['status'] = 200
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchHeadingSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+        return Response(data=response)
+
+
 class FetchHeadingCategoriesAPI(APIView):
     
     authentication_classes = (CsrfExemptSessionAuthentication,)
@@ -7184,3 +7231,5 @@ SubmitProductReviewMail = SubmitProductReviewMailAPI.as_view()
 FetchSectionDetail = FetchSectionDetailAPI.as_view()
 
 FetchB2BSectionDetail = FetchB2BSectionDetailAPI.as_view()
+
+FetchHeadingSuperCategories = FetchHeadingSuperCategoriesAPI.as_view()

@@ -11,6 +11,8 @@ urlpatterns = [
     url(r'^fetch-section-products/$', views.FetchSectionProducts),
     url(r'^fetch-super-categories/$', views.FetchSuperCategories),
     url(r'^fetch-heading-categories/$', views.FetchHeadingCategories),
+    url(r'^fetch-heading-super-categories/$', views.FetchHeadingSuperCategories),
+    
     url(r'^fetch-categories-for-new-user/$', views.FetchCategoriesForNewUser),
     url(r'^set-interested-categories-for-new-user/$', views.SetInterestedCategoriesForNewUser),
     url(r'^fetch-on-sale-products/$', views.FetchOnSaleProducts),
