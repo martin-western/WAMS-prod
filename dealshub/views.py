@@ -816,7 +816,7 @@ class FetchHeadingSuperCategoriesAPI(APIView):
                 temp_dict["name"] = super_category_obj.get_name(language_code)
                 temp_dict["uuid"] = super_category_obj.uuid
                 temp_dict["imageUrl"] = ""
-                if category_obj.image!=None:
+                if super_category_obj.image!=None:
                     temp_dict["imageUrl"] = super_category_obj.image.mid_image.url
                 category_objs = Category.objects.filter(super_category=super_category_obj)
                 for category_obj in category_objs:
