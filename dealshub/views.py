@@ -819,18 +819,18 @@ class FetchHeadingSuperCategoriesAPI(APIView):
                 if super_category_obj.image!=None:
                     temp_dict["imageUrl"] = super_category_obj.image.mid_image.url
                 category_objs = Category.objects.filter(super_category=super_category_obj)
+                sub_category_list = []
                 for category_obj in category_objs:
-                    sub_category_list = []
                     sub_category_objs = SubCategory.objects.filter(category=category_obj)
                     for sub_category_obj in sub_category_objs:
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.get_name(language_code)
                         temp_dict2["uuid"] = sub_category_obj.uuid
                         sub_category_list.append(temp_dict2)
-                    temp_dict["subCategoryList"] = sub_category_list
-                    super_category_list.append(temp_dict)
+                temp_dict["subCategoryList"] = sub_category_list
+                super_category_list.append(temp_dict)
 
-            response['SuperCategoryList'] = super_category_list
+            response['superCategoryList'] = super_category_list
             response['status'] = 200
 
         except Exception as e:
