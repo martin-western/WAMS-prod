@@ -833,13 +833,6 @@ class FetchHeadingSuperCategoriesAPI(APIView):
             response['SuperCategoryList'] = super_category_list
             response['status'] = 200
 
-            try:
-                dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
-                calling_facebook_api(event_name="ViewContent",user=dealshub_user_obj,request=request,custom_data=None)
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("FetchHeadingSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
-
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchHeadingSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
