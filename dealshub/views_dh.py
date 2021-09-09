@@ -310,6 +310,8 @@ class EditShippingAddressAPI(APIView):
             line3 = data.get("line3", "")
             line4 = data.get("line4", "")
             
+            city = data.get("city","")
+            region = data.get("region","")
             state = data.get("state", "")
             neighbourhood = data.get("neighbourhood", "")
 
@@ -329,6 +331,8 @@ class EditShippingAddressAPI(APIView):
             address_obj.address_lines = json.dumps(address_lines)
             address_obj.tag = tag
             address_obj.emirates = emirates
+            address_obj.city = city
+            address_obj.region = region
             address_obj.state = state
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
@@ -379,6 +383,8 @@ class CreateShippingAddressAPI(APIView):
             postcode = ""
             neighbourhood = data.get("neighbourhood", "")
             emirates = data.get("emirates", "")
+            city = data.get("city","")
+            region = data.get("region","")
             if postcode==None:
                 postcode = ""
             contact_number = dealshub_user_obj.contact_number
@@ -401,6 +407,8 @@ class CreateShippingAddressAPI(APIView):
                                                 location_group=location_group_obj, 
                                                 neighbourhood=neighbourhood, 
                                                 emirates=emirates,
+                                                city=city,
+                                                region=region,
                                                 is_shipping=True)
 
             response["uuid"] = address_obj.uuid
