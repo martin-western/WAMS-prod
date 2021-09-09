@@ -868,6 +868,8 @@ class Address(models.Model):
 
     emirates = models.CharField(max_length=100, default="", blank=True)
     neighbourhood = models.CharField(max_length=100, default="", blank=True)
+    city = models.CharField(max_length=100, default="", blank=True)
+    region = models.CharField(max_length=100, default="", blank=True)
 
     date_created = models.DateTimeField(auto_now_add=True)
 
