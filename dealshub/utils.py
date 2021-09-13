@@ -2712,6 +2712,8 @@ def get_address_dict(address_obj):
             "line2": json.loads(address_obj.address_lines)[1],
             "line3": json.loads(address_obj.address_lines)[2],
             "line4": json.loads(address_obj.address_lines)[3],
+            "city": address_obj.city,
+            "region":address_obj.region, 
             "emirates": address_obj.emirates,
             "state": address_obj.state,
             "country": address_obj.get_country(),
