@@ -808,27 +808,32 @@ class FetchHeadingSuperCategoriesAPI(APIView):
             language_code = data.get("language","en")
             logger.info("FetchHeadingSuperCategoriesAPI: %s", str(data))
 
-            super_category_names = ["Homeware","Appliances","ENTERTAINMENT","PERSONAL CARE","LIGHTING DEVICES","DIY Tools","BATH FITTINGS",]
+            super_category_names = ["Homeware","Appliances","Entertainment","Personal Care","Lighting Devices","Diy Tools","Bath Fittings",]
             super_category_list = []
             for super_category_name in super_category_names:
-                super_category_obj = SuperCategory.objects.filter(name=super_category_name).first()
-                temp_dict = {}
-                temp_dict["name"] = super_category_obj.get_name(language_code)
-                temp_dict["uuid"] = super_category_obj.uuid
-                temp_dict["imageUrl"] = ""
-                if super_category_obj.image!=None:
-                    temp_dict["imageUrl"] = super_category_obj.image.mid_image.url
-                category_objs = Category.objects.filter(super_category=super_category_obj)
-                sub_category_list = []
-                for category_obj in category_objs:
-                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
-                    for sub_category_obj in sub_category_objs:
-                        temp_dict2 = {}
-                        temp_dict2["name"] = sub_category_obj.get_name(language_code)
-                        temp_dict2["uuid"] = sub_category_obj.uuid
-                        sub_category_list.append(temp_dict2)
-                temp_dict["subCategoryList"] = sub_category_list
-                super_category_list.append(temp_dict)
+                try:
+                    super_category_obj = SuperCategory.objects.filter(name=super_category_name).first()
+                    temp_dict = {}
+                    temp_dict["name"] = super_category_obj.get_name(language_code)
+                    temp_dict["uuid"] = super_category_obj.uuid
+                    temp_dict["imageUrl"] = ""
+                    if super_category_obj.image!=None:
+                        temp_dict["imageUrl"] = super_category_obj.image.mid_image.url
+                    category_objs = Category.objects.filter(super_category=super_category_obj)
+                    sub_category_list = []
+                    for category_obj in category_objs:
+                        sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                        for sub_category_obj in sub_category_objs:
+                            temp_dict2 = {}
+                            temp_dict2["name"] = sub_category_obj.get_name(language_code)
+                            temp_dict2["uuid"] = sub_category_obj.uuid
+                            sub_category_list.append(temp_dict2)
+                    temp_dict["subCategoryList"] = sub_category_list
+                    super_category_list.append(temp_dict)
+                
+                except:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchHeadingSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response['superCategoryList'] = super_category_list
             response['status'] = 200
