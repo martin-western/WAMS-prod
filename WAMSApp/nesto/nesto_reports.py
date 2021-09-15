@@ -9,7 +9,7 @@ from django.core.mail import get_connection, send_mail
 from auditlog.models import *
 
 from WAMSApp.utils import *
-
+from WAMSApp.oc_reports import notify_user_for_report
 from django.db.models import Count
 
 logger = logging.getLogger(__name__)
