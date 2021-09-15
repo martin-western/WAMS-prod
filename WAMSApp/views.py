@@ -6989,12 +6989,11 @@ class CreateOCReportAPI(APIView):
             logger.warning("CreateOCReportAPI7")
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
-            logger.warning("CreateOCReportAPI8")
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
                 for brand_obj in brand_objs:
                     brand_list.append(brand_obj.name)
-            logger.warning("CreateOCReportAPI9")
+            logger.warning("CreateOCReportAPI8")
             if report_type.lower()=="mega":
                 p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,"",organization_obj,))
                 p1.start()
