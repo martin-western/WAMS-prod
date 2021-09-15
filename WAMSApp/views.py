@@ -6942,6 +6942,7 @@ class CreateOCReportAPI(APIView):
             
             data = request.data
             logger.info("CreateOCReportAPI: %s", str(data))
+            logger.warning("CreateOCReportAPI1")
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -6955,6 +6956,7 @@ class CreateOCReportAPI(APIView):
                 response["approved"] = False
                 response['status'] = 200
                 return Response(data=response)
+            logger.warning("CreateOCReportAPI2")
 
             report_type = data["report_type"]
             note = data["note"]
@@ -6962,15 +6964,17 @@ class CreateOCReportAPI(APIView):
             
             from_date = data.get("from_date", "")
             to_date = data.get("to_date", "")
+            logger.warning("CreateOCReportAPI3")
 
             location_group_uuid = data.get("locationGroupUuid","")
             location_group_obj = None
             if location_group_uuid!="":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            logger.warning("CreateOCReportAPI4")
 
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-            
+            logger.warning("CreateOCReportAPI5")
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
             report_information = {
@@ -6980,14 +6984,17 @@ class CreateOCReportAPI(APIView):
                 "from_date":from_date[:10] if from_date else "-",
                 "to_date":to_date[:10] if to_date else "-",
                 }
+            logger.warning("CreateOCReportAPI6")
             oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=json.dumps(report_information), filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
+            logger.warning("CreateOCReportAPI7")
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
+            logger.warning("CreateOCReportAPI8")
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
                 for brand_obj in brand_objs:
                     brand_list.append(brand_obj.name)
-
+            logger.warning("CreateOCReportAPI9")
             if report_type.lower()=="mega":
                 p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,"",organization_obj,))
                 p1.start()
@@ -7047,11 +7054,15 @@ class CreateOCReportAPI(APIView):
                 p1 = threading.Thread(target=create_stock_report, args=(filename,oc_report_obj.uuid,brand_list,location_group_obj,))
                 p1.start()
             elif report_type.lower()=="nesto ecommerce product":
+                logger.warning("CreateOCReportAPI9")
                 p1 = threading.Thread(target=bulk_download_nesto_ecommerce_report, args=(filename,oc_report_obj.uuid,))
                 p1.start()
+                logger.warning("CreateOCReportAPI10")
             elif report_type.lower()=="nesto detailed product":
+                logger.warning("CreateOCReportAPI9")
                 p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
                 p1.start()
+                logger.warning("CreateOCReportAPI10")
             elif report_type.lower()=="nesto product summary":
                 p1 = threading.Thread(target=nesto_products_summary_report, args=(filename,oc_report_obj.uuid,))
                 p1.start()
@@ -7061,6 +7072,7 @@ class CreateOCReportAPI(APIView):
             elif report_type.lower()=="newslettersubscribers":
                 p1 = threading.Thread(target=create_newsletter_subscribers_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
                 p1.start()
+            logger.warning("CreateOCReportAPI11")
             response["approved"] = True
             response['status'] = 200
         
