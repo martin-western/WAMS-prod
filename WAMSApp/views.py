@@ -58,7 +58,7 @@ import boto3
 import urllib.request, urllib.error, urllib.parse
 import pandas as pd
 import threading
-
+import multiprocessing
 logger = logging.getLogger(__name__)
 
 #@login_required(login_url='/login/')
@@ -7060,7 +7060,8 @@ class CreateOCReportAPI(APIView):
                 logger.warning("CreateOCReportAPI10")
             elif report_type.lower()=="nesto detailed product":
                 logger.warning("CreateOCReportAPI9")
-                p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
+                p1 = multiprocessing.Process(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
+                # p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
                 p1.start()
                 logger.warning("CreateOCReportAPI10")
             elif report_type.lower()=="nesto product summary":
