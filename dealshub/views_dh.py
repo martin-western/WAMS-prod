@@ -7546,7 +7546,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                             "line3": json.loads(address_obj.address_lines)[2],
                             "line4": json.loads(address_obj.address_lines)[3],
                             "state": address_obj.state,
-                            "emirates": address_obj.emirates
+                            "Region": address_obj.emirates
                         }
 
                     customer_name = address_obj.first_name
