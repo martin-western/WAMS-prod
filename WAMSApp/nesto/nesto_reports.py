@@ -457,19 +457,32 @@ def nesto_image_bucket_report(filename, uuid):
                 common_row[2] = str("Default")
                 common_row[3] = str("simple")
                 common_row[4] = str("ajman")
-                common_row[5] = str(image_obj.image.url)
+                common_row[4] = str("ajman")
+                common_row[5] = ""
                 common_row[6] = str("Image")
-                common_row[7] = str(image_obj.mid_image.url)
+                common_row[7] = ""
                 common_row[8] = str("Image")
-                common_row[9] = str(image_obj.small_image.url)
+                common_row[9] = ""
                 common_row[10] = str("Image")
-                common_row[11] = str(image_obj.thumbnail.url)
+                common_row[11] = ""
                 common_row[12] = str("Image")
 
+                try:
+                    common_row[5] = str(image_obj.image.url)
+                    common_row[11] = str(image_obj.mid_image.url)
+                    common_row[9] = str(image_obj.thumbnail.url)
+                    # keeping small_images at the end, as we got many error like:-
+                    # Error nesto_image_bucket_report The 'small_image' attribute has no file associated with it
+                    common_row[7] = str(image_obj.small_image.url)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("Error nesto_image_bucket_report %s %s", e, str(exc_tb.tb_lineno))
+                
                 colnum = 0
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
+
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Error nesto_image_bucket_report %s %s", e, str(exc_tb.tb_lineno))
