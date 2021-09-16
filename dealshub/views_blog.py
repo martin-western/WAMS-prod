@@ -710,7 +710,9 @@ class FetchAllBlogPostsAPI(APIView):
         return Response(data=response)
 
 class AddEmailForNewsletterSignupAPI(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication,) 
+    permission_classes = [AllowAny]
+    
     def post(self, request, *args, **kwargs):
 
         response = {}
