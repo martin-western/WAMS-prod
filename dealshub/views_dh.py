@@ -7537,7 +7537,6 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                         "state": address_obj.state,
                         "emirates": address_obj.emirates
                     }
-                    logger.info(location_group_obj.name)
                     if location_group_obj.name == "Geepas-Uganda":
                         shipping_address = {
                             "firstName": address_obj.first_name,
@@ -7549,7 +7548,8 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
                             "state": address_obj.state,
                             "region": address_obj.emirates
                         }
-
+                        logger.info(location_group_obj.name,shipping_address)
+                    logger.info(location_group_obj.name,shipping_address)
                     customer_name = address_obj.first_name
                     if location_group_obj.is_b2b==True:
                         try:
