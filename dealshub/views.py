@@ -808,7 +808,7 @@ class FetchHeadingSuperCategoriesAPI(APIView):
             language_code = data.get("language","en")
             logger.info("FetchHeadingSuperCategoriesAPI: %s", str(data))
 
-            super_category_names = ["Homeware","Appliances","Entertainment","Personal Care","Lighting Devices","Diy Tools","Bath Fittings",]
+            super_category_names = ["HOMEWARE","APPLIANCES","ENTERTAINMENT","PERSONAL CARE","LIGHTING DEVICES","DIY TOOLS","BATH FITTINGS",]
             super_category_list = []
             for super_category_name in super_category_names:
                 try:
