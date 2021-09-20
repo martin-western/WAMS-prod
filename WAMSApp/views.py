@@ -7060,9 +7060,9 @@ class CreateOCReportAPI(APIView):
                 logger.warning("CreateOCReportAPI10")
             elif report_type.lower()=="nesto detailed product":
                 logger.warning("CreateOCReportAPI9")
-                # p1 = multiprocessing.Process(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
-                p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,),daemon = True)
-                p1.run()
+                p1 = multiprocessing.Process(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
+                # p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
+                p1.start()
                 logger.warning("CreateOCReportAPI10")
             elif report_type.lower()=="nesto product summary":
                 p1 = threading.Thread(target=nesto_products_summary_report, args=(filename,oc_report_obj.uuid,))
