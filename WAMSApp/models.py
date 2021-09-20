@@ -1955,6 +1955,47 @@ class OCReport(models.Model):
         
         super(OCReport, self).save(*args, **kwargs)
 
+data = {
+    "report_type" : "",
+    "note" : "",
+    "brand_list": [],
+    "from_date": "",
+    "to_date" : "",
+    "locationGroupUuid" : "",
+}
+
+class CronjobForOcReport:
+
+    uuid = models.CharField(max_length=200, default="")
+    filename = models.CharField(max_length=300, default="")
+    oc_report = models.ForeignKey(OCReport,blank=True,null=True,on_delete=models.CASCADE)
+    oc_user = models.ForeignKey(OmnyCommUser, blank=True)
+    created_date = models.DateTimeField(null=True, blank=True)
+    data = models.TextField(default=json.dumps(data))
+    STAGES = (
+        ("Pending", "Pending"),
+        ("Processing", "Processing"),
+        ("Completed", "Completed"),
+        ("Error", "Error"),
+    )
+    stage = models.CharField(default="Pending", choices=STAGES, blank=True, max_length=50)
+    
+    class Meta:
+        verbose_name = "CronjobForOcReport"
+        verbose_name_plural = "CronjobForOcReports"
+
+    def __str__(self):
+        return str(self.filename)
+
+    def save(self, *args, **kwargs):
+        
+        if self.pk == None:
+            self.created_date = timezone.now()
+            self.uuid = str(uuid.uuid4())
+        
+        super(CronjobForOcReport, self).save(*args, **kwargs)
+
+
 item_price_json = {
 
     "Principal" : "",

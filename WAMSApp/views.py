@@ -6942,7 +6942,6 @@ class CreateOCReportAPI(APIView):
             
             data = request.data
             logger.info("CreateOCReportAPI: %s", str(data))
-            logger.warning("CreateOCReportAPI1")
 
             if not isinstance(data, dict):
                 data = json.loads(data)
@@ -6952,11 +6951,10 @@ class CreateOCReportAPI(APIView):
                 logger.warning("CreateOCReportAPI Restricted Access!")
                 return Response(data=response)
 
-            if OCReport.objects.filter(is_processed=False).count()>4:
+            if OCReport.objects.filter(is_processed=False).count()>10:
                 response["approved"] = False
                 response['status'] = 200
                 return Response(data=response)
-            logger.warning("CreateOCReportAPI2")
 
             report_type = data["report_type"]
             note = data["note"]
@@ -6964,19 +6962,17 @@ class CreateOCReportAPI(APIView):
             
             from_date = data.get("from_date", "")
             to_date = data.get("to_date", "")
-            logger.warning("CreateOCReportAPI3")
 
             location_group_uuid = data.get("locationGroupUuid","")
             location_group_obj = None
             if location_group_uuid!="":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-            logger.warning("CreateOCReportAPI4")
 
             filename = "files/reports/"+str(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S_"))+report_type+".xlsx"
             oc_user_obj = OmnyCommUser.objects.get(username=request.user.username)
-            logger.warning("CreateOCReportAPI5")
             custom_permission_obj = CustomPermission.objects.get(user=request.user)
             organization_obj = custom_permission_obj.organization
+
             report_information = {
                 "report_type": report_type,
                 "note":"-" if note=="" else note,
@@ -6984,96 +6980,24 @@ class CreateOCReportAPI(APIView):
                 "from_date":from_date[:10] if from_date else "-",
                 "to_date":to_date[:10] if to_date else "-",
                 }
-            logger.warning("CreateOCReportAPI6")
-            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=json.dumps(report_information), filename=filename,location_group=location_group_obj, organization=custom_permission_obj.organization)
-            logger.warning("CreateOCReportAPI7")
+
+            oc_report_obj = OCReport.objects.create(name=report_type, report_title=report_type, created_by=oc_user_obj, note=json.dumps(report_information), filename=filename,location_group=location_group_obj, organization=organization_obj)
             render_value = 'OCReport {} is created'.format(oc_report_obj.name)
             activitylog(user=request.user,table_name=OCReport,action_type='created',location_group_obj=location_group_obj,prev_instance=None,current_instance=oc_report_obj,table_item_pk=oc_report_obj.uuid,render=render_value)
+
             if len(brand_list)==0:
                 brand_objs = custom_permission_filter_brands(request.user)
                 for brand_obj in brand_objs:
                     brand_list.append(brand_obj.name)
-            logger.warning("CreateOCReportAPI8")
-            if report_type.lower()=="mega":
-                p1 = threading.Thread(target=create_mega_bulk_oc_report, args=(filename,oc_report_obj.uuid,brand_list,"",organization_obj,))
-                p1.start()
-            elif report_type.lower()=="flyer":
-                p1 = threading.Thread(target=create_flyer_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
-                p1.start()
-            elif report_type.lower()=="image":
-                p1 = threading.Thread(target=create_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
-                p1.start()
-            elif report_type.lower()=="ecommerce":
-                p1 = threading.Thread(target=create_wigme_report, args=(filename,oc_report_obj.uuid,brand_list,custom_permission_obj,location_group_obj,))
-                p1.start()
-            elif report_type.lower()=="search keyword":
-                p1 = threading.Thread(target=create_search_keyword_report, args=(filename,oc_report_obj.uuid,custom_permission_obj,location_group_obj,))
-                p1.start()
-            elif report_type.lower()=="sales":
-                p1 = threading.Thread(target=create_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
-                p1.start()
-            elif report_type.lower()=="daily_sales_order":
-                p1 = threading.Thread(target=create_daily_sales_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
-                p1.start()
-            elif report_type.lower()=="order":
-                p1 = threading.Thread(target=create_order_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,location_group_obj,))
-                p1.start()
-            elif report_type.lower()=="sap billing":
-                p1 = threading.Thread(target=create_sap_billing_report, args=(filename,oc_report_obj.uuid,from_date, to_date, custom_permission_obj,location_group_obj,))
-                p1.start()
-            elif report_type.lower()=="verified products":
-                p1 = threading.Thread(target=create_verified_products_report, args=(filename,oc_report_obj.uuid,from_date, to_date, brand_list,custom_permission_obj,))
-                p1.start()
-            elif report_type.lower()=="wishlist":
-                p1 = threading.Thread(target=create_wishlist_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,location_group_obj,))
-                p1.start()
-            elif report_type.lower()=="abandoned cart":
-                p1 = threading.Thread(target=create_abandoned_cart_report, args=(filename,oc_report_obj.uuid, brand_list,custom_permission_obj,location_group_obj,))
-                p1.start()
-            elif report_type.lower()=="delivery":
-                shipping_method = data["shipping_method"]
-                oc_report_obj.report_title = oc_report_obj.report_title + " " + shipping_method
-                oc_report_obj.save()
-                if shipping_method.lower()=="sendex":
-                    p1 = threading.Thread(target=create_sendex_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
-                    p1.start()
-                elif shipping_method.lower()=="standard":
-                    p1 = threading.Thread(target=create_standard_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
-                    p1.start()
-                elif shipping_method.lower()=="postaplus":
-                    p1 =  threading.Thread(target=create_postaplus_courier_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
-                    p1.start()
-            elif report_type.lower()=="sales executive":
-                p1 = threading.Thread(target=create_sales_executive_value_report, args=(filename, oc_report_obj.uuid, from_date, to_date, custom_permission_obj,location_group_obj,))
-                p1.start()
-            elif report_type.lower()=="bulk image":
-                p1 = threading.Thread(target=create_bulk_image_report, args=(filename,oc_report_obj.uuid,brand_list,organization_obj,))
-                p1.start()
-            elif report_type.lower()=="stock":
-                p1 = threading.Thread(target=create_stock_report, args=(filename,oc_report_obj.uuid,brand_list,location_group_obj,))
-                p1.start()
-            elif report_type.lower()=="nesto ecommerce product":
-                logger.warning("CreateOCReportAPI9")
-                bulk_download_nesto_ecommerce_report(filename,oc_report_obj.uuid)
-                # p1 = threading.Thread(target=bulk_download_nesto_ecommerce_report, args=(filename,oc_report_obj.uuid,))
-                # p1.start()
-                logger.warning("CreateOCReportAPI10")
-            elif report_type.lower()=="nesto detailed product":
-                logger.warning("CreateOCReportAPI9")
-                p1 = multiprocessing.Process(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
-                # p1 = threading.Thread(target=bulk_download_nesto_detailed_product_report, args=(filename,oc_report_obj.uuid,))
-                p1.start()
-                logger.warning("CreateOCReportAPI10")
-            elif report_type.lower()=="nesto product summary":
-                p1 = threading.Thread(target=nesto_products_summary_report, args=(filename,oc_report_obj.uuid,))
-                p1.start()
-            elif report_type.lower()=="nesto image bucket":
-                p1 = threading.Thread(target=nesto_image_bucket_report, args=(filename,oc_report_obj.uuid,))
-                p1.start()
-            elif report_type.lower()=="newslettersubscribers":
-                p1 = threading.Thread(target=create_newsletter_subscribers_report, args=(filename,oc_report_obj.uuid,location_group_obj,))
-                p1.start()
-            logger.warning("CreateOCReportAPI11")
+
+            # Must to create this instance, that's why not using try except.
+            CronjobForOcReport.objects.create(
+                filename = filename,
+                oc_report = oc_report_obj,
+                oc_user = oc_user_obj,
+                data = json.dumps(data),
+            )
+            
             response["approved"] = True
             response['status'] = 200
         
@@ -7082,7 +7006,8 @@ class CreateOCReportAPI(APIView):
             logger.error("CreateOCReportAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
         return Response(data=response)
-#API with active log
+
+
 class CreateSEOReportAPI(APIView):
 
     def post(self, request, *args, **kwargs):
