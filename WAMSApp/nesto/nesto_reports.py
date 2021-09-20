@@ -69,49 +69,76 @@ def bulk_download_nesto_ecommerce_report(filename, uuid):
             'border': 1})
 
         cnt=0
-            
         colomn = 0
         for k in row:
             worksheet.write(cnt,colomn,k,header_format)
             colomn += 1
-        
+        cnt = 1
         nesto_product_objs = NestoProduct.objects.all()
 
         for nesto_product_obj in nesto_product_objs:
             try:           
-                cnt += 1
         
                 front_images = ""
                 for front_image in nesto_product_obj.front_images.all():
-                    front_images += str(front_image.image.url) + ", " 
+                    try:
+                        front_images += str(front_image.image.url) + ", "
+                    except:
+                        pass 
                 back_images = ""
                 for back_image in nesto_product_obj.back_images.all():
-                    back_images += str(back_image.image.url) + ", " 
+                    try:
+                        back_images += str(back_image.image.url) + ", "
+                    except:
+                        pass 
                 nutrition_images = ""
                 for nutrition_image in nesto_product_obj.nutrition_images.all():
-                    nutrition_images += str(nutrition_image.image.url) + ", " 
+                    try:
+                        nutrition_images += str(nutrition_image.image.url) + ", " 
+                    except:
+                        pass
                 product_content_images = ""
                 for product_content_image in nesto_product_obj.product_content_images.all():
-                    product_content_images += str(product_content_image.image.url) + ", " 
+                    try:
+                        product_content_images += str(product_content_image.image.url) + ", " 
+                    except:
+                        pass
                 side_images = ""
                 for side_image in nesto_product_obj.side_images.all():
-                    side_images += str(side_image.image.url) + ", " 
+                    try:
+                        side_images += str(side_image.image.url) + ", " 
+                    except:
+                        pass
                 supplier_images = ""
                 for supplier_image in nesto_product_obj.supplier_images.all():
-                    supplier_images += str(supplier_image.image.url) + ", " 
+                    try:
+                        supplier_images += str(supplier_image.image.url) + ", " 
+                    except:
+                        pass
                 lifestyle_images = ""
                 for lifestyle_image in nesto_product_obj.lifestyle_images.all():
-                    lifestyle_images += str(lifestyle_image.image.url) + ", " 
+                    try:
+                        lifestyle_images += str(lifestyle_image.image.url) + ", " 
+                    except:
+                        pass
                 ads_images = ""
                 for ads_image in nesto_product_obj.ads_images.all():
-                    ads_images += str(ads_image.image.url) + ", " 
+                    try:
+                        ads_images += str(ads_image.image.url) + ", " 
+                    except:
+                        pass
                 box_images = ""
                 for box_image in nesto_product_obj.box_images.all():
-                    box_images += str(box_image.image.url) + ", " 
+                    try:
+                        box_images += str(box_image.image.url) + ", " 
+                    except:
+                        pass
                 highlight_images = ""
                 for highlight_image in nesto_product_obj.highlight_images.all():
-                    highlight_images += str(highlight_image.image.url) + ", " 
-
+                    try:
+                        highlight_images += str(highlight_image.image.url) + ", " 
+                    except:
+                        pass
                 related_article_nos = ""
                 for substitute_product in nesto_product_obj.substitute_products.all():
                     related_article_nos += str(substitute_product.barcode) + ", "
@@ -172,7 +199,7 @@ def bulk_download_nesto_ecommerce_report(filename, uuid):
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
-
+                cnt += 1
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Error bulk_download_nesto_ecommerce_report %s %s", e, str(exc_tb.tb_lineno))
@@ -243,13 +270,12 @@ def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_obj
         for k in row:
             worksheet.write(cnt, colnum, k)
             colnum += 1
-            
+        cnt = 1
         pp = NestoProduct.objects.all()
         if nesto_product_objs!=None:
             pp = nesto_product_objs
         for p in pp:
             try:
-                cnt += 1
                 print("Cnt=", cnt)
                 common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
@@ -297,6 +323,7 @@ def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_obj
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
+                cnt += 1
             except Exception as e:
                 print("Error", str(e))
 
@@ -417,10 +444,11 @@ def nesto_products_summary_report(filename, uuid):
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error nesto_products_summary_report %s %s", e, str(exc_tb.tb_lineno))
 
+
 def nesto_image_bucket_report(filename, uuid):
 
     try:
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Barcode",
@@ -442,16 +470,16 @@ def nesto_image_bucket_report(filename, uuid):
         for k in row:
             worksheet.write(cnt, colnum, k)
             colnum += 1
-        
+        cnt = 1
+        null_url = "https://cdn.omnycomm.com/%5Bobject%20Object%5D"
         pp = NestoProduct.objects.all().annotate(img_cnt=Count('front_images')).exclude(img_cnt=0)
         for p in pp:
             try:
-                cnt += 1
                 common_row = ["" for i in range(len(row))]
                 #sku = "8042-"+(18-len(p.article_number))*"0" +p.article_number
                 # if p.uom!="":
                 #     sku += "-"+p.uom
-                image_obj = p.front_images.all()[0]
+                image_objs = p.front_images.all()
                 common_row[0] = str(p.barcode)
                 common_row[1] = str("")
                 common_row[2] = str("Default")
@@ -468,21 +496,46 @@ def nesto_image_bucket_report(filename, uuid):
                 common_row[12] = str("Image")
 
                 try:
-                    common_row[5] = str(image_obj.image.url)
-                    common_row[11] = str(image_obj.mid_image.url)
-                    common_row[9] = str(image_obj.thumbnail.url)
-                    # keeping small_images at the end, as we got many error like:-
-                    # Error nesto_image_bucket_report The 'small_image' attribute has no file associated with it
-                    common_row[7] = str(image_obj.small_image.url)
+                    for image_obj in image_objs:
+                        if str(image_obj.image.url) !=null_url:
+                            common_row[5] = str(image_obj.image.url)
+                            break
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
-                    logger.error("Error nesto_image_bucket_report %s %s", e, str(exc_tb.tb_lineno))
+                    print("Error nesto_image_bucket_report  image_obj.image.url %s %s", e, str(exc_tb.tb_lineno))
+
+                try:
+                    for image_obj in image_objs:
+                        if str(image_obj.small_image.url) !=null_url:
+                            common_row[7] = str(image_obj.small_image.url)
+                            break            
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    print("Error nesto_image_bucket_report image_obj.small_image.url  %s %s", e, str(exc_tb.tb_lineno))
+
+                try:
+                    for image_obj in image_objs:
+                        if str(image_obj.thumbnail.url) !=null_url:
+                            common_row[9] = str(image_obj.thumbnail.url)
+                            break
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    print("Error nesto_image_bucket_report image_obj.thumbnail.url %s %s", e, str(exc_tb.tb_lineno))
+
+                try:
+                    for image_obj in image_objs:
+                        if str(image_obj.mid_image.url) !=null_url:
+                            common_row[11] = str(image_obj.mid_image.url)
+                            break
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    print("Error nesto_image_bucket_report image_obj.mid_image.url  %s %s", e, str(exc_tb.tb_lineno))
                 
                 colnum = 0
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
-
+                cnt += 1
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Error nesto_image_bucket_report %s %s", e, str(exc_tb.tb_lineno))

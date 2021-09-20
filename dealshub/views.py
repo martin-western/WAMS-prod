@@ -814,7 +814,7 @@ class FetchHeadingSuperCategoriesAPI(APIView):
                 try:
                     super_category_obj = SuperCategory.objects.filter(name=super_category_name).first()
                     temp_dict = {}
-                    temp_dict["name"] = super_category_obj.get_name(language_code)
+                    temp_dict["name"] = (super_category_obj.get_name(language_code)).upper()
                     temp_dict["uuid"] = super_category_obj.uuid
                     temp_dict["imageUrl"] = ""
                     if super_category_obj.image!=None:
@@ -825,7 +825,7 @@ class FetchHeadingSuperCategoriesAPI(APIView):
                         sub_category_objs = SubCategory.objects.filter(category=category_obj)
                         for sub_category_obj in sub_category_objs:
                             temp_dict2 = {}
-                            temp_dict2["name"] = sub_category_obj.get_name(language_code)
+                            temp_dict2["name"] = (sub_category_obj.get_name(language_code)).upper()
                             temp_dict2["uuid"] = sub_category_obj.uuid
                             sub_category_list.append(temp_dict2)
                     temp_dict["subCategoryList"] = sub_category_list
@@ -867,7 +867,7 @@ class FetchHeadingCategoriesAPI(APIView):
             category_list = []
             for category_obj in category_objs:
                 temp_dict = {}
-                temp_dict["name"] = category_obj.get_name(language_code)
+                temp_dict["name"] = (category_obj.get_name(language_code)).upper()
                 temp_dict["uuid"] = category_obj.uuid
                 temp_dict["imageUrl"] = ""
                 if category_obj.image!=None:
@@ -876,7 +876,7 @@ class FetchHeadingCategoriesAPI(APIView):
                 sub_category_objs = SubCategory.objects.filter(category=category_obj)
                 for sub_category_obj in sub_category_objs:
                     temp_dict2 = {}
-                    temp_dict2["name"] = sub_category_obj.get_name(language_code)
+                    temp_dict2["name"] = (sub_category_obj.get_name(language_code)).upper()
                     temp_dict2["uuid"] = sub_category_obj.uuid
                     sub_category_list.append(temp_dict2)
                 temp_dict["subCategoryList"] = sub_category_list
@@ -916,7 +916,7 @@ class FetchCategoriesForNewUserAPI(APIView):
             category_list = []
             for category_obj in category_objs:
                 temp_dict = {}
-                temp_dict["name"] = category_obj.get_name()
+                temp_dict["name"] = (category_obj.get_name()).upper()
                 temp_dict["uuid"] = category_obj.uuid
                 category_list.append(temp_dict)
 
