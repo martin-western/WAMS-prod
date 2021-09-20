@@ -1964,7 +1964,7 @@ data = {
     "locationGroupUuid" : "",
 }
 
-class CronjobForOcReport:
+class CronjobForOcReport(models.Model):
 
     uuid = models.CharField(max_length=200, default="")
     filename = models.CharField(max_length=300, default="")
