@@ -325,7 +325,7 @@ def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_obj
                     colnum += 1
                 cnt += 1
             except Exception as e:
-                print("Error", str(e))
+                print("Error bulk_download_nesto_detailed_product_report", str(e))
 
         workbook.close()
 
@@ -500,36 +500,32 @@ def nesto_image_bucket_report(filename, uuid):
                         if str(image_obj.image.url) !=null_url:
                             common_row[5] = str(image_obj.image.url)
                             break
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    print("Error nesto_image_bucket_report  image_obj.image.url %s %s", e, str(exc_tb.tb_lineno))
+                except:
+                    pass
 
                 try:
                     for image_obj in image_objs:
                         if str(image_obj.small_image.url) !=null_url:
                             common_row[7] = str(image_obj.small_image.url)
                             break            
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    print("Error nesto_image_bucket_report image_obj.small_image.url  %s %s", e, str(exc_tb.tb_lineno))
+                except:
+                    pass
 
                 try:
                     for image_obj in image_objs:
                         if str(image_obj.thumbnail.url) !=null_url:
                             common_row[9] = str(image_obj.thumbnail.url)
                             break
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    print("Error nesto_image_bucket_report image_obj.thumbnail.url %s %s", e, str(exc_tb.tb_lineno))
+                except:
+                    pass
 
                 try:
                     for image_obj in image_objs:
                         if str(image_obj.mid_image.url) !=null_url:
                             common_row[11] = str(image_obj.mid_image.url)
                             break
-                except Exception as e:
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    print("Error nesto_image_bucket_report image_obj.mid_image.url  %s %s", e, str(exc_tb.tb_lineno))
+                except:
+                    pass
                 
                 colnum = 0
                 for k in common_row:

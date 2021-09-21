@@ -786,11 +786,10 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj,locati
         location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
 
     dh_product_objs = DealsHubProduct.objects.filter(product__base_product__brand__name__in=brand_list, location_group__in=location_group_objs)
-
+    cnt = 1
     for dh_product_obj in dh_product_objs:
         try:
             product_obj = dh_product_obj.product
-            cnt += 1
             common_row = ["" for i in range(11)]
             common_row[0] = str(cnt)
             common_row[1] = str(product_obj.product_id)
@@ -808,6 +807,7 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj,locati
             for k in common_row:
                 worksheet.write(cnt, colnum, k)
                 colnum += 1
+            cnt += 1
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -839,7 +839,7 @@ def create_search_keyword_report(filename, uuid, custom_permission_obj,location_
     for k in row:
         worksheet.write(cnt, colnum, k)
         colnum += 1
-
+    cnt = 1
     location_group_objs = custom_permission_obj.location_groups.all()
     if location_group_obj!=None:
         location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
@@ -848,7 +848,7 @@ def create_search_keyword_report(filename, uuid, custom_permission_obj,location_
 
     for search_keyword_obj in search_keyword_objs:
         try:
-            cnt += 1
+
             common_row = ["" for i in range(4)]
             common_row[0] = str(cnt)
             common_row[1] = str(search_keyword_obj.created_date)
@@ -859,6 +859,7 @@ def create_search_keyword_report(filename, uuid, custom_permission_obj,location_
             for k in common_row:
                 worksheet.write(cnt, colnum, k)
                 colnum += 1
+            cnt += 1
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -893,7 +894,7 @@ def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_p
     for k in row:
         worksheet.write(cnt, colnum, k)
         colnum += 1
-
+    cnt = 1
     location_group_objs = custom_permission_obj.location_groups.all()
     if location_group_obj!=None:
         location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
@@ -927,7 +928,6 @@ def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_p
                 total_count += unit_order_obj.quantity
                 revenue += unit_order_obj.get_subtotal()
 
-            cnt += 1
             common_row = ["" for i in range(8)]
             common_row[0] = str(cnt)
             common_row[1] = str(dh_product_obj.get_seller_sku())
@@ -942,6 +942,7 @@ def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_p
             for k in common_row:
                 worksheet.write(cnt, colnum, k)
                 colnum += 1
+            cnt += 1
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Error create_sales_report %s %s", e, str(exc_tb.tb_lineno))
@@ -1000,7 +1001,7 @@ def create_order_report(filename, uuid, from_date, to_date, brand_list, custom_p
         for k in row:
             worksheet.write(cnt, colnum, k)
             colnum += 1
-
+        cnt = 1
         location_group_objs = custom_permission_obj.location_groups.all()
         if location_group_obj!=None:
             location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
@@ -1037,7 +1038,7 @@ def create_order_report(filename, uuid, from_date, to_date, brand_list, custom_p
 
                     tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
 
-                    cnt += 1
+                    
 
                     dealshub_product_obj = unit_order_obj.product
 
@@ -1079,6 +1080,7 @@ def create_order_report(filename, uuid, from_date, to_date, brand_list, custom_p
                     for k in common_row:
                         worksheet.write(cnt, colnum, k)
                         colnum += 1
+                    cnt += 1
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1132,7 +1134,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
         for k in row:
             worksheet.write(cnt, colnum, k)
             colnum += 1
-
+        cnt = 1
         location_group_objs = custom_permission_obj.location_groups.all()
         if location_group_obj!=None:
             location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
@@ -1150,7 +1152,6 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
             try:
                 unit_order_obj = UnitOrder.objects.filter(order=order_obj).filter(product__product__base_product__brand__name__in=brand_list)[0]           
                 tracking_status_time = str(timezone.localtime(UnitOrderStatus.objects.filter(unit_order=unit_order_obj).last().date_created).strftime("%d %b, %Y %I:%M %p"))
-                cnt += 1
 
                 common_row[0] = str(cnt)
                 common_row[1] = str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p"))
@@ -1175,7 +1176,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[18] = order_obj.sap_status
                 common_row[19] = order_obj.reference_medium
                 common_row[20] = order_obj.additional_note
-                
+                cnt += 1
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("create_daily_sales_report: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1283,7 +1284,7 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj, lo
         for k in row:
             worksheet.write(cnt, colnum, k)
             colnum += 1
-
+        cnt = 1
         location_group_objs = custom_permission_obj.location_groups.all()
         if location_group_obj!=None:
             location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
@@ -1295,7 +1296,7 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj, lo
                 for location_group_obj in location_group_objs:
                     if UnitWishList.objects.filter(wish_list__owner=dealshub_user_obj, wish_list__location_group=location_group_obj).exists()==False:
                         continue
-                    cnt += 1
+
                     customer_name = (dealshub_user_obj.first_name + " " + dealshub_user_obj.last_name).strip()
                     contact_number = dealshub_user_obj.contact_number
                     product_list = []
@@ -1313,6 +1314,7 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj, lo
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
+                cnt += 1
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Error create_wishlist_report %s %s", e, str(exc_tb.tb_lineno))
@@ -1347,7 +1349,7 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
         for k in row:
             worksheet.write(cnt, colnum, k)
             colnum += 1
-
+        cnt = 1
         location_group_objs = custom_permission_obj.location_groups.all()
         if location_group_obj!=None:
             location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
@@ -1359,7 +1361,7 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
                 for location_group_obj in location_group_objs:
                     if FastCart.objects.filter(owner=dealshub_user_obj, location_group=location_group_obj).exclude(product=None).exists()==False and UnitCart.objects.filter(cart__owner=dealshub_user_obj, cart__location_group=location_group_obj).exists()==False:
                         continue
-                    cnt += 1
+                    
                     customer_name = (dealshub_user_obj.first_name).strip()
                     contact_number = dealshub_user_obj.contact_number
                     product_list = []
@@ -1381,6 +1383,7 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
+                cnt += 1
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Error create_abandoned_cart_report %s %s", e, str(exc_tb.tb_lineno))
@@ -1436,7 +1439,7 @@ def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permiss
         for k in row:
             worksheet.write(cnt,colnum,k,header_format)
             colnum += 1
-        
+        cnt = 1
         location_group_objs = custom_permission_obj.location_groups.all()
         if location_group_obj!=None:
             location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
@@ -1455,8 +1458,6 @@ def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permiss
                 customer_name = address_obj.first_name
                 
                 for unit_order_obj in unit_order_objs.filter(order=order_obj):
-
-                    cnt += 1
 
                     dealshub_product_obj = unit_order_obj.product
                     common_row = ["" for i in range(len(row))]
@@ -1485,6 +1486,7 @@ def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permiss
                     for k in common_row:
                         worksheet.write(cnt, colnum, k)
                         colnum += 1
+                    cnt += 1
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1534,7 +1536,7 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
         for k in row:
             worksheet.write(cnt,colomn,k,header_format)
             colomn += 1
-        
+        cnt = 1
         location_group_objs = custom_permission_obj.location_groups.all()
         if location_group_obj!=None:
             location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
@@ -1569,8 +1571,6 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
                 address_lines_list = list(filter(None, address_lines_list))
                 address_lines_combined = "\n".join(address_lines_list)
 
-                cnt += 1
-
                 common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
                 common_row[1] = order_obj.bundleid
@@ -1588,6 +1588,7 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
+                cnt += 1
                 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -2055,12 +2056,11 @@ def bulk_download_categories_seo_details_report(filename, uuid, location_group_o
             generic_category_objs = SEOCategory.objects.filter(location_group=location_group_obj)
         elif category_type=="super":
             generic_category_objs = SEOSuperCategory.objects.filter(location_group=location_group_obj)
-        
+        cnt += 1
         if generic_category_objs is not None:
             for generic_category_obj in generic_category_objs:
                 try:
-                    cnt += 1
-
+                   
                     generic_category_name = ""
                     if category_type=="sub":
                         generic_category_name = generic_category_obj.sub_category.get_name()
@@ -2084,7 +2084,7 @@ def bulk_download_categories_seo_details_report(filename, uuid, location_group_o
                     for k in common_row:
                         worksheet.write(cnt, colnum, k)
                         colnum += 1
-
+                    cnt += 1
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("Error bulk_download_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
@@ -2136,7 +2136,7 @@ def bulk_download_brand_categories_seo_details_report(filename, uuid, location_g
         for k in row:
             worksheet.write(cnt,colomn,k,header_format)
             colomn += 1
-
+        cnt += 1
         generic_category_brand_objs = None
         if category_type=="sub":
             generic_category_brand_objs = BrandSubCategory.objects.filter(location_group=location_group_obj, brand__organization__name="WIG")
@@ -2148,7 +2148,7 @@ def bulk_download_brand_categories_seo_details_report(filename, uuid, location_g
         if generic_category_brand_objs is not None:
             for generic_category_brand_obj in generic_category_brand_objs:
                 try:
-                    cnt += 1
+
                     generic_category_name =""
                     if category_type=="sub":
                         generic_category_name = generic_category_brand_obj.sub_category.get_name()
@@ -2173,7 +2173,7 @@ def bulk_download_brand_categories_seo_details_report(filename, uuid, location_g
                     for k in common_row:
                         worksheet.write(cnt, colnum, k)
                         colnum += 1
-
+                    cnt += 1
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("Error bulk_download_brand_categories_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
@@ -2223,12 +2223,12 @@ def bulk_download_brand_seo_details_report(filename, uuid, location_group_obj):
         for k in row:
             worksheet.write(cnt,colomn,k,header_format)
             colomn += 1
-
+        cnt += 1
         seo_brand_objs = SEOBrand.objects.filter(location_group=location_group_obj, brand__organization__name="WIG")
 
         for seo_brand_obj in seo_brand_objs:
             try:
-                cnt +=1
+
                 common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt-1)
                 common_row[1] = str(seo_brand_obj.uuid)
@@ -2244,7 +2244,7 @@ def bulk_download_brand_seo_details_report(filename, uuid, location_group_obj):
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
-
+                cnt += 1
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Error bulk_download_brand_seo_details_report %s %s", e, str(exc_tb.tb_lineno))
@@ -2542,11 +2542,10 @@ def create_bulk_image_report(filename, uuid, brand_list, organization_obj=None):
         for k in row:
             worksheet.write(cnt, colnum, k)
             colnum += 1
-
+        cnt += 1
         for product in product_objs:
             try:
                 common_row = ["" for i in range(len(row))]
-                cnt += 1
                 common_row[0] = str(cnt)
                 
                 try:
@@ -2646,6 +2645,7 @@ def create_bulk_image_report(filename, uuid, brand_list, organization_obj=None):
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
+                cnt += 1
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Error create_bulk_image_report %s %s", e, str(exc_tb.tb_lineno))
@@ -2690,12 +2690,11 @@ def create_stock_report(filename, uuid, brand_list, location_group_obj):
         for k in row:
             worksheet.write(cnt,colomn,k,header_format)
             colomn += 1
-
+        cnt += 1
         dh_product_objs = DealsHubProduct.objects.filter(product__base_product__brand__name__in=brand_list, location_group=location_group_obj)
 
         for dh_product_obj in dh_product_objs:
             try:
-                cnt += 1
 
                 common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
@@ -2709,7 +2708,7 @@ def create_stock_report(filename, uuid, brand_list, location_group_obj):
                 for k in common_row:
                     worksheet.write(cnt, colnum, k)
                     colnum += 1
-
+                cnt += 1
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("Error create_stock_report %s %s", e, str(exc_tb.tb_lineno))
@@ -2745,7 +2744,7 @@ def create_newsletter_subscribers_report(filename, uuid, location_group_obj):
 
         location_group_obj = LocationGroup.objects.get(uuid=location_group_obj.uuid)
         blog_emails = json.loads(location_group_obj.blog_emails)
-
+        cnt += 1
         for blog_email in blog_emails:
             try:
                 common_row = ["" for i in range(len(row))]
