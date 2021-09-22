@@ -1304,7 +1304,7 @@ class Order(models.Model):
                     order_cnt = Order.objects.filter(location_group=self.location_group).count()+1
                 except Exception as e:
                     pass
-                self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+                self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:3]
         super(Order, self).save(*args, **kwargs)
 
     def get_date_created(self):
