@@ -58,7 +58,6 @@ import boto3
 import urllib.request, urllib.error, urllib.parse
 import pandas as pd
 import threading
-import multiprocessing
 logger = logging.getLogger(__name__)
 
 #@login_required(login_url='/login/')
@@ -6951,7 +6950,7 @@ class CreateOCReportAPI(APIView):
                 logger.warning("CreateOCReportAPI Restricted Access!")
                 return Response(data=response)
 
-            if OCReport.objects.filter(is_processed=False).count()>10:
+            if OCReport.objects.filter(is_processed=False).count()>20:
                 response["approved"] = False
                 response['status'] = 200
                 return Response(data=response)
