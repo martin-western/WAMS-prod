@@ -62,7 +62,7 @@ class RequestHyperpayCheckoutAPI(APIView):
 
             order_prefix = json.loads(location_group_obj.website_group.conf)["order_prefix"]
             order_cnt = Order.objects.filter(location_group=location_group_obj).count()+1
-            merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+            merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:3]
 
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)

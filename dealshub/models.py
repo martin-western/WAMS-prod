@@ -1106,7 +1106,7 @@ class OrderRequest(models.Model):
                     order_req_cnt = OrderRequest.objects.filter(location_group=self.location_group).count()+1
                 except Exception as e:
                     pass
-                self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+                self.bundleid = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:3]
 
         if self.billing_address != None:
             self.billing_address.is_billing = True

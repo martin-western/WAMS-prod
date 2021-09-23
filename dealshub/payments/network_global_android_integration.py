@@ -60,7 +60,7 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
 
             order_prefix = json.loads(location_group_obj.website_group.conf)["order_prefix"]
             order_cnt = Order.objects.filter(location_group=location_group_obj).count()+1
-            merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+            merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:3]
 
             if is_fast_cart==False:
                 cart_obj = Cart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
@@ -189,7 +189,7 @@ class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
 
             order_prefix = json.loads(location_group_obj.website_group.conf)["order_prefix"]
             order_cnt = Order.objects.filter(location_group=location_group_obj).count()+1
-            # merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:5]
+            # merchant_reference = order_prefix + "-"+str(order_cnt)+"-"+str(uuid.uuid4())[:3]
             # while retriving order status n_genious only support order_reference. I tried to get state using merchantOrderReference but got error as:-
             # state:- {'message': 'Not Found', 'code': 404, 'errors': [{'message': 'Entity not found', 'localizedMessage': '{error.processing.invalidOrderReference}', 'errorCode': 'invalidOrderReference', 'domain': 'processing'}]}
             # Hence saving order_reference in above merchant_reference
