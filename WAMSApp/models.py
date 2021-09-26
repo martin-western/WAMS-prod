@@ -2340,7 +2340,27 @@ class APIRecordSAP(models.Model):
             self.time_responded = timezone.now()
         super(APIRecordSAP, self).save(*args, **kwargs)
 
-    
-    
+
+class ThirdPartyAPIRecord(APIRecordSAP):
+    '''
+    A record for each third party API call made
+    '''
+    def __str__(self):
+        name = f"{self.caller} response"
+        return f"{name} received" if self.is_response_received else f"{name} not received"
+
+    def set_received_response(self, response_body):
+        self.response_body = response_body
+        self.is_response_received = True
+        self.time_responded = timezone.now()
+        super(ThirdPartyAPIRecord, self).save()
+
+    def save(self, *args, **kwargs):
+        if self.pk == None:
+            self.time_requested = timezone.now()
+            self.time_responded = timezone.now()
+        else:
+            self.time_responded = timezone.now()
+        super(ThirdPartyAPIRecord, self).save(*args, **kwargs)
 
     
