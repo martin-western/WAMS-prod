@@ -171,17 +171,6 @@ class FetchProductDetailsAPI(APIView):
             if cached_url_list!="has_expired":
                 image_list = json.loads(cached_url_list)
             else:
-                lifestyle_image_objs = product_obj.lifestyle_images.all()
-                for lifestyle_image_obj in lifestyle_image_objs:
-                    try:
-                        temp_image = {}
-                        temp_image["high-res"] = lifestyle_image_obj.image.url
-                        temp_image["original"] = lifestyle_image_obj.mid_image.url
-                        temp_image["thumbnail"] = lifestyle_image_obj.thumbnail.url
-                        image_list.append(temp_image)
-                    except Exception as e:
-                        pass
-
                 main_images_list = ImageBucket.objects.none()
                 main_images_objs = MainImages.objects.filter(product=product_obj, is_sourced=True)
                 for main_images_obj in main_images_objs:
@@ -194,6 +183,17 @@ class FetchProductDetailsAPI(APIView):
                         temp_image["high-res"] = main_image["main_url"]
                         temp_image["original"] = main_image["midimage_url"]
                         temp_image["thumbnail"] = main_image["thumbnail_url"]
+                        image_list.append(temp_image)
+                    except Exception as e:
+                        pass
+
+                lifestyle_image_objs = product_obj.lifestyle_images.all()
+                for lifestyle_image_obj in lifestyle_image_objs:
+                    try:
+                        temp_image = {}
+                        temp_image["high-res"] = lifestyle_image_obj.image.url
+                        temp_image["original"] = lifestyle_image_obj.mid_image.url
+                        temp_image["thumbnail"] = lifestyle_image_obj.thumbnail.url
                         image_list.append(temp_image)
                     except Exception as e:
                         pass
