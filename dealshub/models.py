@@ -1436,7 +1436,11 @@ class Order(models.Model):
                 "sendex": {
                     "cod": CUSTOMER_ID_FINAL_BILLING_SENDEX_COD_B2B,
                     "paid": CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE_B2B
-                }
+                },
+                "emirates post": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_EMIRATES_POST_COD_B2B,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_EMIRATES_POST_ONLINE_B2B
+                },
             },
             "is_not_b2b": {
                 "wig fleet": {
@@ -1450,6 +1454,10 @@ class Order(models.Model):
                 "sendex": {
                     "cod": CUSTOMER_ID_FINAL_BILLING_SENDEX_COD,
                     "paid": CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE
+                },
+                "emirates post": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_EMIRATES_POST_COD,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_EMIRATES_POST_ONLINE
                 }
             }
         }
