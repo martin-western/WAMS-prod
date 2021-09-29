@@ -718,7 +718,7 @@ def send_order_confirmation_mail(order_obj):
                 "support_contact_number":support_contact_number
             }
         )
-
+        logger.info("html_message: %s" , html_message)
         location_group_obj = order_obj.location_group
 
         with get_connection(
@@ -730,15 +730,14 @@ def send_order_confirmation_mail(order_obj):
 
             email = EmailMultiAlternatives(
                         subject='Order Confirmation', 
-                        body=html_message, 
+                        body='Order Confirmation', 
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[order_obj.owner.email],
                         cc=location_group_obj.get_order_cc_email_list(),
                         bcc=location_group_obj.get_order_bcc_email_list(),
                         connection=connection
                     )
-            # email.attach_alternative(html_message, "text/html")
-            email.content_subtype = 'html'
+            email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
             logger.info("send_order_confirmation_mail ended")
 
