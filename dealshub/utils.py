@@ -773,7 +773,7 @@ def send_order_dispatch_mail(unit_order_obj):
             "currency": unit_order_obj.product.get_currency()
         }
         custom_unit_order_list.append(temp_dict)
-
+        order_placed_date = unit_order_obj.order.get_date_created()
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-dispatch.html',
             {
@@ -845,6 +845,7 @@ def send_order_delivered_mail(unit_order_obj):
             "currency": unit_order_obj.product.get_currency()
         }
         custom_unit_order_list.append(temp_dict)
+        order_placed_date = unit_order_obj.order.get_date_created()
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivered.html',
             {
@@ -915,6 +916,7 @@ def send_order_delivery_failed_mail(unit_order_obj):
             "currency": unit_order_obj.product.get_currency()
         }
         custom_unit_order_list.append(temp_dict)
+        order_placed_date = unit_order_obj.order.get_date_created()
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivered.html',
             {
@@ -985,6 +987,7 @@ def send_order_cancelled_mail(unit_order_obj):
             "currency": unit_order_obj.product.get_currency()
         }
         custom_unit_order_list.append(temp_dict)
+        order_placed_date = unit_order_obj.order.get_date_created()
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivered.html',
             {
