@@ -738,7 +738,7 @@ def send_order_confirmation_mail(order_obj):
                         connection=connection
                     )
             # email.attach_alternative(html_message, "text/html")
-            msg.content_subtype = 'html'
+            email.content_subtype = 'html'
             email.send(fail_silently=False)
             logger.info("send_order_confirmation_mail ended")
 
