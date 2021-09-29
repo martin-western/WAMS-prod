@@ -76,12 +76,16 @@ def get_auth_token():
         }
         spotii_url = SPOTII_AUTH_IP+"/api/v1.0/merchant/authentication/"
         resp = requests.post(url=spotii_url,data=json.dumps(auth_key_info),headers=headers, timeout=10)
-        ThirdPartyAPIRecord.objects.create(url=spotii_url,
-                                        caller="Spotii get_auth_token",
-                                        request_body=json.dumps(auth_key_info),
-                                        response_body=resp.json(),
-                                        is_response_received=True
-                                    )
+        try:
+            ThirdPartyAPIRecord.objects.create(url=spotii_url,
+                                            caller="Spotii get_auth_token",
+                                            request_body=json.dumps(auth_key_info),
+                                            response_body=resp.json(),
+                                            is_response_received=True
+                                        )
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ThirdPartyAPIRecord in Spotii get_auth_token: %s at %s", e, str(exc_tb.tb_lineno))
         token = resp.json()["token"]
         return token
     except Exception as e:
@@ -165,12 +169,16 @@ def process_order_checkout(generic_cart_obj, is_fast_cart, reference):
 
         spotii_url = SPOTII_IP+"/api/v1.0/checkouts/"
         resp = requests.post(url=spotii_url, data=json.dumps(order_info), headers=headers, timeout=10)
-        ThirdPartyAPIRecord.objects.create(url=spotii_url,
-                                        caller="Spotii process_order_checkout",
-                                        request_body=json.dumps(order_info),
-                                        response_body=resp.json(),
-                                        is_response_received=True
-                                    )
+        try:
+            ThirdPartyAPIRecord.objects.create(url=spotii_url,
+                                            caller="Spotii process_order_checkout",
+                                            request_body=json.dumps(order_info),
+                                            response_body=resp.json(),
+                                            is_response_received=True
+                                        )
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ThirdPartyAPIRecord in Spotii process_order_checkout: %s at %s", e, str(exc_tb.tb_lineno))
         resp = resp.json()
 
         logger.info(resp)
@@ -196,12 +204,16 @@ def on_approve_capture_order(order_reference):
         }
         spotii_url = SPOTII_IP+"/api/v1.0/orders/"+order_reference+"/capture/"
         resp = requests.post(url=spotii_url, data={}, headers=headers, timeout=10)
-        ThirdPartyAPIRecord.objects.create(url=spotii_url,
-                                        caller="Spotii on_approve_capture_order",
-                                        request_body=json.dumps({}),
-                                        response_body=resp.json(),
-                                        is_response_received=True
-                                    )
+        try:
+            ThirdPartyAPIRecord.objects.create(url=spotii_url,
+                                            caller="Spotii on_approve_capture_order",
+                                            request_body=json.dumps({}),
+                                            response_body=resp.json(),
+                                            is_response_received=True
+                                        )
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ThirdPartyAPIRecord in Spotii on_approve_capture_order: %s at %s", e, str(exc_tb.tb_lineno))
         resp = resp.json()
         if resp["status"]=="SUCCESS":
             logger.info("Spotii ref id : ",resp["order_id"])

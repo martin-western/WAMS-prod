@@ -1575,8 +1575,12 @@ class UnitOrder(models.Model):
 
     def get_sap_final_order_qty(self):
         try:
-            final_billing_info = json.loads(self.order_information)["final_billing_info"]
-            qty = float(final_billing_info["qty"])
+            final_billing_info_list = json.loads(self.order_information)["final_billing_info"]
+            qty = 0
+            for final_billing_info in final_billing_info_list:
+                qty += final_billing_info["qty"]
+
+            qty = float(qty)
             return qty
         except Exception as e:
             return ""
