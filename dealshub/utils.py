@@ -4,8 +4,7 @@ from WAMSApp.sap.utils_SAP_Integration import *
 
 import datetime
 from django.utils import timezone
-from email.mime.text import MIMEText
-import smtplib
+
 import hashlib
 import random
 import sys
@@ -719,7 +718,6 @@ def send_order_confirmation_mail(order_obj):
                 "support_contact_number":support_contact_number
             }
         )
-        msg = MIMEText(html_message, 'html')
         logger.info("html_message: %s" , html_message)
         location_group_obj = order_obj.location_group
 
@@ -732,15 +730,20 @@ def send_order_confirmation_mail(order_obj):
 
             email = EmailMultiAlternatives(
                         subject='Order Confirmation', 
-                        body=msg, 
+                        body='Order Confirmation', 
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[order_obj.owner.email],
                         cc=location_group_obj.get_order_cc_email_list(),
                         bcc=location_group_obj.get_order_bcc_email_list(),
-                        connection=connection
+                        connection=connection,
+                        html_message = html_message
                     )
-            # email.attach_alternative(html_message, "text/html")
-            email.send(fail_silently=False)
+            email.attach_alternative(html_message, "text/html")
+            email.send_mail(subject='Order Confirmation', 
+                        body='Order Confirmation', 
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[order_obj.owner.email],
+                         html_message=html_message)
             logger.info("send_order_confirmation_mail ended")
 
     except Exception as e:
