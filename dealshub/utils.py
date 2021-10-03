@@ -730,7 +730,7 @@ def send_order_confirmation_mail(order_obj):
 
             email = EmailMultiAlternatives(
                         subject='Order Confirmation', 
-                        body='Order Confirmation', 
+                        body=html_message, 
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[order_obj.owner.email],
                         cc=location_group_obj.get_order_cc_email_list(),
@@ -744,6 +744,7 @@ def send_order_confirmation_mail(order_obj):
                 location_group_obj.get_order_from_email_id(),
                 [order_obj.owner.email],
                 html_message=html_message)
+            email.send()
             logger.info("send_order_confirmation_mail ended")
 
     except Exception as e:
