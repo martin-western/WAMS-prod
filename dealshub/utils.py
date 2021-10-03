@@ -736,7 +736,6 @@ def send_order_confirmation_mail(order_obj):
                         cc=location_group_obj.get_order_cc_email_list(),
                         bcc=location_group_obj.get_order_bcc_email_list(),
                         connection=connection,
-                        html_message = html_message
                     )
             email.attach_alternative(html_message, "text/html")
             email.send_mail(subject='Order Confirmation', 
