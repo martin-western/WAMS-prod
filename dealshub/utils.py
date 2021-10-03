@@ -719,7 +719,6 @@ def send_order_confirmation_mail(order_obj):
                 "support_contact_number":support_contact_number
             }
         )
-        html = open("WeeklyReport.html")
         msg = MIMEText(html_message, 'html')
         logger.info("html_message: %s" , html_message)
         location_group_obj = order_obj.location_group
