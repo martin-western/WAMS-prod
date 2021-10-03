@@ -1051,16 +1051,14 @@ def notify_order_cancel_status_to_user(unit_order_obj, status):
             {
                 "website_logo": website_logo,
                 "customer_name": customer_name,
-                "order_id": unit_order_obj.orderid,
-                "product_name": unit_order_obj.product.get_name(),
-                "productImageUrl": unit_order_obj.product.get_display_image_url(),
-                "quantity": unit_order_obj.quantity,
-                "status": status,
+                "custom_unit_order_list":  custom_unit_order_list,
+                "order_placed_date": order_placed_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
                 "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
-                "support_email": support_email,
-                "support_contact_number": support_contact_number
+                "email_content": email_content,
+                "support_email":support_email,
+                "support_contact_number":support_contact_number
             }
         )
 
