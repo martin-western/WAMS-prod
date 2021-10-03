@@ -743,7 +743,7 @@ def send_order_confirmation_mail(order_obj):
                         body='Order Confirmation', 
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[order_obj.owner.email],
-                         html_message=html_message)
+                        html_message=html_message)
             logger.info("send_order_confirmation_mail ended")
 
     except Exception as e:
