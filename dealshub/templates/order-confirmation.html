@@ -51,12 +51,10 @@
       {% for custom_unit_order in custom_unit_order_list %}
       <tr class="item" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; width: 100%; gap: 20px; justify-content: center;">
         <td class="item--image" style="padding: 0; margin: 0; box-sizing: border-box;">
-          <img src="{{custom_unit_order.productImageUrl}}" style="height: 75%; width:75%;box-sizing: border-box;">
+          <img src="{{custom_unit_order.productImageUrl}}" style="height: 85%; width:85%;box-sizing: border-box;">
         </td>
-        <td class="item-details" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; height: 100px; align-items: flex-start; justify-content: center; flex-direction: column; gap: 10px;">
-          <div class="item-details-name" style="padding: 0; margin: 0; box-sizing: border-box; font-family: Roboto; font-style: normal; font-weight: normal; font-size: 1.4rem; line-height: 2.4rem; color: var(--black);">
+        <td class="item-details" style="padding: 0; margin: 0; gap: 10px;">
             {{custom_unit_order.product_name}}
-          </div>
           <div class="item-details-quantity" style="padding: 0; margin: 0; box-sizing: border-box; font-family: Roboto; font-weight: normal; font-size: 1.4rem; line-height: 2.4rem;">Quantity: <span style="padding: 0; margin: 0; box-sizing: border-box; color: var(--red);">{{custom_unit_order.quantity}}</span></div>
         </td>
       </tr>
