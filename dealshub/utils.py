@@ -728,16 +728,13 @@ def send_order_confirmation_mail(order_obj):
             password=location_group_obj.get_order_from_email_password(),
             use_tls=True) as connection:
 
-            email = EmailMultiAlternatives(
-                        subject='Order Confirmation', 
-                        body=html_message, 
-                        from_email=location_group_obj.get_order_from_email_id(),
-                        to=[order_obj.owner.email],
-                        cc=location_group_obj.get_order_cc_email_list(),
-                        bcc=location_group_obj.get_order_bcc_email_list(),
-                        connection=connection,
+            email = EmailMessage(
+                        'Order Confirmation', 
+                        html_message, 
+                        location_group_obj.get_order_from_email_id(),
+                        [order_obj.owner.email],
                     )
-            email.attach_alternative(html_message, "text/html")
+            email.content_subtype = "html"
             mail.send_mail(
                 'Order Confirmation',
                 'Order Confirmation',
