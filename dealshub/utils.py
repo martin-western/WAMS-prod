@@ -739,7 +739,6 @@ def send_order_confirmation_mail(order_obj):
                     )
             email.attach_alternative(html_message, "text/html")
             mail.send_mail(subject='Order Confirmation', 
-                        plain_message='Order Confirmation', 
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[order_obj.owner.email],
                         html_message=html_message)
