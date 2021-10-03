@@ -725,11 +725,11 @@ class FetchSuperCategoriesAPI(APIView):
             logger.info("FetchSuperCategoriesAPI: %s", str(data))
             website_group_name = data["websiteGroupName"]
 
-            # cached_value = cache.get("sc-list-"+website_group_name+"-"+language_code, "has_expired")
-            # if cached_value!="has_expired":
-            #     response["superCategoryList"] = json.loads(cached_value)
-            #     response['status'] = 200
-                # return Response(data=response)
+            cached_value = cache.get("sc-list-"+website_group_name+"-"+language_code, "has_expired")
+            if cached_value!="has_expired":
+                response["superCategoryList"] = json.loads(cached_value)
+                response['status'] = 200
+                return Response(data=response)
             website_group_obj = WebsiteGroup.objects.none()
             try:
                 website_group_obj = WebsiteGroup.objects.get(name=website_group_name)

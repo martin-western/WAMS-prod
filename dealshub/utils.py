@@ -1,7 +1,6 @@
 from dealshub.models import *
 from dealshub.core_utils import *
 from WAMSApp.sap.utils_SAP_Integration import *
-from django.core import mail
 import datetime
 from django.utils import timezone
 
@@ -33,9 +32,6 @@ from facebook_business.adobjects.serverside.gender import Gender
 from facebook_business.adobjects.serverside.user_data import UserData
 from facebook_business.api import FacebookAdsApi
 import africastalking
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-import smtplib
 
 logger = logging.getLogger(__name__)
 
@@ -706,9 +702,9 @@ def send_order_confirmation_mail(order_obj):
         support_email = website_group_obj.email_info
         support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
 
-        html_message = loader.get_template(
-            os.getcwd()+'/dealshub/templates/order-confirmation.html').render(
-                {
+        html_message = loader.render_to_string(
+            os.getcwd()+'/dealshub/templates/order-confirmation.html',
+            {
                 "website_logo": website_logo,
                 "customer_name": customer_name,
                 "custom_unit_order_list":  custom_unit_order_list,
@@ -721,7 +717,6 @@ def send_order_confirmation_mail(order_obj):
                 "support_contact_number":support_contact_number
             }
         )
-        logger.info("html_message: %s" , html_message)
         location_group_obj = order_obj.location_group
 
         with get_connection(
@@ -731,14 +726,17 @@ def send_order_confirmation_mail(order_obj):
             password=location_group_obj.get_order_from_email_password(),
             use_tls=True) as connection:
 
-            email = EmailMessage(
-                        'Order Confirmation', 
-                        html_message, 
-                        location_group_obj.get_order_from_email_id(),
-                        [order_obj.owner.email],
+            email = EmailMultiAlternatives(
+                        subject='Order Confirmation', 
+                        body='Order Confirmation', 
+                        from_email=location_group_obj.get_order_from_email_id(),
+                        to=[order_obj.owner.email],
+                        cc=location_group_obj.get_order_cc_email_list(),
+                        bcc=location_group_obj.get_order_bcc_email_list(),
+                        connection=connection
                     )
-            email.content_subtype = "html"
-            email.send()
+            email.attach_alternative(html_message, "text/html")
+            email.send(fail_silently=False)
             logger.info("send_order_confirmation_mail ended")
 
     except Exception as e:
