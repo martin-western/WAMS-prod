@@ -730,7 +730,7 @@ def send_order_confirmation_mail(order_obj):
 
             email = EmailMessage(
                         'Order Confirmation', 
-                        html_message, 
+                        str(html_message), 
                         location_group_obj.get_order_from_email_id(),
                         [order_obj.owner.email],
                     )
@@ -740,7 +740,7 @@ def send_order_confirmation_mail(order_obj):
                 'Order Confirmation',
                 location_group_obj.get_order_from_email_id(),
                 [order_obj.owner.email],
-                html_message=html_message)
+                html_message=str(html_message))
             email.send()
             logger.info("send_order_confirmation_mail ended")
 
