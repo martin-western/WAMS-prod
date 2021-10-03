@@ -1,7 +1,7 @@
 from dealshub.models import *
 from dealshub.core_utils import *
 from WAMSApp.sap.utils_SAP_Integration import *
-
+from django.core import mail
 import datetime
 from django.utils import timezone
 
@@ -738,7 +738,7 @@ def send_order_confirmation_mail(order_obj):
                         connection=connection,
                     )
             email.attach_alternative(html_message, "text/html")
-            email.send_mail(subject='Order Confirmation', 
+            mail.send_mail(subject='Order Confirmation', 
                         body='Order Confirmation', 
                         from_email=location_group_obj.get_order_from_email_id(),
                         to=[order_obj.owner.email],
