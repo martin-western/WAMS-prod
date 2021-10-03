@@ -53,7 +53,7 @@
         <td class="item--image" style="padding: 0; margin: 0; box-sizing: border-box;">
           <img src="{{custom_unit_order.productImageUrl}}" style="height: 85%; width:85%;box-sizing: border-box;">
         </td>
-        <td class="item-details" style="padding: 0; margin: 0; gap: 10px;">
+        <td class="item-details" style="padding: 0; margin: 0; gap: 10px; font-family: Roboto; font-weight: normal; font-size: 1.2rem;">
             {{custom_unit_order.product_name}}
           <div class="item-details-quantity" style="padding: 0; margin: 0; box-sizing: border-box; font-family: Roboto; font-weight: normal; font-size: 1.4rem; line-height: 2.4rem;">Quantity: <span style="padding: 0; margin: 0; box-sizing: border-box; color: var(--red);">{{custom_unit_order.quantity}}</span></div>
         </td>
@@ -71,7 +71,7 @@
         <td>
       <h1 style="padding: 0; margin: 0; box-sizing: border-box; font-family: Montserrat; font-weight: normal; text-transform: uppercase; font-size: 2rem; letter-spacing: 0.05em;">Shipping Address</h1>
       <div class="address" style="padding: 0; margin: 0; box-sizing: border-box; font-family: Roboto;">
-        <h2 style="padding: 0; margin: 0; box-sizing: border-box; font-style: normal; font-weight: 300; font-size: 1.8rem; line-height: 2.4rem;">
+        <h2 style="padding: 0; margin: 0; box-sizing: border-box; font-style: normal; font-weight: 300; font-size: 1.4rem; line-height: 1.4rem;">
           <br style="padding: 0; margin: 0; box-sizing: border-box;">
           <table>
           {% for line in address_lines %}
@@ -80,8 +80,8 @@
           {% endfor %}
         </table>
         </h2>
-        <h2 class="email" style="padding: 0; margin: 0; box-sizing: border-box; font-style: normal; font-weight: 300; font-size: 1.8rem; line-height: 2.4rem; color: var(--red);">
-          email@email.com
+        <h2 class="email" style="padding: 0; margin: 0; box-sizing: border-box; font-style: normal; font-weight: 300; font-size: 1.4rem; line-height: 1.4rem; color: var(--red);">
+          {{email_content}}
         </h2>
       </div>
     </td>
@@ -91,8 +91,8 @@
 
     <hr style="padding: 0; margin: 0; box-sizing: border-box; width: 100%; margin-bottom: 20px; background-color: #aeaeae;">
     <tr class="footer--text" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; margin-top: -1rem;">
-      <td style="padding: 0; margin: 0; box-sizing: border-box; width: 70%; font-family: Roboto; font-style: normal; font-weight: normal; font-size: 1.6rem;">
-        If you need help with anything please don’t hesitate to drop us an email: <a style="padding: 0; margin: 0; box-sizing: border-box; text-decoration: none;" href="mailto:email@email.com"><span style="padding: 0; margin: 0; box-sizing: border-box; color: var(--red);">{{support_email}}</span></a>
+      <td style="padding: 0; margin: 0; box-sizing: border-box; width: 70%; font-family: Roboto; font-style: normal; font-weight: normal; font-size: 1.4rem;">
+        If you need help with anything please don’t hesitate to drop us an email: <a style="padding: 0; margin: 0; box-sizing: border-box; text-decoration: none;"><span style="padding: 0; margin: 0; box-sizing: border-box; color: var(--red);">{{support_email}}</span></a>
       </td>
     </tr>
   </table>
