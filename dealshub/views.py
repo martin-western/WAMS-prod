@@ -748,6 +748,7 @@ class FetchSuperCategoriesAPI(APIView):
                     temp_dict["name_en"] = super_category_obj.get_name("en")
                     temp_dict["uuid"] = super_category_obj.uuid
                     temp_dict["imageUrl"] = ""
+                    logger.info("11111111")
                     if super_category_obj.image!=None:
                         temp_dict["imageUrl"] = super_category_obj.image.thumbnail.url
                     
@@ -761,6 +762,7 @@ class FetchSuperCategoriesAPI(APIView):
                             
                             sub_category_list = []
                             sub_category_objs = SubCategory.objects.filter(category=category_obj)[:30]
+                            loger.info("222222222")
                             for sub_category_obj in sub_category_objs:
                                 try:
                                     temp_dict3 = {}
@@ -773,6 +775,7 @@ class FetchSuperCategoriesAPI(APIView):
                                     logger.error("FetchSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
                             temp_dict2["sub_category_list"] = sub_category_list
                             if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
+                                loger.info("3333333")
                                 category_list.append(temp_dict2)
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -782,10 +785,12 @@ class FetchSuperCategoriesAPI(APIView):
                     logger.error("FetchSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))                
 
                 temp_dict["category_list"] = category_list
+                loger.info("44444444")
                 if len(category_list)>0:
+                    loger.info("55555555")
                     super_category_list.append(temp_dict)
 
-            cache.set("sc-list-"+website_group_name+"-"+language_code, json.dumps(super_category_list))
+            # cache.set("sc-list-"+website_group_name+"-"+language_code, json.dumps(super_category_list))
 
             response['superCategoryList'] = super_category_list
             response['status'] = 200
