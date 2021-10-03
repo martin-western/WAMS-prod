@@ -1,286 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="padding: 0; margin: 0; box-sizing: border-box; --black: #181818; --gray-light: #aeaeae; --gray-dark: #4c4c4c; --gray: #f1f1f1; --red: #d92126; --padding-1: 1.2rem; --padding-2: 2rem; --padding-3: 3rem; font-size: 62.5%;">
 
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-    @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
-
-    :root {
-      --black: #181818;
-      --gray-light: #aeaeae;
-      --gray-dark: #4c4c4c;
-      --gray: #f1f1f1;
-      --red: #d92126;
-      --padding-1: 1.2rem;
-      --padding-2: 2rem;
-      --padding-3: 3rem;
-    }
-
-    html {
-      font-size: 62.5%;
-    }
-
-    * {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      padding: 30px;
-      margin: 0;
-      box-sizing: border-box;
-      font-family: 'Montserrat', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .container {
-      border: 1px solid var(--gray-dark);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 30px;
-      flex-direction: column;
-      width: 700px;
-      padding: var(--padding-3);
-    }
-
-    .container .logo {
-      width: 200px;
-    }
-
-    .order--status {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 30px;
-    }
-
-    .order--status .order--status__block {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .order--status .order--status__block h1 {
-      font-weight: 500;
-      font-size: 2.2rem;
-    }
-
-    .order--status .order--status__block h4 {
-      color: var(--gray-light);
-      font-weight: normal;
-      font-size: 1.6rem;
-    }
-
-    .order--status .order--status__text-block {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      color: var(--gray-dark);
-      font-family: 'Roboto', sans-serif;
-      gap: 12px;
-    }
-
-    .order--status .order--status__text-block h2 {
-      font-weight: 300;
-      font-size: 1.6rem;
-    }
-
-    .order--status .order--status__text-block span {
-      color: var(--red);
-      margin: 0;
-      padding: 0;
-    }
-
-    hr {
-      width: 100%;
-      margin-bottom: 20px;
-      background-color: #aeaeae;
-    }
-
-    .items-ordered {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      width: 100%;
-      gap: 20px;
-    }
-
-    .items-ordered h1 {
-      font-family: Montserrat;
-      font-weight: normal;
-      text-transform: uppercase;
-      font-size: 2rem;
-      letter-spacing: 0.05em;
-    }
-
-    .items-ordered .item {
-      display: flex;
-      width: 100%;
-      gap: 20px;
-      justify-content: center;
-    }
-
-    .items-ordered .item .item-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .items-ordered .item .item-details {
-      display: flex;
-      height: 100px;
-      align-items: flex-start;
-      justify-content: center;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .items-ordered .item .item-details-name {
-      font-family: Roboto;
-      font-style: normal;
-      font-weight: normal;
-      font-size: 1.4rem;
-      line-height: 2.4rem;
-      color: var(--black);
-    }
-
-    .items-ordered .item .item-details-quantity {
-      font-family: Roboto;
-      font-weight: normal;
-      font-size: 1.4rem;
-      line-height: 2.4rem;
-    }
-
-    .items-ordered .item .item-details-quantity span {
-      color: var(--red);
-    }
-
-    .shipping {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      width: 100%;
-      gap: 10px;
-    }
-
-    .shipping h1 {
-      font-family: Montserrat;
-      font-weight: normal;
-      text-transform: uppercase;
-      font-size: 2rem;
-      letter-spacing: 0.05em;
-    }
-
-    .shipping .address {
-      font-family: Roboto;
-    }
-
-    .shipping .address h2 {
-      font-style: normal;
-      font-weight: 300;
-      font-size: 1.8rem;
-      line-height: 2.4rem;
-    }
-
-    .shipping .address .email {
-      color: var(--red);
-    }
-
-    .footer--text {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      margin-top: -1rem;
-    }
-
-    .footer--text h1 {
-      width: 70%;
-      font-family: Roboto;
-      font-style: normal;
-      font-weight: normal;
-      font-size: 1.6rem;
-    }
-
-    .footer--text span {
-      color: var(--red);
-    }
-  </style>
+  
 </head>
 
-<body>
-  <div class="container">
-    <div class="logo">
-      <img src="{{website_logo}}" alt="Wigme Logo">
-    </div>
-    <div class="order--status">
-      <div class="order--status__block">
-        <h1 class="order--status__heading">Order cancelled</h1>
-        <h4 class="order--status__id">
+<body style="padding: 30px; margin: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; align-items: center;">
+  <table class="container" style="margin: 0; box-sizing: border-box; border: 1px solid var(--gray-dark); display: flex; justify-content: center; align-items: flex-start; gap: 30px; flex-direction: column; width: 700px; padding: var(--padding-3);">
+    <tr class="logo" style="padding: 0; margin: 0; box-sizing: border-box; width: 200px;">
+      <td>
+        <img src="{{website_logo}}" alt="Wigme Logo" style="padding: 0; margin: 0; box-sizing: border-box;">
+      </td>
+    </tr>
+
+
+
+    <table class="order--status" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 30px;">
+      <tr class="order--status__block" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 12px;">
+        <td>
+        <h1 class="order--status__heading" style="padding: 0; margin: 0; box-sizing: border-box; font-weight: 500; font-size: 2.2rem;">Order Cancelled</h1>
+        <h4 class="order--status__id" style="padding: 0; margin: 0; box-sizing: border-box; color: var(--gray-light); font-weight: normal; font-size: 1.6rem;">
           {{website_order_link}}
         </h4>
-        <h4 class="order--status__date">
+        <h4 class="order--status__date" style="padding: 0; margin: 0; box-sizing: border-box; color: var(--gray-light); font-weight: normal; font-size: 1.6rem;">
           {{order_placed_date}}
         </h4>
-      </div>
-      <div class="order--status__text-block">
-        <h1>Hey {{full_name}},</h1>
-        <h2>Your order has been cancelled. We apologise for the inconvenience.</h2>
-      </div>
-    </div>
-    <div class="items-ordered">
-      <h1>Items Ordered</h1>
-      <hr />
+      </td>
+      </tr>
+      <tr class="order--status__text-block" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; color: var(--gray-dark); font-family: 'Roboto', sans-serif; gap: 12px;">
+        <td>
+        <h1 style="padding: 0; margin: 0; box-sizing: border-box;">Hey {{full_name}},</h1>
+        <h2 style="padding: 0; margin: 0; box-sizing: border-box; font-weight: 300; font-size: 1.2rem;">Your order has been cancelled. We apologise for the inconvenience. <span style="box-sizing: border-box; color: var(--red); margin: 0; padding: 0;">me</span>.com</h2>
+      </td>
+      </tr>
+    </table>
+
+
+
+    <table class="items-ordered" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; width: 100%; gap: 20px;">
+      <tr>
+        <td>
+      <h1 style="padding: 0; margin: 0; box-sizing: border-box; font-family: Montserrat; font-weight: normal; text-transform: uppercase; font-size: 2rem; letter-spacing: 0.05em;">Items Ordered</h1>
+      <hr style="padding: 0; margin: 0; box-sizing: border-box; width: 100%; margin-bottom: 20px; background-color: #aeaeae;">
+      <table>
       {% for custom_unit_order in custom_unit_order_list %}
-      <div class="item">
-        <div class="item--image">
-          <img src="{{custom_unit_order.productImageUrl}}">
-        </div>
-        <div class="item-details">
-          <div class="item-details-name">
+      <tr class="item" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; width: 100%; gap: 20px; justify-content: center;">
+        <td class="item--image" style="padding: 0; margin: 0; box-sizing: border-box;">
+          <img src="{{custom_unit_order.productImageUrl}}" style="padding: 10px; margin: 10px; height: 150px; width:150px; box-sizing: border-box;">
+        </td>
+        <td class="item-details" style="padding: 0; margin: 0; gap: 10px; font-family: Roboto; font-weight: normal; font-size: 1.2rem;">
             {{custom_unit_order.product_name}}
-          </div>
-          <div class="item-details-quantity">Quantity: <span>{{custom_unit_order.quantity}}</span></div>
-        </div>
-      </div>
+          <div class="item-details-quantity" style="padding: 0; margin: 0; box-sizing: border-box; font-family: Roboto; font-weight: normal; font-size: 1.4rem; line-height: 2.4rem;">Quantity: <span style="padding: 0; margin: 0; box-sizing: border-box; color: var(--red);">{{custom_unit_order.quantity}}</span></div>
+        </td>
+      </tr>
       {% endfor %}
-    </div>
-    <hr />
-    <div class="shipping">
-      <h1>Shipping Address</h1>
-      <div class="address">
-        <h2>
-          <br>
+    </table>
+    </td>
+    </tr>
+    </table>
+
+    <table class="shipping" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; width: 100%; gap: 10px;">
+      <tr>
+        <td>
+      <h1 style="padding: 0; margin: 0; box-sizing: border-box; font-family: Montserrat; font-weight: normal; text-transform: uppercase; font-size: 2rem; letter-spacing: 0.05em;">Shipping Address</h1>
+      <div class="address" style="padding: 0; margin: 0; box-sizing: border-box; font-family: Roboto;">
+        <h2 style="padding: 0; margin: 0; box-sizing: border-box; font-style: normal; font-weight: 300; font-size: 1.4rem; line-height: 1.4rem;">
+          <br style="padding: 0; margin: 0; box-sizing: border-box;">
+          <table>
           {% for line in address_lines %}
-          {{line}}
-          <br>
+          <tr><td>{{line}}<br style="padding: 0; margin: 0; box-sizing: border-box;"></td></tr>
+          
           {% endfor %}
+        </table>
         </h2>
-        <h2 class="email">
-          email@email.com
+        <h2 class="email" style="padding: 0; margin: 0; box-sizing: border-box; font-style: normal; font-weight: 300; font-size: 1.4rem; line-height: 1.4rem; color: var(--red);">
+          {{email_content}}
         </h2>
       </div>
-    </div>
-    <hr />
-    <div class="footer--text">
-      <h1>
-        If you need help with anything please don’t hesitate to drop us an email: <a style="text-decoration: none;"
-          href="mailto:email@email.com"><span>{{support_email}}</span></a>
-      </h1>
-    </div>
-  </div>
+    </td>
+    </tr>
+    </table>
+
+
+    <hr style="padding: 0; margin: 0; box-sizing: border-box; width: 100%; margin-bottom: 20px; background-color: #aeaeae;">
+    <tr class="footer--text" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; margin-top: -1rem;">
+      <td style="padding: 0; margin: 0; box-sizing: border-box; width: 70%; font-family: Roboto; font-style: normal; font-weight: normal; font-size: 1.4rem;">
+        If you need help with anything please don’t hesitate to drop us an email: <a style="padding: 0; margin: 0; box-sizing: border-box; text-decoration: none;"><span style="padding: 0; margin: 0; box-sizing: border-box; color: var(--red);">{{support_email}}</span></a>
+      </td>
+    </tr>
+  </table>
 </body>
 
 </html>
