@@ -703,7 +703,7 @@ def send_order_confirmation_mail(order_obj):
         support_email = website_group_obj.email_info
         support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
 
-        html_message = loader.render_to_string(
+        html_message = loader.render(
             os.getcwd()+'/dealshub/templates/order-confirmation.html',
             {
                 "website_logo": website_logo,
@@ -730,7 +730,7 @@ def send_order_confirmation_mail(order_obj):
 
             email = EmailMessage(
                         'Order Confirmation', 
-                        str(html_message), 
+                        html_message, 
                         location_group_obj.get_order_from_email_id(),
                         [order_obj.owner.email],
                     )
@@ -740,7 +740,7 @@ def send_order_confirmation_mail(order_obj):
                 'Order Confirmation',
                 location_group_obj.get_order_from_email_id(),
                 [order_obj.owner.email],
-                html_message=str(html_message))
+                html_message=html_message)
             email.send()
             logger.info("send_order_confirmation_mail ended")
 
