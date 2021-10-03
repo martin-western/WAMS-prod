@@ -33,6 +33,9 @@ from facebook_business.adobjects.serverside.gender import Gender
 from facebook_business.adobjects.serverside.user_data import UserData
 from facebook_business.api import FacebookAdsApi
 import africastalking
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 
 logger = logging.getLogger(__name__)
 
@@ -703,9 +706,9 @@ def send_order_confirmation_mail(order_obj):
         support_email = website_group_obj.email_info
         support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
 
-        html_message = loader.render(
-            os.getcwd()+'/dealshub/templates/order-confirmation.html',
-            {
+        html_message = loader.get_template(
+            os.getcwd()+'/dealshub/templates/order-confirmation.html').render(
+                {
                 "website_logo": website_logo,
                 "customer_name": customer_name,
                 "custom_unit_order_list":  custom_unit_order_list,
@@ -735,12 +738,6 @@ def send_order_confirmation_mail(order_obj):
                         [order_obj.owner.email],
                     )
             email.content_subtype = "html"
-            mail.send_mail(
-                'Order Confirmation',
-                'Order Confirmation',
-                location_group_obj.get_order_from_email_id(),
-                [order_obj.owner.email],
-                html_message=html_message)
             email.send()
             logger.info("send_order_confirmation_mail ended")
 
