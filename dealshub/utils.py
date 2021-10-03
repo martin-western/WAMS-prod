@@ -918,7 +918,7 @@ def send_order_delivery_failed_mail(unit_order_obj):
         custom_unit_order_list.append(temp_dict)
         order_placed_date = unit_order_obj.order.get_date_created()
         html_message = loader.render_to_string(
-            os.getcwd()+'/dealshub/templates/order-delivered.html',
+            os.getcwd()+'/dealshub/templates/order-delivery-failed.html',
             {
                 "website_logo": website_logo,
                 "customer_name": customer_name,
@@ -989,7 +989,7 @@ def send_order_cancelled_mail(unit_order_obj):
         custom_unit_order_list.append(temp_dict)
         order_placed_date = unit_order_obj.order.get_date_created()
         html_message = loader.render_to_string(
-            os.getcwd()+'/dealshub/templates/order-delivered.html',
+            os.getcwd()+'/dealshub/templates/order-cancelled.html',
             {
                 "website_logo": website_logo,
                 "customer_name": customer_name,
