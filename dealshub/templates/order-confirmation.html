@@ -1,69 +1,72 @@
 <!DOCTYPE html>
-<html lang="en" style="padding: 0;margin: 0;box-sizing: border-box;font-size: 62.5%;">
+<html lang="en" style="padding: 0; margin: 0; box-sizing: border-box; --black: #181818; --gray-light: #aeaeae; --gray-dark: #4c4c4c; --gray: #f1f1f1; --red: #d92126; --padding-1: 1.2rem; --padding-2: 2rem; --padding-3: 3rem; font-size: 62.5%;">
 
-<head style="padding: 0;margin: 0;box-sizing: border-box;">
-  <title style="padding: 0;margin: 0;box-sizing: border-box;">Document</title>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
   
 </head>
 
-<body style="padding: 30px;margin: 0;box-sizing: border-box;font-family: 'Montserrat', sans-serif;display: flex;justify-content: center;align-items: center;">
-  <div class="container" style="padding: var(--padding-3);margin: 0;box-sizing: border-box;border: 1px solid var(--gray-dark);display: flex;justify-content: center;align-items: flex-start;gap: 30px;flex-direction: column;width: 700px;">
-    <div class="logo" style="padding: 0;margin: 0;box-sizing: border-box;width: 200px;">
-      <img src="{{website_logo}}" alt="Wigme Logo" style="padding: 0;margin: 0;box-sizing: border-box;">
+<body style="padding: 30px; margin: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; align-items: center;">
+  <div class="container" style="margin: 0; box-sizing: border-box; border: 1px solid var(--gray-dark); display: flex; justify-content: center; align-items: flex-start; gap: 30px; flex-direction: column; width: 700px; padding: var(--padding-3);">
+    <div class="logo" style="padding: 0; margin: 0; box-sizing: border-box; width: 200px;">
+      <img src="{{website_logo}}" alt="Wigme Logo" style="padding: 0; margin: 0; box-sizing: border-box;">
     </div>
-    <div class="order--status" style="padding: 0;margin: 0;box-sizing: border-box;display: flex;flex-direction: column;justify-content: space-between;align-items: flex-start;gap: 30px;">
-      <div class="order--status__block" style="padding: 0;margin: 0;box-sizing: border-box;display: flex;flex-direction: column;justify-content: center;align-items: flex-start;gap: 12px;">
-        <h1 class="order--status__heading" style="padding: 0;margin: 0;box-sizing: border-box;font-weight: 500;font-size: 2.2rem;">order Confirmation</h1>
-        <h4 class="order--status__id" style="padding: 0;margin: 0;box-sizing: border-box;color: var(--gray-light);font-weight: normal;font-size: 1.6rem;">
+    <div class="order--status" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 30px;">
+      <div class="order--status__block" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 12px;">
+        <h1 class="order--status__heading" style="padding: 0; margin: 0; box-sizing: border-box; font-weight: 500; font-size: 2.2rem;">Order Confirmation</h1>
+        <h4 class="order--status__id" style="padding: 0; margin: 0; box-sizing: border-box; color: var(--gray-light); font-weight: normal; font-size: 1.6rem;">
           {{website_order_link}}
         </h4>
-        <h4 class="order--status__date" style="padding: 0;margin: 0;box-sizing: border-box;color: var(--gray-light);font-weight: normal;font-size: 1.6rem;">
+        <h4 class="order--status__date" style="padding: 0; margin: 0; box-sizing: border-box; color: var(--gray-light); font-weight: normal; font-size: 1.6rem;">
           {{order_placed_date}}
         </h4>
       </div>
-      <div class="order--status__text-block" style="padding: 0;margin: 0;box-sizing: border-box;display: flex;flex-direction: column;align-items: flex-start;color: var(--gray-dark);font-family: 'Roboto', sans-serif;gap: 12px;">
-        <h1 style="padding: 0;margin: 0;box-sizing: border-box;">Hey {{full_name}},</h1>
-        <h2 style="padding: 0;margin: 0;box-sizing: border-box;font-weight: 300;font-size: 1.6rem;">Thank you for placing an order with Wig<span style="padding: 0;margin: 0;box-sizing: border-box;color: var(--red);">me</span>.com</h2>
-        <h2 style="padding: 0;margin: 0;box-sizing: border-box;font-weight: 300;font-size: 1.6rem;">We’ll drop you another email when your order ships.</h2>
+      <div class="order--status__text-block" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; color: var(--gray-dark); font-family: 'Roboto', sans-serif; gap: 12px;">
+        <h1 style="padding: 0; margin: 0; box-sizing: border-box;">Heyqq {{full_name}},</h1>
+        <h2 style="padding: 0; margin: 0; box-sizing: border-box; font-weight: 300; font-size: 1.6rem;">Thank you for placing an order with Wig<span style="box-sizing: border-box; color: var(--red); margin: 0; padding: 0;">me</span>.com</h2>
+        <h2 style="padding: 0; margin: 0; box-sizing: border-box; font-weight: 300; font-size: 1.6rem;">We’ll drop you another email when your order ships.</h2>
       </div>
     </div>
-    <div class="items-ordered" style="padding: 0;margin: 0;box-sizing: border-box;display: flex;flex-direction: column;align-items: flex-start;width: 100%;gap: 20px;">
-      <h1 style="padding: 0;margin: 0;box-sizing: border-box;font-family: Montserrat;font-weight: normal;text-transform: uppercase;font-size: 2rem;letter-spacing: 0.05em;">Items Ordered</h1>
-      <hr style="padding: 0;margin: 0;box-sizing: border-box;width: 100%;margin-bottom: 20px;background-color: #aeaeae;">
+    <div class="items-ordered" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; width: 100%; gap: 20px;">
+      <h1 style="padding: 0; margin: 0; box-sizing: border-box; font-family: Montserrat; font-weight: normal; text-transform: uppercase; font-size: 2rem; letter-spacing: 0.05em;">Items Ordered</h1>
+      <hr style="padding: 0; margin: 0; box-sizing: border-box; width: 100%; margin-bottom: 20px; background-color: #aeaeae;">
       {% for custom_unit_order in custom_unit_order_list %}
-      <div class="item" style="padding: 0;margin: 0;box-sizing: border-box;display: flex;width: 100%;gap: 20px;justify-content: center;">
-        <div class="item--image" style="padding: 0;margin: 0;box-sizing: border-box;">
-          <img src="{{custom_unit_order.productImageUrl}}" style="padding: 0;margin: 0;box-sizing: border-box;">
+      <div class="item" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; width: 100%; gap: 20px; justify-content: center;">
+        <div class="item--image" style="padding: 0; margin: 0; box-sizing: border-box;">
+          <img src="{{custom_unit_order.productImageUrl}}" style="padding: 0; margin: 0; box-sizing: border-box;">
         </div>
-        <div class="item-details" style="padding: 0;margin: 0;box-sizing: border-box;display: flex;height: 100px;align-items: flex-start;justify-content: center;flex-direction: column;gap: 10px;">
-          <div class="item-details-name" style="padding: 0;margin: 0;box-sizing: border-box;font-family: Roboto;font-style: normal;font-weight: normal;font-size: 1.4rem;line-height: 2.4rem;color: var(--black);">
+        <div class="item-details" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; height: 100px; align-items: flex-start; justify-content: center; flex-direction: column; gap: 10px;">
+          <div class="item-details-name" style="padding: 0; margin: 0; box-sizing: border-box; font-family: Roboto; font-style: normal; font-weight: normal; font-size: 1.4rem; line-height: 2.4rem; color: var(--black);">
             {{custom_unit_order.product_name}}
           </div>
-          <div class="item-details-quantity" style="padding: 0;margin: 0;box-sizing: border-box;font-family: Roboto;font-weight: normal;font-size: 1.4rem;line-height: 2.4rem;">Quantity: <span style="padding: 0;margin: 0;box-sizing: border-box;color: var(--red);">{{custom_unit_order.quantity}}</span></div>
+          <div class="item-details-quantity" style="padding: 0; margin: 0; box-sizing: border-box; font-family: Roboto; font-weight: normal; font-size: 1.4rem; line-height: 2.4rem;">Quantity: <span style="padding: 0; margin: 0; box-sizing: border-box; color: var(--red);">{{custom_unit_order.quantity}}</span></div>
         </div>
       </div>
       {% endfor %}
     </div>
-    <hr style="padding: 0;margin: 0;box-sizing: border-box;width: 100%;margin-bottom: 20px;background-color: #aeaeae;">
-    <div class="shipping" style="padding: 0;margin: 0;box-sizing: border-box;display: flex;flex-direction: column;align-items: flex-start;width: 100%;gap: 10px;">
-      <h1 style="padding: 0;margin: 0;box-sizing: border-box;font-family: Montserrat;font-weight: normal;text-transform: uppercase;font-size: 2rem;letter-spacing: 0.05em;">Shipping Address</h1>
-      <div class="address" style="padding: 0;margin: 0;box-sizing: border-box;font-family: Roboto;">
-        <h2 style="padding: 0;margin: 0;box-sizing: border-box;font-style: normal;font-weight: 300;font-size: 1.8rem;line-height: 2.4rem;">
-          <br style="padding: 0;margin: 0;box-sizing: border-box;">
+    <hr style="padding: 0; margin: 0; box-sizing: border-box; width: 100%; margin-bottom: 20px; background-color: #aeaeae;">
+    <div class="shipping" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; width: 100%; gap: 10px;">
+      <h1 style="padding: 0; margin: 0; box-sizing: border-box; font-family: Montserrat; font-weight: normal; text-transform: uppercase; font-size: 2rem; letter-spacing: 0.05em;">Shipping Address</h1>
+      <div class="address" style="padding: 0; margin: 0; box-sizing: border-box; font-family: Roboto;">
+        <h2 style="padding: 0; margin: 0; box-sizing: border-box; font-style: normal; font-weight: 300; font-size: 1.8rem; line-height: 2.4rem;">
+          <br style="padding: 0; margin: 0; box-sizing: border-box;">
           {% for line in address_lines %}
           {{line}}
-          <br style="padding: 0;margin: 0;box-sizing: border-box;">
+          <br style="padding: 0; margin: 0; box-sizing: border-box;">
           {% endfor %}
         </h2>
-        <h2 class="email" style="padding: 0;margin: 0;box-sizing: border-box;font-style: normal;font-weight: 300;font-size: 1.8rem;line-height: 2.4rem;color: var(--red);">
+        <h2 class="email" style="padding: 0; margin: 0; box-sizing: border-box; font-style: normal; font-weight: 300; font-size: 1.8rem; line-height: 2.4rem; color: var(--red);">
           email@email.com
         </h2>
       </div>
     </div>
-    <hr style="padding: 0;margin: 0;box-sizing: border-box;width: 100%;margin-bottom: 20px;background-color: #aeaeae;">
-    <div class="footer--text" style="padding: 0;margin: 0;box-sizing: border-box;display: flex;align-items: center;justify-content: center;text-align: center;margin-top: -1rem;">
-      <h1 style="padding: 0;margin: 0;box-sizing: border-box;width: 70%;font-family: Roboto;font-style: normal;font-weight: normal;font-size: 1.6rem;">
-        If you need help with anything please don’t hesitate to drop us an email: <a style="text-decoration: none;padding: 0;margin: 0;box-sizing: border-box;" href="mailto:email@email.com"><span style="padding: 0;margin: 0;box-sizing: border-box;color: var(--red);">{{support_email}}</span></a>
+    <hr style="padding: 0; margin: 0; box-sizing: border-box; width: 100%; margin-bottom: 20px; background-color: #aeaeae;">
+    <div class="footer--text" style="padding: 0; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; margin-top: -1rem;">
+      <h1 style="padding: 0; margin: 0; box-sizing: border-box; width: 70%; font-family: Roboto; font-style: normal; font-weight: normal; font-size: 1.6rem;">
+        If you need help with anything please don’t hesitate to drop us an email: <a style="padding: 0; margin: 0; box-sizing: border-box; text-decoration: none;" href="mailto:email@email.com"><span style="padding: 0; margin: 0; box-sizing: border-box; color: var(--red);">{{support_email}}</span></a>
       </h1>
     </div>
   </div>
