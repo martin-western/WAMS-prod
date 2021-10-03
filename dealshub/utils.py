@@ -737,7 +737,7 @@ def send_order_confirmation_mail(order_obj):
                         bcc=location_group_obj.get_order_bcc_email_list(),
                         connection=connection
                     )
-            email.attach_alternative(html_message, "html")
+            email.attach_alternative(html_message, "text/html")
             email.send(fail_silently=False)
             logger.info("send_order_confirmation_mail ended")
 
