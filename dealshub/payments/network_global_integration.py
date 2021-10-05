@@ -97,7 +97,27 @@ class MakePaymentNetworkGlobalAPI(APIView):
                 "Authorization": "Basic "+API_KEY
             }
             
-            network_global_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers, timeout=10)
+            net_url = NETWORK_URL+"/identity/auth/access-token"
+
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
+            try:
+                third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
+                                            caller="MakePaymentNetworkGlobalAPI",
+                                            request_body=json.dumps("")
+                                        )
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("ThirdPartyAPIRecord in MakePaymentNetworkGlobalAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            network_global_response = requests.post(url=net_url, headers=headers, timeout=10)
+
+            try:
+                third_party_api_record_obj.is_response_received = True
+                third_party_api_record_obj.response_body=network_global_response.content
+                third_party_api_record_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("ThirdPartyAPIRecord in MakePaymentNetworkGlobalAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             network_global_response_dict = json.loads(network_global_response.content)
             access_token = network_global_response_dict["access_token"]
@@ -132,9 +152,27 @@ class MakePaymentNetworkGlobalAPI(APIView):
             country_code = ""
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
-            
+
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
+            try:
+                third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=API_URL,
+                                            caller="MakePaymentNetworkGlobalAPI",
+                                            request_body=json.dumps(body)
+                                        )
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("ThirdPartyAPIRecord in MakePaymentNetworkGlobalAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers, timeout=10)
-            
+
+            try:
+                third_party_api_record_obj.is_response_received = True
+                third_party_api_record_obj.response_body=payment_response.content
+                third_party_api_record_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("ThirdPartyAPIRecord in MakePaymentNetworkGlobalAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
             response["payment_response"] = json.loads(payment_response.content)
             response["error"] = "Payment Success"
             response["status"] = 200
@@ -214,7 +252,27 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
                 "Authorization": "Basic "+API_KEY
             }
 
-            network_global_response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers, timeout=10)
+            net_url = NETWORK_URL+"/identity/auth/access-token"
+
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
+            try:
+                third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
+                                                caller="MakeB2BPaymentNetworkGlobalAPI",
+                                                request_body=json.dumps("")
+                                            )
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("ThirdPartyAPIRecord in MakeB2BPaymentNetworkGlobalAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            network_global_response = requests.post(net_url, headers=headers, timeout=10)
+
+            try:
+                third_party_api_record_obj.is_response_received = True
+                third_party_api_record_obj.response_body=network_global_response.content
+                third_party_api_record_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("ThirdPartyAPIRecord in MakeB2BPaymentNetworkGlobalAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             network_global_response_dict = json.loads(network_global_response.content)
             access_token = network_global_response_dict["access_token"]
@@ -250,7 +308,25 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
 
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
+            try:
+                third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=API_URL,
+                                                caller="MakeB2BPaymentNetworkGlobalAPI",
+                                                request_body=json.dumps(body)
+                                            )
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("ThirdPartyAPIRecord in MakeB2BPaymentNetworkGlobalAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
             payment_response = requests.post(API_URL, data=json.dumps(body),headers=headers, timeout=10)
+
+            try:
+                third_party_api_record_obj.is_response_received = True
+                third_party_api_record_obj.response_body=payment_response.content
+                third_party_api_record_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("ThirdPartyAPIRecord in MakeB2BPaymentNetworkGlobalAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["payment_response"] = json.loads(payment_response.content)
             response["error"] = "Payment Success"
@@ -274,7 +350,27 @@ def check_order_status_from_network_global(merchant_reference, location_group_ob
             "Content-Type": "application/vnd.ni-identity.v1+json", 
             "Authorization": "Basic "+API_KEY
         }
-        response = requests.post(NETWORK_URL+"/identity/auth/access-token", headers=headers, timeout=10)
+        net_url = NETWORK_URL+"/identity/auth/access-token"
+
+        third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
+        try:
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
+                                                caller="check_order_status_from_network_global",
+                                                request_body=json.dumps("")
+                                            )
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ThirdPartyAPIRecord in check_order_status_from_network_global: %s at %s", e, str(exc_tb.tb_lineno))
+
+        response = requests.post(net_url, headers=headers, timeout=10)
+
+        try:
+            third_party_api_record_obj.is_response_received = True
+            third_party_api_record_obj.response_body=response.content
+            third_party_api_record_obj.save()
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ThirdPartyAPIRecord in check_order_status_from_network_global: %s at %s", e, str(exc_tb.tb_lineno))
 
         response_dict = json.loads(response.content)
         access_token = response_dict["access_token"]
@@ -286,8 +382,27 @@ def check_order_status_from_network_global(merchant_reference, location_group_ob
         }
 
         url = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
+        
+        third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
+        try:
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=url,
+                                            caller="check_order_status_from_network_global",
+                                            request_body=json.dumps("")
+                                        )
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ThirdPartyAPIRecord in check_order_status_from_network_global: %s at %s", e, str(exc_tb.tb_lineno))
+
         r = requests.get(url=url, headers=headers, timeout=10)
 
+        try:
+            third_party_api_record_obj.is_response_received = True
+            third_party_api_record_obj.response_body=r.content
+            third_party_api_record_obj.save()
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("ThirdPartyAPIRecord in check_order_status_from_network_global: %s at %s", e, str(exc_tb.tb_lineno))
+        
         content = json.loads(r.content)
         state = content["_embedded"]["payment"][0]["state"]
         if state=="CAPTURED" or state=="AUTHORISED":

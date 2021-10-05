@@ -171,17 +171,6 @@ class FetchProductDetailsAPI(APIView):
             if cached_url_list!="has_expired":
                 image_list = json.loads(cached_url_list)
             else:
-                lifestyle_image_objs = product_obj.lifestyle_images.all()
-                for lifestyle_image_obj in lifestyle_image_objs:
-                    try:
-                        temp_image = {}
-                        temp_image["high-res"] = lifestyle_image_obj.image.url
-                        temp_image["original"] = lifestyle_image_obj.mid_image.url
-                        temp_image["thumbnail"] = lifestyle_image_obj.thumbnail.url
-                        image_list.append(temp_image)
-                    except Exception as e:
-                        pass
-
                 main_images_list = ImageBucket.objects.none()
                 main_images_objs = MainImages.objects.filter(product=product_obj, is_sourced=True)
                 for main_images_obj in main_images_objs:
@@ -194,6 +183,17 @@ class FetchProductDetailsAPI(APIView):
                         temp_image["high-res"] = main_image["main_url"]
                         temp_image["original"] = main_image["midimage_url"]
                         temp_image["thumbnail"] = main_image["thumbnail_url"]
+                        image_list.append(temp_image)
+                    except Exception as e:
+                        pass
+
+                lifestyle_image_objs = product_obj.lifestyle_images.all()
+                for lifestyle_image_obj in lifestyle_image_objs:
+                    try:
+                        temp_image = {}
+                        temp_image["high-res"] = lifestyle_image_obj.image.url
+                        temp_image["original"] = lifestyle_image_obj.mid_image.url
+                        temp_image["thumbnail"] = lifestyle_image_obj.thumbnail.url
                         image_list.append(temp_image)
                     except Exception as e:
                         pass
@@ -742,33 +742,44 @@ class FetchSuperCategoriesAPI(APIView):
 
             super_category_list = []
             for super_category_obj in super_category_objs:
-                temp_dict = {}
-                temp_dict["name"] = super_category_obj.get_name(language_code)
-                temp_dict["name_en"] = super_category_obj.get_name("en")
-                temp_dict["uuid"] = super_category_obj.uuid
-                temp_dict["imageUrl"] = ""
-                if super_category_obj.image!=None:
-                    temp_dict["imageUrl"] = super_category_obj.image.thumbnail.url
-                
-                category_list = []
-                category_objs = Category.objects.filter(super_category=super_category_obj)[:30]
-                for category_obj in category_objs:
-                    temp_dict2 = {}
-                    temp_dict2["category_name"] = category_obj.get_name(language_code)
-                    temp_dict2["category_name_en"] = category_obj.get_name("en")
+                try:
+                    temp_dict = {}
+                    temp_dict["name"] = super_category_obj.get_name(language_code)
+                    temp_dict["name_en"] = super_category_obj.get_name("en")
+                    temp_dict["uuid"] = super_category_obj.uuid
+                    temp_dict["imageUrl"] = ""
+                    if super_category_obj.image!=None:
+                        temp_dict["imageUrl"] = super_category_obj.image.thumbnail.url
                     
-                    sub_category_list = []
-                    sub_category_objs = SubCategory.objects.filter(category=category_obj)[:30]
-                    for sub_category_obj in sub_category_objs:
-                        temp_dict3 = {}
-                        temp_dict3["sub_category_name"] = sub_category_obj.get_name(language_code)
-                        temp_dict3["sub_category_name_en"] = sub_category_obj.get_name("en")
-                        if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
-                            sub_category_list.append(temp_dict3)
-                    
-                    temp_dict2["sub_category_list"] = sub_category_list
-                    if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
-                        category_list.append(temp_dict2)
+                    category_list = []
+                    category_objs = Category.objects.filter(super_category=super_category_obj)[:30]
+                    for category_obj in category_objs:
+                        try:
+                            temp_dict2 = {}
+                            temp_dict2["category_name"] = category_obj.get_name(language_code)
+                            temp_dict2["category_name_en"] = category_obj.get_name("en")
+                            
+                            sub_category_list = []
+                            sub_category_objs = SubCategory.objects.filter(category=category_obj)[:30]
+                            for sub_category_obj in sub_category_objs:
+                                try:
+                                    temp_dict3 = {}
+                                    temp_dict3["sub_category_name"] = sub_category_obj.get_name(language_code)
+                                    temp_dict3["sub_category_name_en"] = sub_category_obj.get_name("en")
+                                    if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
+                                        sub_category_list.append(temp_dict3)
+                                except Exception as e:
+                                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                                    logger.error("FetchSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                            temp_dict2["sub_category_list"] = sub_category_list
+                            if DealsHubProduct.objects.filter(is_published=True, category=category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
+                                category_list.append(temp_dict2)
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            logger.error("FetchSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("FetchSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))                
 
                 temp_dict["category_list"] = category_list
                 if len(category_list)>0:
@@ -789,7 +800,6 @@ class FetchSuperCategoriesAPI(APIView):
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchSuperCategoriesAPI: %s at %s", e, str(exc_tb.tb_lineno))
-        
         return Response(data=response)
 
 

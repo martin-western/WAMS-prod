@@ -1,7 +1,6 @@
 from dealshub.models import *
 from dealshub.core_utils import *
 from WAMSApp.sap.utils_SAP_Integration import *
-
 import datetime
 from django.utils import timezone
 
@@ -528,7 +527,7 @@ def send_order_request_placed_mail(order_request_obj):
         full_name = order_request_obj.get_customer_full_name()
         website_logo = order_request_obj.get_email_website_logo()
         email_content = order_request_obj.location_group.get_email_content()
-
+        address_lines = json.loads(order_request_obj.shipping_address.address_lines)
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-confirmation.html',
             {
@@ -540,8 +539,8 @@ def send_order_request_placed_mail(order_request_obj):
                 "address_lines": address_lines,
                 "website_order_link": order_request_obj.get_website_link()+"/orders/"+order_request_obj.uuid,
                 "email_content": email_content,
-                "support_email": support_email,
-                "support_contact_number": support_contact_number
+                "support_email":support_email,
+                "support_contact_number":support_contact_number
             }
         )
 
@@ -718,7 +717,6 @@ def send_order_confirmation_mail(order_obj):
                 "support_contact_number":support_contact_number
             }
         )
-
         location_group_obj = order_obj.location_group
 
         with get_connection(
@@ -762,22 +760,31 @@ def send_order_dispatch_mail(unit_order_obj):
         website_group_obj = unit_order_obj.order.location_group.website_group
         support_email = website_group_obj.email_info
         support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
-
+        email_content = unit_order_obj.order.location_group.get_email_content()
+        custom_unit_order_list = []
+        temp_dict = {
+            "order_id": unit_order_obj.orderid,
+            "product_name": unit_order_obj.product.get_name(),
+            "productImageUrl": unit_order_obj.product.get_display_image_url(),
+            "quantity": unit_order_obj.quantity,
+            "price": unit_order_obj.price,
+            "currency": unit_order_obj.product.get_currency()
+        }
+        custom_unit_order_list.append(temp_dict)
+        order_placed_date = unit_order_obj.order.get_date_created()
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-dispatch.html',
             {
                 "website_logo": website_logo,
                 "customer_name": customer_name,
-                "order_id": unit_order_obj.orderid,
-                "product_name": unit_order_obj.product.get_name(),
-                "productImageUrl": unit_order_obj.product.get_display_image_url(),
-                "quantity": unit_order_obj.quantity,
-                "order_dispatched_date": order_dispatched_date,
+                "custom_unit_order_list":  custom_unit_order_list,
+                "order_placed_date": order_placed_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
                 "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
-                "support_email": support_email,
-                "support_contact_number": support_contact_number
+                "email_content": email_content,
+                "support_email":support_email,
+                "support_contact_number":support_contact_number
             }
         )
 
@@ -825,22 +832,31 @@ def send_order_delivered_mail(unit_order_obj):
         website_group_obj = unit_order_obj.order.location_group.website_group
         support_email = website_group_obj.email_info
         support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
-
+        email_content = unit_order_obj.order.location_group.get_email_content()
+        custom_unit_order_list = []
+        temp_dict = {
+            "order_id": unit_order_obj.orderid,
+            "product_name": unit_order_obj.product.get_name(),
+            "productImageUrl": unit_order_obj.product.get_display_image_url(),
+            "quantity": unit_order_obj.quantity,
+            "price": unit_order_obj.price,
+            "currency": unit_order_obj.product.get_currency()
+        }
+        custom_unit_order_list.append(temp_dict)
+        order_placed_date = unit_order_obj.order.get_date_created()
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivered.html',
             {
                 "website_logo": website_logo,
                 "customer_name": customer_name,
-                "order_id": unit_order_obj.orderid,
-                "product_name": unit_order_obj.product.get_name(),
-                "productImageUrl": unit_order_obj.product.get_display_image_url(),
-                "quantity": unit_order_obj.quantity,
-                "order_delivered_date": order_delivered_date,
+                "custom_unit_order_list":  custom_unit_order_list,
+                "order_placed_date": order_placed_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
                 "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
-                "support_email": support_email,
-                "support_contact_number": support_contact_number
+                "email_content": email_content,
+                "support_email":support_email,
+                "support_contact_number":support_contact_number
             }
         )
 
@@ -887,22 +903,31 @@ def send_order_delivery_failed_mail(unit_order_obj):
         website_group_obj = unit_order_obj.order.location_group.website_group
         support_email = website_group_obj.email_info
         support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
-
+        email_content = unit_order_obj.order.location_group.get_email_content()
+        custom_unit_order_list = []
+        temp_dict = {
+            "order_id": unit_order_obj.orderid,
+            "product_name": unit_order_obj.product.get_name(),
+            "productImageUrl": unit_order_obj.product.get_display_image_url(),
+            "quantity": unit_order_obj.quantity,
+            "price": unit_order_obj.price,
+            "currency": unit_order_obj.product.get_currency()
+        }
+        custom_unit_order_list.append(temp_dict)
+        order_placed_date = unit_order_obj.order.get_date_created()
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-delivery-failed.html',
             {
                 "website_logo": website_logo,
                 "customer_name": customer_name,
-                "order_id": unit_order_obj.orderid,
-                "product_name": unit_order_obj.product.get_name(),
-                "productImageUrl": unit_order_obj.product.get_display_image_url(),
-                "quantity": unit_order_obj.quantity,
-                "order_delivery_failed": order_delivery_failed,
+                "custom_unit_order_list":  custom_unit_order_list,
+                "order_placed_date": order_placed_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
                 "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
-                "support_email": support_email,
-                "support_contact_number": support_contact_number
+                "email_content": email_content,
+                "support_email":support_email,
+                "support_contact_number":support_contact_number
             }
         )
 
@@ -949,22 +974,31 @@ def send_order_cancelled_mail(unit_order_obj):
         website_group_obj = unit_order_obj.order.location_group.website_group
         support_email = website_group_obj.email_info
         support_contact_number = json.loads(website_group_obj.conf).get("support_contact_number","")
-
+        email_content = unit_order_obj.order.location_group.get_email_content()
+        custom_unit_order_list = []
+        temp_dict = {
+            "order_id": unit_order_obj.orderid,
+            "product_name": unit_order_obj.product.get_name(),
+            "productImageUrl": unit_order_obj.product.get_display_image_url(),
+            "quantity": unit_order_obj.quantity,
+            "price": unit_order_obj.price,
+            "currency": unit_order_obj.product.get_currency()
+        }
+        custom_unit_order_list.append(temp_dict)
+        order_placed_date = unit_order_obj.order.get_date_created()
         html_message = loader.render_to_string(
             os.getcwd()+'/dealshub/templates/order-cancelled.html',
             {
                 "website_logo": website_logo,
                 "customer_name": customer_name,
-                "order_id": unit_order_obj.orderid,
-                "product_name": unit_order_obj.product.get_name(),
-                "productImageUrl": unit_order_obj.product.get_display_image_url(),
-                "quantity": unit_order_obj.quantity,
-                "order_cancelled_date": order_cancelled_date,
+                "custom_unit_order_list":  custom_unit_order_list,
+                "order_placed_date": order_placed_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
                 "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
-                "support_email": support_email,
-                "support_contact_number": support_contact_number
+                "email_content": email_content,
+                "support_email":support_email,
+                "support_contact_number":support_contact_number
             }
         )
 
@@ -1015,16 +1049,14 @@ def notify_order_cancel_status_to_user(unit_order_obj, status):
             {
                 "website_logo": website_logo,
                 "customer_name": customer_name,
-                "order_id": unit_order_obj.orderid,
-                "product_name": unit_order_obj.product.get_name(),
-                "productImageUrl": unit_order_obj.product.get_display_image_url(),
-                "quantity": unit_order_obj.quantity,
-                "status": status,
+                "custom_unit_order_list":  custom_unit_order_list,
+                "order_placed_date": order_placed_date,
                 "full_name": full_name,
                 "address_lines": address_lines,
                 "website_order_link": unit_order_obj.order.get_website_link()+"/orders/"+unit_order_obj.order.uuid,
-                "support_email": support_email,
-                "support_contact_number": support_contact_number
+                "email_content": email_content,
+                "support_email":support_email,
+                "support_contact_number":support_contact_number
             }
         )
 

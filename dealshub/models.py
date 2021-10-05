@@ -1436,7 +1436,11 @@ class Order(models.Model):
                 "sendex": {
                     "cod": CUSTOMER_ID_FINAL_BILLING_SENDEX_COD_B2B,
                     "paid": CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE_B2B
-                }
+                },
+                "emirates post": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_EMIRATES_POST_COD_B2B,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_EMIRATES_POST_ONLINE_B2B
+                },
             },
             "is_not_b2b": {
                 "wig fleet": {
@@ -1450,6 +1454,10 @@ class Order(models.Model):
                 "sendex": {
                     "cod": CUSTOMER_ID_FINAL_BILLING_SENDEX_COD,
                     "paid": CUSTOMER_ID_FINAL_BILLING_SENDEX_ONLINE
+                },
+                "emirates post": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_EMIRATES_POST_COD,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_EMIRATES_POST_ONLINE
                 }
             }
         }
@@ -1569,6 +1577,14 @@ class UnitOrder(models.Model):
         try:
             final_billing_info = json.loads(self.order_information)["final_billing_info"]
             qty = float(final_billing_info["qty"])
+
+            # replace above code with this code once we merge :- https://github.com/nisargtike/WAMS-prod/pull/801/files
+            # final_billing_info_list = json.loads(self.order_information)["final_billing_info"]
+            # qty = 0
+            # for final_billing_info in final_billing_info_list:
+            #     qty += final_billing_info["qty"]
+
+            qty = float(qty)
             return qty
         except Exception as e:
             return ""
