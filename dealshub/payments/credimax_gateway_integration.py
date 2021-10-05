@@ -104,17 +104,26 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             }
 
             credimax_url = 'https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/'+merchant_id+'/session'
-            credimax_gateway_response = requests.post(url=credimax_url,headers=headers, data=json.dumps(body), timeout=10)
+
             try:
-                ThirdPartyAPIRecord.objects.create(url=credimax_url,
+                third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=credimax_url,
                                                 caller="MakePaymentCredimaxGatewayAPI",
                                                 request_body=json.dumps(body),
-                                                response_body=credimax_gateway_response.content,
-                                                is_response_received=True
                                             )
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("ThirdPartyAPIRecord in MakePaymentCredimaxGatewayAPI: %s at %s", e, str(exc_tb.tb_lineno))
+
+            credimax_gateway_response = requests.post(url=credimax_url,headers=headers, data=json.dumps(body), timeout=10)
+            
+            try:
+                third_party_api_record_obj.is_response_received = True
+                third_party_api_record_obj.response_body=credimax_gateway_response.content
+                third_party_api_record_obj.save()
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("ThirdPartyAPIRecord in MakePaymentCredimaxGatewayAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
             credimax_gateway_response_dict = json.loads(credimax_gateway_response.content)
             logger.info("INFOOMakePaymentCredimaxGatewayAPI: %s",credimax_gateway_response_dict)
             session_id = credimax_gateway_response_dict["session"]["id"]
