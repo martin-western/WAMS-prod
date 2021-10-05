@@ -103,6 +103,7 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
 
             net_url = NETWORK_URL+"/identity/auth/access-token"
 
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
                                                 caller="MakePaymentNetworkGlobalAndroidAPI",
@@ -162,6 +163,7 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/orders"
 
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=API_URL,
                                                 caller="MakePaymentNetworkGlobalAndroidAPI",
@@ -260,6 +262,7 @@ class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
             
             net_url = NETWORK_URL+"/identity/auth/access-token"
 
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
                                                 caller="MakePaymentNetworkGlobalAndroidAPI",
@@ -316,6 +319,7 @@ class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/orders"
 
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=API_URL,
                                                 caller="MakeB2BPaymentNetworkGlobalAndroidAPI",
@@ -371,6 +375,7 @@ def check_order_status_from_network_global_android(merchant_reference, location_
         }
         net_url = NETWORK_URL+"/identity/auth/access-token"
 
+        third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
                                             caller="check_order_status_from_network_global_android",
@@ -401,6 +406,7 @@ def check_order_status_from_network_global_android(merchant_reference, location_
 
         url = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
 
+        third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=url,
                                             caller="MakePaymentNetworkGlobalAndroidAPI",

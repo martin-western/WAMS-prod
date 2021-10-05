@@ -105,6 +105,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
 
             credimax_url = 'https://credimax.gateway.mastercard.com/api/rest/version/60/merchant/'+merchant_id+'/session'
 
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=credimax_url,
                                                 caller="MakePaymentCredimaxGatewayAPI",

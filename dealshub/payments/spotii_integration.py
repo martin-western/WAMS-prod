@@ -76,6 +76,7 @@ def get_auth_token():
         }
         spotii_url = SPOTII_AUTH_IP+"/api/v1.0/merchant/authentication/"
 
+        third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=spotii_url,
                                             caller="Spotii get_auth_token",
@@ -178,6 +179,7 @@ def process_order_checkout(generic_cart_obj, is_fast_cart, reference):
 
         spotii_url = SPOTII_IP+"/api/v1.0/checkouts/"
 
+        third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=spotii_url,
                                             caller="Spotii process_order_checkout",
@@ -222,6 +224,7 @@ def on_approve_capture_order(order_reference):
         }
         spotii_url = SPOTII_IP+"/api/v1.0/orders/"+order_reference+"/capture/"
 
+        third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=spotii_url,
                                             caller="Spotii on_approve_capture_order",

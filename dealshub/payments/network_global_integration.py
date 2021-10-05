@@ -99,6 +99,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
             
             net_url = NETWORK_URL+"/identity/auth/access-token"
 
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
                                             caller="MakePaymentNetworkGlobalAPI",
@@ -152,6 +153,7 @@ class MakePaymentNetworkGlobalAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
 
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=API_URL,
                                             caller="MakePaymentNetworkGlobalAPI",
@@ -252,6 +254,7 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
 
             net_url = NETWORK_URL+"/identity/auth/access-token"
 
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
                                                 caller="MakeB2BPaymentNetworkGlobalAPI",
@@ -305,6 +308,7 @@ class MakeB2BPaymentNetworkGlobalAPI(APIView):
 
             API_URL = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF +"/payment/hosted-session/"+session_id
 
+            third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=API_URL,
                                                 caller="MakeB2BPaymentNetworkGlobalAPI",
@@ -348,6 +352,7 @@ def check_order_status_from_network_global(merchant_reference, location_group_ob
         }
         net_url = NETWORK_URL+"/identity/auth/access-token"
 
+        third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
                                                 caller="check_order_status_from_network_global",
@@ -378,6 +383,7 @@ def check_order_status_from_network_global(merchant_reference, location_group_ob
 
         url = NETWORK_URL+"/transactions/outlets/"+OUTLET_REF+"/orders/"+merchant_reference
         
+        third_party_api_record_obj = ThirdPartyAPIRecord.objects.none()
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=url,
                                             caller="check_order_status_from_network_global",
