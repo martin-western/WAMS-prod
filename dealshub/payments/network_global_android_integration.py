@@ -107,7 +107,7 @@ class MakePaymentNetworkGlobalAndroidAPI(APIView):
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
                                                 caller="MakePaymentNetworkGlobalAndroidAPI",
-                                                request_body=json.dumps(""),
+                                                request_body=json.dumps("")
                                             )
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -266,7 +266,7 @@ class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
                                                 caller="MakePaymentNetworkGlobalAndroidAPI",
-                                                request_body=json.dumps(body))
+                                                request_body=json.dumps(""))
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("ThirdPartyAPIRecord in MakePaymentNetworkGlobalAndroidAPI: %s at %s", e, str(exc_tb.tb_lineno))
@@ -323,7 +323,7 @@ class MakeB2BPaymentNetworkGlobalAndroidAPI(APIView):
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=API_URL,
                                                 caller="MakeB2BPaymentNetworkGlobalAndroidAPI",
-                                                request_body=json.dumps(body),
+                                                request_body=json.dumps(body)
                                             )
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -379,7 +379,7 @@ def check_order_status_from_network_global_android(merchant_reference, location_
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=net_url,
                                             caller="check_order_status_from_network_global_android",
-                                            request_body=json.dumps(""),
+                                            request_body=json.dumps("")
                                         )
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -410,7 +410,7 @@ def check_order_status_from_network_global_android(merchant_reference, location_
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=url,
                                             caller="MakePaymentNetworkGlobalAndroidAPI",
-                                            request_body=json.dumps(""),
+                                            request_body=json.dumps("")
                                         )
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()

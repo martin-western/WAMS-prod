@@ -109,7 +109,7 @@ class MakePaymentCredimaxGatewayAPI(APIView):
             try:
                 third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=credimax_url,
                                                 caller="MakePaymentCredimaxGatewayAPI",
-                                                request_body=json.dumps(body),
+                                                request_body=json.dumps(body)
                                             )
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()

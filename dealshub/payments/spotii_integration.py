@@ -80,7 +80,7 @@ def get_auth_token():
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=spotii_url,
                                             caller="Spotii get_auth_token",
-                                            request_body=json.dumps(auth_key_info),
+                                            request_body=json.dumps(auth_key_info)
                                         )
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -183,7 +183,7 @@ def process_order_checkout(generic_cart_obj, is_fast_cart, reference):
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=spotii_url,
                                             caller="Spotii process_order_checkout",
-                                            request_body=json.dumps(order_info),
+                                            request_body=json.dumps(order_info)
                                         )
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -228,7 +228,7 @@ def on_approve_capture_order(order_reference):
         try:
             third_party_api_record_obj = ThirdPartyAPIRecord.objects.create(url=spotii_url,
                                             caller="Spotii on_approve_capture_order",
-                                            request_body=json.dumps({}),
+                                            request_body=json.dumps({})
                                         )
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
