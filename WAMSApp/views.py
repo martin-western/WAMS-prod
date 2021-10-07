@@ -793,8 +793,15 @@ class FetchProductDetailsAPI(APIView):
             amazon_uae_product_dict = json.loads(channel_product_obj.amazon_uae_product_json)
             ebay_product_dict = json.loads(channel_product_obj.ebay_product_json)
             brand_obj = base_product_obj.brand
-            faqs = json.loads(product_obj.faqs)
-            how_to_use = json.loads(product_obj.how_to_use)
+            faqs = json.loads("[]")
+            how_to_use = json.loads("[]")
+
+            try:
+                faqs = json.loads(product_obj.faqs)
+                how_to_use = json.loads(product_obj.how_to_use)
+            except:
+                pass
+
 
             permissible_brands = custom_permission_filter_brands(request.user)
 
