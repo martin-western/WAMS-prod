@@ -837,9 +837,11 @@ class FetchHeadingSuperCategoriesAPI(APIView):
                             temp_dict2 = {}
                             temp_dict2["name"] = (sub_category_obj.get_name(language_code)).upper()
                             temp_dict2["uuid"] = sub_category_obj.uuid
-                            sub_category_list.append(temp_dict2)
+                            if DealsHubProduct.objects.filter(sub_category = sub_category_obj,is_published=0).exclude(now_price=0).exclude(stock=0).exists():
+                                sub_category_list.append(temp_dict2)
                     temp_dict["subCategoryList"] = sub_category_list
-                    super_category_list.append(temp_dict)
+                    if len(sub_category_list):
+                        super_category_list.append(temp_dict)
                 
                 except:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -888,9 +890,12 @@ class FetchHeadingCategoriesAPI(APIView):
                     temp_dict2 = {}
                     temp_dict2["name"] = (sub_category_obj.get_name(language_code)).upper()
                     temp_dict2["uuid"] = sub_category_obj.uuid
-                    sub_category_list.append(temp_dict2)
+                    if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
+                        sub_category_list.append(temp_dict2)
+                    
                 temp_dict["subCategoryList"] = sub_category_list
-                category_list.append(temp_dict)
+                if len(sub_category_list):
+                    category_list.append(temp_dict)
 
             response['categoryList'] = category_list
             response['status'] = 200
