@@ -2509,7 +2509,7 @@ def bulk_update_dealshub_product_price_or_stock_or_status(oc_uuid,path,filename,
         dfs.fillna("")
         rows = len(dfs.iloc[:])
 
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
         row = ["No.","Product ID", "Status"]
         header_format = workbook.add_format({
@@ -2686,7 +2686,7 @@ def bulk_update_b2b_dealshub_product_price(oc_uuid,path,filename, location_group
         dfs.fillna("")
         rows = len(dfs.iloc[:])
 
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
         row = ["No.","Product ID", "Status"]
         header_format = workbook.add_format({
@@ -2795,7 +2795,7 @@ def bulk_update_b2b_dealshub_product_moq(oc_uuid,path,filename, location_group_o
         dfs.fillna("")
         rows = len(dfs.iloc[:])
 
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
         row = ["No.","Product ID", "Status"]
         header_format = workbook.add_format({
@@ -2876,7 +2876,7 @@ def bulk_update_b2b_dealshub_product_moq(oc_uuid,path,filename, location_group_o
 
 def create_all_dealshub_products_report(filename, uuid, location_group_obj):
 
-    workbook = xlsxwriter.Workbook('./'+filename)
+    workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
     worksheet = workbook.add_worksheet()
 
     row = ["Product ID",

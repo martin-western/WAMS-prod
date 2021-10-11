@@ -788,7 +788,7 @@ def create_holding_transfer_report(dealshub_product_objs):
     try:
         filename = "holding_transfer_report.xlsx"
 
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Seller SKU",

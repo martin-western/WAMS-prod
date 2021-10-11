@@ -1568,7 +1568,7 @@ def fetch_order_information_for_sap_punching(seller_sku, company_code, x_value, 
 
 def create_section_banner_product_report(dealshub_product_objs, filename):
 
-    workbook = xlsxwriter.Workbook('./'+filename)
+    workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
     worksheet = workbook.add_worksheet()
 
     row = ["Product ID",
@@ -1737,7 +1737,7 @@ def bulk_upload_fake_review(oc_uuid, path,filename, location_group_obj, oc_user_
         dfs.fillna("")
         rows = len(dfs.iloc[:])
 
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
         row = ["No.","Product ID", "Status"]
         header_format = workbook.add_format({

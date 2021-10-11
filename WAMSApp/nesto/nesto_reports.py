@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def bulk_download_nesto_ecommerce_report(filename, uuid):
     try:
         logger.info('Nesto Ecommerce report start...')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = [ "No.",
@@ -220,7 +220,7 @@ def bulk_download_nesto_ecommerce_report(filename, uuid):
 
 def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_objs=None):
     try:
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Sr. No.",
@@ -343,7 +343,7 @@ def bulk_download_nesto_detailed_product_report(filename, uuid,nesto_product_obj
 
 def nesto_products_summary_report(filename, uuid):
     try:
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Products",
