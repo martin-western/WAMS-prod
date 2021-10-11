@@ -79,7 +79,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
     if product_uuid_list!="": 
         product_objs = product_objs.filter(uuid__in=product_uuid_list)
 
-    workbook = xlsxwriter.Workbook('./'+filename)
+    workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
 
     worksheet = workbook.add_worksheet()
 
@@ -620,7 +620,7 @@ def create_mega_bulk_oc_report(filename, uuid, brand_list, product_uuid_list="",
 
 def create_flyer_report(filename, uuid, brand_list, organization_obj):
 
-    workbook = xlsxwriter.Workbook('./'+filename)
+    workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
     worksheet = workbook.add_worksheet()
 
     row = ["Sr. No.",
@@ -680,7 +680,7 @@ def create_flyer_report(filename, uuid, brand_list, organization_obj):
 
 def create_image_report(filename, uuid, brand_list, organization_obj):
 
-    workbook = xlsxwriter.Workbook('./'+filename)
+    workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
     worksheet = workbook.add_worksheet()
 
     row = ["Sr. No.",
@@ -759,7 +759,7 @@ def create_image_report(filename, uuid, brand_list, organization_obj):
 
 def create_wigme_report(filename, uuid, brand_list, custom_permission_obj,location_group_obj):
 
-    workbook = xlsxwriter.Workbook('./'+filename)
+    workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
     worksheet = workbook.add_worksheet()
 
     row = ["Sr. No.",
@@ -825,7 +825,7 @@ def create_wigme_report(filename, uuid, brand_list, custom_permission_obj,locati
 
 def create_search_keyword_report(filename, uuid, custom_permission_obj,location_group_obj):
 
-    workbook = xlsxwriter.Workbook('./'+filename)
+    workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
     worksheet = workbook.add_worksheet()
 
     row = ["Sr. No.",
@@ -877,7 +877,7 @@ def create_search_keyword_report(filename, uuid, custom_permission_obj,location_
 
 def create_sales_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj,location_group_obj):
 
-    workbook = xlsxwriter.Workbook('./'+filename)
+    workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
     worksheet = workbook.add_worksheet()
 
     row = ["Sr. No.",
@@ -961,7 +961,7 @@ def create_order_report(filename, uuid, from_date, to_date, brand_list, custom_p
 
     try:
         logger.info("create_order_report started!")
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Sr. No.",
@@ -1103,7 +1103,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
 
     try:
         logger.info("create_daily_sales_report started!")
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Sr. No.",
@@ -1201,7 +1201,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
 
 def create_verified_products_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj):
 
-    workbook = xlsxwriter.Workbook('./'+filename)
+    workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
     worksheet = workbook.add_worksheet()
 
     row = ["Sr. No.",
@@ -1270,7 +1270,7 @@ def create_verified_products_report(filename, uuid, from_date, to_date, brand_li
 def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj, location_group_obj):
 
     try:
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Sr. No.",
@@ -1335,7 +1335,7 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj, lo
 def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_obj, location_group_obj):
 
     try:
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Sr. No.",
@@ -1404,7 +1404,7 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
 def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permission_obj, location_group_obj):
     try:
         logger.info('Sap billing report start..')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Sr. No.",
@@ -1508,7 +1508,7 @@ def create_sap_billing_report(filename, uuid, from_date, to_date, custom_permiss
 def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_permission_obj, location_group_obj):
     try:
         logger.info('Sendex Courier report start...')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Sr. No.",
@@ -1611,7 +1611,7 @@ def create_sendex_courier_report(filename, uuid, from_date, to_date, custom_perm
 def create_standard_courier_report(filename, uuid, from_date, to_date, custom_permission_obj, location_group_obj):
     try:
         logger.info('Standard Courier report start...')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Sr. No.",
@@ -1730,7 +1730,7 @@ def create_standard_courier_report(filename, uuid, from_date, to_date, custom_pe
 def create_postaplus_courier_report(filename, uuid, from_date, to_date, custom_permission_obj, location_group_obj):
     try:
         logger.info('Postaplus Courier report start...')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["No.",
@@ -1867,7 +1867,7 @@ def create_sales_executive_value_report(filename, uuid, from_date, to_date, cust
     
     try:
         logger.info('Sales Executive Value report start...')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["No.",
@@ -1946,7 +1946,7 @@ def create_sales_executive_value_report(filename, uuid, from_date, to_date, cust
 def bulk_download_product_seo_details_report(filename, uuid, location_group_obj):
     try:
         logger.info('Product seo details download report start...')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["No.",
@@ -2019,7 +2019,7 @@ def bulk_download_product_seo_details_report(filename, uuid, location_group_obj)
 def bulk_download_categories_seo_details_report(filename, uuid, location_group_obj, category_type):
     try:
         logger.info('seo categories download report start...')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["No.",
@@ -2106,7 +2106,7 @@ def bulk_download_categories_seo_details_report(filename, uuid, location_group_o
 def bulk_download_brand_categories_seo_details_report(filename, uuid, location_group_obj, category_type):
     try:
         logger.info('Categories+brand seo details download report start...')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["No.",
@@ -2194,7 +2194,7 @@ def bulk_download_brand_categories_seo_details_report(filename, uuid, location_g
 def bulk_download_brand_seo_details_report(filename, uuid, location_group_obj):
     try:
         logger.info('Brand seo details download report start...')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["No.",
@@ -2418,7 +2418,7 @@ def create_bulk_image_report(filename, uuid, brand_list, organization_obj=None):
     
     try:
         logger.info("Bulk image report started...")
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         product_objs = Product.objects.filter(base_product__brand__name__in=brand_list, base_product__brand__organization=organization_obj)
@@ -2667,7 +2667,7 @@ def create_bulk_image_report(filename, uuid, brand_list, organization_obj=None):
 def create_stock_report(filename, uuid, brand_list, location_group_obj):
     try:
         logger.info('Stock Report download report start...')
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["No.",
@@ -2730,7 +2730,7 @@ def create_stock_report(filename, uuid, brand_list, location_group_obj):
 def create_newsletter_subscribers_report(filename, uuid, location_group_obj):
 
     try:
-        workbook = xlsxwriter.Workbook('./'+filename)
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
         worksheet = workbook.add_worksheet()
 
         row = ["Sr. No.",
