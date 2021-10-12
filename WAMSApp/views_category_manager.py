@@ -413,8 +413,10 @@ class AddNewAdminSuperCategoryAPI(APIView):
             if image!="":
                 image_obj = Image.objects.create(image=image)
 
-            super_category_obj = SuperCategory.objects.create(name=name,
-                                                              image=image_obj)
+            organization_name = data["organization"]
+            organization_obj = Organization.objects.get(name=organization_name)
+            super_category_obj = SuperCategory.objects.create(name=name,image=image_obj,organization = organization_obj)
+            
             response["name"] = name
             response["uuid"] = super_category_obj.uuid
             if super_category_obj.image!=None:

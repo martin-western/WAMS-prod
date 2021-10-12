@@ -1415,7 +1415,7 @@ class Order(models.Model):
 
     def get_customer_id_for_final_sap_billing(self):
         shipping_method = UnitOrder.objects.filter(order=self)[0].shipping_method.lower()
-        if shipping_method not in ["wig fleet", "grand gaadi", "sendex", "standard"]:
+        if shipping_method not in ["wig fleet", "grand gaadi", "sendex", "standard", "emirates post"]:
             return
         payment_status = self.payment_status.lower()
         if shipping_method == "standard" and payment_status == "cod":
