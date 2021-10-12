@@ -7527,16 +7527,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     address_obj = order_obj.shipping_address
                     
-                    shipping_address = {
-                        "firstName": address_obj.first_name,
-                        "lastName": address_obj.last_name,
-                        "line1": json.loads(address_obj.address_lines)[0],
-                        "line2": json.loads(address_obj.address_lines)[1],
-                        "line3": json.loads(address_obj.address_lines)[2],
-                        "line4": json.loads(address_obj.address_lines)[3],
-                        "state": address_obj.state,
-                        "emirates": address_obj.emirates
-                    }
+                    shipping_address = get_address_dict(address_obj)
 
                     customer_name = address_obj.first_name
                     if location_group_obj.is_b2b==True:
