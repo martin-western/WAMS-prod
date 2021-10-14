@@ -189,8 +189,8 @@ class DealsHubProductRecoveryManager(models.Manager):
 class DealsHubProduct(models.Model):
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True)
-    product_name = models.CharField(max_length=500, default="")
-    product_name_ar = models.CharField(max_length=500,default="")
+    product_name = models.CharField(max_length=255, default="")
+    product_name_ar = models.CharField(max_length=255,default="")
     product_description = models.TextField(default="", blank=True)
     product_description_ar = models.TextField(default="", blank=True)
     was_price = models.FloatField(default=0)
