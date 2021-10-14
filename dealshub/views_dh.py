@@ -539,7 +539,10 @@ class CreateOfflineShippingAddressAPI(APIView):
                     tag = ""
 
                 address_obj = Address.objects.create(user=dealshub_user_obj,first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj, emirates=emirates)
-
+                if address_obj.location_group.name == "Geepas-Uganda":
+                    address_obj.region = emirates
+                    address_obj.city = line4
+                    address_obj.save()
                 response["uuid"] = address_obj.uuid
 
                 render_value = "New Offline Shipping Address created for " + username
