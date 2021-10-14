@@ -333,6 +333,10 @@ class EditShippingAddressAPI(APIView):
             address_obj.emirates = emirates
             address_obj.city = city
             address_obj.region = region
+            if address_obj.location_group.name == "Geepas-Uganda":
+                address_obj.region = emirates
+                address_obj.city = line4
+
             address_obj.state = state
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
@@ -410,7 +414,10 @@ class CreateShippingAddressAPI(APIView):
                                                 city=city,
                                                 region=region,
                                                 is_shipping=True)
-
+            if address_obj.location_group.name == "Geepas-Uganda":
+                address_obj.region = emirates
+                address_obj.city = line4
+                address_obj.save()
             response["uuid"] = address_obj.uuid
             response['status'] = 200
 
