@@ -333,6 +333,10 @@ class EditShippingAddressAPI(APIView):
             address_obj.emirates = emirates
             address_obj.city = city
             address_obj.region = region
+            if address_obj.location_group.name == "Geepas-Uganda":
+                address_obj.region = emirates
+                address_obj.city = line4
+
             address_obj.state = state
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
@@ -410,7 +414,10 @@ class CreateShippingAddressAPI(APIView):
                                                 city=city,
                                                 region=region,
                                                 is_shipping=True)
-
+            if address_obj.location_group.name == "Geepas-Uganda":
+                address_obj.region = emirates
+                address_obj.city = line4
+                address_obj.save()
             response["uuid"] = address_obj.uuid
             response['status'] = 200
 
@@ -532,7 +539,10 @@ class CreateOfflineShippingAddressAPI(APIView):
                     tag = ""
 
                 address_obj = Address.objects.create(user=dealshub_user_obj,first_name=first_name, last_name=last_name, address_lines=address_lines, state=state, postcode=postcode, contact_number=contact_number, tag=tag, location_group=location_group_obj, emirates=emirates)
-
+                if address_obj.location_group.name == "Geepas-Uganda":
+                    address_obj.region = emirates
+                    address_obj.city = line4
+                    address_obj.save()
                 response["uuid"] = address_obj.uuid
 
                 render_value = "New Offline Shipping Address created for " + username
@@ -7527,16 +7537,7 @@ class FetchOrdersForWarehouseManagerAPI(APIView):
 
                     address_obj = order_obj.shipping_address
                     
-                    shipping_address = {
-                        "firstName": address_obj.first_name,
-                        "lastName": address_obj.last_name,
-                        "line1": json.loads(address_obj.address_lines)[0],
-                        "line2": json.loads(address_obj.address_lines)[1],
-                        "line3": json.loads(address_obj.address_lines)[2],
-                        "line4": json.loads(address_obj.address_lines)[3],
-                        "state": address_obj.state,
-                        "emirates": address_obj.emirates
-                    }
+                    shipping_address = get_address_dict(address_obj)
 
                     customer_name = address_obj.first_name
                     if location_group_obj.is_b2b==True:

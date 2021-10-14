@@ -2734,9 +2734,30 @@ def get_address_dict(address_obj):
     '''
     Returns the address information in a dict format
     '''
+
     if address_obj == None:
         return {}
     else:
+        if address_obj.location_group.name == "Geepas-Uganda":
+            return {
+            "firstName": address_obj.first_name,
+            "lastName": address_obj.last_name,
+            "line1": json.loads(address_obj.address_lines)[0],
+            "line2": json.loads(address_obj.address_lines)[1],
+            "line3": json.loads(address_obj.address_lines)[2],
+            "line4": address_obj.city,
+            "city": address_obj.city,
+            "region":address_obj.region, 
+            "emirates": address_obj.region,
+            "state": address_obj.state,
+            "country": address_obj.get_country(),
+            "postcode": address_obj.postcode,
+            "contactNumber": str(address_obj.contact_number),
+            "tag": str(address_obj.tag),
+            "uuid": str(address_obj.uuid),
+            "neighbourhood": str(address_obj.neighbourhood)
+            }
+
         return {
             "firstName": address_obj.first_name,
             "lastName": address_obj.last_name,

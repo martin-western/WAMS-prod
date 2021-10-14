@@ -817,8 +817,8 @@ class FetchHeadingSuperCategoriesAPI(APIView):
             data = request.data
             language_code = data.get("language","en")
             logger.info("FetchHeadingSuperCategoriesAPI: %s", str(data))
-            # website_group_name = data["websiteGroupName"]
-            # website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            website_group_name = data["websiteGroupName"]
+            website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
             
             super_category_names = ["HOMEWARE","APPLIANCES","ENTERTAINMENT","PERSONAL CARE","LIGHTING DEVICES","DIY TOOLS","BATH FITTINGS",]
             super_category_list = []
@@ -839,10 +839,8 @@ class FetchHeadingSuperCategoriesAPI(APIView):
                             temp_dict2 = {}
                             temp_dict2["name"] = (sub_category_obj.get_name(language_code)).upper()
                             temp_dict2["uuid"] = sub_category_obj.uuid
-                            if DealsHubProduct.objects.filter(sub_category = sub_category_obj,is_published=True).exclude(now_price=0).exclude(stock=0).exists():
+                            if DealsHubProduct.objects.filter(sub_category = sub_category_obj,is_published=True,location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
                                 sub_category_list.append(temp_dict2)
-                            # if DealsHubProduct.objects.filter(sub_category = sub_category_obj,is_published=True,location_group__website_group=website_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
-                            #     sub_category_list.append(temp_dict2)
                     temp_dict["subCategoryList"] = sub_category_list
                     if len(sub_category_list):
                         super_category_list.append(temp_dict)
