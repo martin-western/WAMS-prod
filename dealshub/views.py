@@ -820,7 +820,7 @@ class FetchHeadingSuperCategoriesAPI(APIView):
             website_group_name = data["websiteGroupName"]
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
             
-            super_category_names = ["HOMEWARE","APPLIANCES","ENTERTAINMENT","PERSONAL CARE","LIGHTING DEVICES","DIY TOOLS","BATH FITTINGS",]
+            super_category_names = ["HOMEWARE","APPLIANCES","ENTERTAINMENT","PERSONAL CARE","LIGHTING","DIY TOOLS","BATH FITTINGS","ELECTRONICS","GROOMING"]
             super_category_list = []
             for super_category_name in super_category_names:
                 try:
