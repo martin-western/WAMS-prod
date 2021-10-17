@@ -10206,7 +10206,7 @@ class GRNProcessingCronAPI(APIView):
                     GRN_products = GRN_File.split('\n')
                     GRN_products = GRN_products[:-1]
 
-                    GRN_information_dict = {}
+                    GRN_information_dict = {} #GRN information grouped by seller sku
 
                     for product in GRN_products:
                         info = product.split(';')
@@ -10217,21 +10217,19 @@ class GRNProcessingCronAPI(APIView):
                         temp_dict["batch"] = info[3]
                         temp_dict["qty"] = info[4]
                         temp_dict["uom"] = info[5]
-                        GRN_information_dict[seller_sku] = temp_dict
+                        if seller_sku not in GRN_information_dict:
+                            GRN_information_dict[seller_sku] = []
+                        GRN_information_dict[seller_sku].append(temp_dict)
 
                     for unit_order_obj in unit_order_objs:
                         
                         unit_order_information = json.loads(unit_order_obj.order_information)
-                        unit_order_information["final_billing_info"] = {}
+                        unit_order_information["final_billing_info"] = []
 
                         seller_sku = unit_order_obj.product.get_seller_sku()
-                        GRN_info = GRN_information_dict.get(seller_sku,None)
+                        grn_batch_wise_list = GRN_information_dict.get(seller_sku,None)
 
-                        if GRN_info != None:
-                            GRN_info["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
-                            GRN_info["price"] = unit_order_information["intercompany_sales_info"]["price"]
-                            unit_order_information["final_billing_info"] = GRN_info
-                        else:
+                        if grn_batch_wise_list == None:
                             temp_dict_default = {}
                             temp_dict_default["seller_sku"] = seller_sku
                             temp_dict_default["location"] = ""
@@ -10240,7 +10238,13 @@ class GRNProcessingCronAPI(APIView):
                             temp_dict_default["uom"] = ""
                             temp_dict_default["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
                             temp_dict_default["price"] = unit_order_information["intercompany_sales_info"]["price"]
-                            unit_order_information["final_billing_info"] = temp_dict_default
+                            unit_order_information["final_billing_info"].append(temp_dict_default)
+                        
+                        else:
+                            for grn_info in grn_batch_wise_list:
+                                grn_info["from_holding"] = unit_order_information["intercompany_sales_info"]["from_holding"]
+                                grn_info["price"] = unit_order_information["intercompany_sales_info"]["price"]
+                                unit_order_information["final_billing_info"].append(grn_info)
                         
                         unit_order_obj.order_information = json.dumps(unit_order_information)
                         unit_order_obj.grn_filename_exists = True
@@ -10288,8 +10292,8 @@ class GRNProcessingCronAPI(APIView):
                             seller_sku_list.append(unit_order_obj.product.get_seller_sku())
                             unit_order_final_billing_information = json.loads(unit_order_obj.order_information)["final_billing_info"]
                             
-                            if unit_order_final_billing_information != {}:
-                                unit_order_information_list.append(unit_order_final_billing_information)
+                            if unit_order_final_billing_information != []:
+                                unit_order_information_list += unit_order_final_billing_information
                         
                         order_information["unit_order_information_list"] = unit_order_information_list
 
