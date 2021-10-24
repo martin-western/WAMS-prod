@@ -1574,9 +1574,13 @@ class UnitOrder(models.Model):
             return ""
 
     def get_sap_final_order_qty(self):
-        try:
+        try: 
+            qty = 0  
             final_billing_info_list = json.loads(self.order_information)["final_billing_info"]
-            qty = 0
+            if isinstance(final_billing_info_list, dict):
+                qty = float(final_billing_info_list["qty"])
+                return qty
+
             for final_billing_info in final_billing_info_list:
                 qty += float(final_billing_info["qty"])
 
