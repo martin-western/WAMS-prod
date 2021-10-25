@@ -789,6 +789,7 @@ class FetchSuperCategoriesAPI(APIView):
 
             response['superCategoryList'] = super_category_list
             response['status'] = 200
+            logger.error("RESPONSE  ",response)
 
             try:
                 dealshub_user_obj = DealsHubUser.objects.get(username=request.user.username)
