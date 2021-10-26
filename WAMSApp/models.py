@@ -1283,12 +1283,20 @@ class Product(models.Model):
         if self.channel_product == None:
             channel_product_obj = ChannelProduct.objects.create()
             self.channel_product = channel_product_obj
-            if not SubImages.objects.filter(product=self,channel=channel_product_obj).exists():
-                SubImages.objects.create(product=self,channel=channel_product_obj)
+            try:
+                if not SubImages.objects.filter(product=self,channel=channel_product_obj).exists():
+                    SubImages.objects.create(product=self,channel=channel_product_obj)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Product: %s at %s", e, str(exc_tb.tb_lineno)) 
 
-        if not SubImages.objects.filter(product=self,is_sourced=True).exists():
-            SubImages.objects.create(product=self,is_sourced=True)
-        
+        try:
+            if not SubImages.objects.filter(product=self,is_sourced=True).exists():
+                SubImages.objects.create(product=self,is_sourced=True)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Product: %s at %s", e, str(exc_tb.tb_lineno))
+                  
         channel_product_obj = self.channel_product
         try:
             noon_product_json_temp = json.loads(channel_product_obj.noon_product_json)
