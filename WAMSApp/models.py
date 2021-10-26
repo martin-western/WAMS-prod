@@ -1283,7 +1283,12 @@ class Product(models.Model):
         if self.channel_product == None:
             channel_product_obj = ChannelProduct.objects.create()
             self.channel_product = channel_product_obj
+            if not SubImages.objects.filter(product=self,channel=channel_product_obj).exists():
+                SubImages.objects.create(product=self,channel=channel_product_obj)
 
+        if not SubImages.objects.filter(product=self,is_sourced=True).exists():
+            SubImages.objects.create(product=self,is_sourced=True)
+        
         channel_product_obj = self.channel_product
         try:
             noon_product_json_temp = json.loads(channel_product_obj.noon_product_json)

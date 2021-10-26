@@ -2764,10 +2764,10 @@ class UploadProductImageAPI(APIView):
             elif data["image_category"] == "sub_images":
                 index = 0
                 if data["channel_name"] == "" or data["channel_name"] == None:
-                    sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,is_sourced=True)
+                    sub_images_obj = SubImages.objects.get(product=product_obj,is_sourced=True)
                 else:
                     channel_obj = Channel.objects.get(name=data["channel_name"])
-                    sub_images_obj , created = SubImages.objects.get_or_create(product=product_obj,channel=channel_obj)
+                    sub_images_obj = SubImages.objects.get(product=product_obj,channel=channel_obj)
                 if created:
                     prev_instance = None
                 else:
@@ -7583,12 +7583,13 @@ class FetchDealshubProductDetailsAPI(APIView):
                 return Response(data=response)
 
             uuid = data["product_uuid"]
-            dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
+            dealshub_product_obj = DealsHubProduct.objects.filter(uuid=uuid).last()
 
             is_b2b = False
             location_group_uuid = data.get("locationGroupUuid","")
             if location_group_uuid != "":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+                dealshub_product_obj = DealsHubProduct.objects.filter(uuid=uuid,location_group = location_group_obj).last()
                 is_b2b = location_group_obj.is_b2b
 
             response["product_name"] = dealshub_product_obj.get_name()
