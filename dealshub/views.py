@@ -725,19 +725,24 @@ class FetchSuperCategoriesAPI(APIView):
             logger.info("FetchSuperCategoriesAPI: %s", str(data))
             website_group_name = data["websiteGroupName"]
 
+            website_group_obj = WebsiteGroup.objects.none()
+            try:
+                website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            except:
+
+                # need to tell frontend to send only websiteGroupName and not locationGroupUuid
+
+                location_group_uuid = data["locationGroupUuid"]
+                location_group_obj = LocationGroup.objects.get(uuid = location_group_uuid)
+                website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name
+            
             cached_value = cache.get("sc-list-"+website_group_name+"-"+language_code, "has_expired")
             if cached_value!="has_expired":
                 response["superCategoryList"] = json.loads(cached_value)
                 response['status'] = 200
                 return Response(data=response)
-            website_group_obj = WebsiteGroup.objects.none()
-            try:
-                website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
-            except:
-                location_group_uuid = data["locationGroupUuid"]
-                location_group_obj = LocationGroup.objects.get(uuid = location_group_uuid)
-                website_group_obj = location_group_obj.website_group
-
+            
             super_category_objs = website_group_obj.super_categories.all()
 
             super_category_list = []
