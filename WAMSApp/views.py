@@ -728,7 +728,7 @@ class FetchBaseProductDetailsAPI(APIView):
                 logger.warning("FetchBaseProductDetailsAPI Restricted Access!")
                 return Response(data=response)
 
-            base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
+            base_product_obj = BaseProduct.objects.filter(pk=data["base_product_pk"]).last()
             brand_obj = base_product_obj.brand
 
             permissible_brands = custom_permission_filter_brands(request.user)
@@ -785,7 +785,7 @@ class FetchProductDetailsAPI(APIView):
                 logger.warning("FetchProductDetailsAPI Restricted Access!")
                 return Response(data=response)
 
-            product_obj = Product.objects.get(pk=data["product_pk"])
+            product_obj = Product.objects.filter(pk=data["product_pk"]).last()
             base_product_obj = product_obj.base_product
             channel_product_obj = product_obj.channel_product
             noon_product_dict = json.loads(channel_product_obj.noon_product_json)
