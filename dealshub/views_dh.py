@@ -5049,7 +5049,7 @@ class SendB2BOTPSMSLoginAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["888888888", "940804016", "888888881", "702290032", "888888883", "888888884"]:
+            if contact_number in ["888888888","777777777", "940804016", "888888881", "702290032", "888888883", "888888884"]:
                 OTP = "777777"
 
             otp_sent = False
@@ -5124,7 +5124,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["888888888", "940804016", "888888881", "702290032", "888888883", "888888884"]:
+            if contact_number in ["888888888","777777777", "940804016", "888888881", "702290032", "888888883", "888888884"]:
                 OTP = "777777"
 
             is_new_user = False
@@ -5338,7 +5338,7 @@ class SendOTPSMSLoginAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["88888888", "888888888", "940804016", "888888881", "702290032"]:
+            if contact_number in ["88888888", "888888888","777777777", "940804016", "888888881", "702290032"]:
                 OTP = "777777"
 
             is_new_user = False
@@ -5781,7 +5781,7 @@ class VerifyOTPSMSLoginAPI(APIView):
                     for i in range(6):
                         OTP += digits[int(math.floor(random.random()*10))]
 
-                    if contact_number in ["88888888", "888888888", "940804016", "888888881", "702290032"]:
+                    if contact_number in ["88888888", "888888888","777777777","888888884", "940804016", "888888881", "702290032"]:
                         OTP = "777777"
 
                     dealshub_user_obj.set_password(OTP)
