@@ -846,7 +846,7 @@ class FetchProductDetailsAPI(APIView):
                 response["category"] = "" if base_product_obj.category==None else str(base_product_obj.category)
                 response["sub_category"] = "" if base_product_obj.sub_category==None else str(base_product_obj.sub_category)
                 response["category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.uuid)
-                response["super_category_uuid"] = "" if base_product_obj.category.super_category==None else str(base_product_obj.category.super_category.uuid)
+                response["super_category_uuid"] = "" if base_product_obj.category==None else str(base_product_obj.category.super_category.uuid)
             except:
                 response["super_category_uuid"] = ""
 
