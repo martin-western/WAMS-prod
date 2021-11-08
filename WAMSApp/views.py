@@ -728,7 +728,7 @@ class FetchBaseProductDetailsAPI(APIView):
                 logger.warning("FetchBaseProductDetailsAPI Restricted Access!")
                 return Response(data=response)
 
-            base_product_obj = BaseProduct.objects.filter(pk=data["base_product_pk"]).first()
+            base_product_obj = BaseProduct.objects.get(pk=data["base_product_pk"])
             brand_obj = base_product_obj.brand
 
             permissible_brands = custom_permission_filter_brands(request.user)
@@ -790,7 +790,7 @@ class FetchProductDetailsAPI(APIView):
                 logger.warning("FetchProductDetailsAPI Restricted Access!")
                 return Response(data=response)
 
-            product_obj = Product.objects.filter(pk=data["product_pk"]).first()
+            product_obj = Product.objects.get(pk=data["product_pk"])
             base_product_obj = product_obj.base_product
             channel_product_obj = product_obj.channel_product
             noon_product_dict = json.loads(channel_product_obj.noon_product_json)
@@ -7592,13 +7592,12 @@ class FetchDealshubProductDetailsAPI(APIView):
                 return Response(data=response)
 
             uuid = data["product_uuid"]
-            dealshub_product_obj = DealsHubProduct.objects.filter(uuid=uuid).last()
+            dealshub_product_obj = DealsHubProduct.objects.get(uuid=uuid)
 
             is_b2b = False
             location_group_uuid = data.get("locationGroupUuid","")
             if location_group_uuid != "":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
-                dealshub_product_obj = DealsHubProduct.objects.filter(uuid=uuid,location_group = location_group_obj).last()
                 is_b2b = location_group_obj.is_b2b
 
             response["product_name"] = dealshub_product_obj.get_name()
