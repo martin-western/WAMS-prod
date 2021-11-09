@@ -4209,7 +4209,7 @@ class FetchCustomerOrdersAPI(APIView):
                 temp_dict["bundleId"] = str(order_obj.bundleid)
                 temp_dict["paymentMode"] = order_obj.payment_mode
                 temp_dict["uuid"] = order_obj.uuid
-                temp_dict["shippingMethod"] = UnitOrder.objects.filter(order=order_obj)[0].shipping_method
+                temp_dict["shippingMethod"] = "pending" if UnitOrder.objects.filter(order=order_obj).first() == None else UnitOrder.objects.filter(order=order_obj).first().shipping_method
                 temp_dict["call_status"] = order_obj.call_status
                 temp_dict["sapStatus"] = order_obj.sap_status
                 unit_order_list = []
