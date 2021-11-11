@@ -103,6 +103,7 @@ class MakePaymentOnlineTAPAPI(APIView):
                 cart_obj.save()
             
             order_result = complete_payment_charges(generic_cart_obj = fast_cart_obj if is_fast_cart else cart_obj, reference=reference, token_id=data["token_id"])
+            logger.error("MakePaymentOnlineTAPAPI" , order_result)
 
             if data["token_id"] == "src_kw.knet":
                 response["knet_url"] = order_result["transaction"]["url"]
