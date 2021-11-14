@@ -567,11 +567,11 @@ class DealsHubProduct(models.Model):
         # cached_url = cache.get("display_url_"+str(self.uuid), "has_expired")
         # if cached_url!="has_expired":
         #     return cached_url
-        lifestyle_image_objs = self.product.lifestyle_images.all()
-        if lifestyle_image_objs.exists():
-            display_image_url = lifestyle_image_objs[0].mid_image.url
-            #cache.set("display_url_"+str(self.uuid), display_image_url)
-            return display_image_url
+        # lifestyle_image_objs = self.product.lifestyle_images.all()
+        # if lifestyle_image_objs.exists():
+        #     display_image_url = lifestyle_image_objs[0].mid_image.url
+        #     #cache.set("display_url_"+str(self.uuid), display_image_url)
+        #     return display_image_url
         return self.get_main_image_url()
 
     def get_optimized_display_image_url(self):
