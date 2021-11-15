@@ -5567,7 +5567,7 @@ class CreateVoucherAPI(APIView):
                 if voucher_obj.super_categories.count() == 0:
                     super_category_objs = voucher_obj.location_group.website_group.super_categories.all()
                     for super_category_obj in super_category_objs:
-                        self.super_categories.add(super_category_obj)
+                        voucher_obj.super_categories.add(super_category_obj)
                 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
