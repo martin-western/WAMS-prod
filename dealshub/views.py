@@ -5617,7 +5617,7 @@ class UpdateVoucherAPI(APIView):
             website_group_super_category_objs = voucher_obj.location_group.website_group.super_categories.all()
             voucher_obj.super_categories.clear()
             for super_category_name in super_category_list:
-                voucher_obj.super_categories.add(website_group_super_category_objs.filter(name=super_category_name))
+                voucher_obj.super_categories.add(website_group_super_category_objs.filter(name=super_category_name).first())
                 voucher_obj.save()
 
             location_group_obj = voucher_obj.location_group
