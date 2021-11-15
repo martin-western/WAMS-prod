@@ -59,8 +59,8 @@ class Promotion(models.Model):
         super(Promotion, self).save(*args, **kwargs)
 
 
-class Voucher(models.Model):
 
+class Voucher(models.Model):
     uuid = models.CharField(max_length=200,default="",unique=True)
     voucher_code = models.CharField(max_length=50)
     start_time = models.DateTimeField(null=True)
@@ -84,7 +84,7 @@ class Voucher(models.Model):
     is_deleted = models.BooleanField(default=False)
     is_published = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
-    super_categories = models.ManyToManyField(SuperCategory, related_name="super_categories",null = True, blank=True)
+    super_categories = models.ManyToManyField(SuperCategory, related_name="super_categories", blank=True)
 
     def __str__(self):
         return str(self.uuid)
