@@ -146,7 +146,7 @@ class Voucher(models.Model):
             self.uuid = str(uuid.uuid4())
         try:
             if self.super_categories.all().count() == 0:
-                super_category_objs = LocationGroup.objects.filter(name=self.location_group.name).website_group.super_categories.all()
+                super_category_objs = LocationGroup.objects.get(name=self.location_group.name).website_group.super_categories.all()
                 for super_category_obj in super_category_objs:
                     self.super_categories.add(super_category_obj)
         except Exception as e:
