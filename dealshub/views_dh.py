@@ -9009,7 +9009,7 @@ class ApplyVoucherCodeAPI(APIView):
                 unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
                 for unit_cart_obj in unit_cart_objs:
                     dealshub_product_obj = unit_cart_obj.product
-                    super_category_obj = dealshub_product_obj.get_super_category()
+                    super_category_obj = dealshub_product_obj.category.super_category
                     if voucher_obj.is_super_category_satisfy(super_category_obj)==False:
                         response["error_message"] = "NOT APPLICABLE FOR " + dealshub_product_obj.product.product_name
                         response["voucher_success"] = False
@@ -9017,7 +9017,7 @@ class ApplyVoucherCodeAPI(APIView):
                         return Response(data=response)
             else:
                 dealshub_product_obj = fast_cart_obj.product
-                super_category_obj = dealshub_product_obj.get_super_category()
+                super_category_obj = dealshub_product_obj.category.super_category
                 if voucher_obj.is_super_category_satisfy(super_category_obj)==False:
                     response["error_message"] = "NOT APPLICABLE FOR " + dealshub_product_obj.product.product_name
                     response["voucher_success"] = False
@@ -9312,7 +9312,7 @@ class ApplyOfflineVoucherCodeAPI(APIView):
             for unit_cart_obj in unit_cart_objs:
                 try:
                     dealshub_product_obj = unit_cart_obj.product
-                    super_category_obj = dealshub_product_obj.get_super_category()
+                    super_category_obj = dealshub_product_obj.category.super_category
                     if voucher_obj.is_super_category_satisfy(super_category_obj)==False:
                         response["error_message"] = "NOT APPLICABLE FOR " + dealshub_product_obj.product.product_name
                         response["voucher_success"] = False
