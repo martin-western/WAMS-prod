@@ -5563,6 +5563,17 @@ class CreateVoucherAPI(APIView):
                                                  location_group=location_group_obj,
                                                  description=description)
 
+            try:
+                if voucher_obj.super_categories.count() == 0:
+                    super_category_objs = voucher_obj.location_group.website_group.super_categories.all()
+                    for super_category_obj in super_category_objs:
+                        self.super_categories.add(super_category_obj)
+                
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("CreateVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
+                
+            voucher_obj.save()
             response["uuid"] = str(voucher_obj.uuid)
             response["status"] = 200
             render_value = "Voucher " + voucher_obj.voucher_code + " created on " + location_group_obj.name

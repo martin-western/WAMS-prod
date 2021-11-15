@@ -149,17 +149,6 @@ class Voucher(models.Model):
             
         super(Voucher, self).save(*args, **kwargs)
 
-        try:
-            if self.super_categories.all().count() == 0:
-                super_category_objs = LocationGroup.objects.get(name=self.location_group.name).website_group.super_categories.all()
-                for super_category_obj in super_category_objs:
-                    self.super_categories.add(super_category_obj)
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logger.error("In Class Voucher: %s at %s", e, str(exc_tb.tb_lineno))
-            
-        super(Voucher, self).save(*args, **kwargs)
-
 
 def add_product_to_index(dealshub_product_obj):
 
