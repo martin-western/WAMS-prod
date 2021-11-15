@@ -106,7 +106,9 @@ class Voucher(models.Model):
         return False
     
     def is_super_category_satisfy(self,super_category_obj):
-        if self.super_categories.filter(name=super_category_obj.name).exists():
+        logger.info("super_category_obj__name ",super_category_obj)
+        super_category_name = super_category_obj.name
+        if self.super_categories.filter(name=super_category_name).exists():
             return True
         return False
 
