@@ -146,6 +146,9 @@ class Voucher(models.Model):
 
         if self.uuid == None or self.uuid=="":
             self.uuid = str(uuid.uuid4())
+            
+        super(Voucher, self).save(*args, **kwargs)
+
         try:
             if self.super_categories.all().count() == 0:
                 super_category_objs = LocationGroup.objects.get(name=self.location_group.name).website_group.super_categories.all()
