@@ -9006,6 +9006,24 @@ class ApplyVoucherCodeAPI(APIView):
                 return Response(data=response)
             
             if is_fast_cart==False:
+                unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
+                for unit_cart_obj in unit_cart_objs:
+                    dealshub_product_obj = unit_cart_obj.product
+                    super_category_obj = dealshub_product_obj.get_super_category()
+                    if voucher_obj.is_super_category_satisfy(super_category_obj)==False:
+                        response["error_message"] = "NOT APPLICABLE FOR " + dealshub_product_obj.product.product_name                        response["voucher_success"] = False
+                        response["status"] = 200
+                        return Response(data=response)
+            else:
+                dealshub_product_obj = fast_cart_obj.product
+                super_category_obj = dealshub_product_obj.get_super_category()
+                if voucher_obj.is_super_category_satisfy(super_category_obj)==False:
+                    response["error_message"] = "NOT APPLICABLE FOR " + dealshub_product_obj.product.product_name
+                    response["voucher_success"] = False
+                    response["status"] = 200
+                    return Response(data=response)
+
+            if is_fast_cart==False:
                 cart_obj.voucher = voucher_obj
                 cart_obj.save()
 
@@ -9288,6 +9306,20 @@ class ApplyOfflineVoucherCodeAPI(APIView):
                 response["voucher_success"] = False
                 response["status"] = 200
                 return Response(data=response)
+
+            unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
+            for unit_cart_obj in unit_cart_objs:
+                try:
+                    dealshub_product_obj = unit_cart_obj.product
+                    super_category_obj = dealshub_product_obj.get_super_category()
+                    if voucher_obj.is_super_category_satisfy(super_category_obj)==False:
+                        response["error_message"] = "NOT APPLICABLE FOR " + dealshub_product_obj.product.product_name
+                        response["voucher_success"] = False
+                        response["status"] = 200
+                        return Response(data=response)
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("ApplyOfflineVoucherCodeAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             if is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj)==True:
                 response["error_message"] = "LIMIT EXCEEDED"

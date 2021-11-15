@@ -84,6 +84,7 @@ class Voucher(models.Model):
     is_deleted = models.BooleanField(default=False)
     is_published = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    super_categories = models.ManyToManyField(SuperCategory, related_name="super_categories",null = True, blank=True)
 
     def __str__(self):
         return str(self.uuid)
@@ -101,6 +102,11 @@ class Voucher(models.Model):
 
     def is_eligible(self, subtotal):
         if subtotal>=self.minimum_purchase_amount:
+            return True
+        return False
+    
+    def is_super_category_satisfy(self,super_category_obj):
+        if self.super_categories.filter(name=super_category_obj.name).exists():
             return True
         return False
 
@@ -138,7 +144,15 @@ class Voucher(models.Model):
 
         if self.uuid == None or self.uuid=="":
             self.uuid = str(uuid.uuid4())
-
+        try:
+            if self.super_categories.all().count() == 0:
+                super_category_objs = LocationGroup.objects.filter(name=self.location_group.name).website_group.super_categories.all()
+                for super_category_obj in super_category_objs:
+                    self.super_categories.add(super_category_obj)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("In Class Voucher: %s at %s", e, str(exc_tb.tb_lineno))
+            
         super(Voucher, self).save(*args, **kwargs)
 
 

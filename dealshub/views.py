@@ -5601,6 +5601,7 @@ class UpdateVoucherAPI(APIView):
             voucher_obj.end_time = data["end_time"]
             voucher_obj.voucher_type = data["voucher_type"]
             voucher_obj.description = data["description"]
+            super_category_list = data["superCategory"]
 
             if voucher_obj.voucher_type == "PD":
                 voucher_obj.percent_discount = float(data["percent_discount"])
@@ -5612,6 +5613,12 @@ class UpdateVoucherAPI(APIView):
             voucher_obj.customer_usage_limit = int(data["customer_usage_limit"])
             voucher_obj.maximum_usage_limit = int(data["maximum_usage_limit"])
             voucher_obj.save()
+
+            website_group_super_category_objs = voucher_obj.location_group.website_group.super_categories.all()
+            voucher_obj.super_categories.clear()
+            for super_category_name in super_category_list:
+                voucher_obj.super_categories.add(website_group_super_category_objs.filter(name=super_category_name))
+                voucher_obj.save()
 
             location_group_obj = voucher_obj.location_group
 
