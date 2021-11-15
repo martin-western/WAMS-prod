@@ -5664,6 +5664,7 @@ class FetchVouchersAPI(APIView):
                 temp_dict["end_time"] = voucher_obj.end_time
                 temp_dict["voucher_type"] = voucher_obj.voucher_type
                 temp_dict["description"] = voucher_obj.description
+                temp_dict["superCategoryList"] = voucher_obj.super_categories.all().values_list('name')
 
                 if voucher_obj.voucher_type == "PD":
                     temp_dict["percent_discount"] = float(voucher_obj.percent_discount)

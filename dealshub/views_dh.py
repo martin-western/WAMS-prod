@@ -9011,7 +9011,8 @@ class ApplyVoucherCodeAPI(APIView):
                     dealshub_product_obj = unit_cart_obj.product
                     super_category_obj = dealshub_product_obj.get_super_category()
                     if voucher_obj.is_super_category_satisfy(super_category_obj)==False:
-                        response["error_message"] = "NOT APPLICABLE FOR " + dealshub_product_obj.product.product_name                        response["voucher_success"] = False
+                        response["error_message"] = "NOT APPLICABLE FOR " + dealshub_product_obj.product.product_name
+                        response["voucher_success"] = False
                         response["status"] = 200
                         return Response(data=response)
             else:
