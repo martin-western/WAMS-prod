@@ -5562,16 +5562,19 @@ class CreateVoucherAPI(APIView):
                                                  maximum_usage_limit=maximum_usage_limit,
                                                  location_group=location_group_obj,
                                                  description=description)
-
-            try:
-                super_category_objs = voucher_obj.location_group.website_group.super_categories.all()
-                logger.info("CreateVoucherAPI:", super_category_objs)
-                for super_category_obj in super_category_objs:
-                    voucher_obj.super_categories.add(super_category_obj)
+            super_category_objs = voucher_obj.location_group.website_group.super_categories.all()
+            logger.info("CreateVoucherAPI:", super_category_objs)
+            for super_category_obj in super_category_objs:
+                voucher_obj.super_categories.add(super_category_obj)
+            # try:
+            #     super_category_objs = voucher_obj.location_group.website_group.super_categories.all()
+            #     logger.info("CreateVoucherAPI:", super_category_objs)
+            #     for super_category_obj in super_category_objs:
+            #         voucher_obj.super_categories.add(super_category_obj)
                 
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                logger.error("CreateVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            # except Exception as e:
+            #     exc_type, exc_obj, exc_tb = sys.exc_info()
+            #     logger.error("CreateVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
                 
             voucher_obj.save()
             response["uuid"] = str(voucher_obj.uuid)
