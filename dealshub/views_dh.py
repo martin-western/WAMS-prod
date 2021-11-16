@@ -2176,6 +2176,12 @@ class ProcessOrderRequestAPI(APIView):
             order_request_obj.admin_note = admin_note
             order_request_obj.save()
 
+            if request_status == "Rejected":
+                response['message'] = "Order Request Rejected"
+                response["status"] = 200
+                return Response(data=response)
+                                
+
             if order_request_obj.payment_mode == "COD" or order_request_obj.payment_mode == "CHEQUE":
                 try:
                     if order_request_obj.shipping_address==None:
