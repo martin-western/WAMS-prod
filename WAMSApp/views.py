@@ -2777,10 +2777,8 @@ class UploadProductImageAPI(APIView):
                 else:
                     channel_obj = Channel.objects.get(name=data["channel_name"])
                     sub_images_obj = SubImages.objects.get(product=product_obj,channel=channel_obj)
-                if created:
-                    prev_instance = None
-                else:
-                    prev_instance = deepcopy(sub_images_obj)
+
+                prev_instance = deepcopy(sub_images_obj)
 
                 sub_images = sub_images_obj.sub_images.all().order_by('-sub_image_index')
                 if sub_images.count() > 0:
