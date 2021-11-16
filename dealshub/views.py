@@ -5565,6 +5565,7 @@ class CreateVoucherAPI(APIView):
 
             try:
                 super_category_objs = voucher_obj.location_group.website_group.super_categories.all()
+                logger.info("CreateVoucherAPI:", super_category_objs)
                 for super_category_obj in super_category_objs:
                     voucher_obj.super_categories.add(super_category_obj)
                 
