@@ -59,7 +59,6 @@ class Promotion(models.Model):
         super(Promotion, self).save(*args, **kwargs)
 
 
-
 class Voucher(models.Model):
     uuid = models.CharField(max_length=200,default="",unique=True)
     voucher_code = models.CharField(max_length=50)
@@ -146,7 +145,7 @@ class Voucher(models.Model):
 
         if self.uuid == None or self.uuid=="":
             self.uuid = str(uuid.uuid4())
-            
+
         super(Voucher, self).save(*args, **kwargs)
 
 
