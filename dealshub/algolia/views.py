@@ -151,7 +151,7 @@ class SearchWIG3API(APIView):
 
             search = {}
 
-            dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj,product__base_product__seller_sku=search_string,is_published=True).exclude(now_price=0).exclude(stock=0)
+            dealshub_product_objs = DealsHubProduct.objects.filter(location_group=location_group_obj,product__base_product__seller_sku=search_string,is_published=True,product__base_product__brand__in=website_group_obj.brands.all(),product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
             if dealshub_product_objs.count() != 0:
                 products = get_dealshub_product_details(dealshub_product_objs,dealshub_user_obj)
                 is_available = False
@@ -206,7 +206,7 @@ class SearchWIG3API(APIView):
             temp_pk_list = []
             for hit in hits:
                 temp_pk_list.append(hit["pk"])
-            dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
+            dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list, is_published=True, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
             dealshub_product_objs = list(dealshub_product_objs)
             dealshub_product_objs.sort(key=lambda t: temp_pk_list.index(t.pk))
 
@@ -272,7 +272,7 @@ class SearchWIG3AutoCompleteAPI(APIView):
             temp_pk_list = []
             for hit in hits:
                 temp_pk_list.append(hit["pk"])
-            dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
+            dealshub_product_objs = DealsHubProduct.objects.filter(pk__in=temp_pk_list, is_published=True, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0).prefetch_related('product').prefetch_related('product__base_product').prefetch_related('promotion')
             dealshub_product_objs = list(dealshub_product_objs)
             dealshub_product_objs.sort(key=lambda t: temp_pk_list.index(t.pk))
 

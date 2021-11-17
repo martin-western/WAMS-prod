@@ -725,19 +725,24 @@ class FetchSuperCategoriesAPI(APIView):
             logger.info("FetchSuperCategoriesAPI: %s", str(data))
             website_group_name = data["websiteGroupName"]
 
+            website_group_obj = WebsiteGroup.objects.none()
+            try:
+                website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
+            except:
+
+                # need to tell frontend to send only websiteGroupName and not locationGroupUuid
+
+                location_group_uuid = data["locationGroupUuid"]
+                location_group_obj = LocationGroup.objects.get(uuid = location_group_uuid)
+                website_group_obj = location_group_obj.website_group
+            website_group_name = website_group_obj.name
+            
             cached_value = cache.get("sc-list-"+website_group_name+"-"+language_code, "has_expired")
             if cached_value!="has_expired":
                 response["superCategoryList"] = json.loads(cached_value)
                 response['status'] = 200
                 return Response(data=response)
-            website_group_obj = WebsiteGroup.objects.none()
-            try:
-                website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
-            except:
-                location_group_uuid = data["locationGroupUuid"]
-                location_group_obj = LocationGroup.objects.get(uuid = location_group_uuid)
-                website_group_obj = location_group_obj.website_group
-
+            
             super_category_objs = website_group_obj.super_categories.all()
 
             super_category_list = []
@@ -820,7 +825,7 @@ class FetchHeadingSuperCategoriesAPI(APIView):
             website_group_name = data["websiteGroupName"]
             website_group_obj = WebsiteGroup.objects.get(name=website_group_name)
             
-            super_category_names = ["HOMEWARE","APPLIANCES","ENTERTAINMENT","PERSONAL CARE","LIGHTING DEVICES","DIY TOOLS","BATH FITTINGS",]
+            super_category_names = ["HOMEWARE","APPLIANCES","ENTERTAINMENT","PERSONAL CARE","LIGHTING","DIY TOOLS","BATH FITTINGS","ELECTRONICS","GROOMING"]
             super_category_list = []
             for super_category_name in super_category_names:
                 try:
@@ -5557,7 +5562,15 @@ class CreateVoucherAPI(APIView):
                                                  maximum_usage_limit=maximum_usage_limit,
                                                  location_group=location_group_obj,
                                                  description=description)
-
+            
+            super_category_objs = voucher_obj.location_group.website_group.super_categories.all()
+            for super_category_obj in super_category_objs:
+                try:
+                    voucher_obj.super_categories.add(super_category_obj)   
+                except:
+                    pass
+                
+            voucher_obj.save()
             response["uuid"] = str(voucher_obj.uuid)
             response["status"] = 200
             render_value = "Voucher " + voucher_obj.voucher_code + " created on " + location_group_obj.name
@@ -5596,6 +5609,7 @@ class UpdateVoucherAPI(APIView):
             voucher_obj.end_time = data["end_time"]
             voucher_obj.voucher_type = data["voucher_type"]
             voucher_obj.description = data["description"]
+            super_category_list = data["superCategoryList"]
 
             if voucher_obj.voucher_type == "PD":
                 voucher_obj.percent_discount = float(data["percent_discount"])
@@ -5608,6 +5622,16 @@ class UpdateVoucherAPI(APIView):
             voucher_obj.maximum_usage_limit = int(data["maximum_usage_limit"])
             voucher_obj.save()
 
+            website_group_super_category_objs = voucher_obj.location_group.website_group.super_categories.all()
+            voucher_obj.super_categories.clear()
+            for super_category_name in super_category_list:
+                try:
+                    voucher_obj.super_categories.add(website_group_super_category_objs.filter(name=super_category_name).first())
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    logger.error("UpdateVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
+            
+            voucher_obj.save()
             location_group_obj = voucher_obj.location_group
 
             response["status"] = 200
@@ -5652,6 +5676,7 @@ class FetchVouchersAPI(APIView):
                 temp_dict["end_time"] = voucher_obj.end_time
                 temp_dict["voucher_type"] = voucher_obj.voucher_type
                 temp_dict["description"] = voucher_obj.description
+                temp_dict["superCategoryList"] = list(voucher_obj.super_categories.all().values_list('name',flat=True))
 
                 if voucher_obj.voucher_type == "PD":
                     temp_dict["percent_discount"] = float(voucher_obj.percent_discount)

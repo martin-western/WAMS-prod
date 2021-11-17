@@ -60,7 +60,6 @@ class Promotion(models.Model):
 
 
 class Voucher(models.Model):
-
     uuid = models.CharField(max_length=200,default="",unique=True)
     voucher_code = models.CharField(max_length=50)
     start_time = models.DateTimeField(null=True)
@@ -84,6 +83,7 @@ class Voucher(models.Model):
     is_deleted = models.BooleanField(default=False)
     is_published = models.BooleanField(default=False)
     location_group = models.ForeignKey(LocationGroup, null=True, blank=True, on_delete=models.SET_NULL)
+    super_categories = models.ManyToManyField(SuperCategory, related_name="super_categories", blank=True)
 
     def __str__(self):
         return str(self.uuid)
@@ -103,6 +103,28 @@ class Voucher(models.Model):
         if subtotal>=self.minimum_purchase_amount:
             return True
         return False
+
+    def is_super_category_eligible(self,generic_cart_obj):
+        try:
+            if generic_cart_obj.__class__.__name__=="Cart":
+                unit_cart_objs = UnitCart.objects.filter(cart=generic_cart_obj)
+                for unit_cart_obj in unit_cart_objs:
+                    dealshub_product_obj = unit_cart_obj.product
+                    super_category_obj = dealshub_product_obj.category.super_category
+                    if super_category_obj not in self.super_categories.all():
+                        return False
+                return True
+            else:
+                dealshub_product_obj = generic_cart_obj.product
+                super_category_obj = dealshub_product_obj.category.super_category
+                if super_category_obj not in self.super_categories.all():
+                    return False
+                return True
+    
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("is_super_category_eligible: %s at %s", e, str(exc_tb.tb_lineno))
+            return False
 
     def get_discounted_price(self, subtotal):
         if self.voucher_type=="SD":
@@ -567,11 +589,11 @@ class DealsHubProduct(models.Model):
         # cached_url = cache.get("display_url_"+str(self.uuid), "has_expired")
         # if cached_url!="has_expired":
         #     return cached_url
-        lifestyle_image_objs = self.product.lifestyle_images.all()
-        if lifestyle_image_objs.exists():
-            display_image_url = lifestyle_image_objs[0].mid_image.url
-            #cache.set("display_url_"+str(self.uuid), display_image_url)
-            return display_image_url
+        # lifestyle_image_objs = self.product.lifestyle_images.all()
+        # if lifestyle_image_objs.exists():
+        #     display_image_url = lifestyle_image_objs[0].mid_image.url
+        #     #cache.set("display_url_"+str(self.uuid), display_image_url)
+        #     return display_image_url
         return self.get_main_image_url()
 
     def get_optimized_display_image_url(self):
@@ -1574,17 +1596,16 @@ class UnitOrder(models.Model):
             return ""
 
     def get_sap_final_order_qty(self):
-        try:
-            final_billing_info = json.loads(self.order_information)["final_billing_info"]
-            qty = float(final_billing_info["qty"])
+        try: 
+            qty = 0  
+            final_billing_info_list = json.loads(self.order_information)["final_billing_info"]
+            if isinstance(final_billing_info_list, dict):
+                qty = float(final_billing_info_list["qty"])
+                return qty
 
-            # replace above code with this code once we merge :- https://github.com/nisargtike/WAMS-prod/pull/801/files
-            # final_billing_info_list = json.loads(self.order_information)["final_billing_info"]
-            # qty = 0
-            # for final_billing_info in final_billing_info_list:
-            #     qty += final_billing_info["qty"]
+            for final_billing_info in final_billing_info_list:
+                qty += float(final_billing_info["qty"])
 
-            qty = float(qty)
             return qty
         except Exception as e:
             return ""

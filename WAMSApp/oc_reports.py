@@ -61,7 +61,7 @@ def email_daily_sales_report_to_user(oc_report_obj):
             email = EmailMessage(subject='Omnycomm Daily Sales Report Generated', 
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
-                                 to=["fathimasamah@westernint.com","shahanas@westernint.com","nawas@westernint.com","wigme@westernint.com","hari.pk@westernint.com","arsal.k@westernint.com","support@westernint.com","support@wigme.com","rikas.k@westernint.com"],
+                                 to=["hari.pk@westernint.com","faris.p@westernint.com","wigme.dm@westernint.com","support@westernint.com"],
                                  cc=["jay@omnycomm.com", "animesh.kumar@omnycomm.com"],
                                 #  to=["hari.pk@westernint.com"],
                                 #  cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
@@ -1127,14 +1127,13 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                "SAP Status",
                "Medium",
                "Order Note"]
-               
+
         cnt = 0
-            
         colnum = 0
         for k in row:
             worksheet.write(cnt, colnum, k)
             colnum += 1
-        cnt = 1
+        cnt += 1
         location_group_objs = custom_permission_obj.location_groups.all()
         if location_group_obj!=None:
             location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
@@ -1176,7 +1175,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[18] = order_obj.sap_status
                 common_row[19] = order_obj.reference_medium
                 common_row[20] = order_obj.additional_note
-                cnt += 1
+                
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.error("create_daily_sales_report: %s at %s", e, str(exc_tb.tb_lineno))
@@ -1185,6 +1184,7 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
             for k in common_row:
                 worksheet.write(cnt, colnum, k)
                 colnum += 1
+            cnt += 1
 
         workbook.close()
 
