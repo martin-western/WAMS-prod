@@ -5630,8 +5630,8 @@ class UpdateVoucherAPI(APIView):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     logger.error("UpdateVoucherAPI: %s at %s", e, str(exc_tb.tb_lineno))
-                    voucher_obj.save()
-
+            
+            voucher_obj.save()
             location_group_obj = voucher_obj.location_group
 
             response["status"] = 200
