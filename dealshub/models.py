@@ -103,13 +103,28 @@ class Voucher(models.Model):
         if subtotal>=self.minimum_purchase_amount:
             return True
         return False
+
+    def is_super_category_eligible(self,generic_cart_obj):
+        try:
+            if generic_cart_obj.__class__.__name__=="Cart":
+                unit_cart_objs = UnitCart.objects.filter(cart=generic_cart_obj)
+                for unit_cart_obj in unit_cart_objs:
+                    dealshub_product_obj = unit_cart_obj.product
+                    super_category_obj = dealshub_product_obj.category.super_category
+                    if super_category_obj not in self.super_categories.all():
+                        return False
+                return True
+            else:
+                dealshub_product_obj = generic_cart_obj.product
+                super_category_obj = dealshub_product_obj.category.super_category
+                if super_category_obj not in self.super_categories.all():
+                    return False
+                return True
     
-    def is_super_category_satisfy(self,super_category_obj):
-        logger.info("super_category_obj__name ",super_category_obj)
-        super_category_name = super_category_obj.name
-        if self.super_categories.filter(name=super_category_name).exists():
-            return True
-        return False
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("is_super_category_eligible: %s at %s", e, str(exc_tb.tb_lineno))
+            return False
 
     def get_discounted_price(self, subtotal):
         if self.voucher_type=="SD":

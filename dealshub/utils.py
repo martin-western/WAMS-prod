@@ -326,7 +326,7 @@ def update_cart_bill(cart_obj,cod=False,offline=False, delivery_fee_calculate=Tr
 
     if cart_obj.voucher!=None:
         voucher_obj = cart_obj.voucher
-        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(cart_obj.get_subtotal(offline=offline))==False or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj):
+        if  voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(cart_obj.get_subtotal(offline=offline))==False or is_voucher_limt_exceeded_for_customer(cart_obj.owner, voucher_obj) or voucher_obj.is_super_category_eligible(cart_obj)==False:
             cart_obj.voucher = None
     cart_obj.save()
 
@@ -337,7 +337,7 @@ def update_fast_cart_bill(fast_cart_obj):
 
     if fast_cart_obj.voucher!=None:
         voucher_obj = fast_cart_obj.voucher
-        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(fast_cart_obj.get_subtotal())==False or is_voucher_limt_exceeded_for_customer(fast_cart_obj.owner, voucher_obj):
+        if voucher_obj.is_deleted==True or voucher_obj.is_published==False or voucher_obj.is_expired()==True or voucher_obj.is_eligible(fast_cart_obj.get_subtotal())==False or is_voucher_limt_exceeded_for_customer(fast_cart_obj.owner, voucher_obj)or voucher_obj.is_super_category_eligible(fast_cart_obj)==False:
             fast_cart_obj.voucher = None
     fast_cart_obj.save()
 
