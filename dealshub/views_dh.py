@@ -2032,7 +2032,8 @@ class PlaceOrderRequestAPI(APIView):
                 unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
                 
                 if unit_cart_objs.count() == 0:
-                    response["status"] = 200
+                    response["status"] = 500
+                    response["message"] = "empty cart"
                     return Response(data=response)
                 
                 if payment_mode=="COD":
@@ -2076,7 +2077,8 @@ class PlaceOrderRequestAPI(APIView):
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
                 
                 if fast_cart_obj.product == None:
-                    response["status"] = 200
+                    response["status"] = 500
+                    response["message"] = "empty fast cart"
                     return Response(data=response)
                 
                 try:
