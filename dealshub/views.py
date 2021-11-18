@@ -2242,12 +2242,8 @@ class FetchWIGCategoriesAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
-            response["brand_list"] = brand_list
-            temp_brand_list = list(set(temp_brand_list))
-            if len(temp_brand_list)==1:
-                temp_brand_list = []
-            else:
-                response["brand_list"] = temp_brand_list
+            temp_brand_list = list(set(temp_brand_list))            
+            response["brand_list"] = temp_brand_list if len(temp_brand_list)>1 else brand_list
             response["categoryList"] = category_list
             response['status'] = 200
 
