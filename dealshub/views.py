@@ -2130,11 +2130,14 @@ class FetchWIGCategoriesAPI(APIView):
             search = {}
 
             brand_list = []
-            try:
-                if language_code == "en":
-                    brand_list = website_group_obj.brands.all().values_list("name", flat=True)
-                else:
-                    brand_list = website_group_obj.brands.all().values_list("name_ar", flat=True)
+            try:                
+                brand_objs = website_group_obj.brands.all()
+                for brand_obj in brand_objs:
+                    if DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand=brand_obj, is_published=True, product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0).exists():
+                        if language_code == "en":
+                            brand_list.append(brand_obj.name)
+                        else:
+                            brand_list.append(brand_obj.name_ar)
                 brand_list = list(set(brand_list))
                 if len(brand_list)==1:
                     brand_list = []
