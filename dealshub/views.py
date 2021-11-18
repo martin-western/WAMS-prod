@@ -2130,14 +2130,11 @@ class FetchWIGCategoriesAPI(APIView):
             search = {}
 
             brand_list = []
-            try:                
-                brand_objs = website_group_obj.brands.all()
-                for brand_obj in brand_objs:
-                    if DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand=brand_obj, is_published=True, product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0).exists():
-                        if language_code == "en":
-                            brand_list.append(brand_obj.name)
-                        else:
-                            brand_list.append(brand_obj.name_ar)
+            try:
+                if language_code == "en":
+                    brand_list = website_group_obj.brands.all().values_list("name", flat=True)
+                else:
+                    brand_list = website_group_obj.brands.all().values_list("name_ar", flat=True)
                 brand_list = list(set(brand_list))
                 if len(brand_list)==1:
                     brand_list = []
@@ -2147,6 +2144,7 @@ class FetchWIGCategoriesAPI(APIView):
 
             is_super_category_available = False
             category_list = []
+            temp_brand_list = []
             try:
                 super_category_obj = None
                 if super_category_name!="":
@@ -2230,6 +2228,7 @@ class FetchWIGCategoriesAPI(APIView):
                     for sub_category_obj in sub_category_objs:
                         if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                             continue
+                        temp_brand_list.append(DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).values_list("product__base_product__brand__name", flat=True))
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.get_name(language_code)
                         temp_dict2["uuid"] = sub_category_obj.uuid
@@ -2243,8 +2242,13 @@ class FetchWIGCategoriesAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
-            response["categoryList"] = category_list
             response["brand_list"] = brand_list
+            temp_brand_list = list(set(temp_brand_list))
+            if len(temp_brand_list)==1:
+                temp_brand_list = []
+            else:
+                response["brand_list"] = temp_brand_list
+            response["categoryList"] = category_list
             response['status'] = 200
 
             try:
