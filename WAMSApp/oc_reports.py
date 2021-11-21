@@ -52,6 +52,16 @@ def email_daily_sales_report_to_user(oc_report_obj):
             This is to inform you that your requested report has been generated on Omnycomm.
             Report note: """+ str(oc_report_obj.note) +"""
         """
+        email_receiver = ["hari.pk@westernint.com","faris.p@westernint.com","wigme.dm@westernint.com","support@westernint.com"]
+        location_group_obj = oc_report_obj.location_group
+        
+        try:
+            if location_group_obj.name == "Geepas-Uganda":
+                email_receiver = ["hari.pk@westernint.com","Arshad.s@westernint.com","ziyad.a@westernint.com"]
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("Error email_daily_sales_report_to_user %s %s", e, str(exc_tb.tb_lineno))
+        
         with get_connection(
             host="smtp.gmail.com",
             port=587, 
@@ -61,7 +71,7 @@ def email_daily_sales_report_to_user(oc_report_obj):
             email = EmailMessage(subject='Omnycomm Daily Sales Report Generated', 
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
-                                 to=["hari.pk@westernint.com","faris.p@westernint.com","wigme.dm@westernint.com","support@westernint.com"],
+                                 to=email_receiver,
                                  cc=["jay@omnycomm.com", "animesh.kumar@omnycomm.com"],
                                 #  to=["hari.pk@westernint.com"],
                                 #  cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
