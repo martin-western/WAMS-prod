@@ -1165,15 +1165,43 @@ def create_daily_sales_report(filename, uuid, from_date, to_date, brand_list, cu
                 common_row[0] = str(cnt)
                 common_row[1] = str(timezone.localtime(order_obj.order_placed_date).strftime("%d %b, %Y %I:%M %p"))
                 common_row[2] = order_obj.bundleid
-                common_row[3] = unit_order_obj.product.location_group.name
-                common_row[4] = get_sellersku_and_quantity(order_obj)
-                common_row[5] = unit_order_obj.product.get_currency()
-                common_row[6] = order_obj.get_total_amount()
-                common_row[7] = order_obj.get_total_quantity()
-                common_row[8] = order_obj.get_customer_full_name()
-                common_row[9] = order_obj.owner.email
-                common_row[10] = str(order_obj.owner.contact_number)
-                common_row[11] = str(order_obj.shipping_address.get_shipping_address())
+                try:
+                    common_row[3] = unit_order_obj.product.location_group.name
+                except:
+                    common_row[3] = ""
+                try:
+                    common_row[4] = get_sellersku_and_quantity(order_obj)
+                except:
+                    common_row[4] = ""
+                try:
+                    common_row[5] = unit_order_obj.product.get_currency()
+                except:
+                    common_row[5] = ""
+                try:            
+                    common_row[6] = order_obj.get_total_amount()
+                except:
+                    common_row[6] = ""
+                try:
+                    common_row[7] = order_obj.get_total_quantity()
+                except:
+                    common_row[7] = ""
+                try:
+                    common_row[8] = order_obj.get_customer_full_name()
+                except:
+                    common_row[8] = ""
+                try:                
+                    common_row[9] = order_obj.owner.email
+                except:
+                    common_row[9] = ""
+                try:
+                    common_row[10] = str(order_obj.owner.contact_number)
+                except:
+                    common_row[10] = ""
+                try:
+                    common_row[11] = str(order_obj.shipping_address.get_shipping_address())
+                except:
+                    common_row[11] = ""
+            
                 common_row[12] = order_obj.payment_mode
                 common_row[13] = unit_order_obj.shipping_method
                 common_row[14] = unit_order_obj.current_status_admin
