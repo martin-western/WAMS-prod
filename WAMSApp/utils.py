@@ -2976,7 +2976,6 @@ def create_all_dealshub_products_report(filename, uuid, location_group_obj):
 
     notify_user_for_report(oc_report_obj)
 
-
 def activitylog(user,table_name,action_type,table_item_pk='',prev_instance=None,current_instance=None,location_group_obj=None,render='', is_nesto=False):
     try:
         if render == "":

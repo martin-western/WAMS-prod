@@ -2030,7 +2030,12 @@ class PlaceOrderRequestAPI(APIView):
                 update_cart_bill(cart_obj)
 
                 unit_cart_objs = UnitCart.objects.filter(cart=cart_obj)
-
+                
+                if unit_cart_objs.count() == 0:
+                    response["status"] = 500
+                    response["message"] = "empty cart"
+                    return Response(data=response)
+                
                 if payment_mode=="COD":
                     cart_obj.to_pay += cart_obj.location_group.cod_charge
                     cart_obj.save()
@@ -2070,7 +2075,12 @@ class PlaceOrderRequestAPI(APIView):
                 cart_obj.save()
             else:
                 fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-
+                
+                if fast_cart_obj.product == None:
+                    response["status"] = 500
+                    response["message"] = "empty fast cart"
+                    return Response(data=response)
+                
                 try:
                     if fast_cart_obj.shipping_address==None:
                         address_obj = Address.objects.filter(user=dealshub_user_obj, is_shipping=True)[0]
