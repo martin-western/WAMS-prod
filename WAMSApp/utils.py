@@ -12,6 +12,7 @@ from WAMSApp.stores.noon import *
 from WAMSApp.sap.SAP_constants import *
 from WAMSApp.serializers import UserSerializer
 from WAMSApp.models import *
+from WAMSApp.oc_reports import *
 from django.db.models import Q
 from django.db.models import Count
 
@@ -2973,7 +2974,8 @@ def create_all_dealshub_products_report(filename, uuid, location_group_obj):
     oc_report_obj.is_processed = True
     oc_report_obj.completion_date = timezone.now()
     oc_report_obj.save()
-
+    
+    notify_user_for_report(oc_report_obj)
 
 def activitylog(user,table_name,action_type,table_item_pk='',prev_instance=None,current_instance=None,location_group_obj=None,render='', is_nesto=False):
     try:
