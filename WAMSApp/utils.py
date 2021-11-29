@@ -12,7 +12,6 @@ from WAMSApp.stores.noon import *
 from WAMSApp.sap.SAP_constants import *
 from WAMSApp.serializers import UserSerializer
 from WAMSApp.models import *
-from WAMSApp.oc_reports import *
 from django.db.models import Q
 from django.db.models import Count
 
