@@ -2244,8 +2244,8 @@ class FetchWIGCategoriesAPI(APIView):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
 
-            response["brand_list"] = brand_list
             response["categoryList"] = category_list
+            response["brand_list"] = brand_list
             response['status'] = 200
 
             try:
