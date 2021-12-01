@@ -57,7 +57,18 @@ def email_daily_sales_report_to_user(oc_report_obj):
         
         try:
             if location_group_obj.name == "Geepas-Uganda":
-                email_receiver = ["hari.pk@westernint.com","Arshad.s@westernint.com","ziyad.a@westernint.com"]
+                email_receiver = [
+                    "hari.pk@westernint.com",
+                    "Arshad.s@westernint.com",
+                    "ziyad.a@westernint.com",
+                    "thomas_nellissery@hotmail.com",
+                    "shahanas@westernint.com",
+                    "fathimasamah@westernint.com",
+                    "sageer.ek@westernint.com",
+                    "adil.pa@westernint.com",
+                    "orders@geepas.ug",
+                    "admin@geepas.ug"
+                    ]
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("Error email_daily_sales_report_to_user %s %s", e, str(exc_tb.tb_lineno))
@@ -72,9 +83,7 @@ def email_daily_sales_report_to_user(oc_report_obj):
                                  body=body,
                                  from_email='nisarg@omnycomm.com',
                                  to=email_receiver,
-                                 cc=["jay@omnycomm.com", "animesh.kumar@omnycomm.com"],
-                                #  to=["hari.pk@westernint.com"],
-                                #  cc=["fathimasamah@westernint.com", "shahanas@westernint.com", "wigme@westernint.com"],
+                                 cc=["jay@omnycomm.com"],
                                  connection=connection)
             email.attach_file(oc_report_obj.filename)
             email.send(fail_silently=True)
