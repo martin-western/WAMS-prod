@@ -1173,19 +1173,17 @@ def send_notification_for_blog_publish(blog_post_obj):
             
             Link to view: """+ str(blog_link) +""".
         """
-        with get_connection(
-            host="smtp.gmail.com",
-            port=587, 
-            username="info@wigme.com", 
-            password="western@#143",
-            use_tls=True) as connection:
-            email = EmailMessage(subject=str(blog_post_obj.title), 
-                                 body=body,
-                                 from_email='info@wigme.com',
-                                 to=[],
-                                 bcc=json.loads(blog_post_obj.location_group.blog_emails),
-                                 connection=connection)
-            email.send(fail_silently=True)
+
+        send_mail(
+            subject=str(blog_post_obj.title),
+            message=body,
+            from_email="info@wigme.com",
+            auth_user="info@wigme.com",
+            auth_password="western@#143",
+            recipient_list=json.loads(blog_post_obj.location_group.blog_emails),
+            fail_silently=False
+        )
+
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error send_notification_for_blog_publish %s %s", e, str(exc_tb.tb_lineno))
