@@ -447,7 +447,10 @@ class LocationGroup(models.Model):
         return ""
 
     def get_email_content(self):
-        return json.loads(self.website_group.conf)["email_content"]
+        try:
+            return json.loads(self.website_group.conf)["email_content"]
+        except:
+            return "Now you can relax. We\'re working to get your products to you ASAP!"
 
     class Meta:
         verbose_name = "LocationGroup"
