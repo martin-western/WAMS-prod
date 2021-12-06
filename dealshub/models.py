@@ -1463,6 +1463,19 @@ class Order(models.Model):
                     "cod": CUSTOMER_ID_FINAL_BILLING_EMIRATES_POST_COD_B2B,
                     "paid": CUSTOMER_ID_FINAL_BILLING_EMIRATES_POST_ONLINE_B2B
                 },
+                "buy or bid wig fleet": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_BUY_OR_BID_WIG_COD_B2B,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_BUY_OR_BID_WIG_ONLINE_B2B
+                },
+                "buy or bid sendex": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_BUY_OR_BID_SENDEX_COD_B2B,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_BUY_OR_BID_SENDEX_ONLINE_B2B
+                },
+                "buy or bid grand gaadi": {
+                    "cod": CUSTOMER_ID_FINAL_BILLING_BUY_OR_BID_GRAND_GAADI_COD_B2B,
+                    "paid": CUSTOMER_ID_FINAL_BILLING_BUY_OR_BID_GRAND_GAADI_ONLINE_B2B
+                },
+
             },
             "is_not_b2b": {
                 "wig fleet": {
