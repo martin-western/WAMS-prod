@@ -1176,12 +1176,12 @@ def send_notification_for_blog_publish(blog_post_obj):
         with get_connection(
             host="smtp.gmail.com",
             port=587, 
-            username="nisarg@omnycomm.com", 
-            password="verjtzgeqareribg",
+            username="info@wigme.com", 
+            password="western@#143",
             use_tls=True) as connection:
             email = EmailMessage(subject=str(blog_post_obj.title), 
                                  body=body,
-                                 from_email='nisarg@omnycomm.com',
+                                 from_email='info@wigme.com',
                                  to=[],
                                  bcc=json.loads(blog_post_obj.location_group.blog_emails),
                                  connection=connection)
