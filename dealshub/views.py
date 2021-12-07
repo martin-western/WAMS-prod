@@ -4054,6 +4054,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
             cache_key = location_group_uuid + "-" + parent_banner_uuid + "-" + language_code
             if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(cache_key, "has_expired")
+                cached_value = "has_expired"
                 if cached_value!="has_expired":
                     response["sections_list"] = json.loads(cached_value)["sections_list"]
                     response["circular_category_index"] = json.loads(cached_value)["circular_category_index"]
