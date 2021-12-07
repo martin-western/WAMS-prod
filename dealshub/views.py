@@ -4054,11 +4054,7 @@ class FetchDealshubAdminSectionsAPI(APIView):
             cache_key = location_group_uuid + "-" + parent_banner_uuid + "-" + language_code
             if is_dealshub==True and is_bot==False:
                 cached_value = cache.get(cache_key, "has_expired")
-                if cached_value!="has_expired":
-                    response["sections_list"] = json.loads(cached_value)["sections_list"]
-                    response["circular_category_index"] = json.loads(cached_value)["circular_category_index"]
-                    response['status'] = 200
-                    return Response(data=response)
+                cached_value = "has_expired"
 
 
             section_objs = Section.objects.filter(location_group__uuid=location_group_uuid, parent_banner=parent_banner_obj).order_by('order_index')
@@ -4156,8 +4152,8 @@ class FetchDealshubAdminSectionsAPI(APIView):
                 logger.error("FetchDealshubAdminSectionsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             response["sections_list"] = dealshub_admin_sections
-            if is_dealshub==True:
-                cache.set(cache_key, json.dumps(response))
+            # if is_dealshub==True:
+            #     cache.set(cache_key, json.dumps(response))
             
             response['status'] = 200
         except Exception as e:
