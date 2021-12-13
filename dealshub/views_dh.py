@@ -2647,22 +2647,22 @@ class PlaceOrderAPI(APIView):
                 website_group = order_obj.location_group.website_group.name
                 unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
                 customer_name = order_obj.owner.first_name
-                order_id = order_obj.bundleid
+                order_uuid = order_obj.uuid
                 link = order_obj.location_group.website_group.link
                 if website_group=="parajohn":
-                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ order_id +" has been confirmed & will be shipped soon."
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
-                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ order_id +" has been confirmed & will be shipped soon."
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="daycart":
-                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ order_id +" has been confirmed & will be shipped soon."
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="geepasuganda":
-                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ order_id +" has been confirmed & will be shipped soon."
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_geepas_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
@@ -3249,6 +3249,13 @@ class FetchOrderDetailsAPI(APIView):
             is_voucher_applied = voucher_obj is not None
 
             unit_order_objs = UnitOrder.objects.filter(order=order_obj)
+            try:
+                if order_obj.owner != DealsHubUser.objects.get(username = request.user.username):
+                    response["status"] = 403
+                    return Response(data=response)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             enable_order_edit = False
             if order_obj.payment_status=="cod": # and unit_order_objs.filter(current_status_admin="pending").exists():
@@ -10041,19 +10048,19 @@ class PlaceOnlineOrderAPI(APIView):
                 link = order_obj.location_group.website_group.link
 
                 if website_group=="parajohn":
-                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ order_id +" has been confirmed & will be shipped soon."
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
-                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ order_id +" has been confirmed & will be shipped soon."
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="daycart":
-                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ order_id +" has been confirmed & will be shipped soon."
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="geepasuganda":
-                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ order_id +" has been confirmed & will be shipped soon."
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_geepas_order_status_sms , args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:

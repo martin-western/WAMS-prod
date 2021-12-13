@@ -126,17 +126,19 @@ def set_order_status(unit_order_obj, order_status):
             p1 = threading.Thread(target=send_order_dispatch_mail, args=(unit_order_obj,))
             p1.start()
             website_group = unit_order_obj.order.location_group.website_group.name
-            order_id = unit_order_obj.order.bundleid
+            order_uuid = unit_order_obj.order.uuid
+            link = order_obj.location_group.website_group.link
+
             if website_group=="parajohn":
-                message = "Your Order "+ order_id +" has been dispatched. Expected delivery within 2 days."
+                message = "Your Order "+ link + "/orders/" + order_uuid +" has been dispatched. Expected delivery within 2 days."
                 p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                 p2.start()
             elif website_group=="shopnesto":
-                message = "Your Order "+ order_id +" has been dispatched. Expected delivery within 2 days."
+                message = "Your Order "+ link + "/orders/" + order_uuid +" has been dispatched. Expected delivery within 2 days."
                 p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                 p2.start()
             elif website_group=="geepasuganda":
-                message = "Your Order "+ order_id +" has been dispatched. Expected delivery within 2 days."
+                message = "Your Order "+ link + "/orders/" + order_uuid +" has been dispatched. Expected delivery within 2 days."
                 p2 = threading.Thread(target=send_geepas_order_status_sms , args=(unit_order_obj,message,))
                 p2.start()
         except Exception as e:
@@ -162,18 +164,18 @@ def set_order_status(unit_order_obj, order_status):
                 p1.start()
                 website_group = unit_order_obj.order.location_group.website_group.name
                 link = unit_order_obj.order.location_group.website_group.link
-                order_id = unit_order_obj.order.bundleid
+                order_uuid = unit_order_obj.order.uuid
                 
                 if website_group=="parajohn":
-                    message = "Your Order "+ order_id +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
+                    message = "Your Order "+ link + "/orders/" + order_uuid +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="shopnesto":
-                    message = "Your Order "+ order_id +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
+                    message = "Your Order "+ link + "/orders/" + order_uuid +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
                     p2 = threading.Thread(target=send_wigme_order_status_sms , args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="geepasuganda":
-                    message = "Your Order "+ order_id +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
+                    message = "Your Order "+ link + "/orders/" + order_uuid +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
                     p2 = threading.Thread(target=send_geepas_order_status_sms , args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
@@ -185,18 +187,19 @@ def set_order_status(unit_order_obj, order_status):
                 p1 = threading.Thread(target=send_order_delivery_failed_mail, args=(unit_order_obj,))
                 p1.start()
                 website_group = unit_order_obj.order.location_group.website_group.name
-                order_id = unit_order_obj.order.bundleid
+                order_uuid = unit_order_obj.order.uuid
+                link = unit_order_obj.order.location_group.website_group.link
                 
                 if website_group=="parajohn":
-                    message = "Your Order "+ order_id +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
+                    message = "Your Order "+ link + "/orders/" + order_uuid +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="shopnesto":
-                    message = "Your Order "+ order_id +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
+                    message = "Your Order "+ link + "/orders/" + order_uuid +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
                     p2 = threading.Thread(target=send_wigme_order_status_sms , args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="geepasuganda":
-                    message = "Your Order "+ order_id +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
+                    message = "Your Order "+ link + "/orders/" + order_uuid +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
                     p2 = threading.Thread(target=send_geepas_order_status_sms , args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
@@ -234,16 +237,17 @@ def set_order_status_without_mail(unit_order_obj, order_status):
         try:
             UnitOrderMailRequest.objects.create(unit_order=unit_order_obj, status="dispatched") # save order dispatched mail details
             website_group = unit_order_obj.order.location_group.website_group.name
-            order_id = unit_order_obj.order.bundleid
+            order_uuid = unit_order_obj.order.uuid
+            link = unit_order_obj.order.location_group.website_group.link
 
             if website_group=="parajohn":
-                message = "Your Order "+ order_id +" has been dispatched. Expected delivery within 2 days."
+                message = "Your Order "+ link + "/orders/" + order_uuid +" has been dispatched. Expected delivery within 2 days."
                 send_parajohn_order_status_sms(unit_order_obj, message)
             elif website_group=="shopnesto":
-                message = "Your Order "+ order_id +" has been dispatched. Expected delivery within 2 days."
+                message = "Your Order "+ link + "/orders/" + order_uuid +" has been dispatched. Expected delivery within 2 days."
                 send_wigme_order_status_sms(unit_order_obj,message)
             elif website_group=="geepasuganda":
-                message = "Your Order "+ order_id +" has been dispatched. Expected delivery within 2 days."
+                message = "Your Order "+ link + "/orders/" + order_uuid +" has been dispatched. Expected delivery within 2 days."
                 send_geepas_order_status_sms(unit_order_obj,message)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -266,16 +270,16 @@ def set_order_status_without_mail(unit_order_obj, order_status):
                 UnitOrderMailRequest.objects.create(unit_order=unit_order_obj, status="delivered") # save order delivered mail details
                 website_group = unit_order_obj.order.location_group.website_group.name
                 link = unit_order_obj.order.location_group.website_group.link
-                order_id = unit_order_obj.order.bundleid
+                order_uuid = unit_order_obj.order.uuid
 
                 if website_group=="parajohn":
-                    message = "Your Order "+ order_id +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
+                    message = "Your Order "+ link + "/orders/" + order_uuid +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
                     send_parajohn_order_status_sms(unit_order_obj,message)
                 elif website_group=="shopnesto":
-                    message = "Your Order "+ order_id +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
+                    message = "Your Order "+ link + "/orders/" + order_uuid +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
                     send_wigme_order_status_sms(unit_order_obj,message)
                 elif website_group=="geepasuganda":
-                    message = "Your Order "+ order_id +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
+                    message = "Your Order "+ link + "/orders/" + order_uuid +" has been delivered. We’d love to hear about your shopping experience. Let us know at "+ link
                     send_geepas_order_status_sms(unit_order_obj,message)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -284,15 +288,16 @@ def set_order_status_without_mail(unit_order_obj, order_status):
         elif order_status=="delivery failed":
             try:
                 website_group = unit_order_obj.order.location_group.website_group.name
-                order_id = unit_order_obj.order.bundleid
+                order_uuid = unit_order_obj.order.uuid
+                link = unit_order_obj.order.location_group.website_group.link
                 if website_group=="parajohn":
-                    message = "Your Order "+ order_id +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
+                    message = "Your Order "+ link + "/orders/" + order_uuid +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
                     send_parajohn_order_status_sms(unit_order_obj,message)
                 elif website_group=="shopnesto":
-                    message = "Your Order "+ order_id +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
+                    message = "Your Order "+ link + "/orders/" + order_uuid +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
                     send_wigme_order_status_sms(unit_order_obj,message)
                 elif website_group=="geepasuganda":
-                    message = "Your Order "+ order_id +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
+                    message = "Your Order "+ link + "/orders/" + order_uuid +"we are not able to deliver the product. For reordering kindly please contact our dedicated customer care at 048129701."
                     send_geepas_order_status_sms(unit_order_obj,message)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
