@@ -1197,7 +1197,7 @@ def send_notification_for_blog_publish(blog_post_obj):
 
         # content
         sender = "info@wigme.com"
-        reciever = "jay@omnycomm.com"
+        receiver = "jay@omnycomm.com"
         password = "western@#143"
         msg_body = 'Email sent using outlook!'
                 
