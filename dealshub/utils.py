@@ -1190,6 +1190,30 @@ def send_notification_for_blog_publish(blog_post_obj):
             
             Link to view: """+ str(blog_link) +""".
         """
+
+        # modules
+        import smtplib
+        from email.message import EmailMessage
+
+        # content
+        sender = "info@wigme.com"
+        reciever = "jay@omnycomm.com"
+        password = "western@#143"
+        msg_body = 'Email sent using outlook!'
+                
+        # action
+        msg = EmailMessage()
+        msg['subject'] = 'Email sent using outlook.'   
+        msg['from'] = sender
+        msg['to'] = receiver
+        msg.set_content(msg_body)
+
+        with smtplib.SMTP_SSL('smtp-mail.outlook.com', 465) as smtp:
+            smtp.login(sender,password)
+            
+            smtp.send_message(msg)
+
+
         with get_connection(
             host="'smtp-mail.outlook.com",
             port=465, 
