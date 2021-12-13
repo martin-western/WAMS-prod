@@ -1191,8 +1191,8 @@ def send_notification_for_blog_publish(blog_post_obj):
             Link to view: """+ str(blog_link) +""".
         """
         with get_connection(
-            host="smtp.gmail.com",
-            port=587, 
+            host="'smtp-mail.outlook.com",
+            port=465, 
             username="info@wigme.com", 
             password="western@#143",
             use_tls=True) as connection:
