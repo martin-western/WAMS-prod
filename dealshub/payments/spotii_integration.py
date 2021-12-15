@@ -234,7 +234,7 @@ def on_approve_capture_order(order_reference):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("ThirdPartyAPIRecord in Spotii on_approve_capture_order: %s at %s", e, str(exc_tb.tb_lineno))
 
-        resp = requests.post(url=spotii_url, data={}, headers=headers, timeout=30)
+        resp = requests.post(url=spotii_url, data={}, headers=headers, timeout=10)
         
         try:
             third_party_api_record_obj.is_response_received = True
@@ -252,7 +252,6 @@ def on_approve_capture_order(order_reference):
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Spotii on_approve_capture_order: %s at %s", e, str(exc_tb.tb_lineno))
-        return False
 
 
 MakePaymentSpotii = MakePaymentSpotiiAPI.as_view()
