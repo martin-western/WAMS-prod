@@ -10044,8 +10044,8 @@ class PlaceOnlineOrderAPI(APIView):
                 website_group = order_obj.location_group.website_group.name
                 unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
                 customer_name = order_obj.owner.first_name
-                order_id = order_obj.bundleid
                 link = order_obj.location_group.website_group.link
+                order_uuid = order_obj.uuid
 
                 if website_group=="parajohn":
                     message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
