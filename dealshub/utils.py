@@ -1190,43 +1190,16 @@ def send_notification_for_blog_publish(blog_post_obj):
             
             Link to view: """+ str(blog_link) +""".
         """
+        send_mail(
+            subject=str(blog_post_obj.title),
+            message=body,
+            from_email="info@wigme.com",
+            auth_user="info@wigme.com",
+            auth_password="western@#143",
+            recipient_list=json.loads(blog_post_obj.location_group.blog_emails),
+            fail_silently=False,
+        )
 
-        # modules
-        import smtplib
-        from email.message import EmailMessage
-
-        # content
-        sender = "info@wigme.com"
-        receiver = "jay@omnycomm.com"
-        password = "western@#143"
-        msg_body = 'Email sent using outlook!'
-                
-        # action
-        msg = EmailMessage()
-        msg['subject'] = 'Email sent using outlook.'   
-        msg['from'] = sender
-        msg['to'] = receiver
-        msg.set_content(msg_body)
-
-        with smtplib.SMTP_SSL('smtp-mail.outlook.com', 465) as smtp:
-            smtp.login(sender,password)
-            
-            smtp.send_message(msg)
-
-
-        with get_connection(
-            host="'smtp-mail.outlook.com",
-            port=465, 
-            username="info@wigme.com", 
-            password="western@#143",
-            use_tls=True) as connection:
-            email = EmailMessage(subject=str(blog_post_obj.title), 
-                                 body=body,
-                                 from_email='info@wigme.com',
-                                 to=[],
-                                 bcc=json.loads(blog_post_obj.location_group.blog_emails),
-                                 connection=connection)
-            email.send(fail_silently=True)
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("Error send_notification_for_blog_publish %s %s", e, str(exc_tb.tb_lineno))
