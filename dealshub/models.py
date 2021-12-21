@@ -601,14 +601,21 @@ class DealsHubProduct(models.Model):
             # cached_url = cache.get("optimized_display_url_"+str(self.uuid), "has_expired")
             # if cached_url!="has_expired":
             #     return cached_url
+            main_image_url = self.get_main_image_url()
+            if main_image_url == Config.objects.all()[0].product_404_image.image.url:
+                lifestyle_image_objs = self.product.lifestyle_images.all()
+                if lifestyle_image_objs.exists():
+                    display_image_url = lifestyle_image_objs[0].thumbnail.url
+                    #cache.set("optimized_display_url_"+str(self.uuid), display_image_url)
+                    return display_image_url
+            return main_image_url
+
+        except Exception as e:
             lifestyle_image_objs = self.product.lifestyle_images.all()
             if lifestyle_image_objs.exists():
                 display_image_url = lifestyle_image_objs[0].thumbnail.url
-                #cache.set("optimized_display_url_"+str(self.uuid), display_image_url)
                 return display_image_url
-        except Exception as e:
             pass
-        return self.get_main_image_url()
 
     def get_search_keywords(self):
         try:

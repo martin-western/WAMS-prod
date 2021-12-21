@@ -2646,20 +2646,23 @@ class PlaceOrderAPI(APIView):
                 p1.start()
                 website_group = order_obj.location_group.website_group.name
                 unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
+                customer_name = order_obj.owner.first_name
+                order_uuid = order_obj.uuid
+                link = order_obj.location_group.website_group.link
                 if website_group=="parajohn":
-                    message = 'Your order has been confirmed!'
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
-                    message = 'Your order has been confirmed!'
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="daycart":
-                    message = 'Your order has been confirmed!'
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="geepasuganda":
-                    message = 'Your order has been confirmed!'
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_geepas_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
@@ -3246,6 +3249,13 @@ class FetchOrderDetailsAPI(APIView):
             is_voucher_applied = voucher_obj is not None
 
             unit_order_objs = UnitOrder.objects.filter(order=order_obj)
+            try:
+                if order_obj.owner != DealsHubUser.objects.get(username = request.user.username):
+                    response["status"] = 403
+                    return Response(data=response)
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("FetchOrderDetailsAPI: %s at %s", e, str(exc_tb.tb_lineno))
 
             enable_order_edit = False
             if order_obj.payment_status=="cod": # and unit_order_objs.filter(current_status_admin="pending").exists():
@@ -5085,8 +5095,8 @@ class SendB2BOTPSMSLoginAPI(APIView):
                     prefix_code = sms_country_info["prefix_code"]
                     user = sms_country_info["user"]
                     pwd = sms_country_info["pwd"]
-
-                    message = "Login OTP is " + OTP
+                    link = website_group_obj.link
+                    message = "Dear Customer, "+ OTP +" is you’re "+ link +" Login OTP. OTP valid for 2 minutes. Do not share it with anyone."
                     contact_number = prefix_code+contact_number
 
                     url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
@@ -5175,8 +5185,8 @@ class SendB2BOTPSMSSignUpAPI(APIView):
                 prefix_code = sms_country_info["prefix_code"]
                 user = sms_country_info["user"]
                 pwd = sms_country_info["pwd"]
-
-                message = "Login OTP is " + OTP
+                link = website_group_obj.link
+                message = "Dear Customer, "+ OTP +" is you’re "+ link +" Login OTP. OTP valid for 2 minutes. Do not share it with anyone."
                 contact_number = prefix_code+contact_number
 
                 url = "http://www.smscountry.com/smscwebservice_bulk.aspx"
@@ -5375,8 +5385,9 @@ class SendOTPSMSLoginAPI(APIView):
                 dealshub_user_obj.set_password(OTP)
                 dealshub_user_obj.verification_code = OTP
                 dealshub_user_obj.save()
+            link = website_group_obj.link
 
-            message = "Login OTP is " + OTP
+            message = "Dear Customer, "+ OTP +" is you’re "+ link +" Login OTP. OTP valid for 2 minutes. Do not share it with anyone."
 
             # Trigger SMS
             try:
@@ -5649,8 +5660,8 @@ class ForgotLoginPinAPI(APIView):
 
             if contact_number in ["888888888", "940804016", "888888881"]:
                 pin = "1234"
-
-            message = "Your PIN has been reset. New PIN is " + pin
+            link = website_group_obj.link
+            message = "Dear Customer, "+pin+" is you’re "+ link +" Login PIN. Do not share it with anyone."
 
             dealshub_user_obj = DealsHubUser.objects.get(username=contact_number+"-"+website_group_name)
             dealshub_user_obj.set_password(pin)
@@ -5803,8 +5814,8 @@ class VerifyOTPSMSLoginAPI(APIView):
                     dealshub_user_obj.set_password(OTP)
                     dealshub_user_obj.verification_code = OTP
                     dealshub_user_obj.save()
-
-                    message = "New Login OTP is " + OTP
+                    link = website_group_obj.link
+                    message = "Welcome to "+ link +"! We are happy to serve you better. "+ OTP +" is your "+ link +" Login OTP. OTP valid for 2 minutes. Do not share it with anyone."
 
                     # Trigger SMS
                     try:
@@ -10032,20 +10043,24 @@ class PlaceOnlineOrderAPI(APIView):
                 p1.start()
                 website_group = order_obj.location_group.website_group.name
                 unit_order_obj = UnitOrder.objects.filter(order=order_obj)[0]
+                customer_name = order_obj.owner.first_name
+                link = order_obj.location_group.website_group.link
+                order_uuid = order_obj.uuid
+
                 if website_group=="parajohn":
-                    message = 'Your order has been confirmed!'
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_parajohn_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group in ["shopnesto", "shopnestokuwait", "shopnestobahrain"]:
-                    message = 'Your order has been confirmed!'
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_wigme_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="daycart":
-                    message = 'Your order has been confirmed!'
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_daycart_order_status_sms, args=(unit_order_obj,message,))
                     p2.start()
                 elif website_group=="geepasuganda":
-                    message = 'Your order has been confirmed!'
+                    message = "Dear "+customer_name +", Thank you for shopping with "+ link +". Your order "+ link + "/orders/" + order_uuid +" has been confirmed & will be shipped soon."
                     p2 = threading.Thread(target=send_geepas_order_status_sms , args=(unit_order_obj,message,))
                     p2.start()
             except Exception as e:
