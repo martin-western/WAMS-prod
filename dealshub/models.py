@@ -632,9 +632,7 @@ class DealsHubProduct(models.Model):
 
 
     def save(self, *args, **kwargs):
-        self.display_image_url = self.get_optimized_display_image_url()
-        super(DealsHubProduct, self).save(*args, **kwargs)
-        return
+        
         if self.uuid == None or self.uuid == "":
             self.uuid = str(uuid.uuid4())[:8]
 
