@@ -574,7 +574,7 @@ class DealsHubProduct(models.Model):
         #     return cached_url
         try:
             if MainImages.objects.filter(product=self.product).exists():
-                main_image_url = MainImages.objects.filter(product=self.product).first().image.mid_image.url
+                main_image_url = MainImages.objects.filter(product=self.product).first().main_images.first().image.mid_image.url
                 return main_image_url
         except:
             pass
