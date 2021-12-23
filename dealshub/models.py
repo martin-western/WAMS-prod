@@ -573,8 +573,14 @@ class DealsHubProduct(models.Model):
         # if cached_url!="has_expired":
         #     return cached_url
         try:
-            if MainImages.objects.filter(product=self.product).exists():
-                main_image_url = MainImages.objects.filter(product=self.product).first().main_images.first().image.mid_image.url
+            main_images_list = ImageBucket.objects.none()
+            main_images_objs = MainImages.objects.filter(product=self.product)
+            for main_images_obj in main_images_objs:
+                main_images_list |= main_images_obj.main_images.all()
+            main_images_list = main_images_list.distinct()
+            if main_images_list.exclude(image=None).exclude(image__mid_image=None).count()>0:
+                main_image_url = main_images_list.exclude(image=None).exclude(image__mid_image=None)[0].image.mid_image.url
+                #cache.set("main_url_"+str(self.uuid), main_image_url)
                 return main_image_url
         except:
             pass
