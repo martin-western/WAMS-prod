@@ -1236,12 +1236,12 @@ def notify_low_stock(dealshub_product_obj):
         with get_connection(
             host="smtp.gmail.com",
             port=587, 
-            username="nisarg@omnycomm.com", 
+            username=NISARG_EMAIL, 
             password=NISARG_EMAIL_PASSWORD,
             use_tls=True) as connection:
             email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
                                     body=body,
-                                    from_email='nisarg@omnycomm.com',
+                                    from_email=NISARG_EMAIL,
                                     to=["hari.pk@westernint.com","faris.p@westernint.com","wigme.dm@westernint.com"],
                                     connection=connection)
             email.send(fail_silently=True)
@@ -1264,12 +1264,12 @@ def notify_grn_error(order_obj):
             with get_connection(
                 host="smtp.gmail.com",
                 port=587, 
-                username="nisarg@omnycomm.com", 
+                username=NISARG_EMAIL, 
                 password=NISARG_EMAIL_PASSWORD,
                 use_tls=True) as connection:
                 email = EmailMessage(subject='GRN Error: '+order_obj.bundleid,
                                      body=body,
-                                     from_email='nisarg@omnycomm.com',
+                                     from_email=NISARG_EMAIL,
                                      to=email_list,
                                      connection=connection)
                 email.send(fail_silently=True)
@@ -1296,12 +1296,12 @@ def notify_new_products_email(filepath, location_group_obj):
             with get_connection(
                 host = "smtp.gmail.com",
                 port = 587,
-                username="nisarg@omnycomm.com",
+                username=NISARG_EMAIL,
                 password=NISARG_EMAIL_PASSWORD,
                 use_tls=True) as connection:
                 email = EmailMessage(subject=subject,
                                      body=body,
-                                     from_email="nisarg@omnycomm.com",
+                                     from_email=NISARG_EMAIL,
                                      to=email_list,
                                      connection=connection)
                 email.attach_file(filepath)

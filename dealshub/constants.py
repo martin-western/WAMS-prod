@@ -109,4 +109,5 @@ SENDEX_PHRASE_TO_STATUS = {
 
 #********************************************************************************************
 
+NISARG_EMAIL = "nisarg@omnycomm.com"
 NISARG_EMAIL_PASSWORD = "NISARG_EMAIL_PASSWORD"

@@ -30,12 +30,12 @@ def notify_user_for_report(oc_report_obj):
         with get_connection(
             host="smtp.gmail.com",
             port=587, 
-            username="nisarg@omnycomm.com", 
+            username=NISARG_EMAIL, 
             password=NISARG_EMAIL_PASSWORD,
             use_tls=True) as connection:
             email = EmailMessage(subject='Omnycomm Report Generated', 
                                  body=body,
-                                 from_email='nisarg@omnycomm.com',
+                                 from_email=NISARG_EMAIL,
                                  to=[oc_report_obj.created_by.email],
                                  connection=connection)
             email.attach_file(oc_report_obj.filename)
@@ -78,12 +78,12 @@ def email_daily_sales_report_to_user(oc_report_obj):
         with get_connection(
             host="smtp.gmail.com",
             port=587, 
-            username="nisarg@omnycomm.com", 
+            username=NISARG_EMAIL, 
             password=NISARG_EMAIL_PASSWORD,
             use_tls=True) as connection:
             email = EmailMessage(subject='Omnycomm Daily Sales Report Generated', 
                                  body=body,
-                                 from_email='nisarg@omnycomm.com',
+                                 from_email=NISARG_EMAIL,
                                  to=email_receiver,
                                  cc=["jay@omnycomm.com"],
                                  connection=connection)
