@@ -84,12 +84,12 @@ class UnPublishedWIGmeProductReportAPI(APIView):
                 with get_connection(
                     host="smtp.gmail.com",
                     port=587, 
-                    username=NISARG_EMAIL,
-                    password=NISARG_EMAIL_PASSWORD,
+                    username=EMAIL_USERNAME,
+                    password=EMAIL_PASSWORD,
                     use_tls=True) as connection:
                     email = EmailMessage(subject='UnPublished Products Report Generated', 
                                          body='This is to inform you that your requested report has been generated on Omnycomm',
-                                         from_email=NISARG_EMAIL,
+                                         from_email=EMAIL_USERNAME,
                                          to=["hari.pk@westernint.com","faris.p@westernint.com","wigme.dm@westernint.com","rashid.c@westernint.com","support@westernint.com","marheamwk@gmail.com"],
                                          connection=connection)
                     email.attach_file(filename)
