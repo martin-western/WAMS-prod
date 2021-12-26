@@ -1,5 +1,7 @@
 from WAMSApp.models import *
 from dealshub.models import *
+from dealshub.constants import *
+
 import xlsxwriter
 import json
 import logging
@@ -29,7 +31,7 @@ def notify_user_for_report(oc_report_obj):
             host="smtp.gmail.com",
             port=587, 
             username="nisarg@omnycomm.com", 
-            password="verjtzgeqareribg",
+            password=NISARG_EMAIL_PASSWORD,
             use_tls=True) as connection:
             email = EmailMessage(subject='Omnycomm Report Generated', 
                                  body=body,
@@ -77,7 +79,7 @@ def email_daily_sales_report_to_user(oc_report_obj):
             host="smtp.gmail.com",
             port=587, 
             username="nisarg@omnycomm.com", 
-            password="verjtzgeqareribg",
+            password=NISARG_EMAIL_PASSWORD,
             use_tls=True) as connection:
             email = EmailMessage(subject='Omnycomm Daily Sales Report Generated', 
                                  body=body,

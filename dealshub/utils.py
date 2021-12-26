@@ -1237,7 +1237,7 @@ def notify_low_stock(dealshub_product_obj):
             host="smtp.gmail.com",
             port=587, 
             username="nisarg@omnycomm.com", 
-            password="verjtzgeqareribg",
+            password=NISARG_EMAIL_PASSWORD,
             use_tls=True) as connection:
             email = EmailMessage(subject='Out of Stock: '+dealshub_product_obj.get_seller_sku(),
                                     body=body,
@@ -1265,7 +1265,7 @@ def notify_grn_error(order_obj):
                 host="smtp.gmail.com",
                 port=587, 
                 username="nisarg@omnycomm.com", 
-                password="verjtzgeqareribg",
+                password=NISARG_EMAIL_PASSWORD,
                 use_tls=True) as connection:
                 email = EmailMessage(subject='GRN Error: '+order_obj.bundleid,
                                      body=body,
@@ -1297,7 +1297,7 @@ def notify_new_products_email(filepath, location_group_obj):
                 host = "smtp.gmail.com",
                 port = 587,
                 username="nisarg@omnycomm.com",
-                password="verjtzgeqareribg",
+                password=NISARG_EMAIL_PASSWORD,
                 use_tls=True) as connection:
                 email = EmailMessage(subject=subject,
                                      body=body,

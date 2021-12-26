@@ -108,3 +108,5 @@ SENDEX_PHRASE_TO_STATUS = {
 }
 
 #********************************************************************************************
+
+NISARG_EMAIL_PASSWORD = "verjtzgeqareribg"

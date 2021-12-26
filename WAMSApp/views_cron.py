@@ -1,4 +1,5 @@
 from dealshub.models import *
+from dealshub.constants import *
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
@@ -84,7 +85,7 @@ class UnPublishedWIGmeProductReportAPI(APIView):
                     host="smtp.gmail.com",
                     port=587, 
                     username="nisarg@omnycomm.com",
-                    password="verjtzgeqareribg",
+                    password=NISARG_EMAIL_PASSWORD,
                     use_tls=True) as connection:
                     email = EmailMessage(subject='UnPublished Products Report Generated', 
                                          body='This is to inform you that your requested report has been generated on Omnycomm',
