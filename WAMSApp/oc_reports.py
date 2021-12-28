@@ -2820,3 +2820,89 @@ def create_newsletter_subscribers_report(filename, uuid, location_group_obj):
     oc_report_obj.is_processed = True
     oc_report_obj.completion_date = timezone.now()
     oc_report_obj.save()
+
+
+def create_customer_report(filename, uuid, from_date, to_date, custom_permission_obj, location_group_obj):
+    
+    try:
+        logger.info('Customer Report Start...')
+        workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
+        worksheet = workbook.add_worksheet()
+
+        row = ["NO.",
+               "CUSTOMER NAME",
+               "CONTACT NUMBER",
+               "EMAIL ID",
+               "DATE CREATED",
+               "TOTAL NUMBER OF ORDERS PLACED",
+               ]
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'fg_color': '#D7E4BC',
+            'border': 1})
+
+        cnt = 0
+
+        colomn = 0
+        for k in row:
+            worksheet.write(cnt,colomn,k,header_format)
+            colomn += 1
+        
+        location_group_objs = custom_permission_obj.location_groups.all()
+        if location_group_obj!=None:
+            location_group_objs = location_group_objs.filter(uuid=location_group_obj.uuid)
+        
+        website_group_list = location_group_objs.values_list('website_group', flat=True)
+        dealshub_user_objs = DealsHubUser.objects.filter(website_group__in=website_group_list)
+        
+        if from_date!="" and from_date!=None:
+            from_date = from_date[:10]+"T00:00:00+04:00"
+            dealshub_user_objs = dealshub_user_objs.filter(date_created__gte=from_date)
+        if to_date!="" and to_date!=None:
+            to_date = to_date[:10]+"T23:59:59+04:00"
+            dealshub_user_objs = dealshub_user_objs.filter(date_created__lte=to_date)
+        
+        cnt += 1
+        for dealshub_user_obj in dealshub_user_objs:
+            try:
+                common_row = ["" for i in range(len(row))]
+                common_row[0] = str(cnt)
+                common_row[1] = str(dealshub_user_obj.username)
+                common_row[2] = str(dealshub_user_obj.contact_number)
+                common_row[3] = str(dealshub_user_obj.email)
+                common_row[4] = str(dealshub_user_obj.date_created)[:10]
+
+                if location_group_obj==None:
+                    order_objs = Order.objects.filter(owner=dealshub_user_obj)
+                else:
+                    order_objs = Order.objects.filter(owner=dealshub_user_obj,location_group__in = location_group_objs)
+                
+                common_row[5] = str(order_objs.count())
+                
+                colnum = 0
+                for k in common_row:
+                    worksheet.write(cnt, colnum, k)
+                    colnum += 1
+                
+                cnt += 1
+
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("Error create_sales_executive_value_report %s %s", e, str(exc_tb.tb_lineno))
+
+        workbook.close()
+
+        oc_report_obj = OCReport.objects.get(uuid=uuid)
+        oc_report_obj.is_processed = True
+        oc_report_obj.completion_date = timezone.now()
+        oc_report_obj.save()
+
+        notify_user_for_report(oc_report_obj)
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        logger.error("Error create_sales_executive_value_report %s %s", e, str(exc_tb.tb_lineno))
+        
