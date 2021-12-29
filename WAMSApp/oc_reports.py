@@ -1381,7 +1381,7 @@ def create_wishlist_report(filename, uuid, brand_list, custom_permission_obj, lo
         logger.error("Error create_wishlist_report %s %s", e, str(exc_tb.tb_lineno))
 
 
-def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_obj, location_group_obj):
+def create_abandoned_cart_report(filename, uuid, from_date, to_date, brand_list, custom_permission_obj, location_group_obj):
 
     try:
         workbook = xlsxwriter.Workbook('./'+filename,{'strings_to_urls': False})
@@ -1414,12 +1414,30 @@ def create_abandoned_cart_report(filename, uuid, brand_list, custom_permission_o
                     customer_name = (dealshub_user_obj.first_name).strip()
                     contact_number = dealshub_user_obj.contact_number
                     product_list = []
-                    for unit_cart_obj in UnitCart.objects.filter(cart__owner=dealshub_user_obj, cart__location_group=location_group_obj):
-                        product_list.append(unit_cart_obj.product.get_seller_sku()+" - "+unit_cart_obj.product.get_product_id())
+
+                    cart_objs = Cart.objects.filter(owner=dealshub_user_obj, location_group=location_group_obj)
+                    if from_date!="" and from_date!=None:
+                        from_date = from_date[:10]+"T00:00:00+04:00"
+                        cart_objs = cart_objs.filter(modified_date__gte=from_date)
+                    if to_date!="" and to_date!=None:
+                        to_date = to_date[:10]+"T23:59:59+04:00"
+                        cart_objs = cart_objs.filter(modified_date__lte=to_date)
+                    if cart_objs.count():
+                        cart_obj=cart_objs.first()
+                        for unit_cart_obj in UnitCart.objects.filter(cart_obj):
+                            product_list.append(unit_cart_obj.product.get_seller_sku()+" - "+unit_cart_obj.product.get_product_id())
 
                     if FastCart.objects.filter(owner=dealshub_user_obj, location_group=location_group_obj).exclude(product=None).exists():
-                        fast_cart_obj = FastCart.objects.get(owner=dealshub_user_obj, location_group=location_group_obj)
-                        product_list.append(fast_cart_obj.product.get_seller_sku()+" - "+fast_cart_obj.product.get_product_id())
+                        fast_cart_objs = FastCart.objects.filter(owner=dealshub_user_obj, location_group=location_group_obj)
+                        if from_date!="" and from_date!=None:
+                            from_date = from_date[:10]+"T00:00:00+04:00"
+                            fast_cart_objs = fast_cart_objs.filter(modified_date__gte=from_date)
+                        if to_date!="" and to_date!=None:
+                            to_date = to_date[:10]+"T23:59:59+04:00"
+                            fast_cart_objs = fast_cart_objs.filter(modified_date__lte=to_date)
+                        if fast_cart_obj.count():
+                            fast_cart_obj=fast_cart_objs.first()
+                            product_list.append(fast_cart_obj.product.get_seller_sku()+" - "+fast_cart_obj.product.get_product_id())
 
                     common_row = ["" for i in range(5)]
                     common_row[0] = str(cnt)
