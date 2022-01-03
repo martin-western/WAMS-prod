@@ -2888,7 +2888,7 @@ def create_customer_report(filename, uuid, from_date, to_date, custom_permission
             try:
                 common_row = ["" for i in range(len(row))]
                 common_row[0] = str(cnt)
-                common_row[1] = str(dealshub_user_obj.username)
+                common_row[1] = str(dealshub_user_obj.first_name)
                 common_row[2] = str(dealshub_user_obj.contact_number)
                 common_row[3] = str(dealshub_user_obj.email)
                 common_row[4] = str(dealshub_user_obj.date_created)[:10]
