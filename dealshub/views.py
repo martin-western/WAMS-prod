@@ -2150,12 +2150,19 @@ class FetchWIGCategoriesAPI(APIView):
                 if super_category_name!="":
                     is_super_category_available = True
                     super_category_obj = SuperCategory.objects.get(Q(name=super_category_name) | Q(name_ar=super_category_name))
+                    temp_brand_list.extend(list(DealsHubProduct.objects.filter(is_published=True, category__super_category__name=super_category_name, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).values_list("product__base_product__brand__name", flat=True)))
+
                 elif category_name!="" and category_name.lower()!="all":
                     super_category_obj = Category.objects.filter(Q(name=category_name) | Q(name_ar=category_name))[0].super_category
+                    temp_brand_list.extend(list(DealsHubProduct.objects.filter(is_published=True, category__name=category_name, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).values_list("product__base_product__brand__name", flat=True)))
+
                 elif subcategory_name!="":
                     super_category_obj = SubCategory.objects.filter(Q(name=subcategory_name) | Q(name_ar=subcategory_name))[0].category.super_category
+                    temp_brand_list.extend(list(DealsHubProduct.objects.filter(is_published=True, sub_category__name=subcategory_name, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).values_list("product__base_product__brand__name", flat=True)))
+
                 else:
                     super_category_obj = website_group_obj.super_categories.all()[0]
+                    temp_brand_list.extend(list(DealsHubProduct.objects.filter(is_published=True, category__super_category=super_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).values_list("product__base_product__brand__name", flat=True)))
 
                 if category_name.lower()=="all":
                     available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(category=None).exclude(now_price=0).exclude(stock=0)
@@ -2228,7 +2235,7 @@ class FetchWIGCategoriesAPI(APIView):
                     for sub_category_obj in sub_category_objs:
                         if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists()==False:
                             continue
-                        temp_brand_list.extend(list(DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).values_list("product__base_product__brand__name", flat=True)))
+
                         temp_dict2 = {}
                         temp_dict2["name"] = sub_category_obj.get_name(language_code)
                         temp_dict2["uuid"] = sub_category_obj.uuid

@@ -1905,7 +1905,7 @@ class SaveProductAPI(APIView):
 
 
             product_name = convert_to_ascii(data["product_name"])
-            product_description = convert_to_ascii(data["product_description"])
+            product_description = str(convert_to_ascii(data["product_description"])).replace("&lt;","<").replace("&gt;",">")
             barcode_string = data["barcode_string"]
             color = convert_to_ascii(data["color"])
             color_map = convert_to_ascii(data["color_map"])
@@ -7755,8 +7755,8 @@ class SaveDealshubProductDetailsAPI(APIView):
 
             dealshub_product_obj.product_name = product_name
             dealshub_product_obj.product_name_ar = product_name_ar
-            dealshub_product_obj.product_description = product_description
-            dealshub_product_obj.product_description_ar = product_description_ar
+            dealshub_product_obj.product_description = str(product_description).replace("&lt;","<").replace("&gt;",">")
+            dealshub_product_obj.product_description_ar = str(product_description_ar).replace("&lt;","<").replace("&gt;",">")
             dealshub_product_obj.url = url
             dealshub_product_obj.moq = moq
 

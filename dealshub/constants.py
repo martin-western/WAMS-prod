@@ -108,3 +108,6 @@ SENDEX_PHRASE_TO_STATUS = {
 }
 
 #********************************************************************************************
+
+EMAIL_USERNAME = "nisarg@omnycomm.com"
+EMAIL_PASSWORD = "EMAIL_PASSWORD"
