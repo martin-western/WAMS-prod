@@ -7079,6 +7079,113 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
         
         return Response(data=response)
 
+class FetchCustomSalesExecutiveAnalysisAPI(APIView):
+
+    def post(self, request, *args, **kwargs):
+
+        response = {}
+        response['status'] = 500
+        try:
+            data = request.data
+            logger.info("FetchCustomSalesExecutiveAnalysisAPI: %s", str(data))
+
+            if not isinstance(data,dict):
+                data = json.loads(data)
+
+            if is_oc_user(request.user)==False:
+                response['status'] = 403
+                logger.warning("FetchCustomSalesExecutiveAnalysisAPI Restricted Access!")
+                return Response(data=response)
+            
+            custom_permission_obj = CustomPermission.objects.get(user__username=request.user.username)
+            misc = json.loads(custom_permission_obj.misc)
+            if "analytics" not in misc:
+                logger.warning("User does not have permission to view analytics!")
+                response["status"] = 403
+                return Response(data=response)
+
+            location_group_uuid = data["locationGroupUuid"]
+            location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
+            order_objs = Order.objects.filter(location_group=location_group_obj)
+            
+            from_date = data.get("fromDate", "")
+            to_date = data.get("toDate", "")
+           
+            if from_date!="":
+                from_date = from_date[:10]+"T00:00:00+04:00"
+                order_objs = order_objs.filter(order__order_placed_date__gte=from_date)
+
+            if to_date!="":
+                to_date = to_date[:10]+"T23:59:59+04:00"
+                order_objs = order_objs.filter(order__order_placed_date__lte=to_date)
+
+            sales_target_objs = SalesTarget.objects.filter(location_group=location_group_obj)
+
+            sales_custom_list = []
+            for sales_target_obj in sales_target_objs:
+                user_order_objs = Order.objects.none()
+                if sales_target_obj.user!=None:
+                    user_order_objs = order_objs.filter(is_order_offline=True, offline_sales_person=sales_target_obj.user)
+
+                
+                # all orders except fully cancelled
+                
+                status_list = ["delivered","pending","dispatched","returned","cancelled"]
+
+
+                user_total_sales = user_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+                user_total_sales = 0 if user_total_sales==None else round(user_total_sales,2)
+
+                user_order_list = list(user_order_objs)
+                user_total_orders = UnitOrder.objects.filter(order__in=user_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+
+                user_avg_order_value = 0 if user_total_orders==0 else round(float(user_total_sales/user_total_orders),2)
+                
+                total_user_orders_status_count_list = []
+                total_user_orders_status_amount_list = []
+                for status in status_list:
+                    user_status_objs = user_order_objs.filter(unitorder__current_status_admin = status).distinct()
+                    total_user_orders_status_count_list.append(user_status_objs.count())
+                    if user_status_objs.count() == 0:
+                        total_user_orders_status_amount_list.append(0)
+                        continue
+                    total_amount = 0.0
+                    for user_status_obj in user_status_objs:
+                        total_amount+=user_status_obj.get_total_amount()
+                    total_user_orders_status_amount_list.append(round(float(total_amount), 2))    
+                
+                temp_dict = {}
+                temp_dict["dateFilter"] = {
+                    "sales" : user_total_sales,
+                    "orders" : user_total_orders,
+                    "avg_value" : user_avg_order_value,
+                    "delivered": total_user_orders_status_count_list[0],
+                    "user_done_delivery_amount" : total_user_orders_status_amount_list[0],
+                    "pending" : total_user_orders_status_count_list[1],
+                    "user_pending_amount" : total_user_orders_status_amount_list[1],
+                    "dispatched": total_user_orders_status_count_list[2],
+                    "user_dispatched_amount" : total_user_orders_status_amount_list[2],
+                    "returned": total_user_orders_status_count_list[3],
+                    "user_returned_amount" : total_user_orders_status_amount_list[3],
+                    "cancelled": total_user_orders_status_count_list[4],
+                    "user_cancelled_amount" : total_user_orders_status_amount_list[4],
+                    "net_sales" : user_total_orders - total_user_orders_status_count_list[3],
+                    "net_sales_amount" : round(float(user_total_sales - total_user_orders_status_amount_list[3]),2)
+                }
+                temp_dict["currency"] = location_group_obj.location.currency
+                temp_dict["username"] = sales_target_obj.user.username
+                temp_dict["first_name"] = sales_target_obj.user.first_name
+                sales_custom_list.append(temp_dict)
+
+            sales_custom_list = sorted(sales_custom_list, key = lambda i: i["todays"]["sales"], reverse=True)
+            response["sales_custom_list"] = sales_custom_list
+            response['status'] = 200
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("FetchCustomSalesExecutiveAnalysisAPI: %s at %s", e, str(exc_tb.tb_lineno))
+        
+        return Response(data=response)
+
 
 class FetchOrderSalesAnalyticsAPI(APIView):
 
@@ -10896,6 +11003,8 @@ HideReviewAdmin = HideReviewAdminAPI.as_view()
 UpdateReviewPublishStatus = UpdateReviewPublishStatusAPI.as_view()
 
 FetchSalesExecutiveAnalysis = FetchSalesExecutiveAnalysisAPI.as_view()
+
+FetchCustomSalesExecutiveAnalysis = FetchCustomSalesExecutiveAnalysisAPI.as_view()
 
 FetchOrderSalesAnalytics = FetchOrderSalesAnalyticsAPI.as_view()
 
