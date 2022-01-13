@@ -9,6 +9,7 @@ boto3==1.14.7
 botocore==1.17.7
 CacheControl==0.12.6
 certifi==2019.11.28
+cffi==1.13.2
 chardet==3.0.4
 colorama==0.4.3
 contextlib2==0.6.0
@@ -16,7 +17,7 @@ distlib==0.3.0
 distro==1.4.0
 Django==1.11.26
 django-auditlog==0.4.7
-django-cors-headers
+django-cors-headers==3.4.0
 django-extensions==2.2.9
 django-jsonfield==1.4.0
 django-rest-framework==0.1.0
@@ -34,17 +35,20 @@ lockfile==0.12.2
 msgpack==0.6.2
 mysql-connector==2.2.9
 mysql-connector-python==8.0.20
-# mysqlclient==1.4.6
+mysqlclient==1.4.6
+numpy==1.18.5
 packaging==20.3
+pandas==1.0.5
 pdfkit==0.6.1
 pep517==0.8.2
-# Pillow==7.1.2
+Pillow==7.1.2
 progress==1.5
 protobuf==3.12.2
 pycparser==2.19
 PyJWT==1.7.1
 pyparsing==2.4.6
 python-barcode==0.11.0
+python-dateutil==2.8.1
 python-Levenshtein==0.12.0
 pytoml==0.1.21
 pytz==2020.1

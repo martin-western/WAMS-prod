@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('WAMSApp', '0064_locationgroup_is_voucher_allowed_on_cod'),
         ('auth', '0008_alter_user_username_max_length'),
     ]
 
@@ -25,6 +26,7 @@ class Migration(migrations.Migration):
                 ('fcm_id_list', models.TextField(default='{}')),
                 ('contact_number', models.CharField(blank=True, default='', max_length=200, null=True)),
                 ('country', models.CharField(blank=True, default='', max_length=200, null=True)),
+                ('favourite_products', models.ManyToManyField(blank=True, to='WAMSApp.Product')),
             ],
             options={
                 'verbose_name': 'SalesAppUser',
