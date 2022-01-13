@@ -1222,10 +1222,11 @@ class SearchAPI(APIView):
                 sub_category_objs = SubCategory.objects.filter(category=category_obj)
                 for sub_category_obj in sub_category_objs:
                     temp_dict2 = {}
-                    temp_dict2["name"] = sub_category_obj.get_name(language_code)
-                    temp_dict2["uuid"] = sub_category_obj.uuid
-                    temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
-                    sub_category_list2.append(temp_dict2)
+                    if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
+                        temp_dict2["name"] = sub_category_obj.get_name(language_code)
+                        temp_dict2["uuid"] = sub_category_obj.uuid
+                        temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
+                        sub_category_list2.append(temp_dict2)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))
