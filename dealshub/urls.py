@@ -171,7 +171,6 @@ urlpatterns = [
     url(r'^place-inquiry/$',views.PlaceInquiry),
     url(r'^payfort/payment-notification/$',views.PaymentNotification),
     url(r'^fetch-sales-executive-analysis/$', views.FetchSalesExecutiveAnalysis),
-    url(r'^fetch-custom-sales-executive-analysis/$', views.FetchCustomSalesExecutiveAnalysis),
     url(r'^fetch-order-sales-analytics/$', views.FetchOrderSalesAnalytics),
     url(r'^fetch-order-requests-for-warehouse-manager/$', views.FetchOrderRequestsForWarehouseManager),
     url(r'^fetch-orders-for-warehouse-manager/$', views.FetchOrdersForWarehouseManager),
