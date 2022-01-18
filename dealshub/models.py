@@ -902,6 +902,7 @@ class Address(models.Model):
     neighbourhood = models.CharField(max_length=100, default="", blank=True)
     city = models.CharField(max_length=100, default="", blank=True)
     region = models.CharField(max_length=100, default="", blank=True)
+    geo_coordinates = models.CharField(max_length=100, default="", blank=True)
 
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -937,10 +938,10 @@ class Address(models.Model):
         return str(self.location_group.location.country)
 
     def get_shipping_address(self):
-        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.neighbourhood+"\n"+self.emirates
+        return self.first_name + " " + self.last_name + "\n" + json.loads(self.address_lines)[0] + "\n"+json.loads(self.address_lines)[1] + "\n"+json.loads(self.address_lines)[2] + "\n"+json.loads(self.address_lines)[3] + "\n"+self.state+"\n"+self.neighbourhood+"\n"+self.emirates+"\n"+self.geo_coordinates
 
     def get_address(self):
-        return self.first_name + " " + self.last_name + ", " + json.loads(self.address_lines)[0] + ", "+json.loads(self.address_lines)[1] + ", "+json.loads(self.address_lines)[2] + ", "+json.loads(self.address_lines)[3] + ", "+self.state+", "+self.neighbourhood+", "+self.emirates+", Postcode "+self.postcode
+        return self.first_name + " " + self.last_name + ", " + json.loads(self.address_lines)[0] + ", "+json.loads(self.address_lines)[1] + ", "+json.loads(self.address_lines)[2] + ", "+json.loads(self.address_lines)[3] + ", "+self.state+", "+self.neighbourhood+", "+self.emirates+", Postcode "+self.postcode+", Map Coordinates: "+self.geo_coordinates
 
     class Meta:
         verbose_name = "Address"
