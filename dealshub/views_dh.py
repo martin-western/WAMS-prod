@@ -6969,11 +6969,11 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
 
                 if from_date!="":
                     from_date = from_date[:10]+"T00:00:00+04:00"
-                    order_objs = order_objs.filter(order__order_placed_date__gte=from_date)
+                    order_objs = order_objs.filter(order_placed_date__gte=from_date)
 
                 if to_date!="":
                     to_date = to_date[:10]+"T23:59:59+04:00"
-                    order_objs = order_objs.filter(order__order_placed_date__lte=to_date)
+                    order_objs = order_objs.filter(order_placed_date__lte=to_date)
 
                 sales_target_objs = SalesTarget.objects.filter(location_group=location_group_obj)
 
