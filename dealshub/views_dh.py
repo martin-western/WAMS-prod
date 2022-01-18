@@ -5081,7 +5081,7 @@ class SendB2BOTPSMSLoginAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["888888888","777777777","777777788","777777789","777777799", "940804016", "888888881", "702290032", "888888883", "888888884"]:
+            if contact_number in ["888888888","123456789","777777777","777777788","777777789","777777799", "940804016", "888888881", "702290032", "888888883", "888888884"]:
                 OTP = "777777"
 
             otp_sent = False
@@ -5156,7 +5156,7 @@ class SendB2BOTPSMSSignUpAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["888888888","777777777","777777788","777777789","777777799", "940804016", "888888881", "702290032", "888888883", "888888884"]:
+            if contact_number in ["888888888","123456789","777777777","777777788","777777789","777777799", "940804016", "888888881", "702290032", "888888883", "888888884"]:
                 OTP = "777777"
 
             is_new_user = False
@@ -5370,7 +5370,7 @@ class SendOTPSMSLoginAPI(APIView):
             for i in range(6):
                 OTP += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["88888888", "888888888","777777777","777777788","777777789","777777799", "940804016", "888888881", "702290032"]:
+            if contact_number in ["88888888", "888888888","123456789","777777777","777777788","777777789","777777799", "940804016", "888888881", "702290032"]:
                 OTP = "777777"
 
             is_new_user = False
@@ -5664,7 +5664,7 @@ class ForgotLoginPinAPI(APIView):
             for i in range(4):
                 pin += digits[int(math.floor(random.random()*10))]
 
-            if contact_number in ["888888888", "940804016", "888888881"]:
+            if contact_number in ["888888888","123456789", "940804016", "888888881"]:
                 pin = "1234"
             link = website_group_obj.link
             message = "Dear Customer, "+pin+" is you’re "+ link +" Login PIN. Do not share it with anyone."
@@ -5814,7 +5814,7 @@ class VerifyOTPSMSLoginAPI(APIView):
                     for i in range(6):
                         OTP += digits[int(math.floor(random.random()*10))]
 
-                    if contact_number in ["88888888", "888888888","777777777","777777788","777777789","777777799","888888884", "940804016", "888888881", "702290032"]:
+                    if contact_number in ["88888888", "888888888","123456789","777777777","777777788","777777789","777777799","888888884", "940804016", "888888881", "702290032"]:
                         OTP = "777777"
 
                     dealshub_user_obj.set_password(OTP)
