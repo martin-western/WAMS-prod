@@ -1082,7 +1082,7 @@ class SearchAPI(APIView):
             if product_name!="":
                 SearchKeyword.objects.create(word=product_name, location_group=location_group_obj)
 
-            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True).exclude(now_price=0).exclude(stock=0)
+            available_dealshub_products = DealsHubProduct.objects.filter(location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all(), is_published=True,product__no_of_images_for_filter__gte=1).exclude(now_price=0).exclude(stock=0)
 
             # Filters
             if sort_filter.get("price", "")=="high-to-low":
@@ -1203,7 +1203,7 @@ class SearchAPI(APIView):
 
             filters = []
             try:
-                if category_name!="ALL":
+                if category_name!="ALL" and category_name!="":
                     category_obj = Category.objects.get(Q(name=category_name) | Q(name_ar=category_name))
                     property_data = json.loads(category_obj.property_data)
                     for p_data in property_data:
@@ -1218,14 +1218,16 @@ class SearchAPI(APIView):
 
             sub_category_list2 = []
             try:
-                category_obj = website_group_obj.categories.get(Q(name=category_name) | Q(name_ar=category_name))
-                sub_category_objs = SubCategory.objects.filter(category=category_obj)
-                for sub_category_obj in sub_category_objs:
-                    temp_dict2 = {}
-                    temp_dict2["name"] = sub_category_obj.get_name(language_code)
-                    temp_dict2["uuid"] = sub_category_obj.uuid
-                    temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
-                    sub_category_list2.append(temp_dict2)
+                if category_name!="ALL" and category_name!="":
+                    category_obj = website_group_obj.categories.get(Q(name=category_name) | Q(name_ar=category_name))
+                    sub_category_objs = SubCategory.objects.filter(category=category_obj)
+                    for sub_category_obj in sub_category_objs:
+                        temp_dict2 = {}
+                        if DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).exists():
+                            temp_dict2["name"] = sub_category_obj.get_name(language_code)
+                            temp_dict2["uuid"] = sub_category_obj.uuid
+                            temp_dict2["productCount"] = DealsHubProduct.objects.filter(is_published=True, sub_category=sub_category_obj, location_group=location_group_obj, product__base_product__brand__in=website_group_obj.brands.all()).exclude(now_price=0).exclude(stock=0).count()
+                            sub_category_list2.append(temp_dict2)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 logger.warning("SearchAPI filter creation: %s at %s", e, str(exc_tb.tb_lineno))

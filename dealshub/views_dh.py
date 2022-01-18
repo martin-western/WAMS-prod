@@ -312,6 +312,7 @@ class EditShippingAddressAPI(APIView):
             
             city = data.get("city","")
             region = data.get("region","")
+            geo_coordinates = data.get("geoCoordinates","")
             state = data.get("state", "")
             neighbourhood = data.get("neighbourhood", "")
 
@@ -333,6 +334,7 @@ class EditShippingAddressAPI(APIView):
             address_obj.emirates = emirates
             address_obj.city = city
             address_obj.region = region
+            address_obj.geo_coordinates = geo_coordinates
             if address_obj.location_group.name == "Geepas-Uganda":
                 address_obj.region = emirates
                 address_obj.city = line4
@@ -389,6 +391,7 @@ class CreateShippingAddressAPI(APIView):
             emirates = data.get("emirates", "")
             city = data.get("city","")
             region = data.get("region","")
+            geo_coordinates = data.get("geoCoordinates","")
             if postcode==None:
                 postcode = ""
             contact_number = dealshub_user_obj.contact_number
@@ -413,6 +416,7 @@ class CreateShippingAddressAPI(APIView):
                                                 emirates=emirates,
                                                 city=city,
                                                 region=region,
+                                                geo_coordinates=geo_coordinates,
                                                 is_shipping=True)
             if address_obj.location_group.name == "Geepas-Uganda":
                 address_obj.region = emirates
@@ -462,6 +466,7 @@ class CreateBillingAddressAPI(APIView):
             postcode = ""
             neighbourhood = data.get("neighbourhood", "")
             emirates = data.get("emirates", "")
+            geo_coordinates = data.get("geoCoordinates", "")
             if postcode==None:
                 postcode = ""
             contact_number = dealshub_user_obj.contact_number
@@ -484,6 +489,7 @@ class CreateBillingAddressAPI(APIView):
                                                 location_group=location_group_obj, 
                                                 neighbourhood=neighbourhood, 
                                                 emirates=emirates,
+                                                geo_coordinates=geo_coordinates,
                                                 is_billing=True)
 
             response["uuid"] = address_obj.uuid
@@ -6981,8 +6987,6 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     # all orders except fully cancelled
                     
                     status_list = ["delivered","pending","dispatched","returned","cancelled"]
-
-
                     user_total_sales = user_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
                     user_total_sales = 0 if user_total_sales==None else round(user_total_sales,2)
 
@@ -7285,8 +7289,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "today_returned_amount" : total_orders_status_amount_list[3],
                 "cancelled": total_orders_status_count_list[4],
                 "today_cancelled_amount" : total_orders_status_amount_list[4],
-                "net_sales" : today_total_orders - total_orders_status_count_list[3],
-                "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[3]),2)
+                "net_sales" : today_total_orders - total_orders_status_count_list[3] - total_orders_status_count_list[4],
+                "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[3] - total_orders_status_amount_list[4]),2)
 
             }
             response["monthly"] = {
@@ -7303,8 +7307,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "monthly_returned_amount" : total_monthly_orders_status_amount_list[3],
                 "cancelled": total_monthly_orders_status_count_list[4],
                 "monthly_cancelled_amount" : total_monthly_orders_status_amount_list[4],
-                "net_sales" : month_total_orders - total_monthly_orders_status_count_list[3],
-                "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[3]),2)
+                "net_sales" : month_total_orders - total_monthly_orders_status_count_list[3] - total_monthly_orders_status_count_list[4],
+                "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[3] - total_monthly_orders_status_amount_list[4]),2)
  
             }
             response["currency"] = location_group_obj.location.currency
@@ -7450,8 +7454,8 @@ class FetchFilteredOrderAnalyticsAPI(APIView):
                 "filtered_returned_amount" : total_filtered_orders_status_amount_list[3],
                 "cancelled": total_filtered_orders_status_count_list[4],
                 "filtered_cancelled_amount" : total_filtered_orders_status_amount_list[4],
-                "net_sales" : real_total_orders - total_filtered_orders_status_count_list[3], 
-                "net_sales_amount" : round(float(total_sales - total_filtered_orders_status_amount_list[3]),2)
+                "net_sales" : real_total_orders - total_filtered_orders_status_count_list[3] - total_filtered_orders_status_count_list[4], 
+                "net_sales_amount" : round(float(total_sales - total_filtered_orders_status_amount_list[3] - total_filtered_orders_status_amount_list[4]),2)
             }
             response["status"] = 200
 
@@ -7871,7 +7875,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                         "line3": json.loads(address_obj.address_lines)[2],
                         "line4": json.loads(address_obj.address_lines)[3],
                         "state": address_obj.state,
-                        "emirates": address_obj.emirates
+                        "emirates": address_obj.emirates,
+                        "geoCoordinates": address_obj.geo_coordinates
                     }
 
                     customer_name = address_obj.first_name
