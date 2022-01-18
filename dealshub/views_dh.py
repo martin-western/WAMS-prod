@@ -6959,7 +6959,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
             
             from_date = data.get("fromDate", "")
             to_date = data.get("toDate", "")
-            if from_date!="" and to_date!="":
+            if from_date!="" or to_date!="":
 
                 if from_date!="":
                     from_date = from_date[:10]+"T00:00:00+04:00"
