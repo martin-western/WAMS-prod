@@ -6975,7 +6975,8 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     to_date = to_date[:10]+"T23:59:59+04:00"
                     order_objs = order_objs.filter(order_placed_date__lte=to_date)
 
-                sales_target_objs = SalesTarget.objects.filter(location_group=location_group_obj)
+                username = data.get("username")
+                sales_target_objs = SalesTarget.objects.filter(location_group=location_group_obj,user__username=username)
 
                 sales_target_list = []
                 for sales_target_obj in sales_target_objs:
