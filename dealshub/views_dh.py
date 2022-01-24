@@ -7033,6 +7033,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 
                 days_in_month = float(datetime.datetime.now().day)
 
+                custom_range_order_objs = user_order_objs
                 if from_date!="":
                     from_date = from_date[:10]+"T00:00:00+04:00"
                     custom_range_order_objs = user_order_objs.filter(date_created__gte = from_date)
