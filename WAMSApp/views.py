@@ -5753,7 +5753,8 @@ class FetchAdminActivityLogsAPI(APIView):
             if location_group_uuid!="":
                 location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             
-            activity_log_objs = ActivityLog.objects.filter(location_group=location_group_obj, is_nesto=False)
+            last_pk = ActivityLog.objects.last().pk
+            activity_log_objs = ActivityLog.objects.filter(location_group=location_group_obj, is_nesto=False,pk__gte=last_pk-10000)
 
             if from_date!="":
                 from_date = from_date[:10]+"T00:00:00+04:00"
@@ -5772,7 +5773,7 @@ class FetchAdminActivityLogsAPI(APIView):
             # filter by tag( search )
             
             activity_log_objs = activity_log_objs.order_by("-pk")
-            total_activities = 50
+            total_activities = activity_log_objs.count()
             activity_log_objs  = activity_log_objs[(page - 1) * 50 : page * 50]
             total_pages = int(math.ceil(total_activities / 50))
 

@@ -312,6 +312,7 @@ class EditShippingAddressAPI(APIView):
             
             city = data.get("city","")
             region = data.get("region","")
+            geo_coordinates = data.get("geoCoordinates","")
             state = data.get("state", "")
             neighbourhood = data.get("neighbourhood", "")
 
@@ -333,6 +334,7 @@ class EditShippingAddressAPI(APIView):
             address_obj.emirates = emirates
             address_obj.city = city
             address_obj.region = region
+            address_obj.geo_coordinates = geo_coordinates
             if address_obj.location_group.name == "Geepas-Uganda":
                 address_obj.region = emirates
                 address_obj.city = line4
@@ -389,6 +391,7 @@ class CreateShippingAddressAPI(APIView):
             emirates = data.get("emirates", "")
             city = data.get("city","")
             region = data.get("region","")
+            geo_coordinates = data.get("geoCoordinates","")
             if postcode==None:
                 postcode = ""
             contact_number = dealshub_user_obj.contact_number
@@ -413,6 +416,7 @@ class CreateShippingAddressAPI(APIView):
                                                 emirates=emirates,
                                                 city=city,
                                                 region=region,
+                                                geo_coordinates=geo_coordinates,
                                                 is_shipping=True)
             if address_obj.location_group.name == "Geepas-Uganda":
                 address_obj.region = emirates
@@ -462,6 +466,7 @@ class CreateBillingAddressAPI(APIView):
             postcode = ""
             neighbourhood = data.get("neighbourhood", "")
             emirates = data.get("emirates", "")
+            geo_coordinates = data.get("geoCoordinates", "")
             if postcode==None:
                 postcode = ""
             contact_number = dealshub_user_obj.contact_number
@@ -484,6 +489,7 @@ class CreateBillingAddressAPI(APIView):
                                                 location_group=location_group_obj, 
                                                 neighbourhood=neighbourhood, 
                                                 emirates=emirates,
+                                                geo_coordinates=geo_coordinates,
                                                 is_billing=True)
 
             response["uuid"] = address_obj.uuid
@@ -6957,6 +6963,9 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
             location_group_obj = LocationGroup.objects.get(uuid=location_group_uuid)
             order_objs = Order.objects.filter(location_group=location_group_obj)
             
+            from_date = data.get("fromDate", "")
+            to_date = data.get("toDate", "")
+
             today = str(datetime.date.today())[:10] + "T00:00:00+04:00"
             yesterday = str(datetime.date.today() - datetime.timedelta(days=1))[:10] + "T00:00:00+04:00"
             month = str(datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0))[:10] + "T00:00:00+04:00"
@@ -7023,7 +7032,56 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     total_monthly_orders_status_amount_list.append(round(float(total_amount), 2))    
                 
                 days_in_month = float(datetime.datetime.now().day)
+
+                custom_range_order_objs = user_order_objs
+                if from_date!="":
+                    from_date = from_date[:10]+"T00:00:00+04:00"
+                    custom_range_order_objs = user_order_objs.filter(date_created__gte = from_date)
+
+                if to_date!="":
+                    to_date = to_date[:10]+"T23:59:59+04:00"
+                    custom_range_order_objs = custom_range_order_objs.filter(date_created__lte = to_date)
+  
+                user_total_sales = custom_range_order_objs.aggregate(total_sales=Sum('real_to_pay'))["total_sales"]
+                user_total_sales = 0 if user_total_sales==None else round(user_total_sales,2)
+
+                user_order_list = list(custom_range_order_objs)
+                user_total_orders = UnitOrder.objects.filter(order__in=user_order_list).exclude(current_status_admin="cancelled").values_list('order__uuid').distinct().count()
+
+                user_avg_order_value = 0 if user_total_orders==0 else round(float(user_total_sales/user_total_orders),2)
+                
+                total_user_orders_status_count_list = []
+                total_user_orders_status_amount_list = []
+                for status in status_list:
+                    user_status_objs = custom_range_order_objs.filter(unitorder__current_status_admin = status).distinct()
+                    total_user_orders_status_count_list.append(user_status_objs.count())
+                    if user_status_objs.count() == 0:
+                        total_user_orders_status_amount_list.append(0)
+                        continue
+                    total_amount = 0.0
+                    for user_status_obj in user_status_objs:
+                        total_amount+=user_status_obj.get_total_amount()
+                    total_user_orders_status_amount_list.append(round(float(total_amount), 2))    
+                
                 temp_dict = {}
+                temp_dict["dateFilter"] = {
+                    "sales" : user_total_sales,
+                    "orders" : user_total_orders,
+                    "avg_value" : user_avg_order_value,
+                    "delivered": total_user_orders_status_count_list[0],
+                    "user_done_delivery_amount" : total_user_orders_status_amount_list[0],
+                    "pending" : total_user_orders_status_count_list[1],
+                    "user_pending_amount" : total_user_orders_status_amount_list[1],
+                    "dispatched": total_user_orders_status_count_list[2],
+                    "user_dispatched_amount" : total_user_orders_status_amount_list[2],
+                    "returned": total_user_orders_status_count_list[3],
+                    "user_returned_amount" : total_user_orders_status_amount_list[3],
+                    "cancelled": total_user_orders_status_count_list[4],
+                    "user_cancelled_amount" : total_user_orders_status_amount_list[4],
+                    "net_sales" : user_total_orders - total_user_orders_status_count_list[3],
+                    "net_sales_amount" : round(float(user_total_sales - total_user_orders_status_amount_list[3]),2)
+                }
+
                 temp_dict["targets"] = {
                     "today_sales" : sales_target_obj.today_sales_target,
                     "today_orders" : sales_target_obj.today_orders_target,
@@ -7048,6 +7106,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "net_sales" : today_total_orders - total_orders_status_count_list[3],
                     "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[3]),2)
                 }
+
                 temp_dict["monthly"] = {
                     "sales" : month_total_sales,
                     "orders" : month_total_orders,
@@ -7065,20 +7124,20 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                     "net_sales" : month_total_orders - total_monthly_orders_status_count_list[3],
                     "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[3]),2)
                 }
+
                 temp_dict["currency"] = location_group_obj.location.currency
                 temp_dict["username"] = sales_target_obj.user.username
                 temp_dict["first_name"] = sales_target_obj.user.first_name
                 sales_target_list.append(temp_dict)
 
-            sales_target_list = sorted(sales_target_list, key = lambda i: i["todays"]["sales"], reverse=True)
-            response["sales_target_list"] = sales_target_list
-            response['status'] = 200
+                sales_target_list = sorted(sales_target_list, key = lambda i: i["todays"]["sales"], reverse=True)
+                response["sales_target_list"] = sales_target_list
+                response['status'] = 200
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             logger.error("FetchSalesExecutiveAnalysisAPI: %s at %s", e, str(exc_tb.tb_lineno))
         
         return Response(data=response)
-
 
 class FetchOrderSalesAnalyticsAPI(APIView):
 
@@ -7212,8 +7271,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "today_returned_amount" : total_orders_status_amount_list[3],
                 "cancelled": total_orders_status_count_list[4],
                 "today_cancelled_amount" : total_orders_status_amount_list[4],
-                "net_sales" : today_total_orders - total_orders_status_count_list[3],
-                "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[3]),2)
+                "net_sales" : today_total_orders - total_orders_status_count_list[3] - total_orders_status_count_list[4],
+                "net_sales_amount" : round(float(today_total_sales - total_orders_status_amount_list[3] - total_orders_status_amount_list[4]),2)
 
             }
             response["monthly"] = {
@@ -7230,8 +7289,8 @@ class FetchOrderSalesAnalyticsAPI(APIView):
                 "monthly_returned_amount" : total_monthly_orders_status_amount_list[3],
                 "cancelled": total_monthly_orders_status_count_list[4],
                 "monthly_cancelled_amount" : total_monthly_orders_status_amount_list[4],
-                "net_sales" : month_total_orders - total_monthly_orders_status_count_list[3],
-                "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[3]),2)
+                "net_sales" : month_total_orders - total_monthly_orders_status_count_list[3] - total_monthly_orders_status_count_list[4],
+                "net_sales_amount" : round(float(month_total_sales - total_monthly_orders_status_amount_list[3] - total_monthly_orders_status_amount_list[4]),2)
  
             }
             response["currency"] = location_group_obj.location.currency
@@ -7377,8 +7436,8 @@ class FetchFilteredOrderAnalyticsAPI(APIView):
                 "filtered_returned_amount" : total_filtered_orders_status_amount_list[3],
                 "cancelled": total_filtered_orders_status_count_list[4],
                 "filtered_cancelled_amount" : total_filtered_orders_status_amount_list[4],
-                "net_sales" : real_total_orders - total_filtered_orders_status_count_list[3], 
-                "net_sales_amount" : round(float(total_sales - total_filtered_orders_status_amount_list[3]),2)
+                "net_sales" : real_total_orders - total_filtered_orders_status_count_list[3] - total_filtered_orders_status_count_list[4], 
+                "net_sales_amount" : round(float(total_sales - total_filtered_orders_status_amount_list[3] - total_filtered_orders_status_amount_list[4]),2)
             }
             response["status"] = 200
 
@@ -7798,7 +7857,8 @@ class FetchOrderRequestsForWarehouseManagerAPI(APIView):
                         "line3": json.loads(address_obj.address_lines)[2],
                         "line4": json.loads(address_obj.address_lines)[3],
                         "state": address_obj.state,
-                        "emirates": address_obj.emirates
+                        "emirates": address_obj.emirates,
+                        "geoCoordinates": address_obj.geo_coordinates
                     }
 
                     customer_name = address_obj.first_name
