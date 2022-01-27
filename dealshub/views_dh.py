@@ -7053,7 +7053,7 @@ class FetchSalesExecutiveAnalysisAPI(APIView):
                 total_user_orders_status_count_list = []
                 total_user_orders_status_amount_list = []
                 for status in status_list:
-                    user_status_objs = user_order_objs.filter(unitorder__current_status_admin = status).distinct()
+                    user_status_objs = custom_range_order_objs.filter(unitorder__current_status_admin = status).distinct()
                     total_user_orders_status_count_list.append(user_status_objs.count())
                     if user_status_objs.count() == 0:
                         total_user_orders_status_amount_list.append(0)
