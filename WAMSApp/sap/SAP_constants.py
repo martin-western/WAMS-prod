@@ -82,8 +82,8 @@ SAP_CERT_CODES = {
 # TRANSFER_HOLDING_URL = "http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_holding_so/300/zser_holding_so/zbin_holding_so"
 # ONLINE_ORDER_URL = "http://wig.westernint.com:8000/sap/bc/srt/rfc/sap/zser_online_order/300/zser_online_order/zbin_online_order"  
 
-# CUSTOMER_ID = "40000637"
-
+# CUSTOMER_ID = "40000861"
+# CUSTOMER_ID_B2B = "40000843"
 # CUSTOMER_ID_FINAL_BILLING_WIG_COD = "50000391"
 # CUSTOMER_ID_FINAL_BILLING_WIG_ONLINE = "50000392"
 # CUSTOMER_ID_FINAL_BILLING_POSTAPLUS_COD = "50000666"
