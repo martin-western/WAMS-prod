@@ -1987,6 +1987,8 @@ class CronjobForOcReport(models.Model):
     oc_report = models.ForeignKey(OCReport,blank=True,null=True,on_delete=models.CASCADE)
     oc_user = models.ForeignKey(OmnyCommUser, blank=True)
     created_date = models.DateTimeField(null=True, blank=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
     data = models.TextField(default=json.dumps(data))
     STAGES = (
         ("Pending", "Pending"),
