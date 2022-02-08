@@ -343,6 +343,15 @@ class EditShippingAddressAPI(APIView):
             address_obj.neighbourhood = neighbourhood
             address_obj.save()
 
+            is_default = data.get("isDefault", False)
+            if is_default:
+                address_user = address_obj.user
+                address_objs = Address.objects.filter(user=address_user)
+                for address_obj_item in address_objs:
+                    address_obj_item.is_default = False
+                address_obj.is_default=True
+                address_obj.save()
+
             render_value = "Address updated offline for " + address_obj.user.username
             activitylog(request.user, Address, "updated", address_obj.uuid, prev_address_obj, address_obj, address_obj.location_group, render_value)
             response['status'] = 200

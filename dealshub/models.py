@@ -908,7 +908,7 @@ class Address(models.Model):
 
     is_shipping = models.BooleanField(default=True)
     is_billing = models.BooleanField(default=False)
-
+    is_default = models.BooleanField(default=False)
     objects = AddressManager()
     recovery = AddressRecoveryManager()
 

@@ -2774,7 +2774,8 @@ def get_address_dict(address_obj):
             "contactNumber": str(address_obj.contact_number),
             "tag": str(address_obj.tag),
             "uuid": str(address_obj.uuid),
-            "neighbourhood": str(address_obj.neighbourhood)
+            "neighbourhood": str(address_obj.neighbourhood),
+            "isDefault": address_obj.is_default
             }
 
         return {
@@ -2794,5 +2795,6 @@ def get_address_dict(address_obj):
             "contactNumber": str(address_obj.contact_number),
             "tag": str(address_obj.tag),
             "uuid": str(address_obj.uuid),
-            "neighbourhood": str(address_obj.neighbourhood)
+            "neighbourhood": str(address_obj.neighbourhood),
+            "isDefault": address_obj.is_default
         }
