@@ -349,6 +349,7 @@ class EditShippingAddressAPI(APIView):
                 address_objs = Address.objects.filter(user=address_user)
                 for address_obj_item in address_objs:
                     address_obj_item.is_default = False
+                    address_obj_item.save()
                 address_obj.is_default=True
                 address_obj.save()
 
