@@ -23,10 +23,15 @@ def fetch_prices_and_stock(seller_sku,company_code):
 
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = (SAP_USERNAME, SAP_PASSWORD)
-        customer_id = CUSTOMER_ID
-        company_code_obj = CompanyCodeSAP.objects.filter(code=company_code).first()
-        if company_code_obj.location_group == LocationGroup.objects.get(name="WIGME-B2B"):
-            customer_id = CUSTOMER_ID_B2B
+        try:
+            customer_id = CUSTOMER_ID
+            company_code_obj = CompanyCodeSAP.objects.filter(code=company_code).first()
+            if company_code_obj.location_group == LocationGroup.objects.get(name="WIGME-B2B"):
+                customer_id = CUSTOMER_ID_B2B
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("fetch_prices_and_stock: %s at %s", str(e), str(exc_tb.tb_lineno))
+
         body = xml_generator_for_price_and_stock_SAP(seller_sku,company_code,customer_id)
         # api_record_sap_obj = APIRecordSAP.objects.create(url=PRICE_STOCK_URL,
         #                                                 caller="fetch_prices_and_stock",
@@ -188,7 +193,6 @@ def fetch_prices_and_stock(seller_sku,company_code):
         return result
 
     except Exception as e:
-        
         exc_type, exc_obj, exc_tb = sys.exc_info()
         logger.error("fetch_prices_and_stock: %s at %s", str(e), str(exc_tb.tb_lineno))
         return []
@@ -276,10 +280,15 @@ def transfer_from_atp_to_holding(seller_sku,company_code, organization_obj):
 
         if len(transfer_information) > 0:
             logger.info("tansfer info : %s", str(json.dumps(transfer_information)))
-            customer_id = CUSTOMER_ID
-            company_code_obj = CompanyCodeSAP.objects.filter(code=company_code).first()
-            if company_code_obj.location_group == LocationGroup.objects.get(name="WIGME-B2B"):
-                customer_id = CUSTOMER_ID_B2B
+            try:
+                customer_id = CUSTOMER_ID
+                company_code_obj = CompanyCodeSAP.objects.filter(code=company_code).first()
+                if company_code_obj.location_group == LocationGroup.objects.get(name="WIGME-B2B"):
+                    customer_id = CUSTOMER_ID_B2B
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("transfer_from_atp_to_holding: %s at %s", str(e), str(exc_tb.tb_lineno))
+            
             body = xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information)
             # api_record_sap_obj = APIRecordSAP.objects.create(url=TRANSFER_HOLDING_URL,
             #                                                 caller="transfer_from_atp_to_holding",
@@ -438,10 +447,15 @@ def holding_atp_transfer(seller_sku,company_code,final_holding):
                     logger.info("asking for more than available ATP to transfer to holding")
 
         if len(transfer_information) > 0:
-            customer_id = CUSTOMER_ID
-            company_code_obj = CompanyCodeSAP.objects.filter(code=company_code).first()
-            if company_code_obj.location_group == LocationGroup.objects.get(name="WIGME-B2B"):
-                customer_id = CUSTOMER_ID_B2B
+            try:
+                customer_id = CUSTOMER_ID
+                company_code_obj = CompanyCodeSAP.objects.filter(code=company_code).first()
+                if company_code_obj.location_group == LocationGroup.objects.get(name="WIGME-B2B"):
+                    customer_id = CUSTOMER_ID_B2B
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                logger.error("holding_atp_transfer: %s at %s", str(e), str(exc_tb.tb_lineno))
+
             body = xml_generator_for_holding_tansfer(company_code,customer_id,transfer_information)
             # api_record_sap_obj = APIRecordSAP.objects.create(url=TRANSFER_HOLDING_URL,
             #                                             caller="holding_atp_transfer",
@@ -515,10 +529,15 @@ def create_intercompany_sales_order(company_code, order_information, seller_sku_
         headers = {'content-type':'text/xml','accept':'application/json','cache-control':'no-cache'}
         credentials = (SAP_USERNAME, SAP_PASSWORD)
         logger.info(order_information)
-        customer_id = CUSTOMER_ID
-        company_code_obj = CompanyCodeSAP.objects.filter(code=company_code).first()
-        if company_code_obj.location_group == LocationGroup.objects.get(name="WIGME-B2B"):
-            customer_id = CUSTOMER_ID_B2B
+        try:
+            customer_id = CUSTOMER_ID
+            company_code_obj = CompanyCodeSAP.objects.filter(code=company_code).first()
+            if company_code_obj.location_group == LocationGroup.objects.get(name="WIGME-B2B"):
+                customer_id = CUSTOMER_ID_B2B
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            logger.error("create_intercompany_sales_order: %s at %s", str(e), str(exc_tb.tb_lineno))
+
         body = xml_generator_for_intercompany_tansfer(company_code,customer_id,order_information)
 
         api_record_sap_obj = APIRecordSAP.objects.create(url=ONLINE_ORDER_URL,
